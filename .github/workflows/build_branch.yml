@@ -24,9 +24,12 @@ jobs:
     strategy:
       matrix:
         include:
-          - { os: ubuntu-latest, shell: bash }
-          - { os: windows-latest, shell: msys2 { 0 } }
-          - { os: macos-latest, shell: bash }
+          - os: ubuntu-latest
+            shell: bash
+          - os: windows-latest
+            shell: msys2 { 0 }
+          - os: macos-latest
+            shell: bash
     steps:
       - uses: msys2/setup-msys2@v2
         if: ${{ runner.os == 'Windows' }}
