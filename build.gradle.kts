@@ -12,9 +12,9 @@ repositories {
 }
 
 detekt {
-    val envIgnoreFailures = System.getenv("DETEKT_IGNORE_FAILURES")?.toBooleanStrictOrNull() ?: false
-    ignoreFailures = envIgnoreFailures
+    ignoreFailures = System.getenv("DETEKT_IGNORE_FAILURES")?.toBooleanStrictOrNull() ?: false
     config.from(file("config/detekt/detekt.yml"))
+    reportsDir = file("reports/detekt")
 }
 
 
