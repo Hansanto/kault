@@ -27,7 +27,7 @@ jobs:
           - os: ubuntu-latest
             shell: bash
           - os: windows-latest
-            shell: msys2 { 0 }
+            shell: msys2 {0}
           - os: macos-latest
             shell: bash
     steps:
