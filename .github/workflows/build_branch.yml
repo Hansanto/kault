@@ -29,12 +29,13 @@ jobs:
           distribution: adopt
 
       - name: Cache gradle
-        if: ${{ inputs.jdk != '' }}
         uses: actions/cache@v3
         with:
           path: |
             ~/.gradle/caches
             ~/.gradle/wrapper
+            ~/.gradle/yarn
+            ~/.gradle/nodejs
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
           restore-keys: |
             ${{ runner.os }}-gradle-
