@@ -5,6 +5,7 @@ plugins {
     embeddedKotlin("multiplatform")
     id("org.jetbrains.dokka") version "1.9.10"
     id("io.gitlab.arturbosch.detekt") version "1.23.1"
+    `maven-publish`
 }
 
 repositories {
