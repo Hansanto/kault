@@ -1,0 +1,9 @@
+.gradle
+build
+reports
+dokka
+
+.idea
+*.iml
+
+kotlin-js-store

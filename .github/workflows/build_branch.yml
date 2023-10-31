@@ -1,0 +1,60 @@
+name: Build
+
+on:
+  push:
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validation:
+    name: Validate Gradle Wrapper
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: gradle/wrapper-validation-action@v1
+
+  format:
+    needs: [validation]
+    name: Verify Code Format
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Initialization
+        uses: ./.github/actions/init
+
+      - name: Check format
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: ktlintCheck
+
+  build:
+    needs: [validation, format]
+    name: Build on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+          - os: windows-latest
+          - os: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Initialization
+        uses: ./.github/actions/init
+        with:
+          jdk: 8
+
+      - name: Build
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: build -x test
+
+      - name: Test
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: test
