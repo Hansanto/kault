@@ -13,7 +13,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - uses: gradle/wrapper-validation-action@v1
+
+  format:
+    name: Verify Code Format
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check format
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: ktlintCheck
 
   build:
     name: Build on ${{ matrix.os }}
@@ -43,9 +55,6 @@ jobs:
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
           restore-keys: |
             ${{ runner.os }}-gradle-
-
-      - name: Set permission to execute gradle
-        run: chmod +x gradlew
 
       - name: Build
         uses: gradle/gradle-build-action@v2

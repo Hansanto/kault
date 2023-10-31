@@ -1,10 +1,12 @@
 import io.gitlab.arturbosch.detekt.Detekt
 import io.gitlab.arturbosch.detekt.DetektCreateBaselineTask
+import org.jlleitschuh.gradle.ktlint.reporter.ReporterType
 
 plugins {
     embeddedKotlin("multiplatform")
     id("org.jetbrains.dokka") version "1.9.10"
     id("io.gitlab.arturbosch.detekt") version "1.23.1"
+    id("org.jlleitschuh.gradle.ktlint") version "11.6.1"
     `maven-publish`
 }
 
@@ -17,7 +19,6 @@ detekt {
     config.from(file("config/detekt/detekt.yml"))
     reportsDir = file("reports/detekt")
 }
-
 
 kotlin {
     explicitApi = org.jetbrains.kotlin.gradle.dsl.ExplicitApiMode.Strict
@@ -82,6 +83,17 @@ kotlin {
 val dokkaOutputDir = "${rootProject.projectDir}/dokka"
 
 tasks {
+    configure<org.jlleitschuh.gradle.ktlint.KtlintExtension> {
+        reporters {
+            reporter(ReporterType.HTML)
+            reporter(ReporterType.CHECKSTYLE)
+        }
+    }
+
+    withType<org.jlleitschuh.gradle.ktlint.tasks.GenerateReportsTask> {
+        reportsOutputDirectory.set(file("reports/klint/$name"))
+    }
+
     withType<Detekt>().configureEach {
         jvmTarget = "1.8"
 
