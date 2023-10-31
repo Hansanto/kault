@@ -1,0 +1,30 @@
+name: Initialization
+description: Common actions to initialize a Job
+
+inputs:
+  jdk:
+    description: Version of JDK that must be loaded.
+    required: false
+
+runs:
+  using: composite
+  steps:
+    - name: Set up JDK
+      if: ${{ inputs.jdk != '' }}
+      uses: actions/setup-java@v3
+      with:
+        java-version: ${{ inputs.jdk }}
+        distribution: adopt
+
+    - name: Cache gradle
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.gradle/caches
+          ~/.gradle/wrapper
+          ~/.gradle/yarn
+          ~/.gradle/nodejs
+          ~/.konan
+        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+        restore-keys: |
+          ${{ runner.os }}-gradle-
