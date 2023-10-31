@@ -17,6 +17,7 @@ jobs:
       - uses: gradle/wrapper-validation-action@v1
 
   format:
+    needs: [validation]
     name: Verify Code Format
     runs-on: ubuntu-latest
     steps:
@@ -28,6 +29,7 @@ jobs:
           arguments: ktlintCheck
 
   build:
+    needs: [validation, format]
     name: Build on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
