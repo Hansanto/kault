@@ -8,5 +8,4 @@ public class VaultClient {
     public fun doSomething(): String {
         return "VaultClient"
     }
-
 }
