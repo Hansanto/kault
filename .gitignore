@@ -1,6 +1,7 @@
 .gradle
 build
 reports
+dokka
 
 .idea
 *.iml
