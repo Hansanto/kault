@@ -1,8 +1,8 @@
 package com.github.hansanto.kault.auth.approle.payload
 
-import kotlin.jvm.JvmInline
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlin.jvm.JvmInline
 
 @JvmInline
 @Serializable

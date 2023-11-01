@@ -27,10 +27,12 @@ public class VaultClient(
         expectSuccess = true
 
         install(ContentNegotiation) {
-            json(Json {
-                explicitNulls = false
-                ignoreUnknownKeys = true
-            })
+            json(
+                Json {
+                    explicitNulls = false
+                    ignoreUnknownKeys = true
+                }
+            )
         }
 
         defaultRequest {

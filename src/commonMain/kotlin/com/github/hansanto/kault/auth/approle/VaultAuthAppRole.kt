@@ -15,11 +15,11 @@ import io.ktor.client.request.setBody
 import io.ktor.http.HttpMethod
 import io.ktor.http.appendPathSegments
 import io.ktor.http.isSuccess
-import kotlin.contracts.InvocationKind
-import kotlin.contracts.contract
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
+import kotlin.contracts.InvocationKind
+import kotlin.contracts.contract
 
 /**
  * @see VaultAuthAppRole.createOrUpdate(roleName, payload)
