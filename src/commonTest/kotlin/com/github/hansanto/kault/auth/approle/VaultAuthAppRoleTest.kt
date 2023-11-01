@@ -11,7 +11,10 @@ class VaultAuthAppRoleTest {
 
     @Test
     fun create() = runTest {
-        val client = VaultClient("http://localhost:8200")
+        val client = VaultClient {
+            url = "http://localhost:8200"
+        }
+
         client.auth.token = "root"
         val appRole = client.auth.appRole
 

@@ -20,12 +20,86 @@ import kotlinx.serialization.json.Json
  */
 public class VaultClient(
     url: String,
-    namespace: String? = null
+    namespace: String? = null,
+    apiPath: String = Default.apiPath,
+    headers: Headers = Headers()
 ) {
 
     public companion object {
-        public const val PREFIX_PATH: String = "/v1/"
-        public const val TOKEN_HEADER: String = "X-Vault-Token"
+
+        /**
+         * Create a new instance of [VaultClient] using the builder pattern.
+         * ```kotlin
+         * val client = VaultClient {
+         *   url = "http://localhost:8200"
+         *   // ...
+         * }
+         * ```
+         * @param builder Builder to create the instance.
+         * @return Instance of [VaultClient].
+         */
+        public inline operator fun invoke(builder: Builder.() -> Unit): VaultClient =
+            Builder().apply(builder).build()
+    }
+
+    /**
+     * Companion object to store default values.
+     */
+    public object Default {
+
+        public val headers: Headers = Headers()
+
+        public val apiPath: String = "/v1/"
+
+    }
+
+    /**
+     * Builder class to simplify the creation of [VaultClient].
+     */
+    @Suppress("MemberVisibilityCanBePrivate")
+    public class Builder {
+
+        public lateinit var url: String
+
+        public var namespace: String? = null
+
+        public var apiPath: String = Default.apiPath
+
+        public var headers: Headers.Builder.() -> Unit = {}
+
+        /**
+         * Build the instance of [VaultClient] with the values defined in builder.
+         * @return A new instance.
+         */
+        public fun build(): VaultClient = VaultClient(
+            url = url,
+            namespace = namespace,
+            apiPath = apiPath,
+            headers = Headers(headers)
+        )
+    }
+
+    public data class Headers(
+        public val token: String = "X-Vault-Token",
+        public val namespace: String = "X-Vault-Namespace"
+    ) {
+        public companion object {
+            public inline operator fun invoke(builder: Builder.() -> Unit): Headers =
+                Builder().apply(builder).build()
+        }
+
+        @Suppress("MemberVisibilityCanBePrivate")
+        public class Builder {
+
+            public var token: String = Default.headers.token
+
+            public var namespace: String = Default.headers.namespace
+
+            public fun build(): Headers = Headers(
+                token = token,
+                namespace = namespace
+            )
+        }
     }
 
     private val client: HttpClient = HttpClient {
@@ -50,13 +124,11 @@ public class VaultClient(
         defaultRequest {
             url {
                 takeFrom(url)
-                appendPathSegments(PREFIX_PATH)
-                namespace?.let {
-                    appendPathSegments("/$it/")
-                }
+                appendPathSegments(apiPath)
             }
 
-            header(TOKEN_HEADER, auth.token)
+            header(headers.token, auth.token)
+            header(headers.namespace, namespace)
         }
     }
 
