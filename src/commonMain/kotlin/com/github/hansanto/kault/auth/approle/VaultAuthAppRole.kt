@@ -12,8 +12,10 @@ import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.request
 import io.ktor.client.request.setBody
+import io.ktor.http.ContentType
 import io.ktor.http.HttpMethod
 import io.ktor.http.appendPathSegments
+import io.ktor.http.contentType
 import io.ktor.http.isSuccess
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.jsonObject
@@ -54,7 +56,7 @@ public interface VaultAuthAppRole {
      * @param payload Optional parameters for creating or updating an AppRole.
      * @return Returns true if the AppRole was created or updated successfully.
      */
-    public suspend fun createOrUpdate(roleName: String, payload: CreateOrUpdatePayload): Boolean
+    public suspend fun createOrUpdate(roleName: String, payload: CreateOrUpdatePayload = CreateOrUpdatePayload()): Boolean
 
     public suspend fun read(roleName: String): Any
 
@@ -64,7 +66,7 @@ public interface VaultAuthAppRole {
 
     public suspend fun updateRoleID(roleName: String, roleId: String): Boolean
 
-    public suspend fun generateSecretID(roleName: String, payload: GenerateSecretIDPayload): Any
+    public suspend fun generateSecretID(roleName: String, payload: GenerateSecretIDPayload = GenerateSecretIDPayload()): Any
 
     public suspend fun secretIdAccessors(roleName: String): List<String>
 
@@ -76,18 +78,16 @@ public interface VaultAuthAppRole {
 }
 
 public class VaultAuthAppRoleImpl(
-    private val client: HttpClient
+    private val client: HttpClient,
+    public val path: String = "auth/approle"
 ) : VaultAuthAppRole {
-
-    public companion object {
-        private const val PATH: String = "auth/approle"
-    }
 
     override suspend fun createOrUpdate(roleName: String, payload: CreateOrUpdatePayload): Boolean {
         val response = client.post {
             url {
-                appendPathSegments(PATH, "role", roleName)
+                appendPathSegments(path, "role", roleName)
             }
+            contentType(ContentType.Application.Json)
             setBody(payload)
         }
         return response.status.isSuccess()
@@ -96,7 +96,7 @@ public class VaultAuthAppRoleImpl(
     override suspend fun read(roleName: String): Any {
         val response = client.get {
             url {
-                appendPathSegments(PATH, "role", roleName)
+                appendPathSegments(path, "role", roleName)
             }
         }
         return response.body()
@@ -105,7 +105,7 @@ public class VaultAuthAppRoleImpl(
     override suspend fun delete(roleName: String): Boolean {
         val response = client.delete {
             url {
-                appendPathSegments(PATH, "role", roleName)
+                appendPathSegments(path, "role", roleName)
             }
         }
         return response.status.isSuccess()
@@ -114,7 +114,7 @@ public class VaultAuthAppRoleImpl(
     override suspend fun readRoleID(roleName: String): String {
         val response = client.get {
             url {
-                appendPathSegments(PATH, "role", roleName, "role-id")
+                appendPathSegments(path, "role", roleName, "role-id")
             }
         }
         return response.body<JsonElement>().jsonObject["data"]!!.jsonObject["role_id"]!!.jsonPrimitive.content
@@ -123,8 +123,9 @@ public class VaultAuthAppRoleImpl(
     override suspend fun updateRoleID(roleName: String, roleId: String): Boolean {
         val response = client.post {
             url {
-                appendPathSegments(PATH, "role", roleName, "role-id")
+                appendPathSegments(path, "role", roleName, "role-id")
             }
+            contentType(ContentType.Application.Json)
             setBody(RoleIdPayload(roleId))
         }
         return response.status.isSuccess()
@@ -133,8 +134,9 @@ public class VaultAuthAppRoleImpl(
     override suspend fun generateSecretID(roleName: String, payload: GenerateSecretIDPayload): Any {
         val response = client.post {
             url {
-                appendPathSegments(PATH, "role", roleName, "secret-id")
+                appendPathSegments(path, "role", roleName, "secret-id")
             }
+            contentType(ContentType.Application.Json)
             setBody(payload)
         }
         return response.body()
@@ -144,7 +146,7 @@ public class VaultAuthAppRoleImpl(
         val response = client.request {
             method = HttpMethod("LIST")
             url {
-                appendPathSegments(PATH, "role", roleName, "secret-id")
+                appendPathSegments(path, "role", roleName, "secret-id")
             }
         }
         return emptyList()
@@ -153,8 +155,9 @@ public class VaultAuthAppRoleImpl(
     override suspend fun readSecretID(roleName: String, secretId: String): Any {
         val response = client.post {
             url {
-                appendPathSegments(PATH, "role", roleName, "secret-id", "lookup")
+                appendPathSegments(path, "role", roleName, "secret-id", "lookup")
             }
+            contentType(ContentType.Application.Json)
             setBody(SecretIdPayload(secretId))
         }
         return response.body()
@@ -163,8 +166,9 @@ public class VaultAuthAppRoleImpl(
     override suspend fun destroySecretID(roleName: String, secretId: String): Boolean {
         val response = client.post {
             url {
-                appendPathSegments(PATH, "role", roleName, "secret-id", "destroy")
+                appendPathSegments(path, "role", roleName, "secret-id", "destroy")
             }
+            contentType(ContentType.Application.Json)
             setBody(SecretIdPayload(secretId))
         }
         return response.status.isSuccess()
@@ -174,8 +178,9 @@ public class VaultAuthAppRoleImpl(
         val payload = LoginPayload(roleId, secretId)
         client.post {
             url {
-                appendPathSegments(PATH, "login")
+                appendPathSegments(path, "login")
             }
+            contentType(ContentType.Application.Json)
             setBody(payload)
         }
         return Unit

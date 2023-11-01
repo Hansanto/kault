@@ -1,11 +1,16 @@
 package com.github.hansanto.kault
 
 import com.github.hansanto.kault.auth.VaultAuth
+import com.github.hansanto.kault.exception.VaultErrorResponse
+import com.github.hansanto.kault.exception.VaultException
 import io.ktor.client.HttpClient
+import io.ktor.client.call.body
+import io.ktor.client.plugins.HttpResponseValidator
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.request.header
 import io.ktor.http.appendPathSegments
+import io.ktor.http.isSuccess
 import io.ktor.http.takeFrom
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
@@ -24,8 +29,6 @@ public class VaultClient(
     }
 
     private val client: HttpClient = HttpClient {
-        expectSuccess = true
-
         install(ContentNegotiation) {
             json(
                 Json {
@@ -33,6 +36,15 @@ public class VaultClient(
                     ignoreUnknownKeys = true
                 }
             )
+        }
+
+        HttpResponseValidator {
+            validateResponse { response ->
+                if(!response.status.isSuccess()) {
+                    val error = response.body<VaultErrorResponse>()
+                    throw VaultException(error.errors)
+                }
+            }
         }
 
         defaultRequest {
