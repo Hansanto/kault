@@ -4,6 +4,7 @@ import org.jlleitschuh.gradle.ktlint.reporter.ReporterType
 
 plugins {
     embeddedKotlin("multiplatform")
+    embeddedKotlin("plugin.serialization")
     id("org.jetbrains.dokka") version "1.9.10"
     id("io.gitlab.arturbosch.detekt") version "1.23.1"
     id("org.jlleitschuh.gradle.ktlint") version "11.6.1"
@@ -51,7 +52,25 @@ kotlin {
 
     sourceSets {
 
+        all {
+            languageSettings {
+                optIn("kotlin.contracts.ExperimentalContracts")
+            }
+        }
+
+        val ktSerializationVersion = "1.6.0"
+        val ktorVersion = "2.3.5"
+
         val commonMain by getting {
+
+            dependencies {
+                api("io.ktor:ktor-client-core:$ktorVersion")
+                api("io.ktor:ktor-client-serialization:$ktorVersion")
+                api("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
+                api("io.ktor:ktor-client-content-negotiation:$ktorVersion")
+                api("org.jetbrains.kotlinx:kotlinx-serialization-json:$ktSerializationVersion")
+                api("io.ktor:ktor-client-logging:2.3.5")
+            }
         }
         val commonTest by getting {
 
@@ -65,6 +84,11 @@ kotlin {
 
         val jvmMain by getting {
             dependsOn(commonMain)
+
+            dependencies {
+                implementation("org.slf4j:slf4j-simple:2.0.9")
+                implementation("io.ktor:ktor-client-apache5:$ktorVersion")
+            }
         }
         val jvmTest by getting
 
