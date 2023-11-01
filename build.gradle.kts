@@ -74,10 +74,14 @@ kotlin {
         }
         val commonTest by getting {
 
+            dependsOn(commonMain)
+
             val kotestVersion = "5.7.2"
+            val coroutinesVersion = "1.7.3"
 
             dependencies {
                 implementation(kotlin("test"))
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutinesVersion")
                 implementation("io.kotest:kotest-assertions-core:$kotestVersion")
             }
         }
