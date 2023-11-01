@@ -40,7 +40,7 @@ public class VaultClient(
 
         HttpResponseValidator {
             validateResponse { response ->
-                if(!response.status.isSuccess()) {
+                if (!response.status.isSuccess()) {
                     val error = response.body<VaultErrorResponse>()
                     throw VaultException(error.errors)
                 }

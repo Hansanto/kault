@@ -4,8 +4,8 @@ import com.github.hansanto.kault.VaultClient
 import com.github.hansanto.kault.exception.VaultException
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
-import kotlin.test.Test
 import kotlinx.coroutines.test.runTest
+import kotlin.test.Test
 
 class VaultAuthAppRoleTest {
 
@@ -19,6 +19,5 @@ class VaultAuthAppRoleTest {
 
         appRole.createOrUpdate("test") shouldBe true
         val roleNameInfo = appRole.read("test")
-
     }
 }
