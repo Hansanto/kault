@@ -10,3 +10,10 @@ public value class SecretIdPayload(
     @SerialName("secret_id")
     public val secretId: String
 )
+
+@JvmInline
+@Serializable
+public value class SecretIdAccessorPayload(
+    @SerialName("secret_id_accessor")
+    public val secretId: String
+)

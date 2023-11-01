@@ -1,8 +1,8 @@
 package com.github.hansanto.kault
 
 import com.github.hansanto.kault.auth.VaultAuth
+import com.github.hansanto.kault.exception.VaultAPIException
 import com.github.hansanto.kault.exception.VaultErrorResponse
-import com.github.hansanto.kault.exception.VaultException
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.plugins.HttpResponseValidator
@@ -16,16 +16,38 @@ import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 
 /**
- * Client for interacting with HashiCorp Vault server.
+ * Client to interact with a Vault server.
+ * @property client Http client to interact through REST API.
+ * @property auth Authentication service.
  */
 public class VaultClient(
+    /**
+     * @see [VaultClient.Builder.url]
+     */
     url: String,
+
+    /**
+     * @see [VaultClient.Builder.namespace]
+     */
     namespace: String? = null,
+
+    /**
+     * @see [VaultClient.Builder.apiPath]
+     */
     apiPath: String = Default.apiPath,
-    headers: Headers = Headers()
+
+    /**
+     * Headers to use for the requests.
+     */
+    headers: Headers = Default.headers
 ) {
 
     public companion object {
+
+        internal val vaultClientJson: Json = Json {
+            explicitNulls = false
+            ignoreUnknownKeys = true
+        }
 
         /**
          * Create a new instance of [VaultClient] using the builder pattern.
@@ -47,10 +69,15 @@ public class VaultClient(
      */
     public object Default {
 
+        /**
+         * Default headers.
+         */
         public val headers: Headers = Headers()
 
+        /**
+         * Default API path.
+         */
         public val apiPath: String = "/v1/"
-
     }
 
     /**
@@ -59,12 +86,27 @@ public class VaultClient(
     @Suppress("MemberVisibilityCanBePrivate")
     public class Builder {
 
+        /**
+         * URL of the Vault server.
+         * Example: `http://localhost:8200`
+         */
         public lateinit var url: String
 
+        /**
+         * Namespace to use.
+         * [Documentation](https://developer.hashicorp.com/vault/docs/enterprise/namespaces)
+         */
         public var namespace: String? = null
 
+        /**
+         * Path to the API.
+         * [Documentation](https://developer.hashicorp.com/vault/api-docs)
+         */
         public var apiPath: String = Default.apiPath
 
+        /**
+         * Builder to define header keys.
+         */
         public var headers: Headers.Builder.() -> Unit = {}
 
         /**
@@ -79,22 +121,48 @@ public class VaultClient(
         )
     }
 
+    /**
+     * Represents the headers used for interacting with a server.
+     *
+     * @property token The header name for the authentication token.
+     * @property namespace The header name for the namespace.
+     */
     public data class Headers(
         public val token: String = "X-Vault-Token",
         public val namespace: String = "X-Vault-Namespace"
     ) {
+
         public companion object {
+
+            /**
+             * Create a new instance of [Headers] using the builder pattern.
+             * @param builder Builder to create the instance.
+             * @return Instance of [Headers].
+             */
             public inline operator fun invoke(builder: Builder.() -> Unit): Headers =
                 Builder().apply(builder).build()
         }
 
+        /**
+         * Builder class to simplify the creation of [Headers].
+         */
         @Suppress("MemberVisibilityCanBePrivate")
         public class Builder {
 
+            /**
+             * Header to define the token to interact with the server.
+             */
             public var token: String = Default.headers.token
 
+            /**
+             * Header to define the namespace.
+             */
             public var namespace: String = Default.headers.namespace
 
+            /**
+             * Build the instance of [Headers] with the values defined in builder.
+             * @return Instance of [Headers].
+             */
             public fun build(): Headers = Headers(
                 token = token,
                 namespace = namespace
@@ -104,19 +172,14 @@ public class VaultClient(
 
     private val client: HttpClient = HttpClient {
         install(ContentNegotiation) {
-            json(
-                Json {
-                    explicitNulls = false
-                    ignoreUnknownKeys = true
-                }
-            )
+            json(vaultClientJson)
         }
 
         HttpResponseValidator {
             validateResponse { response ->
                 if (!response.status.isSuccess()) {
                     val error = response.body<VaultErrorResponse>()
-                    throw VaultException(error.errors)
+                    throw VaultAPIException(error.errors)
                 }
             }
         }

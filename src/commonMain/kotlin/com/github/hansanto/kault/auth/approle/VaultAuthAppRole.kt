@@ -1,10 +1,15 @@
 package com.github.hansanto.kault.auth.approle
 
+import com.github.hansanto.kault.VaultClient
 import com.github.hansanto.kault.auth.approle.payload.CreateOrUpdatePayload
 import com.github.hansanto.kault.auth.approle.payload.GenerateSecretIDPayload
 import com.github.hansanto.kault.auth.approle.payload.LoginPayload
 import com.github.hansanto.kault.auth.approle.payload.RoleIdPayload
+import com.github.hansanto.kault.auth.approle.payload.SecretIdAccessorPayload
 import com.github.hansanto.kault.auth.approle.payload.SecretIdPayload
+import com.github.hansanto.kault.exception.VaultFieldNotFoundException
+import com.github.hansanto.kault.extension.decodeBodyJsonField
+import com.github.hansanto.kault.extension.getBodyJsonObject
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.delete
@@ -17,8 +22,6 @@ import io.ktor.http.HttpMethod
 import io.ktor.http.appendPathSegments
 import io.ktor.http.contentType
 import io.ktor.http.isSuccess
-import kotlinx.serialization.json.JsonElement
-import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
@@ -58,23 +61,115 @@ public interface VaultAuthAppRole {
      */
     public suspend fun createOrUpdate(roleName: String, payload: CreateOrUpdatePayload = CreateOrUpdatePayload()): Boolean
 
+    /**
+     * Reads the properties of an existing AppRole.
+     * [Documentation](https://developer.hashicorp.com/vault/api-docs/auth/approle#read-approle)
+     * @param roleName Name of the AppRole. Must be less than 4096 bytes.
+     * @return Any TODO
+     */
     public suspend fun read(roleName: String): Any
 
+    /**
+     * Deletes an existing AppRole from the method.
+     * [Documentation](https://developer.hashicorp.com/vault/api-docs/auth/approle#delete-approle)
+     * @param roleName Name of the AppRole. Must be less than 4096 bytes.
+     * @return Returns true if the AppRole was deleted successfully.
+     */
     public suspend fun delete(roleName: String): Boolean
 
+    /**
+     * Reads the RoleID of an existing AppRole.
+     * [Documentation](https://developer.hashicorp.com/vault/api-docs/auth/approle#read-approle-role-id)
+     * @param roleName Name of the AppRole. Must be less than 4096 bytes.
+     * @return Value of the RoleID.
+     */
     public suspend fun readRoleID(roleName: String): String
 
+    /**
+     * Updates the RoleID of an existing AppRole to a custom value.
+     * [Documentation](https://developer.hashicorp.com/vault/api-docs/auth/approle#update-approle-role-id)
+     * @param roleName Name of the AppRole. Must be less than 4096 bytes.
+     * @param roleId Value to be set as RoleID.
+     * @return Returns true if the RoleID was updated successfully.
+     */
     public suspend fun updateRoleID(roleName: String, roleId: String): Boolean
 
+    /**
+     * Generates and issues a new SecretID on an existing AppRole. Similar to tokens, the response will also contain a secret_id_accessor value which can be used to read the properties of the SecretID without divulging the SecretID itself, and also to delete the SecretID from the AppRole.
+     * [Documentation](https://developer.hashicorp.com/vault/api-docs/auth/approle#generate-new-secret-id)
+     * @param roleName Name of the AppRole. Must be less than 4096 bytes.
+     * @param payload Parameters for generating a SecretID.
+     * @return Any TODO
+     */
     public suspend fun generateSecretID(roleName: String, payload: GenerateSecretIDPayload = GenerateSecretIDPayload()): Any
 
+    /**
+     * Lists the accessors of all the SecretIDs issued against the AppRole. This includes the accessors for "custom" SecretIDs as well.
+     * [Documentation](https://developer.hashicorp.com/vault/api-docs/auth/approle#list-secret-id-accessors)
+     * @param roleName Name of the AppRole. Must be less than 4096 bytes.
+     * @return List of SecretID accessors.
+     */
     public suspend fun secretIdAccessors(roleName: String): List<String>
 
+    /**
+     * Reads out the properties of a SecretID.
+     * [Documentation](https://developer.hashicorp.com/vault/api-docs/auth/approle#read-approle-secret-id)
+     * @param roleName Name of the AppRole. Must be less than 4096 bytes.
+     * @param secretId Secret ID attached to the role.
+     * @return Any TODO
+     */
     public suspend fun readSecretID(roleName: String, secretId: String): Any
 
+    /**
+     * Destroy an AppRole secret ID.
+     * [Documentation](https://developer.hashicorp.com/vault/api-docs/auth/approle#destroy-approle-secret-id)
+     * @param roleName Name of the AppRole. Must be less than 4096 bytes.
+     * @param secretId Secret ID attached to the role.
+     * @return Returns true if the SecretID was destroyed successfully.
+     */
     public suspend fun destroySecretID(roleName: String, secretId: String): Boolean
 
-    public suspend fun login(roleId: String, secretId: String): Any
+    /**
+     * Reads out the properties of a SecretID.
+     * [Documentation](https://developer.hashicorp.com/vault/api-docs/auth/approle#read-approle-secret-id-accessor)
+     * @param roleName Name of the AppRole. Must be less than 4096 bytes.
+     * @param secretIdAccessor Secret ID accessor attached to the role.
+     * @return Any TODO
+     */
+    public suspend fun readSecretIDAccessor(roleName: String, secretIdAccessor: String): Any
+
+    /**
+     * Destroy an AppRole secret ID by its accessor.
+     * [Documentation](https://developer.hashicorp.com/vault/api-docs/auth/approle#destroy-approle-secret-id-accessor)
+     * @param roleName Name of the AppRole. Must be less than 4096 bytes.
+     * @param secretIdAccessor Secret ID accessor attached to the role.
+     * @return Returns true if the SecretID was destroyed successfully.
+     */
+    public suspend fun destroySecretIDAccessor(roleName: String, secretIdAccessor: String): Boolean
+
+    /**
+     * Assigns a "custom" SecretID against an existing AppRole. This is used in the "Push" model of operation.
+     * [Documentation](https://developer.hashicorp.com/vault/api-docs/auth/approle#create-custom-approle-secret-id)
+     * @param roleName Name of the AppRole. Must be less than 4096 bytes.
+     * @param payload Parameters for generating a SecretID.
+     * @return Any TODO
+     */
+    public suspend fun createCustomSecretID(roleName: String, payload: Any): Any
+
+    /**
+     * Issues a Vault token based on the presented credentials. Role_id is always required; if bind_secret_id is enabled (the default) on the AppRole, secret_id is required too. Any other bound authentication values on the AppRole (such as client IP CIDR) are also evaluated.
+     * [Documentation](https://developer.hashicorp.com/vault/api-docs/auth/approle#login-with-approle)
+     * @param payload Parameters to login with AppRole.
+     * @return Any TODO
+     */
+    public suspend fun login(payload: LoginPayload): Any
+
+    /**
+     * Performs some maintenance tasks to clean up invalid entries that may remain in the token store. Generally, running this is not needed unless upgrade notes or support personnel suggest it. This may perform a lot of I/O to the storage method so should be used sparingly.
+     * [Documentation](https://developer.hashicorp.com/vault/api-docs/auth/approle#tidy-tokens)
+     * @return Any TODO
+     */
+    public suspend fun tidyTokens(): Any
 }
 
 public class VaultAuthAppRoleImpl(
@@ -99,7 +194,7 @@ public class VaultAuthAppRoleImpl(
                 appendPathSegments(path, "role", roleName)
             }
         }
-        return response.body()
+        return response.decodeBodyJsonField(VaultClient.vaultClientJson, "data")
     }
 
     override suspend fun delete(roleName: String): Boolean {
@@ -117,7 +212,7 @@ public class VaultAuthAppRoleImpl(
                 appendPathSegments(path, "role", roleName, "role-id")
             }
         }
-        return response.body<JsonElement>().jsonObject["data"]!!.jsonObject["role_id"]!!.jsonPrimitive.content
+        return response.getBodyJsonObject("data")["role_id"]?.jsonPrimitive?.content ?: throw VaultFieldNotFoundException("role_id")
     }
 
     override suspend fun updateRoleID(roleName: String, roleId: String): Boolean {
@@ -174,15 +269,56 @@ public class VaultAuthAppRoleImpl(
         return response.status.isSuccess()
     }
 
-    override suspend fun login(roleId: String, secretId: String): Any {
-        val payload = LoginPayload(roleId, secretId)
-        client.post {
+    override suspend fun readSecretIDAccessor(roleName: String, secretIdAccessor: String): Any {
+        val response = client.post {
+            url {
+                appendPathSegments(path, "role", roleName, "secret-id-accessor", "lookup")
+            }
+            contentType(ContentType.Application.Json)
+            setBody(SecretIdAccessorPayload(secretIdAccessor))
+        }
+        return response.body()
+    }
+
+    override suspend fun destroySecretIDAccessor(roleName: String, secretIdAccessor: String): Boolean {
+        val response = client.post {
+            url {
+                appendPathSegments(path, "role", roleName, "secret-id-accessor", "destroy")
+            }
+            contentType(ContentType.Application.Json)
+            setBody(SecretIdAccessorPayload(secretIdAccessor))
+        }
+        return response.status.isSuccess()
+    }
+
+    override suspend fun createCustomSecretID(roleName: String, payload: Any): Any {
+        val response = client.post {
+            url {
+                appendPathSegments(path, "role", roleName, "custom-secret-id")
+            }
+            contentType(ContentType.Application.Json)
+            setBody(payload)
+        }
+        return response.body()
+    }
+
+    override suspend fun login(payload: LoginPayload): Any {
+        val response = client.post {
             url {
                 appendPathSegments(path, "login")
             }
             contentType(ContentType.Application.Json)
             setBody(payload)
         }
-        return Unit
+        return response.body()
+    }
+
+    override suspend fun tidyTokens(): Any {
+        val response = client.post {
+            url {
+                appendPathSegments(path, "tidy", "secret-id")
+            }
+        }
+        return response.body()
     }
 }
