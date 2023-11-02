@@ -119,9 +119,9 @@ kotlin {
         }
         val nativeTest by getting {
             dependencies {
-                if(isWindows) {
+                if (isWindows) {
                     implementation("io.ktor:ktor-client-winhttp:$ktorVersion")
-                } else if(isMacOs) {
+                } else if (isMacOs) {
                     implementation("io.ktor:ktor-client-darwin:$ktorVersion")
                 } else {
                     implementation("io.ktor:ktor-client-cio:$ktorVersion")
