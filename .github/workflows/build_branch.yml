@@ -49,15 +49,10 @@ jobs:
         with:
           jdk: 8
 
-      - name: Build
-        uses: gradle/gradle-build-action@v2
-        with:
-          arguments: build -x test -x allTests -x jsNodeTest -x jsTest -x nativeTest
-
       - name: Docker up
         run: docker-compose up -d
 
-      - name: Test
+      - name: Build
         uses: gradle/gradle-build-action@v2
         with:
-          arguments: test
+          arguments: build
