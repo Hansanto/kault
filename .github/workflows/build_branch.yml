@@ -39,8 +39,8 @@ jobs:
       matrix:
         include:
           - os: ubuntu-latest
-          - os: windows-latest
-#          - os: macos-latest
+#          - os: windows-latest -> No matching manifest when pulling Vault image
+#          - os: macos-latest -> Docker-compose command not found
     steps:
       - uses: actions/checkout@v4
 
