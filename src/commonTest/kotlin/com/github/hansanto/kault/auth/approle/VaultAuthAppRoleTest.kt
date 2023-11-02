@@ -6,51 +6,46 @@ import com.github.hansanto.kault.exception.VaultAPIException
 import com.github.hansanto.kault.util.readJson
 import io.kotest.assertions.throwables.shouldNotThrow
 import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.core.spec.style.FunSpec
+import io.kotest.core.spec.style.ShouldSpec
+import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
-import kotlin.test.Test
-import kotlinx.coroutines.test.TestResult
-import kotlinx.coroutines.test.TestScope
-import kotlinx.coroutines.test.runTest
 
 private const val DEFAULT_ROLE_NAME = "test"
 
-class VaultAuthAppRoleTest {
+class VaultAuthAppRoleTest : FunSpec({
 
-    private lateinit var appRole: VaultAuthAppRole
+    lateinit var appRole: VaultAuthAppRole
 
-    private fun test(testBody: suspend TestScope.() -> Unit): TestResult {
-        return runTest {
-            val client = VaultClient {
-                url = "http://localhost:8200"
+    beforeSpec {
+        val client = VaultClient {
+            url = "http://localhost:8200"
+        }
+
+        client.auth.token = "root"
+        appRole = client.auth.appRole
+    }
+
+    beforeTest {
+        runCatching {
+            appRole.list().collect {
+                appRole.delete(it) shouldBe true
             }
-
-            client.auth.token = "root"
-            appRole = client.auth.appRole
-
-            runCatching {
-                appRole.list().collect {
-                    appRole.delete(it) shouldBe true
-                }
-            }
-
-            testBody()
         }
     }
 
-    @Test
-    fun createWithoutOptions() = test {
-        shouldThrow<VaultAPIException> { appRole.read(DEFAULT_ROLE_NAME) }
-        appRole.createOrUpdate(DEFAULT_ROLE_NAME) shouldBe true
-        shouldNotThrow<VaultAPIException> { appRole.read(DEFAULT_ROLE_NAME) }
+    context("create or update") {
+        test("create without options") {
+            shouldThrow<VaultAPIException> { appRole.read(DEFAULT_ROLE_NAME) }
+            appRole.createOrUpdate(DEFAULT_ROLE_NAME) shouldBe true
+            shouldNotThrow<VaultAPIException> { appRole.read(DEFAULT_ROLE_NAME) }
+        }
+
+        test("create with options") {
+            shouldThrow<VaultAPIException> { appRole.read(DEFAULT_ROLE_NAME) }
+            val payload = readJson<CreateOrUpdatePayload>("cases/auth/approle/create.json")
+            appRole.createOrUpdate(DEFAULT_ROLE_NAME, payload) shouldBe true
+            shouldNotThrow<VaultAPIException> { appRole.read(DEFAULT_ROLE_NAME) }
+        }
     }
-
-    @Test
-    fun createWithOptions() = test {
-        shouldThrow<VaultAPIException> { appRole.read(DEFAULT_ROLE_NAME) }
-        val payload = readJson<CreateOrUpdatePayload>("cases/auth/approle/create.json")
-        appRole.createOrUpdate(DEFAULT_ROLE_NAME, payload) shouldBe true
-        shouldNotThrow<VaultAPIException> { appRole.read(DEFAULT_ROLE_NAME) }
-    }
-}
-
-
+})

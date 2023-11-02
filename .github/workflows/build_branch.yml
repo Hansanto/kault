@@ -54,6 +54,9 @@ jobs:
         with:
           arguments: build -x test
 
+      - name: Docker up
+        run: docker-compose up -d
+
       - name: Test
         uses: gradle/gradle-build-action@v2
         with:

@@ -5,6 +5,7 @@ import org.jlleitschuh.gradle.ktlint.reporter.ReporterType
 plugins {
     embeddedKotlin("multiplatform")
     embeddedKotlin("plugin.serialization")
+    id("io.kotest.multiplatform") version "5.7.2"
     id("org.jetbrains.dokka") version "1.9.10"
     id("io.gitlab.arturbosch.detekt") version "1.23.1"
     id("org.jlleitschuh.gradle.ktlint") version "11.6.1"
@@ -61,6 +62,7 @@ kotlin {
 
         val ktSerializationVersion = "1.6.0"
         val ktorVersion = "2.3.5"
+        val kotestVersion = "5.7.2"
 
         val commonMain by getting {
 
@@ -77,14 +79,14 @@ kotlin {
 
             dependsOn(commonMain)
 
-            val kotestVersion = "5.7.2"
             val coroutinesVersion = "1.7.3"
 
             dependencies {
                 implementation(kotlin("test"))
-                implementation("io.ktor:ktor-client-logging:$$ktorVersion")
+                implementation("io.ktor:ktor-client-logging:$ktorVersion")
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutinesVersion")
                 implementation("io.kotest:kotest-assertions-core:$kotestVersion")
+                implementation("io.kotest:kotest-framework-engine:$kotestVersion")
                 implementation("com.goncalossilva:resources:0.4.0")
             }
         }
@@ -96,6 +98,7 @@ kotlin {
             dependencies {
                 implementation("io.ktor:ktor-client-apache5:$ktorVersion")
                 implementation("org.slf4j:slf4j-simple:2.0.9")
+                implementation("io.kotest:kotest-runner-junit5:$kotestVersion")
             }
         }
 
