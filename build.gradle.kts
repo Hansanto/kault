@@ -8,6 +8,7 @@ plugins {
     id("org.jetbrains.dokka") version "1.9.10"
     id("io.gitlab.arturbosch.detekt") version "1.23.1"
     id("org.jlleitschuh.gradle.ktlint") version "11.6.1"
+    id("com.goncalossilva.resources") version "0.4.0"
     `maven-publish`
 }
 
@@ -81,35 +82,44 @@ kotlin {
 
             dependencies {
                 implementation(kotlin("test"))
+                implementation("io.ktor:ktor-client-logging:$$ktorVersion")
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutinesVersion")
                 implementation("io.kotest:kotest-assertions-core:$kotestVersion")
+                implementation("com.goncalossilva:resources:0.4.0")
             }
         }
 
         val jvmMain by getting {
             dependsOn(commonMain)
-
+        }
+        val jvmTest by getting {
             dependencies {
-                implementation("org.slf4j:slf4j-simple:2.0.9")
                 implementation("io.ktor:ktor-client-apache5:$ktorVersion")
+                implementation("org.slf4j:slf4j-simple:2.0.9")
             }
         }
-        val jvmTest by getting
 
         val jsMain by getting {
             dependsOn(commonMain)
         }
-        val jsTest by getting
+        val jsTest by getting {
+            dependencies {
+                implementation("io.ktor:ktor-client-js:$ktorVersion")
+            }
+        }
 
         val nativeMain by getting {
             dependsOn(commonMain)
         }
-        val nativeTest by getting
+        val nativeTest by getting {
+            dependencies {
+                implementation("io.ktor:ktor-client-curl:$ktorVersion")
+            }
+        }
     }
 }
 
 val dokkaOutputDir = "${rootProject.projectDir}/dokka"
-
 tasks {
     configure<org.jlleitschuh.gradle.ktlint.KtlintExtension> {
         reporters {

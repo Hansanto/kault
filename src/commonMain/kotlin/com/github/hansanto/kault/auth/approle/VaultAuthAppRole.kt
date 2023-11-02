@@ -7,9 +7,10 @@ import com.github.hansanto.kault.auth.approle.payload.LoginPayload
 import com.github.hansanto.kault.auth.approle.payload.RoleIdPayload
 import com.github.hansanto.kault.auth.approle.payload.SecretIdAccessorPayload
 import com.github.hansanto.kault.auth.approle.payload.SecretIdPayload
-import com.github.hansanto.kault.exception.VaultFieldNotFoundException
+import com.github.hansanto.kault.auth.approle.response.AppRoleReadRoleIdResponse
+import com.github.hansanto.kault.auth.approle.response.AppRoleReadRoleResponse
 import com.github.hansanto.kault.extension.decodeBodyJsonField
-import com.github.hansanto.kault.extension.getBodyJsonObject
+import com.github.hansanto.kault.response.StandardListResponse
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.delete
@@ -22,7 +23,8 @@ import io.ktor.http.HttpMethod
 import io.ktor.http.appendPathSegments
 import io.ktor.http.contentType
 import io.ktor.http.isSuccess
-import kotlinx.serialization.json.jsonPrimitive
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
 
@@ -53,6 +55,13 @@ public suspend inline fun VaultAuthAppRole.generateSecretID(
 public interface VaultAuthAppRole {
 
     /**
+     * This endpoint returns a list the existing AppRoles in the method.
+     * [Documentation](https://developer.hashicorp.com/vault/api-docs/auth/approle#list-roles)
+     * @return List of AppRoles.
+     */
+    public fun list(): Flow<String>
+
+    /**
      * Creates a new AppRole or updates an existing AppRole. This endpoint supports both create and update capabilities. There can be one or more constraints enabled on the role. It is required to have at least one of them enabled while creating or updating a role.
      * [Documentation](https://developer.hashicorp.com/vault/api-docs/auth/approle#create-update-approle)
      * @param roleName Name of the AppRole. Must be less than 4096 bytes, accepted characters include a-Z, 0-9, space, hyphen, underscore and periods.
@@ -65,9 +74,9 @@ public interface VaultAuthAppRole {
      * Reads the properties of an existing AppRole.
      * [Documentation](https://developer.hashicorp.com/vault/api-docs/auth/approle#read-approle)
      * @param roleName Name of the AppRole. Must be less than 4096 bytes.
-     * @return Any TODO
+     * @return Response.
      */
-    public suspend fun read(roleName: String): Any
+    public suspend fun read(roleName: String): AppRoleReadRoleResponse
 
     /**
      * Deletes an existing AppRole from the method.
@@ -81,9 +90,9 @@ public interface VaultAuthAppRole {
      * Reads the RoleID of an existing AppRole.
      * [Documentation](https://developer.hashicorp.com/vault/api-docs/auth/approle#read-approle-role-id)
      * @param roleName Name of the AppRole. Must be less than 4096 bytes.
-     * @return Value of the RoleID.
+     * @return Response.
      */
-    public suspend fun readRoleID(roleName: String): String
+    public suspend fun readRoleID(roleName: String): AppRoleReadRoleIdResponse
 
     /**
      * Updates the RoleID of an existing AppRole to a custom value.
@@ -177,6 +186,20 @@ public class VaultAuthAppRoleImpl(
     public val path: String = "auth/approle"
 ) : VaultAuthAppRole {
 
+    override fun list(): Flow<String> {
+        return flow {
+            val response = client.request {
+                method = HttpMethod("LIST")
+                url {
+                    appendPathSegments(path, "role")
+                }
+            }
+            response.decodeBodyJsonField<StandardListResponse>(VaultClient.json, "data").keys.forEach {
+                emit(it)
+            }
+        }
+    }
+
     override suspend fun createOrUpdate(roleName: String, payload: CreateOrUpdatePayload): Boolean {
         val response = client.post {
             url {
@@ -188,13 +211,13 @@ public class VaultAuthAppRoleImpl(
         return response.status.isSuccess()
     }
 
-    override suspend fun read(roleName: String): Any {
+    override suspend fun read(roleName: String): AppRoleReadRoleResponse {
         val response = client.get {
             url {
                 appendPathSegments(path, "role", roleName)
             }
         }
-        return response.decodeBodyJsonField(VaultClient.vaultClientJson, "data")
+        return response.decodeBodyJsonField(VaultClient.json, "data")
     }
 
     override suspend fun delete(roleName: String): Boolean {
@@ -206,13 +229,13 @@ public class VaultAuthAppRoleImpl(
         return response.status.isSuccess()
     }
 
-    override suspend fun readRoleID(roleName: String): String {
+    override suspend fun readRoleID(roleName: String): AppRoleReadRoleIdResponse {
         val response = client.get {
             url {
                 appendPathSegments(path, "role", roleName, "role-id")
             }
         }
-        return response.getBodyJsonObject("data")["role_id"]?.jsonPrimitive?.content ?: throw VaultFieldNotFoundException("role_id")
+        return response.decodeBodyJsonField<AppRoleReadRoleIdResponse>(VaultClient.json, "data")
     }
 
     override suspend fun updateRoleID(roleName: String, roleId: String): Boolean {

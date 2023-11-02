@@ -8,6 +8,10 @@ import io.ktor.client.call.body
 import io.ktor.client.plugins.HttpResponseValidator
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.defaultRequest
+import io.ktor.client.plugins.logging.DEFAULT
+import io.ktor.client.plugins.logging.LogLevel
+import io.ktor.client.plugins.logging.Logger
+import io.ktor.client.plugins.logging.Logging
 import io.ktor.client.request.header
 import io.ktor.http.appendPathSegments
 import io.ktor.http.isSuccess
@@ -44,8 +48,9 @@ public class VaultClient(
 
     public companion object {
 
-        internal val vaultClientJson: Json = Json {
+        internal val json: Json = Json {
             explicitNulls = false
+            isLenient = true
             ignoreUnknownKeys = true
         }
 
@@ -172,7 +177,15 @@ public class VaultClient(
 
     private val client: HttpClient = HttpClient {
         install(ContentNegotiation) {
-            json(vaultClientJson)
+            json(json)
+        }
+
+        install(Logging) {
+            logger = Logger.DEFAULT
+            level = LogLevel.INFO
+            sanitizeHeader {
+                it == headers.token
+            }
         }
 
         HttpResponseValidator {
