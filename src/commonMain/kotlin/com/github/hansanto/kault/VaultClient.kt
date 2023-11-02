@@ -3,6 +3,7 @@ package com.github.hansanto.kault
 import com.github.hansanto.kault.auth.VaultAuth
 import com.github.hansanto.kault.exception.VaultAPIException
 import com.github.hansanto.kault.exception.VaultErrorResponse
+import com.github.hansanto.kault.system.VaultSystem
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.plugins.HttpResponseValidator
@@ -209,4 +210,6 @@ public class VaultClient(
     }
 
     public val auth: VaultAuth = VaultAuth(client)
+
+    public val system: VaultSystem = VaultSystem(client)
 }

@@ -3,6 +3,7 @@ package com.github.hansanto.kault.auth.approle
 import com.github.hansanto.kault.VaultClient
 import com.github.hansanto.kault.auth.approle.payload.CreateOrUpdatePayload
 import com.github.hansanto.kault.exception.VaultAPIException
+import com.github.hansanto.kault.system.auth.enableMethod
 import com.github.hansanto.kault.util.readJson
 import io.kotest.assertions.throwables.shouldNotThrow
 import io.kotest.assertions.throwables.shouldThrow
@@ -22,6 +23,10 @@ class VaultAuthAppRoleTest : FunSpec({
 
         client.auth.token = "root"
         appRole = client.auth.appRole
+
+        client.system.auth.enableMethod("approle") {
+            type = "approle"
+        } shouldBe true
     }
 
     beforeTest {
