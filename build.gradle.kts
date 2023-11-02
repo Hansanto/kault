@@ -41,14 +41,17 @@ kotlin {
     }
 
     val hostOs = System.getProperty("os.name")
+    val isMacOs = hostOs == "Mac OS X"
+    val isLinux = hostOs == "Linux"
+    val isWindows = hostOs.startsWith("Windows")
+
     val isArm64 = System.getProperty("os.arch") == "aarch64"
-    val isMingwX64 = hostOs.startsWith("Windows")
     val nativeTarget = when {
-        hostOs == "Mac OS X" && isArm64 -> macosArm64("native")
-        hostOs == "Mac OS X" && !isArm64 -> macosX64("native")
-        hostOs == "Linux" && isArm64 -> linuxArm64("native")
-        hostOs == "Linux" && !isArm64 -> linuxX64("native")
-        isMingwX64 -> mingwX64("native")
+        isMacOs && isArm64 -> macosArm64("native")
+        isMacOs && !isArm64 -> macosX64("native")
+        isLinux && isArm64 -> linuxArm64("native")
+        isLinux && !isArm64 -> linuxX64("native")
+        isWindows -> mingwX64("native")
         else -> throw GradleException("Host OS is not supported in Kotlin/Native.")
     }
 
@@ -96,7 +99,7 @@ kotlin {
         }
         val jvmTest by getting {
             dependencies {
-                implementation("io.ktor:ktor-client-apache5:$ktorVersion")
+                implementation("io.ktor:ktor-client-cio:$ktorVersion")
                 implementation("org.slf4j:slf4j-simple:2.0.9")
                 implementation("io.kotest:kotest-runner-junit5:$kotestVersion")
             }
@@ -116,7 +119,13 @@ kotlin {
         }
         val nativeTest by getting {
             dependencies {
-                implementation("io.ktor:ktor-client-curl:$ktorVersion")
+                if(isWindows) {
+                    implementation("io.ktor:ktor-client-winhttp:$ktorVersion")
+                } else if(isMacOs) {
+                    implementation("io.ktor:ktor-client-darwin:$ktorVersion")
+                } else {
+                    implementation("io.ktor:ktor-client-cio:$ktorVersion")
+                }
             }
         }
     }
