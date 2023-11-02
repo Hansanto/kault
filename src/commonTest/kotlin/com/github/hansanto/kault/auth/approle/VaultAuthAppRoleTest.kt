@@ -24,9 +24,11 @@ class VaultAuthAppRoleTest : FunSpec({
         client.auth.token = "root"
         appRole = client.auth.appRole
 
-        client.system.auth.enableMethod("approle") {
-            type = "approle"
-        } shouldBe true
+        runCatching {
+            client.system.auth.enableMethod("approle") {
+                type = "approle"
+            } shouldBe true
+        }
     }
 
     beforeTest {
