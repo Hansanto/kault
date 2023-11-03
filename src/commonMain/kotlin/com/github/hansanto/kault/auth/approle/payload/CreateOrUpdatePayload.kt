@@ -27,7 +27,7 @@ public data class CreateOrUpdatePayload(
      * Duration in either an integer number of seconds (3600) or an integer time unit (60m) after which by default any SecretID expires. A value of zero will allow the SecretID to not expire. However, this option may be overridden by the request's 'ttl' field when generating a SecretID.
      */
     @SerialName("secret_id_ttl")
-    public var secretIdTtl: String? = null,
+    public var secretIdTTL: String? = null,
 
     /**
      * If set, the secret IDs generated using this role will be cluster local. This can only be set during role creation and once set, it can't be reset later.
@@ -39,13 +39,13 @@ public data class CreateOrUpdatePayload(
      * The incremental lifetime for generated tokens. This current value of this will be referenced at renewal time.
      */
     @SerialName("token_ttl")
-    public var tokenTtl: String? = null,
+    public var tokenTTL: String? = null,
 
     /**
      * The maximum lifetime for generated tokens. This current value of this will be referenced at renewal time.
      */
     @SerialName("token_max_ttl")
-    public var tokenMaxTtl: String? = null,
+    public var tokenMaxTTL: String? = null,
 
     /**
      * List of token policies to encode onto generated tokens. Depending on the auth method, this list may be supplemented by user/group/other values.
@@ -63,7 +63,7 @@ public data class CreateOrUpdatePayload(
      * If set, will encode an explicit max TTL onto the token. This is a hard cap even if token_ttl and token_max_ttl would otherwise allow a renewal.
      */
     @SerialName("token_explicit_max_ttl")
-    public var tokenExplicitMaxTtl: Int? = null,
+    public var tokenExplicitMaxTTL: Int? = null,
 
     /**
      * If set, the default policy will not be set on generated tokens; otherwise it will be added to the policies set in token_policies.

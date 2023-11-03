@@ -42,13 +42,13 @@ public data class EnableMethodPayload(
          * The default lease duration, specified as a string duration like "5s" or "30m".
          */
         @SerialName("default_lease_ttl")
-        public var defaultLeaseTtl: String? = null,
+        public var defaultLeaseTTL: String? = null,
 
         /**
          * The maximum lease duration, specified as a string duration like "5s" or "30m".
          */
         @SerialName("max_lease_ttl")
-        public var maxLeaseTtl: String? = null,
+        public var maxLeaseTTL: String? = null,
 
         /**
          * List of keys that will not be HMAC'd by audit devices in the request data object.
