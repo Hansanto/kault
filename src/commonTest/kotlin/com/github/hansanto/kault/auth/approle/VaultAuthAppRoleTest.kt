@@ -39,18 +39,16 @@ class VaultAuthAppRoleTest : FunSpec({
         }
     }
 
-    context("create or update") {
-        test("create without options") {
-            shouldThrow<VaultAPIException> { appRole.read(DEFAULT_ROLE_NAME) }
-            appRole.createOrUpdate(DEFAULT_ROLE_NAME) shouldBe true
-            shouldNotThrow<VaultAPIException> { appRole.read(DEFAULT_ROLE_NAME) }
-        }
+    test("create without options") {
+        shouldThrow<VaultAPIException> { appRole.read(DEFAULT_ROLE_NAME) }
+        appRole.createOrUpdate(DEFAULT_ROLE_NAME) shouldBe true
+        shouldNotThrow<VaultAPIException> { appRole.read(DEFAULT_ROLE_NAME) }
+    }
 
-        test("create with options") {
-            shouldThrow<VaultAPIException> { appRole.read(DEFAULT_ROLE_NAME) }
-            val payload = readJson<CreateOrUpdatePayload>("cases/auth/approle/create.json")
-            appRole.createOrUpdate(DEFAULT_ROLE_NAME, payload) shouldBe true
-            shouldNotThrow<VaultAPIException> { appRole.read(DEFAULT_ROLE_NAME) }
-        }
+    test("create with options") {
+        shouldThrow<VaultAPIException> { appRole.read(DEFAULT_ROLE_NAME) }
+        val payload = readJson<CreateOrUpdatePayload>("cases/auth/approle/create.json")
+        appRole.createOrUpdate(DEFAULT_ROLE_NAME, payload) shouldBe true
+        shouldNotThrow<VaultAPIException> { appRole.read(DEFAULT_ROLE_NAME) }
     }
 })

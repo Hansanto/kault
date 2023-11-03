@@ -35,9 +35,11 @@ kotlin {
             }
         }
     }
-    js {
+    js(IR) {
         nodejs()
         binaries.library()
+        useCommonJs()
+        generateTypeScriptDefinitions()
     }
 
     val hostOs = System.getProperty("os.name")
