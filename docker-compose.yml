@@ -10,4 +10,4 @@ services:
       - VAULT_DEV_ROOT_TOKEN_ID=root
       - VAULT_DEV_LISTEN_ADDRESS=0.0.0.0:8200
     cap_add:
-        - IPC_LOCK
+      - IPC_LOCK
