@@ -68,6 +68,7 @@ kotlin {
         val ktSerializationVersion = "1.6.0"
         val ktorVersion = "2.3.5"
         val kotestVersion = "5.7.2"
+        val kotlinxDateTimeVersion = "0.4.1"
 
         val commonMain by getting {
 
@@ -76,8 +77,9 @@ kotlin {
                 api("io.ktor:ktor-client-serialization:$ktorVersion")
                 api("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
                 api("io.ktor:ktor-client-content-negotiation:$ktorVersion")
+                api("io.ktor:ktor-client-logging:$ktorVersion")
                 api("org.jetbrains.kotlinx:kotlinx-serialization-json:$ktSerializationVersion")
-                api("io.ktor:ktor-client-logging:2.3.5")
+                api("org.jetbrains.kotlinx:kotlinx-datetime:$kotlinxDateTimeVersion")
             }
         }
         val commonTest by getting {
@@ -85,6 +87,7 @@ kotlin {
             dependsOn(commonMain)
 
             val coroutinesVersion = "1.7.3"
+            val resourceVersion = "0.4.0"
 
             dependencies {
                 implementation(kotlin("test"))
@@ -92,7 +95,7 @@ kotlin {
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutinesVersion")
                 implementation("io.kotest:kotest-assertions-core:$kotestVersion")
                 implementation("io.kotest:kotest-framework-engine:$kotestVersion")
-                implementation("com.goncalossilva:resources:0.4.0")
+                implementation("com.goncalossilva:resources:$resourceVersion")
             }
         }
 
@@ -100,9 +103,12 @@ kotlin {
             dependsOn(commonMain)
         }
         val jvmTest by getting {
+
+            val slf4jVersion = "2.0.9"
+
             dependencies {
                 implementation("io.ktor:ktor-client-cio:$ktorVersion")
-                implementation("org.slf4j:slf4j-simple:2.0.9")
+                implementation("org.slf4j:slf4j-simple:$slf4jVersion")
                 implementation("io.kotest:kotest-runner-junit5:$kotestVersion")
             }
         }

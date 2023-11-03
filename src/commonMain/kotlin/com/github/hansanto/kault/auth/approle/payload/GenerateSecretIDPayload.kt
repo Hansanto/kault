@@ -2,6 +2,9 @@ package com.github.hansanto.kault.auth.approle.payload
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.builtins.MapSerializer
+import kotlinx.serialization.builtins.serializer
+import kotlinx.serialization.json.Json
 
 @Serializable
 public data class GenerateSecretIDPayload(
@@ -10,7 +13,7 @@ public data class GenerateSecretIDPayload(
      * Metadata to be tied to the SecretID. This should be a JSON-formatted string containing the metadata in key-value pairs. This metadata will be set on tokens issued with this SecretID, and is logged in audit logs in plaintext.
      */
     @SerialName("metadata")
-    var metadata: Map<String, String>? = null,
+    var metadata: String? = null,
 
     /**
      * Comma separated string or list of CIDR blocks enforcing secret IDs to be used from specific set of IP addresses. If secret_id_bound_cidrs is set on the role, then the list of CIDR blocks listed here should be a subset of the CIDR blocks listed on the role.
@@ -35,4 +38,10 @@ public data class GenerateSecretIDPayload(
      */
     @SerialName("ttl")
     var ttl: String? = null
-)
+) {
+
+    public fun metadata(metadata: Map<String, String>) {
+        val serializer = MapSerializer(String.serializer(), String.serializer())
+        this.metadata = Json.encodeToString(serializer, metadata)
+    }
+}
