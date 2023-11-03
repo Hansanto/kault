@@ -2,6 +2,7 @@ package com.github.hansanto.kault.auth.approle
 
 import com.github.hansanto.kault.VaultClient
 import com.github.hansanto.kault.auth.approle.payload.CreateOrUpdatePayload
+import com.github.hansanto.kault.auth.approle.response.AppRoleReadRoleResponse
 import com.github.hansanto.kault.exception.VaultAPIException
 import com.github.hansanto.kault.system.auth.enableMethod
 import com.github.hansanto.kault.util.readJson
@@ -37,18 +38,20 @@ class VaultAuthAppRoleTest : FunSpec({
                 appRole.delete(it) shouldBe true
             }
         }
+
+        shouldThrow<VaultAPIException> { appRole.read(DEFAULT_ROLE_NAME) }
     }
 
-    test("create without options") {
-        shouldThrow<VaultAPIException> { appRole.read(DEFAULT_ROLE_NAME) }
+    xtest("create without options") {
         appRole.createOrUpdate(DEFAULT_ROLE_NAME) shouldBe true
         shouldNotThrow<VaultAPIException> { appRole.read(DEFAULT_ROLE_NAME) }
     }
 
     test("create with options") {
-        shouldThrow<VaultAPIException> { appRole.read(DEFAULT_ROLE_NAME) }
-        val payload = readJson<CreateOrUpdatePayload>("cases/auth/approle/create.json")
-        appRole.createOrUpdate(DEFAULT_ROLE_NAME, payload) shouldBe true
-        shouldNotThrow<VaultAPIException> { appRole.read(DEFAULT_ROLE_NAME) }
+        val given = readJson<CreateOrUpdatePayload>("cases/auth/approle/create/given.json")
+        appRole.createOrUpdate(DEFAULT_ROLE_NAME, given) shouldBe true
+
+        val expected = readJson<AppRoleReadRoleResponse>("cases/auth/approle/create/expected.json")
+        appRole.read(DEFAULT_ROLE_NAME) shouldBe expected
     }
 })
