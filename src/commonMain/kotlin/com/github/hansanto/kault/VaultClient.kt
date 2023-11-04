@@ -2,10 +2,8 @@ package com.github.hansanto.kault
 
 import com.github.hansanto.kault.auth.VaultAuth
 import com.github.hansanto.kault.exception.VaultAPIException
-import com.github.hansanto.kault.exception.VaultErrorResponse
 import com.github.hansanto.kault.system.VaultSystem
 import io.ktor.client.HttpClient
-import io.ktor.client.call.body
 import io.ktor.client.plugins.HttpResponseValidator
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.defaultRequest
@@ -14,11 +12,18 @@ import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logger
 import io.ktor.client.plugins.logging.Logging
 import io.ktor.client.request.header
+import io.ktor.client.statement.bodyAsText
 import io.ktor.http.appendPathSegments
+import io.ktor.http.contentType
 import io.ktor.http.isSuccess
 import io.ktor.http.takeFrom
 import io.ktor.serialization.kotlinx.json.json
+import io.ktor.util.InternalAPI
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.jsonArray
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 
 /**
  * Client to interact with a Vault server.
@@ -176,6 +181,7 @@ public class VaultClient(
         }
     }
 
+    @OptIn(InternalAPI::class)
     private val client: HttpClient = HttpClient {
         install(ContentNegotiation) {
             json(json)
@@ -192,8 +198,23 @@ public class VaultClient(
         HttpResponseValidator {
             validateResponse { response ->
                 if (!response.status.isSuccess()) {
-                    val error = response.body<VaultErrorResponse>()
-                    throw VaultAPIException(error.errors)
+                    if (response.contentType() == null) {
+                        throw VaultAPIException(emptyList())
+                    }
+
+                    val element = json.parseToJsonElement(response.bodyAsText())
+                    if (element is JsonObject) {
+                        element["errors"]?.let { errorNode ->
+                            val errors = errorNode.jsonArray.map { it.jsonPrimitive.content }
+                            throw VaultAPIException(errors)
+                        }
+
+                        element["data"]?.jsonObject?.get("error")?.let { errorNode ->
+                            throw VaultAPIException(listOf(errorNode.jsonPrimitive.content))
+                        }
+                    }
+
+                    throw VaultAPIException(emptyList())
                 }
             }
         }
