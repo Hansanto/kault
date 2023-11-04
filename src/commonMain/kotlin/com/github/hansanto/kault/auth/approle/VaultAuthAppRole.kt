@@ -12,6 +12,7 @@ import com.github.hansanto.kault.auth.approle.response.AppRoleReadRoleIdResponse
 import com.github.hansanto.kault.auth.approle.response.AppRoleReadRoleResponse
 import com.github.hansanto.kault.auth.approle.response.AppRoleWriteSecretIdResponse
 import com.github.hansanto.kault.extension.decodeBodyJsonField
+import com.github.hansanto.kault.extension.decodeBodyJsonFieldOrNull
 import com.github.hansanto.kault.response.StandardListResponse
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
@@ -135,7 +136,7 @@ public interface VaultAuthAppRole {
      * @param secretId Secret ID attached to the role.
      * @return Response.
      */
-    public suspend fun readSecretID(roleName: String, secretId: String): AppRoleLookUpSecretIdResponse
+    public suspend fun readSecretID(roleName: String, secretId: String): AppRoleLookUpSecretIdResponse?
 
     /**
      * Destroy an AppRole secret ID.
@@ -281,7 +282,7 @@ public class VaultAuthAppRoleImpl(
         return response.decodeBodyJsonField(VaultClient.json, "data")
     }
 
-    override suspend fun readSecretID(roleName: String, secretId: String): AppRoleLookUpSecretIdResponse {
+    override suspend fun readSecretID(roleName: String, secretId: String): AppRoleLookUpSecretIdResponse? {
         val response = client.post {
             url {
                 appendPathSegments(path, "role", roleName, "secret-id", "lookup")
@@ -289,7 +290,9 @@ public class VaultAuthAppRoleImpl(
             contentType(ContentType.Application.Json)
             setBody(SecretIdPayload(secretId))
         }
-        return response.decodeBodyJsonField(VaultClient.json, "data")
+
+        // After destroying a secret ID, Vault returns an empty body
+        return response.decodeBodyJsonFieldOrNull(VaultClient.json, "data")
     }
 
     override suspend fun destroySecretID(roleName: String, secretId: String): Boolean {
