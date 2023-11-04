@@ -25,10 +25,10 @@ import io.ktor.http.HttpMethod
 import io.ktor.http.appendPathSegments
 import io.ktor.http.contentType
 import io.ktor.http.isSuccess
-import kotlin.contracts.InvocationKind
-import kotlin.contracts.contract
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import kotlin.contracts.InvocationKind
+import kotlin.contracts.contract
 
 /**
  * @see VaultAuthAppRole.createOrUpdate(roleName, payload)

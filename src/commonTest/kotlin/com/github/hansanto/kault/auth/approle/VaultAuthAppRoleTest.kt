@@ -190,12 +190,23 @@ class VaultAuthAppRoleTest : FunSpec({
         shouldThrow<VaultAPIException> { appRole.readSecretIDAccessor(DEFAULT_ROLE_NAME, "test") }
     }
 
-    test("read secret id accessor with existing role and existing secret id") {
-        appRole.createOrUpdate(DEFAULT_ROLE_NAME) shouldBe true
-        val secretId = appRole.generateSecretID(DEFAULT_ROLE_NAME).secretId
-        appRole.readSecretIDAccessor(DEFAULT_ROLE_NAME, secretId) shouldNotBe null
+    test("read secret id accessor without options & with existing role and existing secret id") {
+        assertReadSecretIdAccessor(
+            appRole,
+            null,
+            "cases/auth/approle/read-secret-id-accessor/without_options/expected_write.json",
+            "cases/auth/approle/read-secret-id-accessor/without_options/expected_read.json"
+        )
     }
 
+    test("read secret id accessor with options & existing role and existing secret id") {
+        assertReadSecretIdAccessor(
+            appRole,
+            "cases/auth/approle/read-secret-id-accessor/with_options/given.json",
+            "cases/auth/approle/read-secret-id-accessor/with_options/expected_write.json",
+            "cases/auth/approle/read-secret-id-accessor/with_options/expected_read.json"
+        )
+    }
 })
 
 private suspend fun assertGenerateSecretID(
@@ -203,6 +214,39 @@ private suspend fun assertGenerateSecretID(
     givenPath: String?,
     expectedWritePath: String,
     expectedReadPath: String
+) {
+    assertGenerateAndReadSecret(
+        appRole,
+        givenPath,
+        expectedWritePath,
+        expectedReadPath
+    ) { role, response ->
+        appRole.readSecretID(role, response.secretId)
+    }
+}
+
+private suspend fun assertReadSecretIdAccessor(
+    appRole: VaultAuthAppRole,
+    givenPath: String?,
+    expectedWritePath: String,
+    expectedReadPath: String
+) {
+    assertGenerateAndReadSecret(
+        appRole,
+        givenPath,
+        expectedWritePath,
+        expectedReadPath
+    ) { role, writeResponse ->
+        appRole.readSecretIDAccessor(role, writeResponse.secretIdAccessor)
+    }
+}
+
+private suspend inline fun assertGenerateAndReadSecret(
+    appRole: VaultAuthAppRole,
+    givenPath: String?,
+    expectedWritePath: String,
+    expectedReadPath: String,
+    crossinline block: suspend (String, AppRoleWriteSecretIdResponse) -> AppRoleLookUpSecretIdResponse
 ) {
     appRole.createOrUpdate(DEFAULT_ROLE_NAME) shouldBe true
 
@@ -219,7 +263,7 @@ private suspend fun assertGenerateSecretID(
 
     writeResponse shouldBe expectedWriteResponse
 
-    val readResponse = appRole.readSecretID(DEFAULT_ROLE_NAME, writeResponse.secretId)
+    val readResponse = block(DEFAULT_ROLE_NAME, writeResponse)
 
     // Read the expected response from the expected path and copy the secretIdAccessor & dates from the response
     // because it is randomly generated
