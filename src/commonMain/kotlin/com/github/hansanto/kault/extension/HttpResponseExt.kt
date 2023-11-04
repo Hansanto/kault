@@ -18,8 +18,21 @@ import kotlinx.serialization.json.jsonObject
  * @return Decoded value of the specified field.
  */
 internal suspend inline fun <reified T> HttpResponse.decodeBodyJsonField(format: Json, fieldName: String): T {
-    val data = getBodyJsonObject(fieldName)
-    return format.decodeFromJsonElement(data)
+    return decodeBodyJsonFieldOrNull(format, fieldName) ?: throw VaultFieldNotFoundException(fieldName)
+}
+
+/**
+ * Decodes the response body as a JSON object and returns the value of the specified field.
+ * If the body is null or the field is not found, null is returned.
+ *
+ * @receiver HttpResponse the HTTP response that contains the body to extract the JSON field from.
+ * @param format Format to use to decode the JSON object.
+ * @param fieldName Name of the JSON field to retrieve the value from.
+ * @return Decoded value of the specified field.
+ */
+internal suspend inline fun <reified T> HttpResponse.decodeBodyJsonFieldOrNull(format: Json, fieldName: String): T? {
+    val data = getBodyJsonObjectOrNull(fieldName) ?: return null
+    return format.decodeFromJsonElement<T>(data)
 }
 
 /**
@@ -30,8 +43,8 @@ internal suspend inline fun <reified T> HttpResponse.decodeBodyJsonField(format:
  * @return JsonObject representing the value of the specified field.
  * @throws VaultFieldNotFoundException if the specified field is not found in the JSON object.
  */
-internal suspend fun HttpResponse.getBodyJsonObject(fieldName: String): JsonObject {
-    return getBodyJsonElement(fieldName).jsonObject
+internal suspend fun HttpResponse.getBodyJsonObjectOrNull(fieldName: String): JsonObject? {
+    return getBodyJsonElementOrNull(fieldName)?.jsonObject
 }
 
 /**
@@ -42,6 +55,6 @@ internal suspend fun HttpResponse.getBodyJsonObject(fieldName: String): JsonObje
  * @return JsonElement representing the value of the specified field.
  * @throws VaultFieldNotFoundException if the specified field is not found in the JSON object.
  */
-internal suspend fun HttpResponse.getBodyJsonElement(fieldName: String): JsonElement {
-    return body<JsonElement>().jsonObject[fieldName] ?: throw VaultFieldNotFoundException(fieldName)
+internal suspend fun HttpResponse.getBodyJsonElementOrNull(fieldName: String): JsonElement? {
+    return body<JsonObject?>()?.get(fieldName)
 }
