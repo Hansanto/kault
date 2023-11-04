@@ -6,8 +6,8 @@ import io.ktor.client.statement.HttpResponse
 import io.ktor.client.statement.bodyAsText
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
-import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.decodeFromJsonElement
+import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 
 /**
@@ -18,8 +18,8 @@ import kotlinx.serialization.json.jsonObject
  * @param fieldName Name of the JSON field to retrieve the value from.
  * @return Decoded value of the specified field.
  */
-internal suspend inline fun <reified T> HttpResponse.decodeBodyJsonField(format: Json, fieldName: String): T {
-    return decodeBodyJsonFieldOrNull(format, fieldName) ?: throw VaultFieldNotFoundException(fieldName)
+internal suspend inline fun <reified T> HttpResponse.decodeBodyJsonFieldObject(format: Json, fieldName: String): T {
+    return decodeBodyJsonFieldObjectOrNull(format, fieldName) ?: throw VaultFieldNotFoundException(fieldName)
 }
 
 /**
@@ -31,21 +31,35 @@ internal suspend inline fun <reified T> HttpResponse.decodeBodyJsonField(format:
  * @param fieldName Name of the JSON field to retrieve the value from.
  * @return Decoded value of the specified field.
  */
-internal suspend inline fun <reified T> HttpResponse.decodeBodyJsonFieldOrNull(format: Json, fieldName: String): T? {
-    val data = getBodyJsonObjectOrNull(fieldName) ?: return null
+internal suspend inline fun <reified T> HttpResponse.decodeBodyJsonFieldObjectOrNull(format: Json, fieldName: String): T? {
+    val data = getBodyJsonElementOrNull(fieldName)?.jsonObject ?: return null
     return format.decodeFromJsonElement<T>(data)
 }
 
 /**
- * Retrieves the value of a specified JSON field from the response body and returns it as a JsonObject.
+ * Decodes the response body as a JSON array and returns the value of the specified field as a list.
  *
  * @receiver HttpResponse the HTTP response that contains the body to extract the JSON field from.
+ * @param format Format to use to decode the JSON object.
  * @param fieldName Name of the JSON field to retrieve the value from.
- * @return JsonObject representing the value of the specified field.
- * @throws VaultFieldNotFoundException if the specified field is not found in the JSON object.
+ * @return List of decoded values of the specified field.
  */
-internal suspend fun HttpResponse.getBodyJsonObjectOrNull(fieldName: String): JsonObject? {
-    return getBodyJsonElementOrNull(fieldName)?.jsonObject
+internal suspend inline fun <reified T> HttpResponse.decodeBodyJsonFieldArray(format: Json, fieldName: String): List<T> {
+    return decodeBodyJsonFieldArrayOrNull(format, fieldName) ?: throw VaultFieldNotFoundException(fieldName)
+}
+
+/**
+ * Decodes the response body as a JSON array and returns the value of the specified field as a list.
+ * If the body is null or the field is not found, null is returned.
+ *
+ * @receiver HttpResponse the HTTP response that contains the body to extract the JSON field from.
+ * @param format Format to use to decode the JSON object.
+ * @param fieldName Name of the JSON field to retrieve the value from.
+ * @return List of decoded values of the specified field.
+ */
+internal suspend inline fun <reified T> HttpResponse.decodeBodyJsonFieldArrayOrNull(format: Json, fieldName: String): List<T>? {
+    val data = getBodyJsonElementOrNull(fieldName)?.jsonArray ?: return null
+    return format.decodeFromJsonElement<List<T>>(data)
 }
 
 /**

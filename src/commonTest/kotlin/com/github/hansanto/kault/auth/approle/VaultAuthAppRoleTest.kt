@@ -311,6 +311,11 @@ class VaultAuthAppRoleTest : FunSpec({
 
         response shouldBe expected
     }
+
+    test("tidy tokens should start internal task") {
+        val warnings = appRole.tidyTokens()
+        warnings.size shouldNotBe 0
+    }
 })
 
 private suspend fun assertGenerateSecretID(
