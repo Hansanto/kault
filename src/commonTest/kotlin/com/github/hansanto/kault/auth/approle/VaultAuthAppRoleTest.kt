@@ -1,6 +1,7 @@
 package com.github.hansanto.kault.auth.approle
 
 import com.github.hansanto.kault.VaultClient
+import com.github.hansanto.kault.auth.approle.payload.CreateCustomSecretIDPayload
 import com.github.hansanto.kault.auth.approle.payload.CreateOrUpdatePayload
 import com.github.hansanto.kault.auth.approle.payload.GenerateSecretIDPayload
 import com.github.hansanto.kault.auth.approle.response.AppRoleLookUpSecretIdResponse
@@ -18,6 +19,8 @@ import io.kotest.matchers.shouldNotBe
 import kotlinx.coroutines.flow.toList
 
 private const val DEFAULT_ROLE_NAME = "test"
+
+private const val STRING_REPLACE = "REPLACED_DYNAMICALLY"
 
 class VaultAuthAppRoleTest : FunSpec({
 
@@ -253,6 +256,33 @@ class VaultAuthAppRoleTest : FunSpec({
         appRole.destroySecretIDAccessor(DEFAULT_ROLE_NAME, secretIdAccessor) shouldBe true
         shouldThrow<VaultAPIException> { appRole.readSecretIDAccessor(DEFAULT_ROLE_NAME, secretIdAccessor) }
     }
+
+    test("create custom secret id with non-existing role") {
+        shouldThrow<VaultAPIException> { appRole.createCustomSecretID(DEFAULT_ROLE_NAME, CreateCustomSecretIDPayload("")) }
+    }
+
+    test("create custom secret id with existing role without secret-id") {
+        appRole.createOrUpdate(DEFAULT_ROLE_NAME) shouldBe true
+        shouldThrow<VaultAPIException> { appRole.createCustomSecretID(DEFAULT_ROLE_NAME, CreateCustomSecretIDPayload("")) }
+    }
+
+    test("create custom secret id with existing role without options") {
+        assertCreateCustomSecretID(
+            appRole,
+            "cases/auth/approle/create-custom-secret-id/without_options/given.json",
+            "cases/auth/approle/create-custom-secret-id/without_options/expected_write.json",
+            "cases/auth/approle/create-custom-secret-id/without_options/expected_read.json"
+        )
+    }
+
+    test("create custom secret id with existing role with options and read it") {
+        assertCreateCustomSecretID(
+            appRole,
+            "cases/auth/approle/create-custom-secret-id/with_options/given.json",
+            "cases/auth/approle/create-custom-secret-id/with_options/expected_write.json",
+            "cases/auth/approle/create-custom-secret-id/with_options/expected_read.json"
+        )
+    }
 })
 
 private suspend fun assertGenerateSecretID(
@@ -261,14 +291,40 @@ private suspend fun assertGenerateSecretID(
     expectedWritePath: String,
     expectedReadPath: String
 ) {
-    assertGenerateAndReadSecret(
+    assertCreateAndReadSecret(
         appRole,
         givenPath,
         expectedWritePath,
-        expectedReadPath
-    ) { role, response ->
-        appRole.readSecretID(role, response.secretId)!!
-    }
+        expectedReadPath,
+        defaultPayload = { GenerateSecretIDPayload() },
+        write = { role, payload ->
+            appRole.generateSecretID(role, payload)
+        },
+        read = { role, response ->
+            appRole.readSecretID(role, response.secretId)!!
+        }
+    )
+}
+
+private suspend fun assertCreateCustomSecretID(
+    appRole: VaultAuthAppRole,
+    givenPath: String?,
+    expectedWritePath: String,
+    expectedReadPath: String
+) {
+    assertCreateAndReadSecret<CreateCustomSecretIDPayload>(
+        appRole,
+        givenPath,
+        expectedWritePath,
+        expectedReadPath,
+        defaultPayload = { error("Should not be called") },
+        write = { role, payload ->
+            appRole.createCustomSecretID(role, payload)
+        },
+        read = { role, response ->
+            appRole.readSecretID(role, response.secretId)!!
+        }
+    )
 }
 
 private suspend fun assertReadSecretIdAccessor(
@@ -277,39 +333,54 @@ private suspend fun assertReadSecretIdAccessor(
     expectedWritePath: String,
     expectedReadPath: String
 ) {
-    assertGenerateAndReadSecret(
+    assertCreateAndReadSecret<GenerateSecretIDPayload>(
         appRole,
         givenPath,
         expectedWritePath,
-        expectedReadPath
-    ) { role, writeResponse ->
-        appRole.readSecretIDAccessor(role, writeResponse.secretIdAccessor)
-    }
+        expectedReadPath,
+        defaultPayload = { GenerateSecretIDPayload() },
+        write = { role, payload ->
+            appRole.generateSecretID(role, payload)
+        },
+        read = { role, writeResponse ->
+            appRole.readSecretIDAccessor(role, writeResponse.secretIdAccessor)
+        }
+    )
 }
 
-private suspend inline fun assertGenerateAndReadSecret(
+private suspend inline fun <reified P> assertCreateAndReadSecret(
     appRole: VaultAuthAppRole,
     givenPath: String?,
     expectedWritePath: String,
     expectedReadPath: String,
-    crossinline block: suspend (String, AppRoleWriteSecretIdResponse) -> AppRoleLookUpSecretIdResponse
+    crossinline defaultPayload: () -> P,
+    crossinline write: suspend (String, P) -> AppRoleWriteSecretIdResponse,
+    crossinline read: suspend (String, AppRoleWriteSecretIdResponse) -> AppRoleLookUpSecretIdResponse
 ) {
     appRole.createOrUpdate(DEFAULT_ROLE_NAME) shouldBe true
 
     // Read the payload from the given path or use the default one
-    val given = givenPath?.let { readJson<GenerateSecretIDPayload>(it) } ?: GenerateSecretIDPayload()
+    val given = givenPath?.let { readJson<P>(it) } ?: defaultPayload()
 
-    val writeResponse = appRole.generateSecretID(DEFAULT_ROLE_NAME, given)
+    val writeResponse = write(DEFAULT_ROLE_NAME, given)
 
     // Read the expected response from the expected path and copy the secretId and secretIdAccessor from the
     // response because they are randomly generated
     val expectedWriteResponse =
         readJson<AppRoleWriteSecretIdResponse>(expectedWritePath)
-            .copy(secretId = writeResponse.secretId, secretIdAccessor = writeResponse.secretIdAccessor)
+            .copy(secretIdAccessor = writeResponse.secretIdAccessor)
+            .run {
+                // When we know the secretId is randomly generated, we replace it with the one from the response
+                if (secretId == STRING_REPLACE) {
+                    copy(secretId = writeResponse.secretId)
+                } else {
+                    this
+                }
+            }
 
     writeResponse shouldBe expectedWriteResponse
 
-    val readResponse = block(DEFAULT_ROLE_NAME, writeResponse)
+    val readResponse = read(DEFAULT_ROLE_NAME, writeResponse)
 
     // Read the expected response from the expected path and copy the secretIdAccessor & dates from the response
     // because it is randomly generated

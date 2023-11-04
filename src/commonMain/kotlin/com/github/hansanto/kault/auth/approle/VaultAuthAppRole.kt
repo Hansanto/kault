@@ -1,6 +1,7 @@
 package com.github.hansanto.kault.auth.approle
 
 import com.github.hansanto.kault.VaultClient
+import com.github.hansanto.kault.auth.approle.payload.CreateCustomSecretIDPayload
 import com.github.hansanto.kault.auth.approle.payload.CreateOrUpdatePayload
 import com.github.hansanto.kault.auth.approle.payload.GenerateSecretIDPayload
 import com.github.hansanto.kault.auth.approle.payload.LoginPayload
@@ -37,7 +38,7 @@ import kotlin.contracts.contract
 public suspend inline fun VaultAuthAppRole.createOrUpdate(
     roleName: String,
     payloadBuilder: CreateOrUpdatePayload.() -> Unit
-): Any {
+): Boolean {
     contract { callsInPlace(payloadBuilder, InvocationKind.EXACTLY_ONCE) }
     val payload = CreateOrUpdatePayload().apply(payloadBuilder)
     return createOrUpdate(roleName, payload)
@@ -49,10 +50,22 @@ public suspend inline fun VaultAuthAppRole.createOrUpdate(
 public suspend inline fun VaultAuthAppRole.generateSecretID(
     roleName: String,
     payloadBuilder: GenerateSecretIDPayload.() -> Unit
-): Any {
+): AppRoleWriteSecretIdResponse {
     contract { callsInPlace(payloadBuilder, InvocationKind.EXACTLY_ONCE) }
     val payload = GenerateSecretIDPayload().apply(payloadBuilder)
     return generateSecretID(roleName, payload)
+}
+
+/**
+ * @see VaultAuthAppRole.createCustomSecretID(roleName, payload)
+ */
+public suspend inline fun VaultAuthAppRole.createCustomSecretID(
+    roleName: String,
+    payloadBuilder: CreateCustomSecretIDPayload.() -> Unit
+): AppRoleWriteSecretIdResponse {
+    contract { callsInPlace(payloadBuilder, InvocationKind.EXACTLY_ONCE) }
+    val payload = CreateCustomSecretIDPayload("").apply(payloadBuilder)
+    return createCustomSecretID(roleName, payload)
 }
 
 public interface VaultAuthAppRole {
@@ -170,9 +183,12 @@ public interface VaultAuthAppRole {
      * [Documentation](https://developer.hashicorp.com/vault/api-docs/auth/approle#create-custom-approle-secret-id)
      * @param roleName Name of the AppRole. Must be less than 4096 bytes.
      * @param payload Parameters for generating a SecretID.
-     * @return Any TODO
+     * @return Response.
      */
-    public suspend fun createCustomSecretID(roleName: String, payload: Any): Any
+    public suspend fun createCustomSecretID(
+        roleName: String,
+        payload: CreateCustomSecretIDPayload
+    ): AppRoleWriteSecretIdResponse
 
     /**
      * Issues a Vault token based on the presented credentials. Role_id is always required; if bind_secret_id is enabled (the default) on the AppRole, secret_id is required too. Any other bound authentication values on the AppRole (such as client IP CIDR) are also evaluated.
@@ -333,7 +349,7 @@ public class VaultAuthAppRoleImpl(
         return response.status.isSuccess()
     }
 
-    override suspend fun createCustomSecretID(roleName: String, payload: Any): Any {
+    override suspend fun createCustomSecretID(roleName: String, payload: CreateCustomSecretIDPayload): AppRoleWriteSecretIdResponse {
         val response = client.post {
             url {
                 appendPathSegments(path, "role", roleName, "custom-secret-id")
@@ -341,7 +357,7 @@ public class VaultAuthAppRoleImpl(
             contentType(ContentType.Application.Json)
             setBody(payload)
         }
-        return response.body()
+        return response.decodeBodyJsonField(VaultClient.json, "data")
     }
 
     override suspend fun login(payload: LoginPayload): Any {

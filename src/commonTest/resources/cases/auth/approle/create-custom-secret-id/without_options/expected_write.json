@@ -1,0 +1,6 @@
+{
+  "secret_id": "without_options_secret_id",
+  "secret_id_accessor": "REPLACED_DYNAMICALLY",
+  "secret_id_num_uses": 0,
+  "secret_id_ttl": 0
+}
