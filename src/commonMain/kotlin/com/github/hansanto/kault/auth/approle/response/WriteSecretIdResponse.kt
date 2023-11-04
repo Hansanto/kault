@@ -4,7 +4,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-public data class AppRoleWriteSecretIdResponse(
+public data class WriteSecretIdResponse(
     /**
      * Secret ID attached to the role.
      */

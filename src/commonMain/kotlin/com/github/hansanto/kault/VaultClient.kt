@@ -19,7 +19,6 @@ import io.ktor.http.contentType
 import io.ktor.http.isSuccess
 import io.ktor.http.takeFrom
 import io.ktor.serialization.kotlinx.json.json
-import io.ktor.util.InternalAPI
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
@@ -54,7 +53,10 @@ public class VaultClient(
 
     public companion object {
 
-        internal val json: Json = Json {
+        /**
+         * JSON configuration to parse payloads and responses.
+         */
+        public val json: Json = Json {
             explicitNulls = false
             isLenient = true
             ignoreUnknownKeys = true
@@ -181,7 +183,6 @@ public class VaultClient(
         }
     }
 
-    @OptIn(InternalAPI::class)
     private val client: HttpClient = HttpClient {
         install(ContentNegotiation) {
             json(json)
@@ -189,7 +190,7 @@ public class VaultClient(
 
         install(Logging) {
             logger = Logger.DEFAULT
-            level = LogLevel.INFO
+            level = LogLevel.ALL
             sanitizeHeader {
                 it == headers.token
             }

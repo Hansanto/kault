@@ -39,6 +39,11 @@ public data class GenerateSecretIDPayload(
     var ttl: String? = null
 ) {
 
+    /**
+     * Sets the metadata field from a map and converts it to a JSON string.
+     *
+     * @param metadata A map containing key-value pairs of metadata.
+     */
     public fun metadata(metadata: Map<String, String>) {
         this.metadata = metadata.toJsonString(String.serializer(), String.serializer())
     }

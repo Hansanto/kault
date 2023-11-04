@@ -4,10 +4,12 @@ import com.github.hansanto.kault.VaultClient
 import com.github.hansanto.kault.auth.approle.payload.CreateCustomSecretIDPayload
 import com.github.hansanto.kault.auth.approle.payload.CreateOrUpdatePayload
 import com.github.hansanto.kault.auth.approle.payload.GenerateSecretIDPayload
-import com.github.hansanto.kault.auth.approle.response.AppRoleLookUpSecretIdResponse
-import com.github.hansanto.kault.auth.approle.response.AppRoleReadRoleIdResponse
-import com.github.hansanto.kault.auth.approle.response.AppRoleReadRoleResponse
-import com.github.hansanto.kault.auth.approle.response.AppRoleWriteSecretIdResponse
+import com.github.hansanto.kault.auth.approle.payload.LoginPayload
+import com.github.hansanto.kault.auth.approle.response.LoginResponse
+import com.github.hansanto.kault.auth.approle.response.LookUpSecretIdResponse
+import com.github.hansanto.kault.auth.approle.response.ReadRoleIdResponse
+import com.github.hansanto.kault.auth.approle.response.ReadRoleResponse
+import com.github.hansanto.kault.auth.approle.response.WriteSecretIdResponse
 import com.github.hansanto.kault.exception.VaultAPIException
 import com.github.hansanto.kault.system.auth.enableMethod
 import com.github.hansanto.kault.util.readJson
@@ -85,7 +87,7 @@ class VaultAuthAppRoleTest : FunSpec({
         val given = readJson<CreateOrUpdatePayload>("cases/auth/approle/update/given.json")
         appRole.createOrUpdate(DEFAULT_ROLE_NAME, given) shouldBe true
 
-        val expected = readJson<AppRoleReadRoleResponse>("cases/auth/approle/update/expected.json")
+        val expected = readJson<ReadRoleResponse>("cases/auth/approle/update/expected.json")
         appRole.read(DEFAULT_ROLE_NAME) shouldBe expected
     }
 
@@ -133,7 +135,7 @@ class VaultAuthAppRoleTest : FunSpec({
         val previousRoleId = appRole.readRoleID(DEFAULT_ROLE_NAME)
         previousRoleId.roleId shouldNotBe newRoleId
 
-        val expectedResponse = AppRoleReadRoleIdResponse(newRoleId)
+        val expectedResponse = ReadRoleIdResponse(newRoleId)
         appRole.updateRoleID(DEFAULT_ROLE_NAME, newRoleId) shouldBe true
         appRole.readRoleID(DEFAULT_ROLE_NAME) shouldBe expectedResponse
     }
@@ -283,6 +285,32 @@ class VaultAuthAppRoleTest : FunSpec({
             "cases/auth/approle/create-custom-secret-id/with_options/expected_read.json"
         )
     }
+
+    test("login with non-existing role") {
+        shouldThrow<VaultAPIException> { appRole.login(LoginPayload(DEFAULT_ROLE_NAME, "")) }
+    }
+
+    test("login with existing role without secret-id") {
+        appRole.createOrUpdate(DEFAULT_ROLE_NAME) shouldBe true
+        val roleId = appRole.readRoleID(DEFAULT_ROLE_NAME).roleId
+        shouldThrow<VaultAPIException> { appRole.login(LoginPayload(roleId, "")) }
+    }
+
+    test("login with existing role with secret-id") {
+        appRole.createOrUpdate(DEFAULT_ROLE_NAME) shouldBe true
+        val secretId = appRole.generateSecretID(DEFAULT_ROLE_NAME).secretId
+        val roleId = appRole.readRoleID(DEFAULT_ROLE_NAME).roleId
+
+        val response = appRole.login(LoginPayload(roleId, secretId))
+        val expected = readJson<LoginResponse>("cases/auth/approle/login/expected.json")
+            .copy(
+                accessor = response.accessor,
+                clientToken = response.clientToken,
+                entityId = response.entityId
+            )
+
+        response shouldBe expected
+    }
 })
 
 private suspend fun assertGenerateSecretID(
@@ -354,8 +382,8 @@ private suspend inline fun <reified P> assertCreateAndReadSecret(
     expectedWritePath: String,
     expectedReadPath: String,
     crossinline defaultPayload: () -> P,
-    crossinline write: suspend (String, P) -> AppRoleWriteSecretIdResponse,
-    crossinline read: suspend (String, AppRoleWriteSecretIdResponse) -> AppRoleLookUpSecretIdResponse
+    crossinline write: suspend (String, P) -> WriteSecretIdResponse,
+    crossinline read: suspend (String, WriteSecretIdResponse) -> LookUpSecretIdResponse
 ) {
     appRole.createOrUpdate(DEFAULT_ROLE_NAME) shouldBe true
 
@@ -367,7 +395,7 @@ private suspend inline fun <reified P> assertCreateAndReadSecret(
     // Read the expected response from the expected path and copy the secretId and secretIdAccessor from the
     // response because they are randomly generated
     val expectedWriteResponse =
-        readJson<AppRoleWriteSecretIdResponse>(expectedWritePath)
+        readJson<WriteSecretIdResponse>(expectedWritePath)
             .copy(secretIdAccessor = writeResponse.secretIdAccessor)
             .run {
                 // When we know the secretId is randomly generated, we replace it with the one from the response
@@ -385,7 +413,7 @@ private suspend inline fun <reified P> assertCreateAndReadSecret(
     // Read the expected response from the expected path and copy the secretIdAccessor & dates from the response
     // because it is randomly generated
     val expectedReadResponse =
-        readJson<AppRoleLookUpSecretIdResponse>(expectedReadPath).copy(
+        readJson<LookUpSecretIdResponse>(expectedReadPath).copy(
             secretIdAccessor = writeResponse.secretIdAccessor,
             creationTime = readResponse.creationTime,
             expirationTime = readResponse.expirationTime,
@@ -403,6 +431,6 @@ private suspend fun assertCreate(
     appRole.createOrUpdate(DEFAULT_ROLE_NAME, given) shouldBe true
 
     val response = appRole.read(DEFAULT_ROLE_NAME)
-    val expected = readJson<AppRoleReadRoleResponse>(expectedReadPath)
+    val expected = readJson<ReadRoleResponse>(expectedReadPath)
     response shouldBe expected
 }
