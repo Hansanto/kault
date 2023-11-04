@@ -146,6 +146,56 @@ class VaultAuthAppRoleTest : FunSpec({
             "cases/auth/approle/generate-secret-id/with_options/expected_read.json"
         )
     }
+
+    test("secret id accessors with non-existing role") {
+        shouldThrow<VaultAPIException> { appRole.secretIdAccessors(DEFAULT_ROLE_NAME) }
+    }
+
+    test("secret id accessors with existing role without secret id") {
+        appRole.createOrUpdate(DEFAULT_ROLE_NAME) shouldBe true
+
+        shouldThrow<VaultAPIException> { appRole.secretIdAccessors(DEFAULT_ROLE_NAME) }
+    }
+
+    test("secret id accessors with existing role") {
+        appRole.createOrUpdate(DEFAULT_ROLE_NAME) shouldBe true
+
+        repeat(10) {
+            appRole.generateSecretID(DEFAULT_ROLE_NAME)
+            appRole.secretIdAccessors(DEFAULT_ROLE_NAME).keys.size shouldBe it + 1
+        }
+    }
+
+    test("destroy secret id with non-existing role") {
+        shouldThrow<VaultAPIException> { appRole.destroySecretID(DEFAULT_ROLE_NAME, "test") }
+    }
+
+    test("destroy secret id with existing role and non-existing secret id") {
+        appRole.createOrUpdate(DEFAULT_ROLE_NAME) shouldBe true
+        appRole.destroySecretID(DEFAULT_ROLE_NAME, "test") shouldBe true
+    }
+
+    test("destroy secret id with existing role and existing secret id") {
+        appRole.createOrUpdate(DEFAULT_ROLE_NAME) shouldBe true
+        val secretId = appRole.generateSecretID(DEFAULT_ROLE_NAME).secretId
+        appRole.destroySecretID(DEFAULT_ROLE_NAME, secretId) shouldBe true
+    }
+
+    test("read secret id accessor with non-existing role") {
+        shouldThrow<VaultAPIException> { appRole.readSecretIDAccessor(DEFAULT_ROLE_NAME, "test") }
+    }
+
+    test("read secret id accessor with existing role and non-existing secret id") {
+        appRole.createOrUpdate(DEFAULT_ROLE_NAME) shouldBe true
+        shouldThrow<VaultAPIException> { appRole.readSecretIDAccessor(DEFAULT_ROLE_NAME, "test") }
+    }
+
+    test("read secret id accessor with existing role and existing secret id") {
+        appRole.createOrUpdate(DEFAULT_ROLE_NAME) shouldBe true
+        val secretId = appRole.generateSecretID(DEFAULT_ROLE_NAME).secretId
+        appRole.readSecretIDAccessor(DEFAULT_ROLE_NAME, secretId) shouldNotBe null
+    }
+
 })
 
 private suspend fun assertGenerateSecretID(

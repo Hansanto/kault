@@ -25,10 +25,10 @@ import io.ktor.http.HttpMethod
 import io.ktor.http.appendPathSegments
 import io.ktor.http.contentType
 import io.ktor.http.isSuccess
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 
 /**
  * @see VaultAuthAppRole.createOrUpdate(roleName, payload)
@@ -126,7 +126,7 @@ public interface VaultAuthAppRole {
      * @param roleName Name of the AppRole. Must be less than 4096 bytes.
      * @return List of SecretID accessors.
      */
-    public suspend fun secretIdAccessors(roleName: String): List<String>
+    public suspend fun secretIdAccessors(roleName: String): StandardListResponse
 
     /**
      * Reads out the properties of a SecretID.
@@ -151,9 +151,9 @@ public interface VaultAuthAppRole {
      * [Documentation](https://developer.hashicorp.com/vault/api-docs/auth/approle#read-approle-secret-id-accessor)
      * @param roleName Name of the AppRole. Must be less than 4096 bytes.
      * @param secretIdAccessor Secret ID accessor attached to the role.
-     * @return Any TODO
+     * @return Response.
      */
-    public suspend fun readSecretIDAccessor(roleName: String, secretIdAccessor: String): Any
+    public suspend fun readSecretIDAccessor(roleName: String, secretIdAccessor: String): AppRoleLookUpSecretIdResponse
 
     /**
      * Destroy an AppRole secret ID by its accessor.
@@ -271,14 +271,14 @@ public class VaultAuthAppRoleImpl(
         return response.decodeBodyJsonField(VaultClient.json, "data")
     }
 
-    override suspend fun secretIdAccessors(roleName: String): List<String> {
+    override suspend fun secretIdAccessors(roleName: String): StandardListResponse {
         val response = client.request {
             method = HttpMethod("LIST")
             url {
                 appendPathSegments(path, "role", roleName, "secret-id")
             }
         }
-        return emptyList()
+        return response.decodeBodyJsonField(VaultClient.json, "data")
     }
 
     override suspend fun readSecretID(roleName: String, secretId: String): AppRoleLookUpSecretIdResponse {
@@ -300,10 +300,14 @@ public class VaultAuthAppRoleImpl(
             contentType(ContentType.Application.Json)
             setBody(SecretIdPayload(secretId))
         }
+
         return response.status.isSuccess()
     }
 
-    override suspend fun readSecretIDAccessor(roleName: String, secretIdAccessor: String): Any {
+    override suspend fun readSecretIDAccessor(
+        roleName: String,
+        secretIdAccessor: String
+    ): AppRoleLookUpSecretIdResponse {
         val response = client.post {
             url {
                 appendPathSegments(path, "role", roleName, "secret-id-accessor", "lookup")
@@ -311,7 +315,8 @@ public class VaultAuthAppRoleImpl(
             contentType(ContentType.Application.Json)
             setBody(SecretIdAccessorPayload(secretIdAccessor))
         }
-        return response.body()
+
+        return response.decodeBodyJsonField(VaultClient.json, "data")
     }
 
     override suspend fun destroySecretIDAccessor(roleName: String, secretIdAccessor: String): Boolean {
