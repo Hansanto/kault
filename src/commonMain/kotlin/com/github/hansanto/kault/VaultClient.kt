@@ -12,6 +12,7 @@ import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logger
 import io.ktor.client.plugins.logging.Logging
 import io.ktor.client.request.header
+import io.ktor.client.statement.HttpResponse
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.appendPathSegments
 import io.ktor.http.contentType
@@ -20,7 +21,6 @@ import io.ktor.http.takeFrom
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.util.InternalAPI
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
@@ -198,23 +198,7 @@ public class VaultClient(
         HttpResponseValidator {
             validateResponse { response ->
                 if (!response.status.isSuccess()) {
-                    if (response.contentType() == null) {
-                        throw VaultAPIException(emptyList())
-                    }
-
-                    val element = json.parseToJsonElement(response.bodyAsText())
-                    if (element is JsonObject) {
-                        element["errors"]?.let { errorNode ->
-                            val errors = errorNode.jsonArray.map { it.jsonPrimitive.content }
-                            throw VaultAPIException(errors)
-                        }
-
-                        element["data"]?.jsonObject?.get("error")?.let { errorNode ->
-                            throw VaultAPIException(listOf(errorNode.jsonPrimitive.content))
-                        }
-                    }
-
-                    throw VaultAPIException(emptyList())
+                    throw VaultAPIException(findErrorsInResponse(response))
                 }
             }
         }
@@ -233,4 +217,42 @@ public class VaultClient(
     public val auth: VaultAuth = VaultAuth(client)
 
     public val system: VaultSystem = VaultSystem(client)
+
+    /**
+     * Finds errors in the given HttpResponse.
+     * When checking fields,
+     * we force the type of json element to know if the format changes between several versions of the API.
+     *
+     * @param response The HttpResponse to check for errors.
+     * @return A list of error messages found in the response. Returns an empty list if no errors are found.
+     */
+    private suspend fun findErrorsInResponse(response: HttpResponse): List<String> {
+        if (response.contentType() != null) {
+            val jsonBody = json.parseToJsonElement(response.bodyAsText()).jsonObject
+            /**
+             * {
+             *  "errors": [
+             *    "error1",
+             *    "error2"
+             *    ...
+             *  ]
+             * }
+             */
+            jsonBody["errors"]?.jsonArray?.let { array ->
+                return array.map { it.jsonPrimitive.content }
+            }
+
+            /**
+             * {
+             *  "data": {
+             *   "error": "error1"
+             *  }
+             * }
+             */
+            jsonBody["data"]?.jsonObject?.get("error")?.jsonPrimitive?.content?.let {
+                return listOf(it)
+            }
+        }
+        return emptyList()
+    }
 }
