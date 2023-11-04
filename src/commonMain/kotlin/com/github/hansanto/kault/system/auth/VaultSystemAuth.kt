@@ -17,7 +17,7 @@ import kotlin.contracts.contract
 public suspend inline fun VaultSystemAuth.enableMethod(
     path: String,
     payloadBuilder: EnableMethodPayload.() -> Unit
-): Any {
+): Boolean {
     contract { callsInPlace(payloadBuilder, InvocationKind.EXACTLY_ONCE) }
     val payload = EnableMethodPayload().apply(payloadBuilder)
     return enableMethod(path, payload)

@@ -60,7 +60,7 @@ class VaultAuthAppRoleTest : FunSpec({
         appRole.list().toList() shouldBe roles
     }
 
-    test("create without options and read it") {
+    test("create without options") {
         assertCreate(
             appRole,
             null,
@@ -68,7 +68,7 @@ class VaultAuthAppRoleTest : FunSpec({
         )
     }
 
-    test("create with options and read it") {
+    test("create with options") {
         assertCreate(
             appRole,
             "cases/auth/approle/create/with_options/given.json",
@@ -84,6 +84,16 @@ class VaultAuthAppRoleTest : FunSpec({
 
         val expected = readJson<AppRoleReadRoleResponse>("cases/auth/approle/update/expected.json")
         appRole.read(DEFAULT_ROLE_NAME) shouldBe expected
+    }
+
+    test("read non-existing role") {
+        shouldThrow<VaultAPIException> { appRole.read(DEFAULT_ROLE_NAME) }
+    }
+
+    test("read existing role") {
+        appRole.createOrUpdate(DEFAULT_ROLE_NAME) shouldBe true
+        val response = appRole.read(DEFAULT_ROLE_NAME)
+        response shouldNotBe null
     }
 
     test("delete non-existing role") {
@@ -166,6 +176,21 @@ class VaultAuthAppRoleTest : FunSpec({
         }
     }
 
+    test("read secret id non-existing role") {
+        shouldThrow<VaultAPIException> { appRole.readSecretID(DEFAULT_ROLE_NAME, "test") }
+    }
+
+    test("read secret id existing role and non-existing secret id") {
+        appRole.createOrUpdate(DEFAULT_ROLE_NAME) shouldBe true
+        appRole.readSecretID(DEFAULT_ROLE_NAME, "test") shouldBe null
+    }
+
+    test("read secret id existing role and existing secret id") {
+        appRole.createOrUpdate(DEFAULT_ROLE_NAME) shouldBe true
+        val generateResponse = appRole.generateSecretID(DEFAULT_ROLE_NAME)
+        appRole.readSecretID(DEFAULT_ROLE_NAME, generateResponse.secretId) shouldNotBe null
+    }
+
     test("destroy secret id with non-existing role") {
         shouldThrow<VaultAPIException> { appRole.destroySecretID(DEFAULT_ROLE_NAME, "test") }
     }
@@ -178,7 +203,10 @@ class VaultAuthAppRoleTest : FunSpec({
     test("destroy secret id with existing role and existing secret id") {
         appRole.createOrUpdate(DEFAULT_ROLE_NAME) shouldBe true
         val secretId = appRole.generateSecretID(DEFAULT_ROLE_NAME).secretId
+
+        appRole.readSecretID(DEFAULT_ROLE_NAME, secretId) shouldNotBe null
         appRole.destroySecretID(DEFAULT_ROLE_NAME, secretId) shouldBe true
+        appRole.readSecretID(DEFAULT_ROLE_NAME, secretId) shouldBe null
     }
 
     test("read secret id accessor with non-existing role") {
@@ -207,6 +235,24 @@ class VaultAuthAppRoleTest : FunSpec({
             "cases/auth/approle/read-secret-id-accessor/with_options/expected_read.json"
         )
     }
+
+    test("destroy secret id accessor with non-existing role") {
+        shouldThrow<VaultAPIException> { appRole.destroySecretID(DEFAULT_ROLE_NAME, "test") }
+    }
+
+    test("destroy secret id accessor with existing role and non-existing secret id") {
+        appRole.createOrUpdate(DEFAULT_ROLE_NAME) shouldBe true
+        shouldThrow<VaultAPIException> { appRole.destroySecretIDAccessor(DEFAULT_ROLE_NAME, "test") }
+    }
+
+    test("destroy secret id accessor with existing role and existing secret id") {
+        appRole.createOrUpdate(DEFAULT_ROLE_NAME) shouldBe true
+        val secretIdAccessor = appRole.generateSecretID(DEFAULT_ROLE_NAME).secretIdAccessor
+
+        shouldNotThrow<VaultAPIException> { appRole.readSecretIDAccessor(DEFAULT_ROLE_NAME, secretIdAccessor) }
+        appRole.destroySecretIDAccessor(DEFAULT_ROLE_NAME, secretIdAccessor) shouldBe true
+        shouldThrow<VaultAPIException> { appRole.readSecretIDAccessor(DEFAULT_ROLE_NAME, secretIdAccessor) }
+    }
 })
 
 private suspend fun assertGenerateSecretID(
@@ -221,7 +267,7 @@ private suspend fun assertGenerateSecretID(
         expectedWritePath,
         expectedReadPath
     ) { role, response ->
-        appRole.readSecretID(role, response.secretId)
+        appRole.readSecretID(role, response.secretId)!!
     }
 }
 
