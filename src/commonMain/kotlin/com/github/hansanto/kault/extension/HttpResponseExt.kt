@@ -1,8 +1,9 @@
 package com.github.hansanto.kault.extension
 
+import com.github.hansanto.kault.VaultClient
 import com.github.hansanto.kault.exception.VaultFieldNotFoundException
-import io.ktor.client.call.body
 import io.ktor.client.statement.HttpResponse
+import io.ktor.client.statement.bodyAsText
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
@@ -56,5 +57,9 @@ internal suspend fun HttpResponse.getBodyJsonObjectOrNull(fieldName: String): Js
  * @throws VaultFieldNotFoundException if the specified field is not found in the JSON object.
  */
 internal suspend fun HttpResponse.getBodyJsonElementOrNull(fieldName: String): JsonElement? {
-    return body<JsonObject?>()?.get(fieldName)
+    val text = bodyAsText()
+    if (text.isEmpty()) {
+        return null
+    }
+    return VaultClient.json.parseToJsonElement(text).jsonObject[fieldName]
 }
