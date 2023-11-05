@@ -21,6 +21,9 @@ import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 
+/**
+ * Function that resolves the authentication token.
+ */
 public typealias TokenResolver = () -> String?
 
 /**
@@ -103,19 +106,19 @@ public class VaultClient(
         /**
          * Builder to define header keys.
          */
-        private var headers: Headers.Builder.() -> Unit = {}
+        private var headerBuilder: Headers.Builder.() -> Unit = {}
 
         /**
          * Builder to define authentication service.
          */
-        private var auth: VaultAuth.Builder.() -> Unit = {}
+        private var authBuilder: VaultAuth.Builder.() -> Unit = {}
 
         /**
          * Builder to custom the HTTP client.
          * The token resolver is passed as parameter and must not be used before the client is built.
          * [Documentation](https://ktor.io/docs/clients-index.html)
          */
-        private var httpClient: ((TokenResolver) -> HttpClient)? = null
+        private var httpClientBuilder: ((TokenResolver) -> HttpClient)? = null
 
         /**
          * Build the instance of [VaultClient] with the values defined in builder.
@@ -124,8 +127,8 @@ public class VaultClient(
         public fun build(): VaultClient {
             lateinit var auth: VaultAuth
             val tokenResolver: TokenResolver = { auth.token }
-            val client = httpClient?.invoke(tokenResolver) ?: createHttpClient(tokenResolver)
-            auth = VaultAuth(client, this.auth)
+            val client = httpClientBuilder?.invoke(tokenResolver) ?: createHttpClient(tokenResolver)
+            auth = VaultAuth(client, null, this.authBuilder)
 
             return VaultClient(
                 client = client,
@@ -140,7 +143,7 @@ public class VaultClient(
          * @param builder Builder to create [Headers] instance.
          */
         public fun headers(builder: Headers.Builder.() -> Unit) {
-            headers = builder
+            headerBuilder = builder
         }
 
         /**
@@ -149,7 +152,7 @@ public class VaultClient(
          * @param builder Builder to create [VaultAuth] instance.
          */
         public fun auth(builder: VaultAuth.Builder.() -> Unit) {
-            auth = builder
+            authBuilder = builder
         }
 
         /**
@@ -158,7 +161,7 @@ public class VaultClient(
          * @param builder Builder to create [HttpClientConfig] instance.
          */
         public fun httpClient(builder: ((TokenResolver) -> HttpClient)?) {
-            httpClient = builder
+            httpClientBuilder = builder
         }
 
         /**
@@ -190,7 +193,7 @@ public class VaultClient(
                 }
             }
 
-            val headers = Headers(headers)
+            val headers = Headers(headerBuilder)
             val baseUrl = this@Builder.url.addURLChildPath(path) + URL_SEPARATOR
             defaultRequest {
                 url(baseUrl)

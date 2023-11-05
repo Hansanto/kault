@@ -236,7 +236,7 @@ public class VaultAuthAppRoleImpl(
          */
         public inline operator fun invoke(
             client: HttpClient,
-            parentPath: String,
+            parentPath: String?,
             builder: Builder.() -> Unit
         ): VaultAuthAppRole = Builder().apply(builder).build(client, parentPath)
     }
@@ -260,10 +260,6 @@ public class VaultAuthAppRoleImpl(
 
         public override var path: String = Default.PATH
 
-        /**
-         * Build the instance of [Headers] with the values defined in builder.
-         * @return Instance of [Headers].
-         */
         public override fun build(client: HttpClient, parentPath: String?): VaultAuthAppRoleImpl = VaultAuthAppRoleImpl(
             client = client,
             path = parentPath?.addURLChildPath(path) ?: path

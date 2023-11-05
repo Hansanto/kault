@@ -7,10 +7,8 @@ import com.github.hansanto.kault.extension.addURLChildPath
 import io.ktor.client.HttpClient
 
 public class VaultAuth(
-    client: HttpClient,
-    path: String = Default.PATH,
     public var token: String? = null,
-    appRoleBuilder: VaultAuthAppRoleImpl.Builder.() -> Unit = Default.appRoleBuilder
+    public val appRole: VaultAuthAppRole
 ) {
 
     public companion object {
@@ -20,8 +18,8 @@ public class VaultAuth(
          * @param builder Builder to create the instance.
          * @return Instance of [VaultAuth].
          */
-        public inline operator fun invoke(client: HttpClient, builder: Builder.() -> Unit): VaultAuth =
-            Builder().apply(builder).build(client)
+        public inline operator fun invoke(client: HttpClient, parentPath: String?, builder: Builder.() -> Unit): VaultAuth =
+            Builder().apply(builder).build(client, parentPath)
     }
 
     /**
@@ -33,11 +31,6 @@ public class VaultAuth(
          * Default API path.
          */
         public const val PATH: String = "auth"
-
-        /**
-         * Default authentication approle service builder.
-         */
-        public val appRoleBuilder: VaultAuthAppRoleImpl.Builder.() -> Unit = {}
     }
 
     /**
@@ -53,13 +46,14 @@ public class VaultAuth(
         /**
          * Builder to define authentication appRole service.
          */
-        private var appRole: VaultAuthAppRoleImpl.Builder.() -> Unit = Default.appRoleBuilder
+        private var appRoleBuilder: VaultAuthAppRoleImpl.Builder.() -> Unit = {}
 
         override fun build(client: HttpClient, parentPath: String?): VaultAuth {
+            val entirePath = parentPath?.addURLChildPath(path) ?: path
+            val appRole = VaultAuthAppRoleImpl.Builder().apply(appRoleBuilder).build(client, entirePath)
             return VaultAuth(
-                client = client,
-                path = parentPath?.addURLChildPath(path) ?: path,
-                token = token
+                token = token,
+                appRole = appRole
             )
         }
 
@@ -69,9 +63,7 @@ public class VaultAuth(
          * @param builder Builder to create [VaultAuthAppRoleImpl] instance.
          */
         public fun appRole(builder: VaultAuthAppRoleImpl.Builder.() -> Unit) {
-            appRole = builder
+            appRoleBuilder = builder
         }
     }
-
-    public val appRole: VaultAuthAppRole = VaultAuthAppRoleImpl(client, path, appRoleBuilder)
 }
