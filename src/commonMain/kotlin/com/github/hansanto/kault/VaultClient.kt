@@ -191,8 +191,9 @@ public class VaultClient(
             }
 
             val headers = Headers(headers)
+            val baseUrl = this@Builder.url.addURLChildPath(path) + URL_SEPARATOR
             defaultRequest {
-                url(this@Builder.url.addURLChildPath(path) + URL_SEPARATOR)
+                url(baseUrl)
                 header(headers.token, tokenResolver())
                 header(headers.namespace, this@Builder.namespace)
             }
