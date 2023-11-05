@@ -18,6 +18,11 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import io.ktor.client.HttpClient
+import io.ktor.client.plugins.logging.DEFAULT
+import io.ktor.client.plugins.logging.LogLevel
+import io.ktor.client.plugins.logging.Logger
+import io.ktor.client.plugins.logging.Logging
 import kotlinx.coroutines.flow.toList
 
 private const val DEFAULT_ROLE_NAME = "test"
@@ -31,6 +36,15 @@ class VaultAuthAppRoleTest : FunSpec({
     beforeSpec {
         val client = VaultClient {
             url = "http://localhost:8200"
+            client {
+                HttpClient {
+                    install(Logging) {
+                        logger = Logger.DEFAULT
+                        level = LogLevel.ALL
+                    }
+                    defaultHttpClientConfiguration(it)
+                }
+            }
         }
 
         client.auth.token = "root"
@@ -260,12 +274,22 @@ class VaultAuthAppRoleTest : FunSpec({
     }
 
     test("create custom secret id with non-existing role") {
-        shouldThrow<VaultAPIException> { appRole.createCustomSecretID(DEFAULT_ROLE_NAME, CreateCustomSecretIDPayload("")) }
+        shouldThrow<VaultAPIException> {
+            appRole.createCustomSecretID(
+                DEFAULT_ROLE_NAME,
+                CreateCustomSecretIDPayload("")
+            )
+        }
     }
 
     test("create custom secret id with existing role without secret-id") {
         appRole.createOrUpdate(DEFAULT_ROLE_NAME) shouldBe true
-        shouldThrow<VaultAPIException> { appRole.createCustomSecretID(DEFAULT_ROLE_NAME, CreateCustomSecretIDPayload("")) }
+        shouldThrow<VaultAPIException> {
+            appRole.createCustomSecretID(
+                DEFAULT_ROLE_NAME,
+                CreateCustomSecretIDPayload("")
+            )
+        }
     }
 
     test("create custom secret id with existing role without options") {

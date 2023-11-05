@@ -10,7 +10,7 @@ public class VaultAuth(
     client: HttpClient,
     path: String = Default.PATH,
     public var token: String? = null,
-    appRoleBuilder: VaultAuthAppRoleImpl.Builder.() -> Unit = Default.appRoleBuilder,
+    appRoleBuilder: VaultAuthAppRoleImpl.Builder.() -> Unit = Default.appRoleBuilder
 ) {
 
     public companion object {
@@ -44,7 +44,7 @@ public class VaultAuth(
      * Builder class to simplify the creation of [VaultAuth].
      */
     @Suppress("MemberVisibilityCanBePrivate")
-    public class Builder: ServiceBuilder<VaultAuth> {
+    public class Builder : ServiceBuilder<VaultAuth> {
 
         public var token: String? = null
 
@@ -59,7 +59,7 @@ public class VaultAuth(
             return VaultAuth(
                 client = client,
                 path = parentPath?.addChildPath(path) ?: path,
-                token = token,
+                token = token
             )
         }
 

@@ -224,7 +224,7 @@ public interface VaultAuthAppRole {
 
 public class VaultAuthAppRoleImpl(
     private val client: HttpClient,
-    public val path: String,
+    public val path: String
 ) : VaultAuthAppRole {
 
     public companion object {
@@ -266,7 +266,7 @@ public class VaultAuthAppRoleImpl(
          */
         public override fun build(client: HttpClient, parentPath: String?): VaultAuthAppRoleImpl = VaultAuthAppRoleImpl(
             client = client,
-            path = parentPath?.addChildPath(path) ?: path,
+            path = parentPath?.addChildPath(path) ?: path
         )
     }
 

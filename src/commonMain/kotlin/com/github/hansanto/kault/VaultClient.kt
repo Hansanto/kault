@@ -4,13 +4,10 @@ import com.github.hansanto.kault.auth.VaultAuth
 import com.github.hansanto.kault.exception.VaultAPIException
 import com.github.hansanto.kault.system.VaultSystem
 import io.ktor.client.HttpClient
+import io.ktor.client.HttpClientConfig
 import io.ktor.client.plugins.HttpResponseValidator
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.defaultRequest
-import io.ktor.client.plugins.logging.DEFAULT
-import io.ktor.client.plugins.logging.LogLevel
-import io.ktor.client.plugins.logging.Logger
-import io.ktor.client.plugins.logging.Logging
 import io.ktor.client.request.header
 import io.ktor.client.statement.HttpResponse
 import io.ktor.client.statement.bodyAsText
@@ -24,38 +21,18 @@ import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 
+public typealias TokenResolver = () -> String?
+
 /**
  * Client to interact with a Vault server.
  * @property client Http client to interact through REST API.
  * @property auth Authentication service.
  */
 public class VaultClient(
-    /**
-     * @see [VaultClient.Builder.url]
-     */
-    url: String,
-
-    /**
-     * @see [VaultClient.Builder.namespace]
-     */
-    namespace: String? = null,
-
-    /**
-     * @see [VaultClient.Builder.path]
-     */
-    apiPath: String = Default.PATH,
-
-    /**
-     * Headers to use for the requests.
-     */
-    headers: Headers = Default.headers,
-
-    /**
-     * Builder to define authentication service.
-     */
-    authBuilder: VaultAuth.Builder.() -> Unit = Default.authBuilder,
-
-    ) {
+    public val client: HttpClient,
+    public val auth: VaultAuth,
+    public val system: VaultSystem
+) {
 
     public companion object {
 
@@ -97,11 +74,6 @@ public class VaultClient(
          * Default headers.
          */
         public val headers: Headers = Headers()
-
-        /**
-         * Default authentication service builder.
-         */
-        public val authBuilder: VaultAuth.Builder.() -> Unit = {}
     }
 
     /**
@@ -136,19 +108,31 @@ public class VaultClient(
         /**
          * Builder to define authentication service.
          */
-        private var auth: VaultAuth.Builder.() -> Unit = Default.authBuilder
+        private var auth: VaultAuth.Builder.() -> Unit = {}
+
+        /**
+         * Builder to custom the HTTP client.
+         * The token resolver is passed as parameter and must not be used before the client is built.
+         * [Documentation](https://ktor.io/docs/clients-index.html)
+         */
+        private var client: ((TokenResolver) -> HttpClient)? = null
 
         /**
          * Build the instance of [VaultClient] with the values defined in builder.
          * @return A new instance.
          */
-        public fun build(): VaultClient = VaultClient(
-            url = url,
-            namespace = namespace,
-            apiPath = path,
-            headers = Headers(headers),
-            authBuilder = auth
-        )
+        public fun build(): VaultClient {
+            lateinit var auth: VaultAuth
+            val tokenResolver: TokenResolver = { auth.token }
+            val client = client?.invoke(tokenResolver) ?: createHttpClient(tokenResolver)
+            auth = VaultAuth(client, this.auth)
+
+            return VaultClient(
+                client = client,
+                auth = auth,
+                system = VaultSystem(client)
+            )
+        }
 
         /**
          * Sets the header builder.
@@ -166,6 +150,94 @@ public class VaultClient(
          */
         public fun auth(builder: VaultAuth.Builder.() -> Unit) {
             auth = builder
+        }
+
+        /**
+         * Sets the HTTP client builder.
+         *
+         * @param builder Builder to create [HttpClientConfig] instance.
+         */
+        public fun client(builder: ((TokenResolver) -> HttpClient)?) {
+            client = builder
+        }
+
+        /**
+         * Creates an HttpClient with the default configuration.
+         *
+         * @param tokenResolver Function that resolves the authentication token.
+         * @return The configured [HttpClient] instance.
+         */
+        private fun createHttpClient(tokenResolver: TokenResolver): HttpClient = HttpClient {
+            defaultHttpClientConfiguration(tokenResolver)
+        }
+
+        /**
+         * Configures the default HttpClient settings to interact with the Vault API.
+         *
+         * @param tokenResolver Function that returns the token for authentication.
+         * @return Function which can be used to configure the HttpClient.
+         */
+        public fun HttpClientConfig<*>.defaultHttpClientConfiguration(tokenResolver: TokenResolver) {
+            install(ContentNegotiation) {
+                json(json)
+            }
+
+            HttpResponseValidator {
+                validateResponse { response ->
+                    if (!response.status.isSuccess()) {
+                        throw VaultAPIException(findErrorsInResponse(response))
+                    }
+                }
+            }
+
+            val headers = Headers(headers)
+            defaultRequest {
+                url {
+                    takeFrom(this@Builder.url)
+                    appendPathSegments(this@Builder.path)
+                }
+
+                header(headers.token, tokenResolver())
+                header(headers.namespace, this@Builder.namespace)
+            }
+        }
+
+        /**
+         * Finds errors in the given HttpResponse.
+         * When checking fields,
+         * we force the type of json element to know if the format changes between several versions of the API.
+         *
+         * @param response The HttpResponse to check for errors.
+         * @return A list of error messages found in the response. Returns an empty list if no errors are found.
+         */
+        private suspend fun findErrorsInResponse(response: HttpResponse): List<String> {
+            if (response.contentType() != null) {
+                val jsonBody = json.parseToJsonElement(response.bodyAsText()).jsonObject
+                /**
+                 * {
+                 *  "errors": [
+                 *    "error1",
+                 *    "error2"
+                 *    ...
+                 *  ]
+                 * }
+                 */
+                jsonBody["errors"]?.jsonArray?.let { array ->
+                    return array.map { it.jsonPrimitive.content }
+                }
+
+                /**
+                 * {
+                 *  "data": {
+                 *   "error": "error1"
+                 *  }
+                 * }
+                 */
+                jsonBody["data"]?.jsonObject?.get("error")?.jsonPrimitive?.content?.let {
+                    return listOf(it)
+                }
+            }
+            return emptyList()
         }
     }
 
@@ -216,79 +288,5 @@ public class VaultClient(
                 namespace = namespace
             )
         }
-    }
-
-    private val client: HttpClient = HttpClient {
-        install(ContentNegotiation) {
-            json(json)
-        }
-
-        install(Logging) {
-            logger = Logger.DEFAULT
-            level = LogLevel.ALL
-            sanitizeHeader {
-                it == headers.token
-            }
-        }
-
-        HttpResponseValidator {
-            validateResponse { response ->
-                if (!response.status.isSuccess()) {
-                    throw VaultAPIException(findErrorsInResponse(response))
-                }
-            }
-        }
-
-        defaultRequest {
-            url {
-                takeFrom(url)
-                appendPathSegments(apiPath)
-            }
-
-            header(headers.token, auth.token)
-            header(headers.namespace, namespace)
-        }
-    }
-
-    public val auth: VaultAuth = VaultAuth(client, authBuilder)
-
-    public val system: VaultSystem = VaultSystem(client)
-
-    /**
-     * Finds errors in the given HttpResponse.
-     * When checking fields,
-     * we force the type of json element to know if the format changes between several versions of the API.
-     *
-     * @param response The HttpResponse to check for errors.
-     * @return A list of error messages found in the response. Returns an empty list if no errors are found.
-     */
-    private suspend fun findErrorsInResponse(response: HttpResponse): List<String> {
-        if (response.contentType() != null) {
-            val jsonBody = json.parseToJsonElement(response.bodyAsText()).jsonObject
-            /**
-             * {
-             *  "errors": [
-             *    "error1",
-             *    "error2"
-             *    ...
-             *  ]
-             * }
-             */
-            jsonBody["errors"]?.jsonArray?.let { array ->
-                return array.map { it.jsonPrimitive.content }
-            }
-
-            /**
-             * {
-             *  "data": {
-             *   "error": "error1"
-             *  }
-             * }
-             */
-            jsonBody["data"]?.jsonObject?.get("error")?.jsonPrimitive?.content?.let {
-                return listOf(it)
-            }
-        }
-        return emptyList()
     }
 }
