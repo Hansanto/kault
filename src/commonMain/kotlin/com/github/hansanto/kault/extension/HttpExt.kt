@@ -1,6 +1,5 @@
 package com.github.hansanto.kault.extension
 
-import com.github.hansanto.kault.VaultClient
 import com.github.hansanto.kault.exception.VaultFieldNotFoundException
 import io.ktor.client.statement.HttpResponse
 import io.ktor.client.statement.bodyAsText
@@ -25,8 +24,8 @@ public const val URL_SEPARATOR: String = "/"
  * @param fieldName Name of the JSON field to retrieve the value from.
  * @return Decoded value of the specified field.
  */
-internal suspend inline fun <reified T> HttpResponse.decodeBodyJsonFieldObject(format: Json, fieldName: String): T {
-    return decodeBodyJsonFieldObjectOrNull(format, fieldName) ?: throw VaultFieldNotFoundException(fieldName)
+internal suspend inline fun <reified T> HttpResponse.decodeBodyJsonFieldObject(fieldName: String, format: Json): T {
+    return decodeBodyJsonFieldObjectOrNull(fieldName, format) ?: throw VaultFieldNotFoundException(fieldName)
 }
 
 /**
@@ -38,8 +37,8 @@ internal suspend inline fun <reified T> HttpResponse.decodeBodyJsonFieldObject(f
  * @param fieldName Name of the JSON field to retrieve the value from.
  * @return Decoded value of the specified field.
  */
-internal suspend inline fun <reified T> HttpResponse.decodeBodyJsonFieldObjectOrNull(format: Json, fieldName: String): T? {
-    val data = getBodyJsonElementOrNull(fieldName)?.jsonObject ?: return null
+internal suspend inline fun <reified T> HttpResponse.decodeBodyJsonFieldObjectOrNull(fieldName: String, format: Json): T? {
+    val data = getBodyJsonElementOrNull(fieldName, format)?.jsonObject ?: return null
     return format.decodeFromJsonElement<T>(data)
 }
 
@@ -51,8 +50,8 @@ internal suspend inline fun <reified T> HttpResponse.decodeBodyJsonFieldObjectOr
  * @param fieldName Name of the JSON field to retrieve the value from.
  * @return List of decoded values of the specified field.
  */
-internal suspend inline fun <reified T> HttpResponse.decodeBodyJsonFieldArray(format: Json, fieldName: String): List<T> {
-    return decodeBodyJsonFieldArrayOrNull(format, fieldName) ?: throw VaultFieldNotFoundException(fieldName)
+internal suspend inline fun <reified T> HttpResponse.decodeBodyJsonFieldArray(fieldName: String, format: Json): List<T> {
+    return decodeBodyJsonFieldArrayOrNull(fieldName, format) ?: throw VaultFieldNotFoundException(fieldName)
 }
 
 /**
@@ -64,8 +63,8 @@ internal suspend inline fun <reified T> HttpResponse.decodeBodyJsonFieldArray(fo
  * @param fieldName Name of the JSON field to retrieve the value from.
  * @return List of decoded values of the specified field.
  */
-internal suspend inline fun <reified T> HttpResponse.decodeBodyJsonFieldArrayOrNull(format: Json, fieldName: String): List<T>? {
-    val data = getBodyJsonElementOrNull(fieldName)?.jsonArray ?: return null
+internal suspend inline fun <reified T> HttpResponse.decodeBodyJsonFieldArrayOrNull(fieldName: String, format: Json): List<T>? {
+    val data = getBodyJsonElementOrNull(fieldName, format)?.jsonArray ?: return null
     return format.decodeFromJsonElement<List<T>>(data)
 }
 
@@ -77,10 +76,10 @@ internal suspend inline fun <reified T> HttpResponse.decodeBodyJsonFieldArrayOrN
  * @return JsonElement representing the value of the specified field.
  * @throws VaultFieldNotFoundException if the specified field is not found in the JSON object.
  */
-internal suspend fun HttpResponse.getBodyJsonElementOrNull(fieldName: String): JsonElement? {
+internal suspend fun HttpResponse.getBodyJsonElementOrNull(fieldName: String, format: Json): JsonElement? {
     val text = bodyAsText()
     if (text.isEmpty()) {
         return null
     }
-    return VaultClient.json.parseToJsonElement(text).jsonObject[fieldName]
+    return format.parseToJsonElement(text).jsonObject[fieldName]
 }

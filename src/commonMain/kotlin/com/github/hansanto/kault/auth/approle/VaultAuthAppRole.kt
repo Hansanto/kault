@@ -278,7 +278,7 @@ public class VaultAuthAppRoleImpl(
                     appendPathSegments(path, "role")
                 }
             }
-            response.decodeBodyJsonFieldObject<StandardListResponse>(VaultClient.json, "data").keys.forEach {
+            response.decodeBodyJsonFieldObject<StandardListResponse>("data", VaultClient.json).keys.forEach {
                 emit(it)
             }
         }
@@ -301,7 +301,7 @@ public class VaultAuthAppRoleImpl(
                 appendPathSegments(path, "role", roleName)
             }
         }
-        return response.decodeBodyJsonFieldObject(VaultClient.json, "data")
+        return response.decodeBodyJsonFieldObject("data", VaultClient.json)
     }
 
     override suspend fun delete(roleName: String): Boolean {
@@ -319,7 +319,7 @@ public class VaultAuthAppRoleImpl(
                 appendPathSegments(path, "role", roleName, "role-id")
             }
         }
-        return response.decodeBodyJsonFieldObject(VaultClient.json, "data")
+        return response.decodeBodyJsonFieldObject("data", VaultClient.json)
     }
 
     override suspend fun updateRoleID(roleName: String, roleId: String): Boolean {
@@ -344,7 +344,7 @@ public class VaultAuthAppRoleImpl(
             contentType(ContentType.Application.Json)
             setBody(payload)
         }
-        return response.decodeBodyJsonFieldObject(VaultClient.json, "data")
+        return response.decodeBodyJsonFieldObject("data", VaultClient.json)
     }
 
     override suspend fun secretIdAccessors(roleName: String): StandardListResponse {
@@ -354,7 +354,7 @@ public class VaultAuthAppRoleImpl(
                 appendPathSegments(path, "role", roleName, "secret-id")
             }
         }
-        return response.decodeBodyJsonFieldObject(VaultClient.json, "data")
+        return response.decodeBodyJsonFieldObject("data", VaultClient.json)
     }
 
     override suspend fun readSecretID(roleName: String, secretId: String): LookUpSecretIdResponse? {
@@ -367,7 +367,7 @@ public class VaultAuthAppRoleImpl(
         }
 
         // After destroying a secret ID, Vault returns an empty body
-        return response.decodeBodyJsonFieldObjectOrNull(VaultClient.json, "data")
+        return response.decodeBodyJsonFieldObjectOrNull("data", VaultClient.json)
     }
 
     override suspend fun destroySecretID(roleName: String, secretId: String): Boolean {
@@ -394,7 +394,7 @@ public class VaultAuthAppRoleImpl(
             setBody(SecretIdAccessorPayload(secretIdAccessor))
         }
 
-        return response.decodeBodyJsonFieldObject(VaultClient.json, "data")
+        return response.decodeBodyJsonFieldObject("data", VaultClient.json)
     }
 
     override suspend fun destroySecretIDAccessor(roleName: String, secretIdAccessor: String): Boolean {
@@ -416,7 +416,7 @@ public class VaultAuthAppRoleImpl(
             contentType(ContentType.Application.Json)
             setBody(payload)
         }
-        return response.decodeBodyJsonFieldObject(VaultClient.json, "data")
+        return response.decodeBodyJsonFieldObject("data", VaultClient.json)
     }
 
     override suspend fun login(payload: LoginPayload): LoginResponse {
@@ -427,7 +427,7 @@ public class VaultAuthAppRoleImpl(
             contentType(ContentType.Application.Json)
             setBody(payload)
         }
-        return response.decodeBodyJsonFieldObject(VaultClient.json, "auth")
+        return response.decodeBodyJsonFieldObject("auth", VaultClient.json)
     }
 
     override suspend fun tidyTokens(): List<String> {
@@ -436,6 +436,6 @@ public class VaultAuthAppRoleImpl(
                 appendPathSegments(path, "tidy", "secret-id")
             }
         }
-        return response.decodeBodyJsonFieldArray(VaultClient.json, "warnings")
+        return response.decodeBodyJsonFieldArray("warnings", VaultClient.json)
     }
 }
