@@ -1,9 +1,9 @@
 package com.github.hansanto.kault.auth
 
 import com.github.hansanto.kault.ServiceBuilder
+import com.github.hansanto.kault.ServiceBuilderConstructor
 import com.github.hansanto.kault.auth.approle.VaultAuthAppRole
 import com.github.hansanto.kault.auth.approle.VaultAuthAppRoleImpl
-import com.github.hansanto.kault.extension.addURLChildPath
 import io.ktor.client.HttpClient
 
 public class VaultAuth(
@@ -11,14 +11,9 @@ public class VaultAuth(
     public val appRole: VaultAuthAppRole
 ) {
 
-    public companion object {
+    public companion object : ServiceBuilderConstructor<VaultAuth, Builder> {
 
-        /**
-         * Create a new instance of [VaultAuth] using the builder pattern.
-         * @param builder Builder to create the instance.
-         * @return Instance of [VaultAuth].
-         */
-        public inline operator fun invoke(client: HttpClient, parentPath: String?, builder: Builder.() -> Unit): VaultAuth =
+        public override operator fun invoke(client: HttpClient, parentPath: String?, builder: Builder.() -> Unit): VaultAuth =
             Builder().apply(builder).build(client, parentPath)
     }
 
@@ -37,7 +32,7 @@ public class VaultAuth(
      * Builder class to simplify the creation of [VaultAuth].
      */
     @Suppress("MemberVisibilityCanBePrivate")
-    public class Builder : ServiceBuilder<VaultAuth> {
+    public class Builder : ServiceBuilder<VaultAuth>() {
 
         public var token: String? = null
 
@@ -48,12 +43,10 @@ public class VaultAuth(
          */
         private var appRoleBuilder: VaultAuthAppRoleImpl.Builder.() -> Unit = {}
 
-        override fun build(client: HttpClient, parentPath: String?): VaultAuth {
-            val entirePath = parentPath?.addURLChildPath(path) ?: path
-            val appRole = VaultAuthAppRoleImpl.Builder().apply(appRoleBuilder).build(client, entirePath)
+        override fun buildWithFullPath(client: HttpClient, fullPath: String): VaultAuth {
             return VaultAuth(
                 token = token,
-                appRole = appRole
+                appRole = VaultAuthAppRoleImpl.Builder().apply(appRoleBuilder).build(client, fullPath)
             )
         }
 

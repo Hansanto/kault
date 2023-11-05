@@ -114,6 +114,11 @@ public class VaultClient(
         private var authBuilder: VaultAuth.Builder.() -> Unit = {}
 
         /**
+         * Builder to define system service.
+         */
+        private var sysBuilder: VaultSystem.Builder.() -> Unit = {}
+
+        /**
          * Builder to custom the HTTP client.
          * The token resolver is passed as parameter and must not be used before the client is built.
          * [Documentation](https://ktor.io/docs/clients-index.html)
@@ -133,7 +138,7 @@ public class VaultClient(
             return VaultClient(
                 client = client,
                 auth = auth,
-                system = VaultSystem(client)
+                system = VaultSystem(client, null, this.sysBuilder)
             )
         }
 
@@ -153,6 +158,15 @@ public class VaultClient(
          */
         public fun auth(builder: VaultAuth.Builder.() -> Unit) {
             authBuilder = builder
+        }
+
+        /**
+         * Sets the system service builder.
+         *
+         * @param builder Builder to create [VaultSystem] instance.
+         */
+        public fun system(builder: VaultSystem.Builder.() -> Unit) {
+            sysBuilder = builder
         }
 
         /**
