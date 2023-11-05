@@ -36,7 +36,7 @@ class VaultAuthAppRoleTest : FunSpec({
     beforeSpec {
         val client = VaultClient {
             url = "http://localhost:8200"
-            client {
+            httpClient {
                 HttpClient {
                     install(Logging) {
                         logger = Logger.DEFAULT

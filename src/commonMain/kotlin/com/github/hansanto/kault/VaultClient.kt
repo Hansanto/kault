@@ -115,7 +115,7 @@ public class VaultClient(
          * The token resolver is passed as parameter and must not be used before the client is built.
          * [Documentation](https://ktor.io/docs/clients-index.html)
          */
-        private var client: ((TokenResolver) -> HttpClient)? = null
+        private var httpClient: ((TokenResolver) -> HttpClient)? = null
 
         /**
          * Build the instance of [VaultClient] with the values defined in builder.
@@ -124,7 +124,7 @@ public class VaultClient(
         public fun build(): VaultClient {
             lateinit var auth: VaultAuth
             val tokenResolver: TokenResolver = { auth.token }
-            val client = client?.invoke(tokenResolver) ?: createHttpClient(tokenResolver)
+            val client = httpClient?.invoke(tokenResolver) ?: createHttpClient(tokenResolver)
             auth = VaultAuth(client, this.auth)
 
             return VaultClient(
@@ -157,8 +157,8 @@ public class VaultClient(
          *
          * @param builder Builder to create [HttpClientConfig] instance.
          */
-        public fun client(builder: ((TokenResolver) -> HttpClient)?) {
-            client = builder
+        public fun httpClient(builder: ((TokenResolver) -> HttpClient)?) {
+            httpClient = builder
         }
 
         /**
