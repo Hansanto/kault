@@ -41,15 +41,21 @@ public class VaultClient(
     namespace: String? = null,
 
     /**
-     * @see [VaultClient.Builder.apiPath]
+     * @see [VaultClient.Builder.path]
      */
-    apiPath: String = Default.apiPath,
+    apiPath: String = Default.PATH,
 
     /**
      * Headers to use for the requests.
      */
-    headers: Headers = Default.headers
-) {
+    headers: Headers = Default.headers,
+
+    /**
+     * Builder to define authentication service.
+     */
+    authBuilder: VaultAuth.Builder.() -> Unit = Default.authBuilder,
+
+    ) {
 
     public companion object {
 
@@ -83,14 +89,19 @@ public class VaultClient(
     public object Default {
 
         /**
+         * Default API path.
+         */
+        public const val PATH: String = "/v1/"
+
+        /**
          * Default headers.
          */
         public val headers: Headers = Headers()
 
         /**
-         * Default API path.
+         * Default authentication service builder.
          */
-        public val apiPath: String = "/v1/"
+        public val authBuilder: VaultAuth.Builder.() -> Unit = {}
     }
 
     /**
@@ -115,12 +126,17 @@ public class VaultClient(
          * Path to the API.
          * [Documentation](https://developer.hashicorp.com/vault/api-docs)
          */
-        public var apiPath: String = Default.apiPath
+        public var path: String = Default.PATH
 
         /**
          * Builder to define header keys.
          */
-        public var headers: Headers.Builder.() -> Unit = {}
+        private var headers: Headers.Builder.() -> Unit = {}
+
+        /**
+         * Builder to define authentication service.
+         */
+        private var auth: VaultAuth.Builder.() -> Unit = Default.authBuilder
 
         /**
          * Build the instance of [VaultClient] with the values defined in builder.
@@ -129,9 +145,28 @@ public class VaultClient(
         public fun build(): VaultClient = VaultClient(
             url = url,
             namespace = namespace,
-            apiPath = apiPath,
-            headers = Headers(headers)
+            apiPath = path,
+            headers = Headers(headers),
+            authBuilder = auth
         )
+
+        /**
+         * Sets the header builder.
+         *
+         * @param builder Builder to create [Headers] instance.
+         */
+        public fun headers(builder: Headers.Builder.() -> Unit) {
+            headers = builder
+        }
+
+        /**
+         * Sets the authentication service builder.
+         *
+         * @param builder Builder to create [VaultAuth] instance.
+         */
+        public fun auth(builder: VaultAuth.Builder.() -> Unit) {
+            auth = builder
+        }
     }
 
     /**
@@ -215,7 +250,7 @@ public class VaultClient(
         }
     }
 
-    public val auth: VaultAuth = VaultAuth(client)
+    public val auth: VaultAuth = VaultAuth(client, authBuilder)
 
     public val system: VaultSystem = VaultSystem(client)
 

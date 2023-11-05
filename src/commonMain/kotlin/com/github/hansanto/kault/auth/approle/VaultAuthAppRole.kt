@@ -1,6 +1,9 @@
 package com.github.hansanto.kault.auth.approle
 
+import com.github.hansanto.kault.ServiceBuilder
 import com.github.hansanto.kault.VaultClient
+import com.github.hansanto.kault.VaultClient.Headers
+import com.github.hansanto.kault.auth.VaultAuth
 import com.github.hansanto.kault.auth.approle.payload.CreateCustomSecretIDPayload
 import com.github.hansanto.kault.auth.approle.payload.CreateOrUpdatePayload
 import com.github.hansanto.kault.auth.approle.payload.GenerateSecretIDPayload
@@ -13,6 +16,7 @@ import com.github.hansanto.kault.auth.approle.response.LookUpSecretIdResponse
 import com.github.hansanto.kault.auth.approle.response.ReadRoleIdResponse
 import com.github.hansanto.kault.auth.approle.response.ReadRoleResponse
 import com.github.hansanto.kault.auth.approle.response.WriteSecretIdResponse
+import com.github.hansanto.kault.extension.addChildPath
 import com.github.hansanto.kault.extension.decodeBodyJsonFieldArray
 import com.github.hansanto.kault.extension.decodeBodyJsonFieldObject
 import com.github.hansanto.kault.extension.decodeBodyJsonFieldObjectOrNull
@@ -220,8 +224,51 @@ public interface VaultAuthAppRole {
 
 public class VaultAuthAppRoleImpl(
     private val client: HttpClient,
-    public val path: String = "auth/approle"
+    public val path: String,
 ) : VaultAuthAppRole {
+
+    public companion object {
+
+        /**
+         * Create a new instance of [VaultAuth] using the builder pattern.
+         * @param builder Builder to create the instance.
+         * @return Instance of [VaultAuth].
+         */
+        public inline operator fun invoke(
+            client: HttpClient,
+            parentPath: String,
+            builder: Builder.() -> Unit
+        ): VaultAuthAppRole = Builder().apply(builder).build(client, parentPath)
+    }
+
+    /**
+     * Companion object to store default values.
+     */
+    public object Default {
+
+        /**
+         * Default API path.
+         */
+        public const val PATH: String = "approle"
+    }
+
+    /**
+     * Builder class to simplify the creation of [VaultAuth].
+     */
+    @Suppress("MemberVisibilityCanBePrivate")
+    public class Builder : ServiceBuilder<VaultAuthAppRoleImpl> {
+
+        public override var path: String = Default.PATH
+
+        /**
+         * Build the instance of [Headers] with the values defined in builder.
+         * @return Instance of [Headers].
+         */
+        public override fun build(client: HttpClient, parentPath: String?): VaultAuthAppRoleImpl = VaultAuthAppRoleImpl(
+            client = client,
+            path = parentPath?.addChildPath(path) ?: path,
+        )
+    }
 
     override fun list(): Flow<String> {
         return flow {
