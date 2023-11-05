@@ -2,6 +2,8 @@ package com.github.hansanto.kault
 
 import com.github.hansanto.kault.auth.VaultAuth
 import com.github.hansanto.kault.exception.VaultAPIException
+import com.github.hansanto.kault.extension.URL_SEPARATOR
+import com.github.hansanto.kault.extension.addURLChildPath
 import com.github.hansanto.kault.system.VaultSystem
 import io.ktor.client.HttpClient
 import io.ktor.client.HttpClientConfig
@@ -11,10 +13,8 @@ import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.request.header
 import io.ktor.client.statement.HttpResponse
 import io.ktor.client.statement.bodyAsText
-import io.ktor.http.appendPathSegments
 import io.ktor.http.contentType
 import io.ktor.http.isSuccess
-import io.ktor.http.takeFrom
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonArray
@@ -68,7 +68,7 @@ public class VaultClient(
         /**
          * Default API path.
          */
-        public const val PATH: String = "/v1/"
+        public const val PATH: String = "v1"
 
         /**
          * Default headers.
@@ -192,11 +192,7 @@ public class VaultClient(
 
             val headers = Headers(headers)
             defaultRequest {
-                url {
-                    takeFrom(this@Builder.url)
-                    appendPathSegments(this@Builder.path)
-                }
-
+                url(this@Builder.url.addURLChildPath(path) + URL_SEPARATOR)
                 header(headers.token, tokenResolver())
                 header(headers.namespace, this@Builder.namespace)
             }

@@ -16,7 +16,7 @@ import com.github.hansanto.kault.auth.approle.response.LookUpSecretIdResponse
 import com.github.hansanto.kault.auth.approle.response.ReadRoleIdResponse
 import com.github.hansanto.kault.auth.approle.response.ReadRoleResponse
 import com.github.hansanto.kault.auth.approle.response.WriteSecretIdResponse
-import com.github.hansanto.kault.extension.addChildPath
+import com.github.hansanto.kault.extension.addURLChildPath
 import com.github.hansanto.kault.extension.decodeBodyJsonFieldArray
 import com.github.hansanto.kault.extension.decodeBodyJsonFieldObject
 import com.github.hansanto.kault.extension.decodeBodyJsonFieldObjectOrNull
@@ -266,7 +266,7 @@ public class VaultAuthAppRoleImpl(
          */
         public override fun build(client: HttpClient, parentPath: String?): VaultAuthAppRoleImpl = VaultAuthAppRoleImpl(
             client = client,
-            path = parentPath?.addChildPath(path) ?: path
+            path = parentPath?.addURLChildPath(path) ?: path
         )
     }
 

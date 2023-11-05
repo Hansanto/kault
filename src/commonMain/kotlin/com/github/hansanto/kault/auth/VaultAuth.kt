@@ -3,7 +3,7 @@ package com.github.hansanto.kault.auth
 import com.github.hansanto.kault.ServiceBuilder
 import com.github.hansanto.kault.auth.approle.VaultAuthAppRole
 import com.github.hansanto.kault.auth.approle.VaultAuthAppRoleImpl
-import com.github.hansanto.kault.extension.addChildPath
+import com.github.hansanto.kault.extension.addURLChildPath
 import io.ktor.client.HttpClient
 
 public class VaultAuth(
@@ -58,7 +58,7 @@ public class VaultAuth(
         override fun build(client: HttpClient, parentPath: String?): VaultAuth {
             return VaultAuth(
                 client = client,
-                path = parentPath?.addChildPath(path) ?: path,
+                path = parentPath?.addURLChildPath(path) ?: path,
                 token = token
             )
         }
