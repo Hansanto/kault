@@ -36,7 +36,7 @@ public class VaultSystem(
 
         public var token: String? = null
 
-        public override var path: String = VaultAuth.Default.PATH
+        public override var path: String = Default.PATH
 
         /**
          * Builder to define authentication appRole service.

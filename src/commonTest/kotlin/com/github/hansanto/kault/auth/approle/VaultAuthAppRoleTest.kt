@@ -53,7 +53,7 @@ class VaultAuthAppRoleTest : FunSpec({
         runCatching {
             client.system.auth.enableMethod("approle") {
                 type = "approle"
-            } shouldBe true
+            }
         }
     }
 
