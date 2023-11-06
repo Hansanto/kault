@@ -55,7 +55,7 @@ kotlin {
         }
         val commonTest by getting {
 
-            val kotestVersion = "5.7.2"
+            val kotestVersion = "5.8.0"
 
             dependencies {
                 implementation(kotlin("test"))
