@@ -16,6 +16,8 @@ import io.ktor.client.statement.bodyAsText
 import io.ktor.http.contentType
 import io.ktor.http.isSuccess
 import io.ktor.serialization.kotlinx.json.json
+import io.ktor.utils.io.core.Closeable
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
@@ -35,7 +37,7 @@ public class VaultClient(
     public val client: HttpClient,
     public val auth: VaultAuth,
     public val system: VaultSystem
-) {
+) : CoroutineScope by client, Closeable by client {
 
     public companion object {
 

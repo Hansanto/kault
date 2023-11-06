@@ -1,0 +1,30 @@
+{
+  "accessor": "REPLACED_DYNAMICALLY",
+  "config": {
+    "allowed_response_headers": [
+      "X-Vault-Token"
+    ],
+    "audit_non_hmac_request_keys": [
+      "username"
+    ],
+    "audit_non_hmac_response_keys": [
+      "client_token"
+    ],
+    "default_lease_ttl": 3600,
+    "force_no_cache": false,
+    "listing_visibility": "unauth",
+    "max_lease_ttl": 86400,
+    "token_type": "default-service"
+  },
+  "deprecation_status": "supported",
+  "description": "AppRole for test",
+  "external_entropy_access": true,
+  "local": true,
+  "options": {},
+  "plugin_version": "",
+  "running_plugin_version": "REPLACED_DYNAMICALLY",
+  "running_sha256": "",
+  "seal_wrap": true,
+  "type": "approle",
+  "uuid": "REPLACED_DYNAMICALLY"
+}

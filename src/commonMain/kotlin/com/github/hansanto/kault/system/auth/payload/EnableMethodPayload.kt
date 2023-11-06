@@ -1,21 +1,18 @@
 package com.github.hansanto.kault.system.auth.payload
 
+import com.github.hansanto.kault.extension.toJsonString
+import com.github.hansanto.kault.system.auth.common.ListingVisibility
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.builtins.serializer
 
 @Serializable
 public data class EnableMethodPayload(
     /**
-     * Specifies a human-friendly description of the auth method.
-     */
-    @SerialName("description")
-    public var description: String? = null,
-
-    /**
      * Specifies the name of the authentication method type, such as "github" or "token".
      */
     @SerialName("type")
-    public var type: String? = null,
+    public var type: String,
 
     /**
      * Specifies configuration options for this auth method. These are the possible values:
@@ -24,10 +21,40 @@ public data class EnableMethodPayload(
     public var config: Config? = null,
 
     /**
+     * Specifies a human-friendly description of the auth method.
+     */
+    @SerialName("description")
+    public var description: String? = null,
+
+    /**
+     * Whether to give the mount access to Vault's external entropy.
+     */
+    @SerialName("external_entropy_access")
+    public var externalEntropyAccess: Boolean? = null,
+
+    /**
      * Specifies if the auth method is local only. Local auth methods are not replicated nor (if a secondary) removed by replication. Local auth mounts also generate entities for tokens issued. The entity will be replicated across clusters and the aliases generated on the local auth mount will be local to the cluster. If the goal of marking an auth method as local was to comply with GDPR guidelines, then care must be taken to not set the data pertaining to local auth mount or local auth mount aliases in the metadata of the associated entity. Metadata related to local auth mount aliases can be stored as custom_metadata on the alias itself which will also be retained locally to the cluster.
      */
     @SerialName("local")
     public var local: Boolean? = null,
+
+    /**
+     * The options to pass into the backend. Should be a json object with string keys and values.
+     */
+    @SerialName("options")
+    public var options: String? = null,
+
+    /**
+     * Name of the auth plugin to use based from the name in the plugin catalog.
+     */
+    @SerialName("plugin_name")
+    public var pluginName: String? = null,
+
+    /**
+     * The semantic version of the plugin to use, or image tag if oci_image is provided.
+     */
+    @SerialName("plugin_version")
+    public var pluginVersion: String? = null,
 
     /**
      * Enable seal wrapping for the mount, causing values stored by the mount to be wrapped by the seal's encryption capability.
@@ -85,20 +112,106 @@ public data class EnableMethodPayload(
          */
         @SerialName("plugin_version")
         public var pluginVersion: String? = null
-    ) {
+    )
 
-        @Serializable
-        public enum class ListingVisibility(public val value: String) {
+    /**
+     * Builder class to simplify the creation of [EnableMethodPayload].
+     */
+    @Suppress("MemberVisibilityCanBePrivate")
+    public class Builder {
 
-            /**
-             * Mount is not visible.
-             */
-            HIDDEN("hidden"),
+        /**
+         * @see [EnableMethodPayload.type]
+         */
+        public lateinit var type: String
 
-            /**
-             * Mount is marked as internal-only.
-             */
-            UNAUTH("unauth");
+        /**
+         * Builder to define the [Config] of [EnableMethodPayload].
+         */
+        private var configBuilder: (Config.() -> Unit)? = null
+
+        /**
+         * @see [EnableMethodPayload.description]
+         */
+        public var description: String? = null
+
+        /**
+         * @see [EnableMethodPayload.externalEntropyAccess]
+         */
+        public var externalEntropyAccess: Boolean? = null
+
+        /**
+         * @see [EnableMethodPayload.local]
+         */
+        public var local: Boolean? = null
+
+        /**
+         * @see [EnableMethodPayload.options]
+         */
+        public var options: String? = null
+
+        /**
+         * @see [EnableMethodPayload.pluginName]
+         */
+        public var pluginName: String? = null
+
+        /**
+         * @see [EnableMethodPayload.pluginVersion]
+         */
+        public var pluginVersion: String? = null
+
+        /**
+         * @see [EnableMethodPayload.sealWrap]
+         */
+        public var sealWrap: Boolean? = null
+
+        /**
+         * Build the instance of [EnableMethodPayload] with the values defined in builder.
+         * @return A new instance.
+         */
+        public fun build(): EnableMethodPayload {
+            val config = Config().apply {
+                configBuilder?.invoke(this)
+            }
+
+            return EnableMethodPayload(
+                type = type,
+                config = config,
+                description = description,
+                externalEntropyAccess = externalEntropyAccess,
+                local = local,
+                options = options,
+                pluginName = pluginName,
+                pluginVersion = pluginVersion,
+                sealWrap = sealWrap
+            )
         }
+
+        /**
+         * Sets the config builder.
+         *
+         * @param builder Builder to create [Config] instance.
+         */
+        public fun config(builder: Config.() -> Unit) {
+            configBuilder = builder
+        }
+
+        /**
+         * Sets the options field from a map and converts it to a JSON string.
+         *
+         * @param options A map containing key-value pairs of metadata.
+         */
+        public fun options(options: Map<String, String>) {
+            this.options = options.toJsonString(String.serializer(), String.serializer())
+        }
+    }
+
+    /**
+     * Sets the options field from a map and converts it to a JSON string.
+     *
+     * @param options A map containing key-value pairs of metadata.
+     */
+    public fun options(options: Map<String, String>) {
+        this.options = options.toJsonString(String.serializer(), String.serializer())
     }
 }

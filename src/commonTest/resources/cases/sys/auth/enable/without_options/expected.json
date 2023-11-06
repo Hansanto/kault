@@ -1,0 +1,20 @@
+{
+  "accessor": "REPLACED_DYNAMICALLY",
+  "config": {
+    "default_lease_ttl": 0,
+    "force_no_cache": false,
+    "max_lease_ttl": 0,
+    "token_type": "default-service"
+  },
+  "deprecation_status": "supported",
+  "description": "",
+  "external_entropy_access": false,
+  "local": false,
+  "options": {},
+  "plugin_version": "",
+  "running_plugin_version": "REPLACED_DYNAMICALLY",
+  "running_sha256": "",
+  "seal_wrap": false,
+  "type": "approle",
+  "uuid": "REPLACED_DYNAMICALLY"
+}

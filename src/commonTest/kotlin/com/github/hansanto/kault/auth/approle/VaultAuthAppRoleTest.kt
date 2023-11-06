@@ -1,5 +1,6 @@
 package com.github.hansanto.kault.auth.approle
 
+import com.github.hansanto.kault.STRING_REPLACE
 import com.github.hansanto.kault.VaultClient
 import com.github.hansanto.kault.auth.approle.payload.CreateCustomSecretIDPayload
 import com.github.hansanto.kault.auth.approle.payload.CreateOrUpdatePayload
@@ -11,50 +12,36 @@ import com.github.hansanto.kault.auth.approle.response.ReadRoleIdResponse
 import com.github.hansanto.kault.auth.approle.response.ReadRoleResponse
 import com.github.hansanto.kault.auth.approle.response.WriteSecretIdResponse
 import com.github.hansanto.kault.exception.VaultAPIException
-import com.github.hansanto.kault.system.auth.enableMethod
+import com.github.hansanto.kault.system.auth.enable
+import com.github.hansanto.kault.util.createVaultClient
 import com.github.hansanto.kault.util.readJson
 import io.kotest.assertions.throwables.shouldNotThrow
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
-import io.ktor.client.HttpClient
-import io.ktor.client.plugins.logging.DEFAULT
-import io.ktor.client.plugins.logging.LogLevel
-import io.ktor.client.plugins.logging.Logger
-import io.ktor.client.plugins.logging.Logging
 import kotlinx.coroutines.flow.toList
 
 private const val DEFAULT_ROLE_NAME = "test"
 
-private const val STRING_REPLACE = "REPLACED_DYNAMICALLY"
-
 class VaultAuthAppRoleTest : FunSpec({
 
+    lateinit var client: VaultClient
     lateinit var appRole: VaultAuthAppRole
 
     beforeSpec {
-        val client = VaultClient {
-            url = "http://localhost:8200"
-            httpClient {
-                HttpClient {
-                    install(Logging) {
-                        logger = Logger.DEFAULT
-                        level = LogLevel.ALL
-                    }
-                    defaultHttpClientConfiguration(it)
-                }
-            }
-        }
-
-        client.auth.token = "root"
+        client = createVaultClient()
         appRole = client.auth.appRole
 
         runCatching {
-            client.system.auth.enableMethod("approle") {
+            client.system.auth.enable("approle") {
                 type = "approle"
             }
         }
+    }
+
+    afterSpec {
+        client.close()
     }
 
     beforeTest {
