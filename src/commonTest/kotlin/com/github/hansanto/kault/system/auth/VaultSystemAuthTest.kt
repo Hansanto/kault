@@ -6,6 +6,7 @@ import com.github.hansanto.kault.system.auth.payload.EnableMethodPayload
 import com.github.hansanto.kault.system.auth.response.AuthReadConfigurationResponse
 import com.github.hansanto.kault.util.createVaultClient
 import com.github.hansanto.kault.util.readJson
+import io.kotest.assertions.throwables.shouldNotThrow
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
@@ -32,7 +33,7 @@ class VaultSystemAuthTest : FunSpec({
         client.close()
     }
 
-    test("enable method with empty payload") {
+    test("enable method & read configuration with empty payload") {
         val exception = shouldThrow<Exception> {
             auth.enable(DEFAULT_METHOD) {}
         }
@@ -44,7 +45,7 @@ class VaultSystemAuthTest : FunSpec({
         }
     }
 
-    test("enable method with minimal payload") {
+    test("enable method & read configuration with minimal payload") {
         auth.enable(DEFAULT_METHOD) {
             type = DEFAULT_METHOD
         } shouldBe true
@@ -59,7 +60,7 @@ class VaultSystemAuthTest : FunSpec({
         response shouldBe expected
     }
 
-    test("enable method with full payload") {
+    test("enable method & read configuration with full payload") {
         val payload = readJson<EnableMethodPayload>("cases/sys/auth/enable/with_options/given.json")
 
         auth.enable(DEFAULT_METHOD, payload) shouldBe true
@@ -72,5 +73,28 @@ class VaultSystemAuthTest : FunSpec({
                 uuid = response.uuid
             )
         response shouldBe expected
+    }
+
+    test("disable method with non-existing method") {
+        auth.disable(DEFAULT_METHOD) shouldBe true
+        shouldThrow<VaultAPIException> {
+            auth.readConfiguration(DEFAULT_METHOD)
+        }
+    }
+
+    test("disable method with existing method") {
+        auth.enable(DEFAULT_METHOD) {
+            type = DEFAULT_METHOD
+        } shouldBe true
+
+        shouldNotThrow<VaultAPIException> {
+            auth.readConfiguration(DEFAULT_METHOD)
+        }
+
+        auth.disable(DEFAULT_METHOD) shouldBe true
+
+        shouldThrow<VaultAPIException> {
+            auth.readConfiguration(DEFAULT_METHOD)
+        }
     }
 })
