@@ -2,7 +2,6 @@ package com.github.hansanto.kault.system.auth.common
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
-import kotlin.test.assertEquals
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonPrimitive
 
