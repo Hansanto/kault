@@ -1,7 +1,6 @@
 package com.github.hansanto.kault.auth.approle
 
 import com.github.hansanto.kault.ServiceBuilder
-import com.github.hansanto.kault.ServiceBuilderConstructor
 import com.github.hansanto.kault.VaultClient
 import com.github.hansanto.kault.auth.VaultAuth
 import com.github.hansanto.kault.auth.approle.payload.CreateCustomSecretIDPayload
@@ -226,9 +225,9 @@ public class VaultAuthAppRoleImpl(
     public val path: String
 ) : VaultAuthAppRole {
 
-    public companion object : ServiceBuilderConstructor<VaultAuthAppRoleImpl, Builder> {
+    public companion object {
 
-        public override operator fun invoke(
+        public inline operator fun invoke(
             client: HttpClient,
             parentPath: String?,
             builder: Builder.() -> Unit
@@ -254,10 +253,11 @@ public class VaultAuthAppRoleImpl(
 
         public override var path: String = Default.PATH
 
-        public override fun buildWithFullPath(client: HttpClient, fullPath: String): VaultAuthAppRoleImpl = VaultAuthAppRoleImpl(
-            client = client,
-            path = fullPath
-        )
+        public override fun buildWithFullPath(client: HttpClient, fullPath: String): VaultAuthAppRoleImpl =
+            VaultAuthAppRoleImpl(
+                client = client,
+                path = fullPath
+            )
     }
 
     override fun list(): Flow<String> {
@@ -398,7 +398,10 @@ public class VaultAuthAppRoleImpl(
         return response.status.isSuccess()
     }
 
-    override suspend fun createCustomSecretID(roleName: String, payload: CreateCustomSecretIDPayload): WriteSecretIdResponse {
+    override suspend fun createCustomSecretID(
+        roleName: String,
+        payload: CreateCustomSecretIDPayload
+    ): WriteSecretIdResponse {
         val response = client.post {
             url {
                 appendPathSegments(path, "role", roleName, "custom-secret-id")

@@ -1,7 +1,6 @@
 package com.github.hansanto.kault.system
 
 import com.github.hansanto.kault.ServiceBuilder
-import com.github.hansanto.kault.ServiceBuilderConstructor
 import com.github.hansanto.kault.auth.VaultAuth
 import com.github.hansanto.kault.system.auth.VaultSystemAuth
 import com.github.hansanto.kault.system.auth.VaultSystemAuthImpl
@@ -11,10 +10,13 @@ public class VaultSystem(
     public val auth: VaultSystemAuth
 ) {
 
-    public companion object : ServiceBuilderConstructor<VaultSystem, Builder> {
+    public companion object {
 
-        public override operator fun invoke(client: HttpClient, parentPath: String?, builder: Builder.() -> Unit): VaultSystem =
-            Builder().apply(builder).build(client, parentPath)
+        public inline operator fun invoke(
+            client: HttpClient,
+            parentPath: String?,
+            builder: Builder.() -> Unit
+        ): VaultSystem = Builder().apply(builder).build(client, parentPath)
     }
 
     /**

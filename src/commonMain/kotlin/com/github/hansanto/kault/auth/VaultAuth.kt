@@ -1,7 +1,6 @@
 package com.github.hansanto.kault.auth
 
 import com.github.hansanto.kault.ServiceBuilder
-import com.github.hansanto.kault.ServiceBuilderConstructor
 import com.github.hansanto.kault.auth.approle.VaultAuthAppRole
 import com.github.hansanto.kault.auth.approle.VaultAuthAppRoleImpl
 import io.ktor.client.HttpClient
@@ -11,10 +10,13 @@ public class VaultAuth(
     public val appRole: VaultAuthAppRole
 ) {
 
-    public companion object : ServiceBuilderConstructor<VaultAuth, Builder> {
+    public companion object {
 
-        public override operator fun invoke(client: HttpClient, parentPath: String?, builder: Builder.() -> Unit): VaultAuth =
-            Builder().apply(builder).build(client, parentPath)
+        public inline operator fun invoke(
+            client: HttpClient,
+            parentPath: String?,
+            builder: Builder.() -> Unit
+        ): VaultAuth = Builder().apply(builder).build(client, parentPath)
     }
 
     /**

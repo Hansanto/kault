@@ -33,19 +33,3 @@ public abstract class ServiceBuilder<T> {
      */
     protected abstract fun buildWithFullPath(client: HttpClient, fullPath: String): T
 }
-
-/**
- * A functional interface for constructing service instances using the builder pattern.
- *
- * @param T The type of the service instance being constructed.
- * @param B The type of the builder used to construct the service instance.
- */
-public fun interface ServiceBuilderConstructor<T, B> {
-
-    /**
-     * Create a new instance of [T] using the builder pattern.
-     * @param builder Builder to create the instance.
-     * @return Instance of [T].
-     */
-    public operator fun invoke(client: HttpClient, parentPath: String?, builder: B.() -> Unit): T
-}

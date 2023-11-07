@@ -1,7 +1,6 @@
 package com.github.hansanto.kault.system.auth
 
 import com.github.hansanto.kault.ServiceBuilder
-import com.github.hansanto.kault.ServiceBuilderConstructor
 import com.github.hansanto.kault.VaultClient
 import com.github.hansanto.kault.extension.decodeBodyJsonFieldObject
 import com.github.hansanto.kault.system.auth.payload.EnableMethodPayload
@@ -86,9 +85,9 @@ public class VaultSystemAuthImpl(
     public val path: String
 ) : VaultSystemAuth {
 
-    public companion object : ServiceBuilderConstructor<VaultSystemAuthImpl, Builder> {
+    public companion object {
 
-        public override operator fun invoke(
+        public inline operator fun invoke(
             client: HttpClient,
             parentPath: String?,
             builder: Builder.() -> Unit

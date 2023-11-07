@@ -317,7 +317,8 @@ class VaultAuthAppRoleTest : FunSpec({
             .copy(
                 accessor = response.accessor,
                 clientToken = response.clientToken,
-                entityId = response.entityId
+                entityId = response.entityId,
+                leaseDuration = response.leaseDuration
             )
 
         response shouldBe expected
