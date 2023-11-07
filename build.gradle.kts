@@ -67,7 +67,7 @@ kotlin {
 
         val ktSerializationVersion = "1.6.0"
         val ktorVersion = "2.3.5"
-        val kotestVersion = "5.7.2"
+        val kotestVersion = "5.8.0"
         val kotlinxDateTimeVersion = "0.4.1"
 
         val commonMain by getting {
