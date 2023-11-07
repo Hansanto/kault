@@ -82,6 +82,9 @@ public suspend inline fun VaultAuthAppRole.login(
     return login(payload)
 }
 
+/**
+ * Provides methods for managing AppRole authentication within Vault.
+ */
 public interface VaultAuthAppRole {
 
     /**
@@ -220,8 +223,18 @@ public interface VaultAuthAppRole {
     public suspend fun tidyTokens(): List<String>
 }
 
+/**
+ * Implementation of [VaultAuthAppRole].
+ */
 public class VaultAuthAppRoleImpl(
+    /**
+     * HttpClient to make requests.
+     */
     private val client: HttpClient,
+
+    /**
+     * Base path used to interact with endpoints.
+     */
     public val path: String
 ) : VaultAuthAppRole {
 

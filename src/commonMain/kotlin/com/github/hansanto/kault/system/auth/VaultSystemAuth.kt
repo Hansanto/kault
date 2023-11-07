@@ -29,6 +29,9 @@ public suspend inline fun VaultSystemAuth.enable(
     return enable(path, payload)
 }
 
+/**
+ * Provides methods for managing authentication methods within Vault.
+ */
 public interface VaultSystemAuth {
 
     /**
@@ -80,13 +83,30 @@ public interface VaultSystemAuth {
     public suspend fun tune(path: String, payload: Any): Any
 }
 
+/**
+ * Implementation of [VaultSystemAuth].
+ */
 public class VaultSystemAuthImpl(
+    /**
+     * HttpClient to make requests.
+     */
     private val client: HttpClient,
+
+    /**
+     * Base path used to interact with endpoints.
+     */
     public val path: String
 ) : VaultSystemAuth {
 
     public companion object {
 
+        /**
+         * Creates a new instance of [VaultSystemAuthImpl] using the provided HttpClient and optional parent path.
+         * @param client HttpClient to interact with API.
+         * @param parentPath The optional parent path used for building the final path used to interact with endpoints.
+         * @param builder Builder to define the authentication service.
+         * @return The instance of [VaultSystemAuthImpl] that was built.
+         */
         public inline operator fun invoke(
             client: HttpClient,
             parentPath: String?,
@@ -108,7 +128,6 @@ public class VaultSystemAuthImpl(
     /**
      * Builder class to simplify the creation of [VaultSystemAuthImpl].
      */
-    @Suppress("MemberVisibilityCanBePrivate")
     public class Builder : ServiceBuilder<VaultSystemAuthImpl>() {
 
         public override var path: String = Default.PATH

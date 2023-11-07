@@ -1,17 +1,36 @@
 package com.github.hansanto.kault.auth
 
 import com.github.hansanto.kault.ServiceBuilder
+import com.github.hansanto.kault.VaultClient
 import com.github.hansanto.kault.auth.approle.VaultAuthAppRole
 import com.github.hansanto.kault.auth.approle.VaultAuthAppRoleImpl
 import io.ktor.client.HttpClient
 
+/**
+ * Service to interact with Vault auth API.
+ */
 public class VaultAuth(
+    /**
+     * Token used to interact with API.
+     * This value is used through the header [VaultClient.Headers.token].
+     */
     public var token: String? = null,
+
+    /**
+     * Authentication appRole service.
+     */
     public val appRole: VaultAuthAppRole
 ) {
 
     public companion object {
 
+        /**
+         * Creates a new instance of [VaultAuth] using the provided HttpClient and optional parent path.
+         * @param client HttpClient to interact with API.
+         * @param parentPath The optional parent path used for building the final path used to interact with endpoints.
+         * @param builder Builder to define the authentication service.
+         * @return The instance of [VaultAuth] that was built.
+         */
         public inline operator fun invoke(
             client: HttpClient,
             parentPath: String?,
@@ -33,9 +52,11 @@ public class VaultAuth(
     /**
      * Builder class to simplify the creation of [VaultAuth].
      */
-    @Suppress("MemberVisibilityCanBePrivate")
     public class Builder : ServiceBuilder<VaultAuth>() {
 
+        /**
+         * @see [VaultAuth.token]
+         */
         public var token: String? = null
 
         public override var path: String = Default.PATH

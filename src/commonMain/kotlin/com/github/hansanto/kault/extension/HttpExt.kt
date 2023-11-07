@@ -37,7 +37,10 @@ internal suspend inline fun <reified T> HttpResponse.decodeBodyJsonFieldObject(f
  * @param fieldName Name of the JSON field to retrieve the value from.
  * @return Decoded value of the specified field.
  */
-internal suspend inline fun <reified T> HttpResponse.decodeBodyJsonFieldObjectOrNull(fieldName: String, format: Json): T? {
+internal suspend inline fun <reified T> HttpResponse.decodeBodyJsonFieldObjectOrNull(
+    fieldName: String,
+    format: Json
+): T? {
     val data = getBodyJsonElementOrNull(fieldName, format)?.jsonObject ?: return null
     return format.decodeFromJsonElement<T>(data)
 }
@@ -50,7 +53,10 @@ internal suspend inline fun <reified T> HttpResponse.decodeBodyJsonFieldObjectOr
  * @param fieldName Name of the JSON field to retrieve the value from.
  * @return List of decoded values of the specified field.
  */
-internal suspend inline fun <reified T> HttpResponse.decodeBodyJsonFieldArray(fieldName: String, format: Json): List<T> {
+internal suspend inline fun <reified T> HttpResponse.decodeBodyJsonFieldArray(
+    fieldName: String,
+    format: Json
+): List<T> {
     return decodeBodyJsonFieldArrayOrNull(fieldName, format) ?: throw VaultFieldNotFoundException(fieldName)
 }
 
@@ -63,7 +69,10 @@ internal suspend inline fun <reified T> HttpResponse.decodeBodyJsonFieldArray(fi
  * @param fieldName Name of the JSON field to retrieve the value from.
  * @return List of decoded values of the specified field.
  */
-internal suspend inline fun <reified T> HttpResponse.decodeBodyJsonFieldArrayOrNull(fieldName: String, format: Json): List<T>? {
+internal suspend inline fun <reified T> HttpResponse.decodeBodyJsonFieldArrayOrNull(
+    fieldName: String,
+    format: Json
+): List<T>? {
     val data = getBodyJsonElementOrNull(fieldName, format)?.jsonArray ?: return null
     return format.decodeFromJsonElement<List<T>>(data)
 }

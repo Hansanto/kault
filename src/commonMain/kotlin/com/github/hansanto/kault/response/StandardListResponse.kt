@@ -2,6 +2,9 @@ package com.github.hansanto.kault.response
 
 import kotlinx.serialization.Serializable
 
+/**
+ * Standard response to store a list of keys.
+ */
 @Serializable
 public data class StandardListResponse(
     /**

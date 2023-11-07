@@ -6,12 +6,25 @@ import com.github.hansanto.kault.system.auth.VaultSystemAuth
 import com.github.hansanto.kault.system.auth.VaultSystemAuthImpl
 import io.ktor.client.HttpClient
 
+/**
+ * Service to interact with Vault system API.
+ */
 public class VaultSystem(
+    /**
+     * Authentication service.
+     */
     public val auth: VaultSystemAuth
 ) {
 
     public companion object {
 
+        /**
+         * Creates a new instance of [VaultSystem] using the provided HttpClient and optional parent path.
+         * @param client HttpClient to interact with API.
+         * @param parentPath The optional parent path used for building the final path used to interact with endpoints.
+         * @param builder Builder to define the authentication service.
+         * @return The instance of [VaultSystem] that was built.
+         */
         public inline operator fun invoke(
             client: HttpClient,
             parentPath: String?,
@@ -33,9 +46,11 @@ public class VaultSystem(
     /**
      * Builder class to simplify the creation of [VaultAuth].
      */
-    @Suppress("MemberVisibilityCanBePrivate")
     public class Builder : ServiceBuilder<VaultSystem>() {
 
+        /**
+         * @see [VaultAuth.token]
+         */
         public var token: String? = null
 
         public override var path: String = Default.PATH
