@@ -1,0 +1,23 @@
+{
+  "bind_secret_id": true,
+  "local_secret_ids": true,
+  "secret_id_bound_cidrs": [
+    "10.0.0.0/28"
+  ],
+  "secret_id_num_uses": 40,
+  "secret_id_ttl": 3600,
+  "token_bound_cidrs": [
+    "10.0.0.0"
+  ],
+  "token_explicit_max_ttl": 60,
+  "token_max_ttl": 3600,
+  "token_no_default_policy": true,
+  "token_num_uses": 10,
+  "token_period": 30,
+  "token_policies": [
+    "default",
+    "dev"
+  ],
+  "token_ttl": 1800,
+  "token_type": "service"
+}

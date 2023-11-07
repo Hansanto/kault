@@ -4,9 +4,12 @@ import org.jlleitschuh.gradle.ktlint.reporter.ReporterType
 
 plugins {
     embeddedKotlin("multiplatform")
+    embeddedKotlin("plugin.serialization")
+    id("io.kotest.multiplatform") version "5.7.2"
     id("org.jetbrains.dokka") version "1.9.10"
     id("io.gitlab.arturbosch.detekt") version "1.23.1"
     id("org.jlleitschuh.gradle.ktlint") version "11.6.1"
+    id("com.goncalossilva.resources") version "0.4.0"
     `maven-publish`
 }
 
@@ -32,56 +35,110 @@ kotlin {
             }
         }
     }
-    js {
+    js(IR) {
         nodejs()
         binaries.library()
+        useCommonJs()
+        generateTypeScriptDefinitions()
     }
 
     val hostOs = System.getProperty("os.name")
+    val isMacOs = hostOs == "Mac OS X"
+    val isLinux = hostOs == "Linux"
+    val isWindows = hostOs.startsWith("Windows")
+
     val isArm64 = System.getProperty("os.arch") == "aarch64"
-    val isMingwX64 = hostOs.startsWith("Windows")
     val nativeTarget = when {
-        hostOs == "Mac OS X" && isArm64 -> macosArm64("native")
-        hostOs == "Mac OS X" && !isArm64 -> macosX64("native")
-        hostOs == "Linux" && isArm64 -> linuxArm64("native")
-        hostOs == "Linux" && !isArm64 -> linuxX64("native")
-        isMingwX64 -> mingwX64("native")
+        isMacOs && isArm64 -> macosArm64("native")
+        isMacOs && !isArm64 -> macosX64("native")
+        isLinux && isArm64 -> linuxArm64("native")
+        isLinux && !isArm64 -> linuxX64("native")
+        isWindows -> mingwX64("native")
         else -> throw GradleException("Host OS is not supported in Kotlin/Native.")
     }
 
     sourceSets {
 
+        all {
+            languageSettings {
+                optIn("kotlin.contracts.ExperimentalContracts")
+            }
+        }
+
+        val ktSerializationVersion = "1.6.0"
+        val ktorVersion = "2.3.5"
+        val kotestVersion = "5.7.2"
+        val kotlinxDateTimeVersion = "0.4.1"
+
         val commonMain by getting {
+
+            dependencies {
+                api("io.ktor:ktor-client-core:$ktorVersion")
+                api("io.ktor:ktor-client-serialization:$ktorVersion")
+                api("io.ktor:ktor-client-content-negotiation:$ktorVersion")
+                api("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
+                api("org.jetbrains.kotlinx:kotlinx-serialization-json:$ktSerializationVersion")
+                api("org.jetbrains.kotlinx:kotlinx-datetime:$kotlinxDateTimeVersion")
+            }
         }
         val commonTest by getting {
 
-            val kotestVersion = "5.7.2"
+            dependsOn(commonMain)
+
+            val coroutinesVersion = "1.7.3"
+            val resourceVersion = "0.4.0"
 
             dependencies {
                 implementation(kotlin("test"))
+                implementation("io.ktor:ktor-client-logging:$ktorVersion")
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutinesVersion")
                 implementation("io.kotest:kotest-assertions-core:$kotestVersion")
+                implementation("io.kotest:kotest-framework-engine:$kotestVersion")
+                implementation("com.goncalossilva:resources:$resourceVersion")
             }
         }
 
         val jvmMain by getting {
             dependsOn(commonMain)
         }
-        val jvmTest by getting
+        val jvmTest by getting {
+
+            val slf4jVersion = "2.0.9"
+
+            dependencies {
+                implementation("io.ktor:ktor-client-cio:$ktorVersion")
+                implementation("org.slf4j:slf4j-simple:$slf4jVersion")
+                implementation("io.kotest:kotest-runner-junit5:$kotestVersion")
+            }
+        }
 
         val jsMain by getting {
             dependsOn(commonMain)
         }
-        val jsTest by getting
+        val jsTest by getting {
+            dependencies {
+                implementation("io.ktor:ktor-client-js:$ktorVersion")
+            }
+        }
 
         val nativeMain by getting {
             dependsOn(commonMain)
         }
-        val nativeTest by getting
+        val nativeTest by getting {
+            dependencies {
+                if (isWindows) {
+                    implementation("io.ktor:ktor-client-winhttp:$ktorVersion")
+                } else if (isMacOs) {
+                    implementation("io.ktor:ktor-client-darwin:$ktorVersion")
+                } else {
+                    implementation("io.ktor:ktor-client-cio:$ktorVersion")
+                }
+            }
+        }
     }
 }
 
 val dokkaOutputDir = "${rootProject.projectDir}/dokka"
-
 tasks {
     configure<org.jlleitschuh.gradle.ktlint.KtlintExtension> {
         reporters {

@@ -17,7 +17,7 @@ jobs:
       - uses: gradle/wrapper-validation-action@v1
 
   format:
-    needs: [validation]
+    needs: [ validation ]
     name: Verify Code Format
     runs-on: ubuntu-latest
     steps:
@@ -32,15 +32,15 @@ jobs:
           arguments: ktlintCheck
 
   build:
-    needs: [validation, format]
+    needs: [ validation, format ]
     name: Build on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         include:
           - os: ubuntu-latest
-          - os: windows-latest
-          - os: macos-latest
+    #          - os: windows-latest -> No matching manifest when pulling Vault image
+    #          - os: macos-latest -> Docker-compose command not found
     steps:
       - uses: actions/checkout@v4
 
@@ -49,12 +49,10 @@ jobs:
         with:
           jdk: 8
 
+      - name: Docker up
+        run: docker-compose up -d
+
       - name: Build
         uses: gradle/gradle-build-action@v2
         with:
-          arguments: build -x test
-
-      - name: Test
-        uses: gradle/gradle-build-action@v2
-        with:
-          arguments: test
+          arguments: build

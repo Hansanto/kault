@@ -1,0 +1,17 @@
+{
+  "cidr_list": [
+    "20.1.23.45/28",
+    "16.1.17.1/28"
+  ],
+  "creation_time": "1970-01-01T00:00:00Z",
+  "expiration_time": "1970-01-01T00:00:00Z",
+  "last_updated_time": "1970-01-01T00:00:00Z",
+  "metadata": {},
+  "secret_id_accessor": "REPLACED_DYNAMICALLY",
+  "secret_id_num_uses": 123,
+  "secret_id_ttl": 7200,
+  "token_bound_cidrs": [
+    "22.202.2.2/28",
+    "15.13.3.3/28"
+  ]
+}

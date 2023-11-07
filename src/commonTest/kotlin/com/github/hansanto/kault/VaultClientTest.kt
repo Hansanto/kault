@@ -1,12 +1,5 @@
 package com.github.hansanto.kault
 
-import io.kotest.matchers.shouldBe
-import kotlin.test.Test
+const val STRING_REPLACE = "REPLACED_DYNAMICALLY"
 
-class VaultClientTest {
-
-    @Test
-    fun shouldDoSomething() {
-        VaultClient().doSomething() shouldBe "VaultClient"
-    }
-}
+class VaultClientTest

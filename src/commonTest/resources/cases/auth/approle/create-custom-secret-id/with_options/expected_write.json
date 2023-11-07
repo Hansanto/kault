@@ -1,0 +1,6 @@
+{
+  "secret_id": "with_options_secret_id",
+  "secret_id_accessor": "REPLACED_DYNAMICALLY",
+  "secret_id_num_uses": 66,
+  "secret_id_ttl": 3600
+}
