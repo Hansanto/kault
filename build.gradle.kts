@@ -7,7 +7,7 @@ plugins {
     embeddedKotlin("plugin.serialization")
     id("io.kotest.multiplatform") version "5.7.2"
     id("org.jetbrains.dokka") version "1.9.10"
-    id("io.gitlab.arturbosch.detekt") version "1.23.1"
+    id("io.gitlab.arturbosch.detekt") version "1.23.3"
     id("org.jlleitschuh.gradle.ktlint") version "11.6.1"
     id("com.goncalossilva.resources") version "0.4.0"
     `maven-publish`
