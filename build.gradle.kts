@@ -77,7 +77,6 @@ kotlin {
                 implementation(kotlin("test"))
                 implementation(libs.bundles.kotest.common)
                 implementation(libs.ktor.logging)
-                implementation(libs.kt.coroutines.test)
                 implementation(libs.resources)
             }
         }

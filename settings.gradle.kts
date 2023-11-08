@@ -11,7 +11,7 @@ dependencyResolutionManagement {
             version("kotlin", "1.9.20")
             version("ktor", "2.3.5")
             version("kotlin-serialization", "1.6.0")
-            version("kotest", "5.7.2")
+            version("kotest", "5.8.0")
             version("kotlinx-datetime", "0.4.1")
             version("kotlinx-coroutines", "1.7.3")
             version("resources", "0.4.0")
@@ -19,7 +19,6 @@ dependencyResolutionManagement {
             version("dokka", "1.9.10")
             version("detekt", "1.23.1")
             version("ktlint", "11.6.1")
-            version("toolchain-resolver", "0.7.0")
 
             plugin("kt-multiplatform", "org.jetbrains.kotlin.multiplatform").versionRef("kotlin")
             plugin("kt-serialization", "org.jetbrains.kotlin.plugin.serialization").versionRef("kotlin")
@@ -28,8 +27,6 @@ dependencyResolutionManagement {
             plugin("detekt", "io.gitlab.arturbosch.detekt").versionRef("detekt")
             plugin("ktlint", "org.jlleitschuh.gradle.ktlint").versionRef("ktlint")
             plugin("resources", "com.goncalossilva.resources").versionRef("resources")
-
-            library("kt-coroutines-test", "org.jetbrains.kotlinx", "kotlinx-coroutines-test").versionRef("kotlinx-coroutines")
 
             library("ktor-core", "io.ktor", "ktor-client-core").versionRef("ktor")
             library("ktor-serialization", "io.ktor", "ktor-client-serialization").versionRef("ktor")
@@ -43,6 +40,7 @@ dependencyResolutionManagement {
 
             library("kt-serialization-json", "org.jetbrains.kotlinx", "kotlinx-serialization-json").versionRef("kotlin-serialization")
             library("kt-datetime", "org.jetbrains.kotlinx", "kotlinx-datetime").versionRef("kotlinx-datetime")
+            library("kt-coroutines", "org.jetbrains.kotlinx", "kotlinx-coroutines-core").versionRef("kotlinx-coroutines")
 
             library("kotest-core", "io.kotest", "kotest-assertions-core").versionRef("kotest")
             library("kotest-engine", "io.kotest", "kotest-framework-engine").versionRef("kotest")
@@ -52,9 +50,12 @@ dependencyResolutionManagement {
 
             library("slf4j-simple", "org.slf4j", "slf4j-simple").versionRef("slf4j")
 
-            bundle("ktor-common", listOf("ktor-core", "ktor-serialization", "ktor-content-negotiation", "ktor-serialization-json"))
+            bundle(
+                "ktor-common",
+                listOf("ktor-core", "ktor-serialization", "ktor-content-negotiation", "ktor-serialization-json")
+            )
             bundle("kotest-common", listOf("kotest-core", "kotest-engine"))
-            bundle("kt-common", listOf("kt-serialization-json", "kt-datetime"))
+            bundle("kt-common", listOf("kt-serialization-json", "kt-datetime", "kt-coroutines"))
         }
     }
 }
