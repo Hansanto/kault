@@ -2,6 +2,7 @@ package com.github.hansanto.kault.system.auth
 
 import com.github.hansanto.kault.VaultClient
 import com.github.hansanto.kault.exception.VaultAPIException
+import com.github.hansanto.kault.system.auth.payload.AuthTuneConfigurationParametersPayload
 import com.github.hansanto.kault.system.auth.payload.EnableMethodPayload
 import com.github.hansanto.kault.system.auth.response.AuthReadConfigurationResponse
 import com.github.hansanto.kault.util.createVaultClient
@@ -112,6 +113,31 @@ class VaultSystemAuthTest : FunSpec({
         shouldThrow<VaultAPIException> {
             auth.readConfiguration(DEFAULT_METHOD)
         }
+    }
+
+    test("tune method with non-existing method") {
+        shouldThrow<VaultAPIException> {
+            auth.tune(DEFAULT_METHOD)
+        }
+    }
+
+    test("tune with empty payload") {
+        auth.enable(DEFAULT_METHOD) {
+            type = DEFAULT_METHOD
+        } shouldBe true
+
+        auth.tune(DEFAULT_METHOD) shouldBe true
+        TODO("Read Tuning")
+    }
+
+    test("tune with full payload") {
+        auth.enable(DEFAULT_METHOD) {
+            type = DEFAULT_METHOD
+        } shouldBe true
+
+        val payload = readJson<AuthTuneConfigurationParametersPayload>("cases/sys/auth/tune/given.json")
+        auth.tune(DEFAULT_METHOD, payload) shouldBe true
+        TODO("Read Tuning")
     }
 })
 

@@ -3,6 +3,7 @@ package com.github.hansanto.kault.system.auth
 import com.github.hansanto.kault.ServiceBuilder
 import com.github.hansanto.kault.VaultClient
 import com.github.hansanto.kault.extension.decodeBodyJsonFieldObject
+import com.github.hansanto.kault.system.auth.payload.AuthTuneConfigurationParametersPayload
 import com.github.hansanto.kault.system.auth.payload.EnableMethodPayload
 import com.github.hansanto.kault.system.auth.response.AuthReadConfigurationResponse
 import io.ktor.client.HttpClient
@@ -27,6 +28,18 @@ public suspend inline fun VaultSystemAuth.enable(
     contract { callsInPlace(payloadBuilder, InvocationKind.EXACTLY_ONCE) }
     val payload = EnableMethodPayload.Builder().apply(payloadBuilder).build()
     return enable(path, payload)
+}
+
+/**
+ * @see VaultSystemAuth.tune(path, payload)
+ */
+public suspend inline fun VaultSystemAuth.tune(
+    path: String,
+    payloadBuilder: AuthTuneConfigurationParametersPayload.() -> Unit
+): Boolean {
+    contract { callsInPlace(payloadBuilder, InvocationKind.EXACTLY_ONCE) }
+    val payload = AuthTuneConfigurationParametersPayload().apply(payloadBuilder)
+    return tune(path, payload)
 }
 
 /**
@@ -80,7 +93,7 @@ public interface VaultSystemAuth {
      * @param path Specifies the path in which to tune.
      * @return Response.
      */
-    public suspend fun tune(path: String, payload: Any): Any
+    public suspend fun tune(path: String, payload: AuthTuneConfigurationParametersPayload = AuthTuneConfigurationParametersPayload()): Boolean
 }
 
 /**
@@ -180,7 +193,14 @@ public class VaultSystemAuthImpl(
         TODO("Not yet implemented")
     }
 
-    override suspend fun tune(path: String, payload: Any): Any {
-        TODO("Not yet implemented")
+    override suspend fun tune(path: String, payload: AuthTuneConfigurationParametersPayload): Boolean {
+        val response = client.post {
+            url {
+                appendPathSegments(this@VaultSystemAuthImpl.path, path, "tune")
+            }
+            contentType(ContentType.Application.Json)
+            setBody(payload)
+        }
+        return response.status.isSuccess()
     }
 }
