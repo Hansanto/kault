@@ -1,0 +1,48 @@
+{
+  "approle/": {
+    "accessor": "REPLACED_DYNAMICALLY",
+    "config": {
+      "default_lease_ttl": "36000",
+      "max_lease_ttl": "43200",
+      "audit_non_hmac_request_keys": [
+        "password"
+      ],
+      "audit_non_hmac_response_keys": [
+        "client_token"
+      ],
+      "listing_visibility": "unauth",
+      "allowed_response_headers": [
+        "X-My-Header"
+      ]
+    },
+    "deprecation_status": "supported",
+    "description": "AppRole for test",
+    "external_entropy_access": true,
+    "local": true,
+    "options": {},
+    "plugin_version": "",
+    "running_plugin_version": "REPLACED_DYNAMICALLY",
+    "running_sha256": "",
+    "seal_wrap": true,
+    "type": "approle",
+    "uuid": "REPLACED_DYNAMICALLY"
+  },
+  "token/": {
+    "accessor": "REPLACED_DYNAMICALLY",
+    "config": {
+      "default_lease_ttl": "0",
+      "max_lease_ttl": "0"
+    },
+    "deprecation_status": null,
+    "description": "token based credentials",
+    "external_entropy_access": false,
+    "local": false,
+    "options": null,
+    "plugin_version": "",
+    "running_plugin_version": "REPLACED_DYNAMICALLY",
+    "running_sha256": "",
+    "seal_wrap": false,
+    "type": "token",
+    "uuid": "REPLACED_DYNAMICALLY"
+  }
+}

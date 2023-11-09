@@ -39,7 +39,7 @@ public interface VaultSystemAuth {
      * [Documentation](https://developer.hashicorp.com/vault/api-docs/system/auth#list-auth-methods)
      * @return Response.
      */
-    public suspend fun list(): Any
+    public suspend fun list(): Map<String, AuthReadConfigurationResponse>
 
     /**
      * This endpoint enables a new auth method. After enabling, the auth method can be accessed and configured via the auth path specified as part of the URL.
@@ -138,8 +138,13 @@ public class VaultSystemAuthImpl(
         )
     }
 
-    override suspend fun list(): Any {
-        TODO("Not yet implemented")
+    override suspend fun list(): Map<String, AuthReadConfigurationResponse> {
+        val response = client.get {
+            url {
+                appendPathSegments(this@VaultSystemAuthImpl.path)
+            }
+        }
+        return response.decodeBodyJsonFieldObject("data", VaultClient.json)
     }
 
     override suspend fun enable(path: String, payload: EnableMethodPayload): Boolean {

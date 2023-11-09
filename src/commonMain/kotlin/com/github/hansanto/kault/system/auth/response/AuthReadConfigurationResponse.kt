@@ -15,7 +15,7 @@ public data class AuthReadConfigurationResponse(
     public val config: EnableMethodPayload.Config,
 
     @SerialName("deprecation_status")
-    public val deprecationStatus: String,
+    public val deprecationStatus: String?,
 
     @SerialName("description")
     public val description: String,
@@ -27,7 +27,7 @@ public data class AuthReadConfigurationResponse(
     public val local: Boolean,
 
     @SerialName("options")
-    public val options: Map<String, String>,
+    public val options: Map<String, String>?,
 
     @SerialName("plugin_version")
     public val pluginVersion: String,

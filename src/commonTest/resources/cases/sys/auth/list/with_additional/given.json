@@ -1,0 +1,25 @@
+{
+  "type": "approle",
+  "config": {
+    "default_lease_ttl": "10h",
+    "max_lease_ttl": "12h",
+    "audit_non_hmac_request_keys": [
+      "password"
+    ],
+    "audit_non_hmac_response_keys": [
+      "client_token"
+    ],
+    "listing_visibility": "unauth",
+    "allowed_response_headers": [
+      "X-My-Header"
+    ],
+    "plugin_version": null
+  },
+  "description": "AppRole for test",
+  "external_entropy_access": true,
+  "local": true,
+  "options": null,
+  "plugin_name": "auth",
+  "plugin_version": "1",
+  "seal_wrap": true
+}
