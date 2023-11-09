@@ -3,13 +3,15 @@ import io.gitlab.arturbosch.detekt.DetektCreateBaselineTask
 import org.jlleitschuh.gradle.ktlint.reporter.ReporterType
 
 plugins {
-    embeddedKotlin("multiplatform")
-    embeddedKotlin("plugin.serialization")
-    id("io.kotest.multiplatform") version "5.7.2"
-    id("org.jetbrains.dokka") version "1.9.10"
-    id("io.gitlab.arturbosch.detekt") version "1.23.1"
-    id("org.jlleitschuh.gradle.ktlint") version "11.6.1"
-    id("com.goncalossilva.resources") version "0.4.0"
+    libs.plugins.run {
+        alias(kt.multiplatform)
+        alias(kt.serialization)
+        alias(kotest)
+        alias(dokka)
+        alias(detekt)
+        alias(ktlint)
+        alias(resources)
+    }
     `maven-publish`
 }
 
@@ -48,7 +50,7 @@ kotlin {
     val isWindows = hostOs.startsWith("Windows")
 
     val isArm64 = System.getProperty("os.arch") == "aarch64"
-    val nativeTarget = when {
+    when {
         isMacOs && isArm64 -> macosArm64("native")
         isMacOs && !isArm64 -> macosX64("native")
         isLinux && isArm64 -> linuxArm64("native")
@@ -58,80 +60,52 @@ kotlin {
     }
 
     sourceSets {
-
         all {
             languageSettings {
                 optIn("kotlin.contracts.ExperimentalContracts")
             }
         }
 
-        val ktSerializationVersion = "1.6.0"
-        val ktorVersion = "2.3.5"
-        val kotestVersion = "5.7.2"
-        val kotlinxDateTimeVersion = "0.4.1"
-
         val commonMain by getting {
-
             dependencies {
-                api("io.ktor:ktor-client-core:$ktorVersion")
-                api("io.ktor:ktor-client-serialization:$ktorVersion")
-                api("io.ktor:ktor-client-content-negotiation:$ktorVersion")
-                api("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
-                api("org.jetbrains.kotlinx:kotlinx-serialization-json:$ktSerializationVersion")
-                api("org.jetbrains.kotlinx:kotlinx-datetime:$kotlinxDateTimeVersion")
+                api(libs.bundles.ktor.common)
+                api(libs.bundles.kt.common)
             }
         }
         val commonTest by getting {
-
-            dependsOn(commonMain)
-
-            val coroutinesVersion = "1.7.3"
-            val resourceVersion = "0.4.0"
-
             dependencies {
                 implementation(kotlin("test"))
-                implementation("io.ktor:ktor-client-logging:$ktorVersion")
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutinesVersion")
-                implementation("io.kotest:kotest-assertions-core:$kotestVersion")
-                implementation("io.kotest:kotest-framework-engine:$kotestVersion")
-                implementation("com.goncalossilva:resources:$resourceVersion")
+                implementation(libs.bundles.kotest.common)
+                implementation(libs.ktor.logging)
+                implementation(libs.resources)
             }
         }
 
-        val jvmMain by getting {
-            dependsOn(commonMain)
-        }
+        val jvmMain by getting
         val jvmTest by getting {
-
-            val slf4jVersion = "2.0.9"
-
             dependencies {
-                implementation("io.ktor:ktor-client-cio:$ktorVersion")
-                implementation("org.slf4j:slf4j-simple:$slf4jVersion")
-                implementation("io.kotest:kotest-runner-junit5:$kotestVersion")
+                implementation(libs.ktor.cio)
+                implementation(libs.slf4j.simple)
+                implementation(libs.kotest.junit5)
             }
         }
 
-        val jsMain by getting {
-            dependsOn(commonMain)
-        }
+        val jsMain by getting
         val jsTest by getting {
             dependencies {
-                implementation("io.ktor:ktor-client-js:$ktorVersion")
+                implementation(libs.ktor.js)
             }
         }
 
-        val nativeMain by getting {
-            dependsOn(commonMain)
-        }
+        val nativeMain by getting
         val nativeTest by getting {
             dependencies {
                 if (isWindows) {
-                    implementation("io.ktor:ktor-client-winhttp:$ktorVersion")
+                    implementation(libs.ktor.winhttp)
                 } else if (isMacOs) {
-                    implementation("io.ktor:ktor-client-darwin:$ktorVersion")
+                    implementation(libs.ktor.darwin)
                 } else {
-                    implementation("io.ktor:ktor-client-cio:$ktorVersion")
+                    implementation(libs.ktor.cio)
                 }
             }
         }
