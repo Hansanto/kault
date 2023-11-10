@@ -21,11 +21,11 @@ public data class WriteSecretIdResponse(
      * Number of times a secret ID can access the role, after which the secret ID will expire.
      */
     @SerialName("secret_id_num_uses")
-    public val secretIdNumUses: Int,
+    public val secretIdNumUses: Long,
 
     /**
      * Duration in seconds after which the issued secret ID expires.
      */
     @SerialName("secret_id_ttl")
-    public val secretIdTTL: Int
+    public val secretIdTTL: Long
 )

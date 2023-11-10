@@ -15,7 +15,7 @@ public data class AuthReadConfigurationResponse(
     public val config: EnableMethodPayload.Config,
 
     @SerialName("deprecation_status")
-    public val deprecationStatus: String,
+    public val deprecationStatus: String?,
 
     @SerialName("description")
     public val description: String,
@@ -27,7 +27,7 @@ public data class AuthReadConfigurationResponse(
     public val local: Boolean,
 
     @SerialName("options")
-    public val options: Map<String, String>,
+    public val options: Map<String, String>?,
 
     @SerialName("plugin_version")
     public val pluginVersion: String,
@@ -54,13 +54,13 @@ public data class AuthReadConfigurationResponse(
          * The default lease duration, specified as a string duration like "5s" or "30m".
          */
         @SerialName("default_lease_ttl")
-        public var defaultLeaseTTL: Int,
+        public var defaultLeaseTTL: Long,
 
         /**
          * The maximum lease duration, specified as a string duration like "5s" or "30m".
          */
         @SerialName("max_lease_ttl")
-        public var maxLeaseTTL: Int,
+        public var maxLeaseTTL: Long,
 
         /**
          * Specifies the type of tokens that should be returned by the mount. The following values are available:

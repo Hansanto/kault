@@ -1,0 +1,19 @@
+{
+  "allowed_managed_keys": null,
+  "allowed_response_headers": null,
+  "audit_non_hmac_request_keys": null,
+  "audit_non_hmac_response_keys": null,
+  "default_lease_ttl": 2764800,
+  "description": "",
+  "external_entropy_access": null,
+  "force_no_cache": false,
+  "listing_visibility": null,
+  "max_lease_ttl": 2764800,
+  "passthrough_request_headers": null,
+  "plugin_version": null,
+  "token_type": "default-service",
+  "user_lockout_counter_reset_duration": null,
+  "user_lockout_disable": null,
+  "user_lockout_duration": null,
+  "user_lockout_threshold": null
+}

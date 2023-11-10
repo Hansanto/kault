@@ -21,7 +21,7 @@ public data class CreateOrUpdatePayload(
      * Number of times any particular SecretID can be used to fetch a token from this AppRole, after which the SecretID by default will expire. A value of zero will allow unlimited uses. However, this option may be overridden by the request's 'num_uses' field when generating a SecretID.
      */
     @SerialName("secret_id_num_uses")
-    public var secretIdNumUses: Int? = null,
+    public var secretIdNumUses: Long? = null,
 
     /**
      * Duration in either an integer number of seconds (3600) or an integer time unit (60m) after which by default any SecretID expires. A value of zero will allow the SecretID to not expire. However, this option may be overridden by the request's 'ttl' field when generating a SecretID.
@@ -63,7 +63,7 @@ public data class CreateOrUpdatePayload(
      * If set, will encode an explicit max TTL onto the token. This is a hard cap even if token_ttl and token_max_ttl would otherwise allow a renewal.
      */
     @SerialName("token_explicit_max_ttl")
-    public var tokenExplicitMaxTTL: Int? = null,
+    public var tokenExplicitMaxTTL: Long? = null,
 
     /**
      * If set, the default policy will not be set on generated tokens; otherwise it will be added to the policies set in token_policies.
@@ -75,13 +75,13 @@ public data class CreateOrUpdatePayload(
      * The maximum number of times a generated token may be used (within its lifetime); 0 means unlimited. If you require the token to have the ability to create child tokens, you will need to set this value to 0.
      */
     @SerialName("token_num_uses")
-    public var tokenNumUses: Int? = null,
+    public var tokenNumUses: Long? = null,
 
     /**
      * The maximum allowed period value when a periodic token is requested from this role.
      */
     @SerialName("token_period")
-    public var tokenPeriod: Int? = null,
+    public var tokenPeriod: Long? = null,
 
     /**
      * The type of token that should be generated. Can be service, batch, or default to use the mount's tuned default (which unless changed will be service tokens). For token store roles, there are two additional possibilities: default-service and default-batch which specify the type to return unless the client requests a different type at generation time.

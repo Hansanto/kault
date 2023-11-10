@@ -3,8 +3,10 @@ package com.github.hansanto.kault.system.auth
 import com.github.hansanto.kault.ServiceBuilder
 import com.github.hansanto.kault.VaultClient
 import com.github.hansanto.kault.extension.decodeBodyJsonFieldObject
+import com.github.hansanto.kault.system.auth.payload.AuthTuneConfigurationParametersPayload
 import com.github.hansanto.kault.system.auth.payload.EnableMethodPayload
 import com.github.hansanto.kault.system.auth.response.AuthReadConfigurationResponse
+import com.github.hansanto.kault.system.auth.response.AuthReadTuningInformationResponse
 import io.ktor.client.HttpClient
 import io.ktor.client.request.delete
 import io.ktor.client.request.get
@@ -30,6 +32,18 @@ public suspend inline fun VaultSystemAuth.enable(
 }
 
 /**
+ * @see VaultSystemAuth.tune(path, payload)
+ */
+public suspend inline fun VaultSystemAuth.tune(
+    path: String,
+    payloadBuilder: AuthTuneConfigurationParametersPayload.() -> Unit
+): Boolean {
+    contract { callsInPlace(payloadBuilder, InvocationKind.EXACTLY_ONCE) }
+    val payload = AuthTuneConfigurationParametersPayload().apply(payloadBuilder)
+    return tune(path, payload)
+}
+
+/**
  * Provides methods for managing authentication methods within Vault.
  */
 public interface VaultSystemAuth {
@@ -39,7 +53,7 @@ public interface VaultSystemAuth {
      * [Documentation](https://developer.hashicorp.com/vault/api-docs/system/auth#list-auth-methods)
      * @return Response.
      */
-    public suspend fun list(): Any
+    public suspend fun list(): Map<String, AuthReadConfigurationResponse>
 
     /**
      * This endpoint enables a new auth method. After enabling, the auth method can be accessed and configured via the auth path specified as part of the URL.
@@ -72,7 +86,7 @@ public interface VaultSystemAuth {
      * @param path Specifies the path in which to tune.
      * @return Response.
      */
-    public suspend fun readTuning(path: String): Any
+    public suspend fun readTuning(path: String): AuthReadTuningInformationResponse
 
     /**
      * Tune configuration parameters for a given auth path. This endpoint requires sudo capability on the final path, but the same functionality can be achieved without sudo via sys/mounts/auth/[auth-path]/tune.
@@ -80,7 +94,7 @@ public interface VaultSystemAuth {
      * @param path Specifies the path in which to tune.
      * @return Response.
      */
-    public suspend fun tune(path: String, payload: Any): Any
+    public suspend fun tune(path: String, payload: AuthTuneConfigurationParametersPayload = AuthTuneConfigurationParametersPayload()): Boolean
 }
 
 /**
@@ -138,8 +152,13 @@ public class VaultSystemAuthImpl(
         )
     }
 
-    override suspend fun list(): Any {
-        TODO("Not yet implemented")
+    override suspend fun list(): Map<String, AuthReadConfigurationResponse> {
+        val response = client.get {
+            url {
+                appendPathSegments(this@VaultSystemAuthImpl.path)
+            }
+        }
+        return response.decodeBodyJsonFieldObject("data", VaultClient.json)
     }
 
     override suspend fun enable(path: String, payload: EnableMethodPayload): Boolean {
@@ -171,11 +190,23 @@ public class VaultSystemAuthImpl(
         return response.status.isSuccess()
     }
 
-    override suspend fun readTuning(path: String): Any {
-        TODO("Not yet implemented")
+    override suspend fun readTuning(path: String): AuthReadTuningInformationResponse {
+        val response = client.get {
+            url {
+                appendPathSegments(this@VaultSystemAuthImpl.path, path, "tune")
+            }
+        }
+        return response.decodeBodyJsonFieldObject("data", VaultClient.json)
     }
 
-    override suspend fun tune(path: String, payload: Any): Any {
-        TODO("Not yet implemented")
+    override suspend fun tune(path: String, payload: AuthTuneConfigurationParametersPayload): Boolean {
+        val response = client.post {
+            url {
+                appendPathSegments(this@VaultSystemAuthImpl.path, path, "tune")
+            }
+            contentType(ContentType.Application.Json)
+            setBody(payload)
+        }
+        return response.status.isSuccess()
     }
 }

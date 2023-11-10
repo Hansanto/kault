@@ -1,0 +1,30 @@
+{
+  "allowed_response_headers": [
+    "X-Vault-Token"
+  ],
+  "audit_non_hmac_request_keys": [
+    "username",
+    "password"
+  ],
+  "audit_non_hmac_response_keys": [
+    "token"
+  ],
+  "passthrough_request_headers": [
+    "X-MY-HEADER"
+  ],
+  "default_lease_ttl": "10h",
+  "description": "Example Vault Policy",
+  "listing_visibility": "unauth",
+  "max_lease_ttl": "20h",
+  "plugin_version": null,
+  "options": {
+    "foo": "bar"
+  },
+  "token_type": "default-service",
+  "user_lockout_config": {
+    "lockout_threshold": 10,
+    "lockout_duration": 600,
+    "lockout_counter_reset": 600,
+    "lockout_disable": true
+  }
+}

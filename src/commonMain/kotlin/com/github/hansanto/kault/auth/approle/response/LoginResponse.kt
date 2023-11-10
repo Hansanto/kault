@@ -34,7 +34,7 @@ public data class LoginResponse(
      * Duration in seconds before the token expires.
      */
     @SerialName("lease_duration")
-    public val leaseDuration: Int,
+    public val leaseDuration: Long,
 
     /**
      * Whether the token is renewable.
@@ -64,5 +64,5 @@ public data class LoginResponse(
      * The maximum uses for the given token. This can be used to create a one-time-token or limited use token. The value of 0 has no limit to the number of uses.
      */
     @SerialName("num_uses")
-    public val numUses: Int
+    public val numUses: Long
 )
