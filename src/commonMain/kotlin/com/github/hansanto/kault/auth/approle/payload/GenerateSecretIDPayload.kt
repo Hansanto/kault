@@ -30,7 +30,7 @@ public data class GenerateSecretIDPayload(
      * Number of times this SecretID can be used, after which the SecretID expires. A value of zero will allow unlimited uses. Overrides secret_id_num_uses role option when supplied. May not be higher than role's secret_id_num_uses.
      */
     @SerialName("num_uses")
-    var numUses: Int? = null,
+    var numUses: Long? = null,
 
     /**
      * Duration in seconds (3600) or an integer time unit (60m) after which this SecretID expires. A value of zero will allow the SecretID to not expire. Overrides secret_id_ttl role option when supplied. May not be longer than role's secret_id_ttl.

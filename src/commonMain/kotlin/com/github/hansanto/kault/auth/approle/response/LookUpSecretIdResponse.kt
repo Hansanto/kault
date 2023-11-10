@@ -46,13 +46,13 @@ public data class LookUpSecretIdResponse(
      * Number of times a secret ID can access the role, after which the secret ID will expire.
      */
     @SerialName("secret_id_num_uses")
-    public val secretIdNumUses: Int,
+    public val secretIdNumUses: Long,
 
     /**
      * Duration in seconds after which the issued secret ID expires.
      */
     @SerialName("secret_id_ttl")
-    public val secretIdTTL: Int,
+    public val secretIdTTL: Long,
 
     /**
      * List of CIDR blocks. If set, specifies the blocks of IP addresses which can use the returned token. Should be a subset of the token CIDR blocks listed on the role, if any.
