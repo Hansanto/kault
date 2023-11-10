@@ -5,6 +5,7 @@ import com.github.hansanto.kault.exception.VaultAPIException
 import com.github.hansanto.kault.system.auth.payload.AuthTuneConfigurationParametersPayload
 import com.github.hansanto.kault.system.auth.payload.EnableMethodPayload
 import com.github.hansanto.kault.system.auth.response.AuthReadConfigurationResponse
+import com.github.hansanto.kault.system.auth.response.AuthReadTuningInformationResponse
 import com.github.hansanto.kault.util.createVaultClient
 import com.github.hansanto.kault.util.readJson
 import io.kotest.assertions.throwables.shouldNotThrow
@@ -122,24 +123,38 @@ class VaultSystemAuthTest : FunSpec({
     }
 
     test("tune with empty payload") {
-        auth.enable(DEFAULT_METHOD) {
-            type = DEFAULT_METHOD
-        } shouldBe true
-
-        auth.tune(DEFAULT_METHOD) shouldBe true
-        TODO("Read Tuning")
+        assertTune(
+            auth,
+            null,
+            "cases/sys/auth/tune/without_options/expected.json"
+        )
     }
 
     test("tune with full payload") {
-        auth.enable(DEFAULT_METHOD) {
-            type = DEFAULT_METHOD
-        } shouldBe true
-
-        val payload = readJson<AuthTuneConfigurationParametersPayload>("cases/sys/auth/tune/given.json")
-        auth.tune(DEFAULT_METHOD, payload) shouldBe true
-        TODO("Read Tuning")
+        assertTune(
+            auth,
+            "cases/sys/auth/tune/with_options/given.json",
+            "cases/sys/auth/tune/with_options/expected.json"
+        )
     }
 })
+
+private suspend fun assertTune(
+    auth: VaultSystemAuth,
+    givenPath: String?,
+    expectedPath: String
+) {
+    auth.enable(DEFAULT_METHOD) {
+        type = DEFAULT_METHOD
+    } shouldBe true
+
+    val payload = givenPath?.let { readJson<AuthTuneConfigurationParametersPayload>(it) } ?: AuthTuneConfigurationParametersPayload()
+    auth.tune(DEFAULT_METHOD, payload) shouldBe true
+
+    val tuneInfo = auth.readTuning(DEFAULT_METHOD)
+    val expected = readJson<AuthReadTuningInformationResponse>(expectedPath)
+    tuneInfo shouldBe expected
+}
 
 private fun replaceDynamicFields(
     response: Map<String, AuthReadConfigurationResponse>,
