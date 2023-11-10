@@ -6,6 +6,7 @@ import com.github.hansanto.kault.extension.decodeBodyJsonFieldObject
 import com.github.hansanto.kault.system.auth.payload.AuthTuneConfigurationParametersPayload
 import com.github.hansanto.kault.system.auth.payload.EnableMethodPayload
 import com.github.hansanto.kault.system.auth.response.AuthReadConfigurationResponse
+import com.github.hansanto.kault.system.auth.response.AuthReadTuningInformationResponse
 import io.ktor.client.HttpClient
 import io.ktor.client.request.delete
 import io.ktor.client.request.get
@@ -85,7 +86,7 @@ public interface VaultSystemAuth {
      * @param path Specifies the path in which to tune.
      * @return Response.
      */
-    public suspend fun readTuning(path: String): Any
+    public suspend fun readTuning(path: String): AuthReadTuningInformationResponse
 
     /**
      * Tune configuration parameters for a given auth path. This endpoint requires sudo capability on the final path, but the same functionality can be achieved without sudo via sys/mounts/auth/[auth-path]/tune.
@@ -189,8 +190,13 @@ public class VaultSystemAuthImpl(
         return response.status.isSuccess()
     }
 
-    override suspend fun readTuning(path: String): Any {
-        TODO("Not yet implemented")
+    override suspend fun readTuning(path: String): AuthReadTuningInformationResponse {
+        val response = client.get {
+            url {
+                appendPathSegments(this@VaultSystemAuthImpl.path, path, "tune")
+            }
+        }
+        return response.decodeBodyJsonFieldObject("data", VaultClient.json)
     }
 
     override suspend fun tune(path: String, payload: AuthTuneConfigurationParametersPayload): Boolean {

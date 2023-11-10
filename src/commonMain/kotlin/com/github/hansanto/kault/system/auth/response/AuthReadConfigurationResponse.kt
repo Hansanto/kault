@@ -54,13 +54,13 @@ public data class AuthReadConfigurationResponse(
          * The default lease duration, specified as a string duration like "5s" or "30m".
          */
         @SerialName("default_lease_ttl")
-        public var defaultLeaseTTL: Int,
+        public var defaultLeaseTTL: Long,
 
         /**
          * The maximum lease duration, specified as a string duration like "5s" or "30m".
          */
         @SerialName("max_lease_ttl")
-        public var maxLeaseTTL: Int,
+        public var maxLeaseTTL: Long,
 
         /**
          * Specifies the type of tokens that should be returned by the mount. The following values are available:
