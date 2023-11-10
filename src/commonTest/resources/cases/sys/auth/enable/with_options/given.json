@@ -18,7 +18,9 @@
   "description": "AppRole for test",
   "external_entropy_access": true,
   "local": true,
-  "options": null,
+  "options": {
+    "foo": "bar"
+  },
   "plugin_name": "auth",
   "plugin_version": "1",
   "seal_wrap": true

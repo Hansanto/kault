@@ -1,10 +1,8 @@
 package com.github.hansanto.kault.system.auth.payload
 
-import com.github.hansanto.kault.extension.toJsonString
 import com.github.hansanto.kault.system.auth.common.ListingVisibility
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.builtins.serializer
 
 @Serializable
 public data class EnableMethodPayload(
@@ -42,7 +40,7 @@ public data class EnableMethodPayload(
      * The options to pass into the backend. Should be a json object with string keys and values.
      */
     @SerialName("options")
-    public var options: String? = null,
+    public var options: Map<String, String>? = null,
 
     /**
      * Name of the auth plugin to use based from the name in the plugin catalog.
@@ -148,7 +146,7 @@ public data class EnableMethodPayload(
         /**
          * @see [EnableMethodPayload.options]
          */
-        public var options: String? = null
+        public var options: Map<String, String>? = null
 
         /**
          * @see [EnableMethodPayload.pluginName]
@@ -195,23 +193,5 @@ public data class EnableMethodPayload(
         public fun config(builder: Config.() -> Unit) {
             configBuilder = builder
         }
-
-        /**
-         * Sets the options field from a map and converts it to a JSON string.
-         *
-         * @param options A map containing key-value pairs of metadata.
-         */
-        public fun options(options: Map<String, String>) {
-            this.options = options.toJsonString(String.serializer(), String.serializer())
-        }
-    }
-
-    /**
-     * Sets the options field from a map and converts it to a JSON string.
-     *
-     * @param options A map containing key-value pairs of metadata.
-     */
-    public fun options(options: Map<String, String>) {
-        this.options = options.toJsonString(String.serializer(), String.serializer())
     }
 }

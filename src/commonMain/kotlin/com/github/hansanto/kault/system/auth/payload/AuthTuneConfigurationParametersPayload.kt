@@ -61,6 +61,12 @@ public data class AuthTuneConfigurationParametersPayload(
     public var pluginVersion: String? = null,
 
     /**
+     * The options to pass into the backend.
+     */
+    @SerialName("options")
+    public var options: Map<String, String>? = null,
+
+    /**
      * Specifies the type of tokens that should be returned by the mount. The following values are available:
      */
     @SerialName("token_type")

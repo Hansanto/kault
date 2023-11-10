@@ -17,6 +17,9 @@
   "passthrough_request_headers": [
     "X-MY-HEADER"
   ],
+  "options": {
+    "foo": "bar"
+  },
   "token_type": "default-service",
   "user_lockout_counter_reset_duration": 0,
   "user_lockout_disable": true,

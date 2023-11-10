@@ -40,6 +40,9 @@ public data class AuthReadTuningInformationResponse(
     @SerialName("max_lease_ttl")
     public val maxLeaseTTL: Long,
 
+    @SerialName("options")
+    public val options: Map<String, String>?,
+
     @SerialName("plugin_version")
     public val pluginVersion: String?,
 

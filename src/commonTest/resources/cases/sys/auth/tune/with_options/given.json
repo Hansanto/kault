@@ -17,6 +17,9 @@
   "listing_visibility": "unauth",
   "max_lease_ttl": "20h",
   "plugin_version": null,
+  "options": {
+    "foo": "bar"
+  },
   "token_type": "default-service",
   "user_lockout_config": {
     "lockout_threshold": 10,
