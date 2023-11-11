@@ -6,6 +6,12 @@ import kotlinx.serialization.Serializable
 @Serializable
 public data class AuditingEnableDevicePayload(
     /**
+     * Specifies the type of the audit device. Valid types are file, socket and syslog.
+     */
+    @SerialName("type")
+    public var type: String,
+
+    /**
      * Specifies a human-friendly description of the audit device.
      */
     @SerialName("description")
@@ -22,10 +28,44 @@ public data class AuditingEnableDevicePayload(
      */
     @SerialName("options")
     public var options: Map<String, String>? = null,
+) {
 
     /**
-     * Specifies the type of the audit device. Valid types are file, socket and syslog.
+     * Builder class to simplify the creation of [AuditingEnableDevicePayload].
      */
-    @SerialName("type")
-    public var type: String? = null,
-)
+    @Suppress("MemberVisibilityCanBePrivate")
+    public class Builder {
+
+        /**
+         * @see [AuditingEnableDevicePayload.type]
+         */
+        public lateinit var type: String
+
+        /**
+         * @see [AuditingEnableDevicePayload.description]
+         */
+        public var description: String? = null
+
+        /**
+         * @see [AuditingEnableDevicePayload.local]
+         */
+        public var local: Boolean? = null
+
+        /**
+         * @see [AuditingEnableDevicePayload.options]
+         */
+        public var options: Map<String, String>? = null
+
+        /**
+         * Build the instance of [AuditingEnableDevicePayload] with the values defined in builder.
+         * @return A new instance.
+         */
+        public fun build(): AuditingEnableDevicePayload = AuditingEnableDevicePayload(
+            type = type,
+            description = description,
+            local = local,
+            options = options
+        )
+    }
+
+}

@@ -1,13 +1,7 @@
 package com.github.hansanto.kault.system.audit
 
 import com.github.hansanto.kault.ServiceBuilder
-import com.github.hansanto.kault.VaultClient
-import com.github.hansanto.kault.extension.decodeBodyJsonFieldObject
 import com.github.hansanto.kault.system.audit.payload.AuditingEnableDevicePayload
-import com.github.hansanto.kault.system.auth.payload.AuthTuneConfigurationParametersPayload
-import com.github.hansanto.kault.system.auth.payload.EnableMethodPayload
-import com.github.hansanto.kault.system.auth.response.AuthReadConfigurationResponse
-import com.github.hansanto.kault.system.auth.response.AuthReadTuningInformationResponse
 import io.ktor.client.HttpClient
 import io.ktor.client.request.delete
 import io.ktor.client.request.get
@@ -18,6 +12,20 @@ import io.ktor.http.ContentType
 import io.ktor.http.appendPathSegments
 import io.ktor.http.contentType
 import io.ktor.http.isSuccess
+import kotlin.contracts.InvocationKind
+import kotlin.contracts.contract
+
+/**
+ * @see VaultSystemAudit.enable(path, payload)
+ */
+public suspend inline fun VaultSystemAudit.enable(
+    roleName: String,
+    payloadBuilder: AuditingEnableDevicePayload.Builder.() -> Unit
+): Boolean {
+    contract { callsInPlace(payloadBuilder, InvocationKind.EXACTLY_ONCE) }
+    val payload = AuditingEnableDevicePayload.Builder().apply(payloadBuilder).build()
+    return enable(roleName, payload)
+}
 
 /**
  * Provides methods for managing audit within Vault.
@@ -35,7 +43,7 @@ public interface VaultSystemAudit {
      * This endpoint enables a new audit device at the supplied path. The path can be a single word name or a more complex, nested path.
      * [Documentation](https://developer.hashicorp.com/vault/api-docs/system/audit#enable-audit-device)
      * @param path Specifies the path in which to enable the audit device. This is part of the request URL.
-     * @param payload
+     * @param payload Specifies the configuration of the audit device. This is part of the request body.
      * @return Returns true if the audit device was successfully enabled.
      */
     public suspend fun enable(path: String, payload: AuditingEnableDevicePayload): Boolean
@@ -120,6 +128,8 @@ public class VaultSystemAuditImpl(
             url {
                 appendPathSegments(this@VaultSystemAuditImpl.path, path)
             }
+            contentType(ContentType.Application.Json)
+            setBody(payload)
         }
         return response.status.isSuccess()
     }
