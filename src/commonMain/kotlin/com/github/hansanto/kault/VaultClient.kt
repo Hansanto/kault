@@ -36,7 +36,7 @@ public typealias TokenResolver = () -> String?
 public class VaultClient(
     public val client: HttpClient,
     public val auth: VaultAuth,
-    public val system: VaultSystem
+    public val system: VaultSystem,
 ) : CoroutineScope by client, Closeable by client {
 
     public companion object {

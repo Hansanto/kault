@@ -2,6 +2,8 @@ package com.github.hansanto.kault.system
 
 import com.github.hansanto.kault.ServiceBuilder
 import com.github.hansanto.kault.auth.VaultAuth
+import com.github.hansanto.kault.system.audit.VaultSystemAudit
+import com.github.hansanto.kault.system.audit.VaultSystemAuditImpl
 import com.github.hansanto.kault.system.auth.VaultSystemAuth
 import com.github.hansanto.kault.system.auth.VaultSystemAuthImpl
 import io.ktor.client.HttpClient
@@ -13,7 +15,12 @@ public class VaultSystem(
     /**
      * Authentication service.
      */
-    public val auth: VaultSystemAuth
+    public val auth: VaultSystemAuth,
+
+    /**
+     * Audit service.
+     */
+    public val audit: VaultSystemAudit
 ) {
 
     public companion object {
@@ -60,9 +67,15 @@ public class VaultSystem(
          */
         private var authBuilder: VaultSystemAuthImpl.Builder.() -> Unit = {}
 
+        /**
+         * Builder to define audit service.
+         */
+        private var auditBuilder: VaultSystemAuditImpl.Builder.() -> Unit = {}
+
         override fun buildWithFullPath(client: HttpClient, fullPath: String): VaultSystem {
             return VaultSystem(
-                auth = VaultSystemAuthImpl.Builder().apply(authBuilder).build(client, fullPath)
+                auth = VaultSystemAuthImpl.Builder().apply(authBuilder).build(client, fullPath),
+                audit = VaultSystemAuditImpl.Builder().apply(auditBuilder).build(client, fullPath)
             )
         }
 
@@ -73,6 +86,15 @@ public class VaultSystem(
          */
         public fun auth(builder: VaultSystemAuthImpl.Builder.() -> Unit) {
             authBuilder = builder
+        }
+
+        /**
+         * Sets the audit service builder.
+         *
+         * @param builder Builder to create [VaultSystemAuditImpl] instance.
+         */
+        public fun audit(builder: VaultSystemAuditImpl.Builder.() -> Unit) {
+            auditBuilder = builder
         }
     }
 }
