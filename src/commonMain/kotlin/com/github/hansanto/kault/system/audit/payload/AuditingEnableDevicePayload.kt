@@ -27,7 +27,7 @@ public data class AuditingEnableDevicePayload(
      * Specifies configuration options to pass to the audit device itself. For more details, please see the relevant page for an audit device type, under [Audit Devices docs](https://developer.hashicorp.com/vault/docs/audit).
      */
     @SerialName("options")
-    public var options: Map<String, String>? = null,
+    public var options: Map<String, String>? = null
 ) {
 
     /**
@@ -67,5 +67,4 @@ public data class AuditingEnableDevicePayload(
             options = options
         )
     }
-
 }

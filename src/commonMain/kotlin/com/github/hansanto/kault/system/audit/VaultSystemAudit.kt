@@ -1,13 +1,15 @@
 package com.github.hansanto.kault.system.audit
 
 import com.github.hansanto.kault.ServiceBuilder
+import com.github.hansanto.kault.VaultClient
+import com.github.hansanto.kault.extension.decodeBodyJsonFieldObject
 import com.github.hansanto.kault.system.audit.payload.AuditingEnableDevicePayload
+import com.github.hansanto.kault.system.audit.response.AuditingDeviceResponse
 import io.ktor.client.HttpClient
 import io.ktor.client.request.delete
 import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
-import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.appendPathSegments
 import io.ktor.http.contentType
@@ -37,7 +39,7 @@ public interface VaultSystemAudit {
      * [Documentation](https://developer.hashicorp.com/vault/api-docs/system/audit#list-enabled-audit-devices)
      * @return TODO
      */
-    public suspend fun list(): Any
+    public suspend fun list(): Map<String, AuditingDeviceResponse>
 
     /**
      * This endpoint enables a new audit device at the supplied path. The path can be a single word name or a more complex, nested path.
@@ -55,7 +57,6 @@ public interface VaultSystemAudit {
      * @return Returns true if the audit device was successfully disabled.
      */
     public suspend fun disable(path: String): Boolean
-
 }
 
 /**
@@ -113,14 +114,14 @@ public class VaultSystemAuditImpl(
         )
     }
 
-    override suspend fun list(): Any {
+    override suspend fun list(): Map<String, AuditingDeviceResponse> {
         val response = client.get {
             url {
                 appendPathSegments(this@VaultSystemAuditImpl.path)
             }
         }
 
-        return response.bodyAsText()
+        return response.decodeBodyJsonFieldObject("data", VaultClient.json)
     }
 
     override suspend fun enable(path: String, payload: AuditingEnableDevicePayload): Boolean {
@@ -137,10 +138,9 @@ public class VaultSystemAuditImpl(
     override suspend fun disable(path: String): Boolean {
         val response = client.delete {
             url {
-                appendPathSegments(this@VaultSystemAuditImpl.path)
+                appendPathSegments(this@VaultSystemAuditImpl.path, path)
             }
         }
         return response.status.isSuccess()
     }
-
 }
