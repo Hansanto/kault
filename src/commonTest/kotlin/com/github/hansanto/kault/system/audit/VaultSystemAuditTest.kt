@@ -32,20 +32,65 @@ class VaultSystemAuditTest : FunSpec({
     }
 
     test("list with audit enabled without options") {
-        val given = readJson<AuditingEnableDevicePayload>("cases/sys/audit/list/without_options/given.json")
-        audit.enable("role-test", given) shouldBe true
-
-        val response = audit.list()
-        val expected = readJson<Map<String, AuditingDeviceResponse>>("cases/sys/audit/list/without_options/expected.json")
-        response shouldBe expected
+        assertListWithEnabledAudit(
+            audit,
+            listOf(
+                "cases/sys/audit/without_options/given.json",
+            ),
+            "cases/sys/audit/without_options/expected.json"
+        )
     }
 
     test("list with audit enabled with options") {
-        val given = readJson<AuditingEnableDevicePayload>("cases/sys/audit/list/with_options/given.json")
-        audit.enable("role-test", given) shouldBe true
+        assertListWithEnabledAudit(
+            audit,
+            listOf(
+                "cases/sys/audit/with_options/given.json",
+            ),
+            "cases/sys/audit/with_options/expected.json"
+        )
+    }
 
-        val response = audit.list()
-        val expected = readJson<Map<String, AuditingDeviceResponse>>("cases/sys/audit/list/with_options/expected.json")
-        response shouldBe expected
+    test("list with several audit enabled") {
+        assertListWithEnabledAudit(
+            audit,
+            listOf(
+                "cases/sys/audit/several_audit/given1.json",
+                "cases/sys/audit/several_audit/given2.json"
+            ),
+            "cases/sys/audit/several_audit/expected.json"
+        )
+    }
+
+    test("disable with non existing audit") {
+        val response = audit.disable("non-existing-audit")
+        response shouldBe true
+    }
+
+    test("disable with existing audit") {
+        val given = readJson<AuditingEnableDevicePayload>("cases/sys/audit/without_options/given.json")
+        val path = "role"
+        audit.enable(path, given) shouldBe true
+
+        val response = audit.disable(path)
+        response shouldBe true
+
+        val list = audit.list()
+        list.size shouldBe 0
     }
 })
+
+private suspend fun assertListWithEnabledAudit(
+    audit: VaultSystemAudit,
+    givenPaths: List<String>,
+    expectedPath: String
+) {
+    givenPaths.forEachIndexed { index, value ->
+        val given = readJson<AuditingEnableDevicePayload>(value)
+        audit.enable("role-test$index", given) shouldBe true
+    }
+
+    val response = audit.list()
+    val expected = readJson<Map<String, AuditingDeviceResponse>>(expectedPath)
+    response shouldBe expected
+}

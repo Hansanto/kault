@@ -1,7 +1,7 @@
 {
-  "role-test/": {
+  "role-test0/": {
     "type": "file",
-    "path": "role-test/",
+    "path": "role-test0/",
     "description": "File output for audit log",
     "local": true,
     "options": {
