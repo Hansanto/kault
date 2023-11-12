@@ -37,7 +37,7 @@ public interface VaultSystemAudit {
     /**
      * This endpoint lists only the enabled audit devices (it does not list all available audit devices).
      * [Documentation](https://developer.hashicorp.com/vault/api-docs/system/audit#list-enabled-audit-devices)
-     * @return TODO
+     * @return Returns a map of audit devices with the key being the path of the audit device.
      */
     public suspend fun list(): Map<String, AuditingDeviceResponse>
 
