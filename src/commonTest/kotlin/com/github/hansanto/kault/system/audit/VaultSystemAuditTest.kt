@@ -35,7 +35,7 @@ class VaultSystemAuditTest : FunSpec({
         assertListWithEnabledAudit(
             audit,
             listOf(
-                "cases/sys/audit/without_options/given.json",
+                "cases/sys/audit/without_options/given.json"
             ),
             "cases/sys/audit/without_options/expected.json"
         )
@@ -45,7 +45,7 @@ class VaultSystemAuditTest : FunSpec({
         assertListWithEnabledAudit(
             audit,
             listOf(
-                "cases/sys/audit/with_options/given.json",
+                "cases/sys/audit/with_options/given.json"
             ),
             "cases/sys/audit/with_options/expected.json"
         )
