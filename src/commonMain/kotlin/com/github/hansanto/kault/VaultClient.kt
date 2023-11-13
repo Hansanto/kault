@@ -29,12 +29,20 @@ import kotlinx.serialization.json.jsonPrimitive
 public typealias TokenResolver = () -> String?
 
 /**
+ * Function that resolves the namespace.
+ */
+public typealias NamespaceResolver = () -> String?
+
+/**
  * Client to interact with a Vault server.
  * @property client Http client to interact through REST API.
+ * @property namespace Namespace to use.
  * @property auth Authentication service.
+ * @property system System service.
  */
 public class VaultClient(
     public val client: HttpClient,
+    public var namespace: String? = null,
     public val auth: VaultAuth,
     public val system: VaultSystem
 ) : CoroutineScope by client, Closeable by client {
@@ -125,23 +133,24 @@ public class VaultClient(
          * The token resolver is passed as parameter and must not be used before the client is built.
          * [Documentation](https://ktor.io/docs/clients-index.html)
          */
-        private var httpClientBuilder: ((TokenResolver) -> HttpClient)? = null
+        private var httpClientBuilder: ((TokenResolver, NamespaceResolver) -> HttpClient)? = null
 
         /**
          * Build the instance of [VaultClient] with the values defined in builder.
          * @return A new instance.
          */
         public fun build(): VaultClient {
-            lateinit var auth: VaultAuth
-            val tokenResolver: TokenResolver = { auth.token }
-            val client = httpClientBuilder?.invoke(tokenResolver) ?: createHttpClient(tokenResolver)
-            auth = VaultAuth(client, null, this.authBuilder)
+            lateinit var vaultClient: VaultClient
+            val tokenResolver = { vaultClient.auth.token }
+            val namespaceResolver = { vaultClient.namespace }
+            val client = httpClientBuilder?.invoke(tokenResolver, namespaceResolver) ?: createHttpClient(tokenResolver, namespaceResolver)
 
             return VaultClient(
                 client = client,
-                auth = auth,
+                namespace = this.namespace,
+                auth = VaultAuth(client, null, this.authBuilder),
                 system = VaultSystem(client, null, this.sysBuilder)
-            )
+            ).also { vaultClient = it }
         }
 
         /**
@@ -176,7 +185,7 @@ public class VaultClient(
          *
          * @param builder Builder to create [HttpClientConfig] instance.
          */
-        public fun httpClient(builder: ((TokenResolver) -> HttpClient)?) {
+        public fun httpClient(builder: ((TokenResolver, NamespaceResolver) -> HttpClient)?) {
             httpClientBuilder = builder
         }
 
@@ -184,10 +193,11 @@ public class VaultClient(
          * Creates an HttpClient with the default configuration.
          *
          * @param tokenResolver Function that resolves the authentication token.
+         * @param namespaceResolver Function that returns the namespace.
          * @return The configured [HttpClient] instance.
          */
-        private fun createHttpClient(tokenResolver: TokenResolver): HttpClient = HttpClient {
-            defaultHttpClientConfiguration(tokenResolver)
+        private fun createHttpClient(tokenResolver: TokenResolver, namespaceResolver: NamespaceResolver): HttpClient = HttpClient {
+            defaultHttpClientConfiguration(tokenResolver, namespaceResolver)
         }
 
         /**
@@ -196,7 +206,10 @@ public class VaultClient(
          * @param tokenResolver Function that returns the token for authentication.
          * @return Function which can be used to configure the HttpClient.
          */
-        public fun HttpClientConfig<*>.defaultHttpClientConfiguration(tokenResolver: TokenResolver) {
+        public fun HttpClientConfig<*>.defaultHttpClientConfiguration(
+            tokenResolver: TokenResolver,
+            namespaceResolver: NamespaceResolver
+        ) {
             install(ContentNegotiation) {
                 json(json)
             }
@@ -214,7 +227,7 @@ public class VaultClient(
             defaultRequest {
                 url(baseUrl)
                 header(headers.token, tokenResolver())
-                header(headers.namespace, this@Builder.namespace)
+                header(headers.namespace, namespaceResolver())
             }
         }
 
