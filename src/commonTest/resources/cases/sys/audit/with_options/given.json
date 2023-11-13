@@ -1,0 +1,9 @@
+{
+  "type": "file",
+  "description": "File output for audit log",
+  "local": true,
+  "options": {
+    "file_path": "/tmp/audit.log",
+    "file_name": "audit.log"
+  }
+}

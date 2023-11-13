@@ -1,0 +1,20 @@
+{
+  "role-test0/": {
+    "type": "file",
+    "path": "role-test0/",
+    "description": "",
+    "local": false,
+    "options": {
+      "file_path": "/tmp/file0.log"
+    }
+  },
+  "role-test1/": {
+    "type": "file",
+    "path": "role-test1/",
+    "description": "",
+    "local": false,
+    "options": {
+      "file_path": "/tmp/file1.log"
+    }
+  }
+}

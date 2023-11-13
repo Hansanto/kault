@@ -1,0 +1,8 @@
+{
+  "type": "file",
+  "description": null,
+  "local": null,
+  "options": {
+    "file_path": "/tmp/audit.log"
+  }
+}

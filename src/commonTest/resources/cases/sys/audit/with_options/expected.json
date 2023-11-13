@@ -1,0 +1,12 @@
+{
+  "role-test0/": {
+    "type": "file",
+    "path": "role-test0/",
+    "description": "File output for audit log",
+    "local": true,
+    "options": {
+      "file_path": "/tmp/audit.log",
+      "file_name": "audit.log"
+    }
+  }
+}
