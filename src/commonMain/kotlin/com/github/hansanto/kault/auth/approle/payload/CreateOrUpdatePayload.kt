@@ -1,5 +1,6 @@
 package com.github.hansanto.kault.auth.approle.payload
 
+import com.github.hansanto.kault.auth.approle.common.TokenType
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -84,8 +85,8 @@ public data class CreateOrUpdatePayload(
     public var tokenPeriod: Long? = null,
 
     /**
-     * The type of token that should be generated. Can be service, batch, or default to use the mount's tuned default (which unless changed will be service tokens). For token store roles, there are two additional possibilities: default-service and default-batch which specify the type to return unless the client requests a different type at generation time.
+     * The type of token that should be generated.
      */
     @SerialName("token_type")
-    public var tokenType: String? = null
+    public var tokenType: TokenType? = null
 )

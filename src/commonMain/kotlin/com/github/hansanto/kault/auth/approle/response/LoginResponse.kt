@@ -1,5 +1,6 @@
 package com.github.hansanto.kault.auth.approle.response
 
+import com.github.hansanto.kault.auth.approle.common.TokenType
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -52,7 +53,7 @@ public data class LoginResponse(
      * The type of token that should be generated. Can be service, batch, or default to use the mount's tuned default (which unless changed will be service tokens). For token store roles, there are two additional possibilities: default-service and default-batch which specify the type to return unless the client requests a different type at generation time.
      */
     @SerialName("token_type")
-    public val tokenType: String,
+    public val tokenType: TokenType,
 
     /**
      * If true, tokens created against this policy will be orphan tokens (they will have no parent). As such, they will not be automatically revoked by the revocation of any other token.

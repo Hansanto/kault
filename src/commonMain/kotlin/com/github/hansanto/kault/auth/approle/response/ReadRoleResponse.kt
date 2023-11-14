@@ -1,5 +1,6 @@
 package com.github.hansanto.kault.auth.approle.response
 
+import com.github.hansanto.kault.auth.approle.common.TokenType
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -84,9 +85,9 @@ public data class ReadRoleResponse(
     val tokenTTL: Long,
 
     /**
-     * The type of token to generate, service or batch
+     * The type of token to generate.
      */
     @SerialName("token_type")
-    val tokenType: String
+    val tokenType: TokenType
 
 )
