@@ -7,14 +7,15 @@ import kotlinx.serialization.Serializable
  * Enum representing the type of token for AppRole.
  */
 @Serializable(TokenTypeSerializer::class)
-public enum class TokenType {
-    SERVICE,
-    BATCH,
-    DEFAULT;
+public enum class TokenType(public val value: String) {
+    SERVICE("service"),
+    DEFAULT_SERVICE("default-service"),
+    BATCH("batch"),
+    DEFAULT_BATCH("default-batch"),
+    DEFAULT("default");
 }
 
 /**
  * Serializer for [TokenType].
- * Use the name of the enum as the serialized value after converting it to lowercase.
  */
-public object TokenTypeSerializer : EnumSerializer<TokenType>("tokenType", TokenType.entries, { it.name.lowercase() })
+public object TokenTypeSerializer : EnumSerializer<TokenType>("tokenType", TokenType.entries, { it.value })
