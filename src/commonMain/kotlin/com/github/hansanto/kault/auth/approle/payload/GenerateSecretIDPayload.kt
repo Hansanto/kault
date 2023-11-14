@@ -1,6 +1,7 @@
 package com.github.hansanto.kault.auth.approle.payload
 
 import com.github.hansanto.kault.extension.toJsonString
+import com.github.hansanto.kault.serializer.VaultDuration
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.builtins.serializer
@@ -36,7 +37,7 @@ public data class GenerateSecretIDPayload(
      * Duration in seconds (3600) or an integer time unit (60m) after which this SecretID expires. A value of zero will allow the SecretID to not expire. Overrides secret_id_ttl role option when supplied. May not be longer than role's secret_id_ttl.
      */
     @SerialName("ttl")
-    var ttl: String? = null
+    var ttl: VaultDuration? = null
 ) {
 
     /**

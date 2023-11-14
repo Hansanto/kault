@@ -1,6 +1,7 @@
 package com.github.hansanto.kault.auth.approle.response
 
 import com.github.hansanto.kault.auth.approle.common.TokenType
+import com.github.hansanto.kault.serializer.VaultDuration
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -34,7 +35,7 @@ public data class ReadRoleResponse(
      * Duration in seconds after which the issued secret ID expires.
      */
     @SerialName("secret_id_ttl")
-    val secretIdTTL: Long,
+    val secretIdTTL: VaultDuration,
 
     /**
      * List of CIDR blocks. If set, specifies the blocks of IP addresses which can perform the login operation.
@@ -46,13 +47,13 @@ public data class ReadRoleResponse(
      * If set, tokens created via this role carry an explicit maximum TTL. During renewal, the current maximum TTL values of the role and the mount are not checked for changes, and any updates to these values will have no effect on the token being renewed.
      */
     @SerialName("token_explicit_max_ttl")
-    val tokenExplicitMaxTTL: Long,
+    val tokenExplicitMaxTTL: VaultDuration,
 
     /**
      * The maximum lifetime of the generated token
      */
     @SerialName("token_max_ttl")
-    val tokenMaxTTL: Long,
+    val tokenMaxTTL: VaultDuration,
 
     /**
      * If true, the 'default' policy will not automatically be added to generated tokens
@@ -70,7 +71,7 @@ public data class ReadRoleResponse(
      * If set, tokens created via this role will have no max lifetime; instead, their renewal period will be fixed to this value.
      */
     @SerialName("token_period")
-    val tokenPeriod: Long,
+    val tokenPeriod: VaultDuration,
 
     /**
      * List of policies
@@ -82,7 +83,7 @@ public data class ReadRoleResponse(
      * The initial ttl of the token to generate
      */
     @SerialName("token_ttl")
-    val tokenTTL: Long,
+    val tokenTTL: VaultDuration,
 
     /**
      * The type of token to generate.
