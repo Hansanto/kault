@@ -1,5 +1,6 @@
 package com.github.hansanto.kault.auth.approle.response
 
+import com.github.hansanto.kault.serializer.VaultDuration
 import kotlinx.datetime.Instant
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -52,7 +53,7 @@ public data class LookUpSecretIdResponse(
      * Duration in seconds after which the issued secret ID expires.
      */
     @SerialName("secret_id_ttl")
-    public val secretIdTTL: Long,
+    public val secretIdTTL: VaultDuration,
 
     /**
      * List of CIDR blocks. If set, specifies the blocks of IP addresses which can use the returned token. Should be a subset of the token CIDR blocks listed on the role, if any.

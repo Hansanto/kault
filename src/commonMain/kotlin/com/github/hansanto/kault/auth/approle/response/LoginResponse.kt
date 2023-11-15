@@ -1,6 +1,7 @@
 package com.github.hansanto.kault.auth.approle.response
 
 import com.github.hansanto.kault.auth.approle.common.TokenType
+import com.github.hansanto.kault.serializer.VaultDuration
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -35,7 +36,7 @@ public data class LoginResponse(
      * Duration in seconds before the token expires.
      */
     @SerialName("lease_duration")
-    public val leaseDuration: Long,
+    public val leaseDuration: VaultDuration,
 
     /**
      * Whether the token is renewable.

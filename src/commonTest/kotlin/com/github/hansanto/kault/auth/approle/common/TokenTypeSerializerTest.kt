@@ -10,7 +10,7 @@ class TokenTypeSerializerTest : FunSpec({
     test("should encode with name lowercase property") {
         TokenType.entries.forEach { value ->
             val serialized = Json.encodeToJsonElement(TokenTypeSerializer, value)
-            serialized.jsonPrimitive.content shouldBe value.name.lowercase()
+            serialized.jsonPrimitive.content shouldBe value.value
         }
     }
 
