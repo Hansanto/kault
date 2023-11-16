@@ -4,10 +4,30 @@ import com.github.hansanto.kault.extension.addURLChildPath
 import io.ktor.client.HttpClient
 
 /**
+ * Marks the annotated class as a DSL marker.
+ * Avoid access to the parent builder class from the DSL.
+ * ```
+ * VaultClient { // annotated with @KaultDsl
+ *    subBuilder { // annotated with @KaultDsl
+ *      subBuilder2 { // possible because it's a method of subBuilder
+ *
+ *      }
+ *      subBuilder { // not possible because it's a method of VaultClient builder and he's not accessible from subBuilder's scope
+ *
+ *      }
+ *    }
+ * }
+ * ```
+ */
+@DslMarker
+public annotation class KaultDsl
+
+/**
  * ServiceBuilder is an interface that defines the contract for building a service instance.
  *
  * @param T the type of the service that will be built.
  */
+@KaultDsl
 public abstract class ServiceBuilder<T> {
     /**
      * Base path of the service.
