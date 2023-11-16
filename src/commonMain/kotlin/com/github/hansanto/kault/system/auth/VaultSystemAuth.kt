@@ -1,5 +1,6 @@
 package com.github.hansanto.kault.system.auth
 
+import com.github.hansanto.kault.KaultDsl
 import com.github.hansanto.kault.ServiceBuilder
 import com.github.hansanto.kault.VaultClient
 import com.github.hansanto.kault.extension.decodeBodyJsonFieldObject
@@ -36,7 +37,7 @@ public suspend inline fun VaultSystemAuth.enable(
  */
 public suspend inline fun VaultSystemAuth.tune(
     path: String,
-    payloadBuilder: AuthTuneConfigurationParametersPayload.() -> Unit
+    payloadBuilder: @KaultDsl AuthTuneConfigurationParametersPayload.() -> Unit
 ): Boolean {
     contract { callsInPlace(payloadBuilder, InvocationKind.EXACTLY_ONCE) }
     val payload = AuthTuneConfigurationParametersPayload().apply(payloadBuilder)

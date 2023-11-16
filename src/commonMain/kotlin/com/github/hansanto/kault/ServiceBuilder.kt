@@ -20,6 +20,7 @@ import io.ktor.client.HttpClient
  * ```
  */
 @DslMarker
+@Target(AnnotationTarget.CLASS, AnnotationTarget.TYPE)
 public annotation class KaultDsl
 
 /**

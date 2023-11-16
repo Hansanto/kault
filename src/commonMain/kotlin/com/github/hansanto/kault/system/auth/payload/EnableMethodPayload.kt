@@ -1,5 +1,6 @@
 package com.github.hansanto.kault.system.auth.payload
 
+import com.github.hansanto.kault.KaultDsl
 import com.github.hansanto.kault.serializer.VaultDuration
 import com.github.hansanto.kault.system.auth.common.ListingVisibility
 import kotlinx.serialization.SerialName
@@ -116,6 +117,7 @@ public data class EnableMethodPayload(
     /**
      * Builder class to simplify the creation of [EnableMethodPayload].
      */
+    @KaultDsl
     @Suppress("MemberVisibilityCanBePrivate")
     public class Builder {
 

@@ -1,5 +1,6 @@
 package com.github.hansanto.kault.auth.approle.payload
 
+import com.github.hansanto.kault.KaultDsl
 import com.github.hansanto.kault.extension.toJsonString
 import com.github.hansanto.kault.serializer.VaultDuration
 import kotlinx.serialization.SerialName
@@ -49,6 +50,7 @@ public data class CreateCustomSecretIDPayload(
     /**
      * Builder class to simplify the creation of [CreateCustomSecretIDPayload].
      */
+    @KaultDsl
     @Suppress("MemberVisibilityCanBePrivate")
     public class Builder {
 

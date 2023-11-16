@@ -1,5 +1,6 @@
 package com.github.hansanto.kault.auth.approle
 
+import com.github.hansanto.kault.KaultDsl
 import com.github.hansanto.kault.ServiceBuilder
 import com.github.hansanto.kault.VaultClient
 import com.github.hansanto.kault.auth.VaultAuth
@@ -40,7 +41,7 @@ import kotlin.contracts.contract
  */
 public suspend inline fun VaultAuthAppRole.createOrUpdate(
     roleName: String,
-    payloadBuilder: CreateOrUpdatePayload.() -> Unit
+    payloadBuilder: @KaultDsl CreateOrUpdatePayload.() -> Unit
 ): Boolean {
     contract { callsInPlace(payloadBuilder, InvocationKind.EXACTLY_ONCE) }
     val payload = CreateOrUpdatePayload().apply(payloadBuilder)
@@ -52,7 +53,7 @@ public suspend inline fun VaultAuthAppRole.createOrUpdate(
  */
 public suspend inline fun VaultAuthAppRole.generateSecretID(
     roleName: String,
-    payloadBuilder: GenerateSecretIDPayload.() -> Unit
+    payloadBuilder: @KaultDsl GenerateSecretIDPayload.() -> Unit
 ): WriteSecretIdResponse {
     contract { callsInPlace(payloadBuilder, InvocationKind.EXACTLY_ONCE) }
     val payload = GenerateSecretIDPayload().apply(payloadBuilder)

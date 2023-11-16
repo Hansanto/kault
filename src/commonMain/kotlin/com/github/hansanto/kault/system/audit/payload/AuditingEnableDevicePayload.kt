@@ -1,5 +1,6 @@
 package com.github.hansanto.kault.system.audit.payload
 
+import com.github.hansanto.kault.KaultDsl
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -33,6 +34,7 @@ public data class AuditingEnableDevicePayload(
     /**
      * Builder class to simplify the creation of [AuditingEnableDevicePayload].
      */
+    @KaultDsl
     @Suppress("MemberVisibilityCanBePrivate")
     public class Builder {
 
