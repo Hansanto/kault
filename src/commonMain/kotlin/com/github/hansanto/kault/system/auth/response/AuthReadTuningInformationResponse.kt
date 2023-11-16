@@ -1,5 +1,6 @@
 package com.github.hansanto.kault.system.auth.response
 
+import com.github.hansanto.kault.serializer.VaultDuration
 import com.github.hansanto.kault.system.auth.common.ListingVisibility
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -23,7 +24,7 @@ public data class AuthReadTuningInformationResponse(
     public val passthroughRequestHeaders: List<String>?,
 
     @SerialName("default_lease_ttl")
-    public val defaultLeaseTTL: Long,
+    public val defaultLeaseTTL: VaultDuration,
 
     @SerialName("description")
     public val description: String,
@@ -38,7 +39,7 @@ public data class AuthReadTuningInformationResponse(
     public val listingVisibility: ListingVisibility?,
 
     @SerialName("max_lease_ttl")
-    public val maxLeaseTTL: Long,
+    public val maxLeaseTTL: VaultDuration,
 
     @SerialName("options")
     public val options: Map<String, String>?,
@@ -50,13 +51,13 @@ public data class AuthReadTuningInformationResponse(
     public val tokenType: String,
 
     @SerialName("user_lockout_counter_reset_duration")
-    public val userLockoutCounterResetDuration: Long?,
+    public val userLockoutCounterResetDuration: VaultDuration?,
 
     @SerialName("user_lockout_disable")
     public val userLockoutDisable: Boolean?,
 
     @SerialName("user_lockout_duration")
-    public val userLockoutDuration: Long?,
+    public val userLockoutDuration: VaultDuration?,
 
     @SerialName("user_lockout_threshold")
     public val userLockoutThreshold: Long?
