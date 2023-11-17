@@ -1,5 +1,6 @@
 package com.github.hansanto.kault.system
 
+import com.github.hansanto.kault.BuilderDsl
 import com.github.hansanto.kault.ServiceBuilder
 import com.github.hansanto.kault.auth.VaultAuth
 import com.github.hansanto.kault.system.audit.VaultSystemAudit
@@ -35,7 +36,7 @@ public class VaultSystem(
         public inline operator fun invoke(
             client: HttpClient,
             parentPath: String?,
-            builder: Builder.() -> Unit
+            builder: BuilderDsl<Builder>
         ): VaultSystem = Builder().apply(builder).build(client, parentPath)
     }
 
@@ -65,12 +66,12 @@ public class VaultSystem(
         /**
          * Builder to define authentication appRole service.
          */
-        private var authBuilder: VaultSystemAuthImpl.Builder.() -> Unit = {}
+        private var authBuilder: BuilderDsl<VaultSystemAuthImpl.Builder> = {}
 
         /**
          * Builder to define audit service.
          */
-        private var auditBuilder: VaultSystemAuditImpl.Builder.() -> Unit = {}
+        private var auditBuilder: BuilderDsl<VaultSystemAuditImpl.Builder> = {}
 
         override fun buildWithFullPath(client: HttpClient, fullPath: String): VaultSystem {
             return VaultSystem(
@@ -84,7 +85,7 @@ public class VaultSystem(
          *
          * @param builder Builder to create [VaultSystemAuthImpl] instance.
          */
-        public fun auth(builder: VaultSystemAuthImpl.Builder.() -> Unit) {
+        public fun auth(builder: BuilderDsl<VaultSystemAuthImpl.Builder>) {
             authBuilder = builder
         }
 
@@ -93,7 +94,7 @@ public class VaultSystem(
          *
          * @param builder Builder to create [VaultSystemAuditImpl] instance.
          */
-        public fun audit(builder: VaultSystemAuditImpl.Builder.() -> Unit) {
+        public fun audit(builder: BuilderDsl<VaultSystemAuditImpl.Builder>) {
             auditBuilder = builder
         }
     }

@@ -1,6 +1,6 @@
 package com.github.hansanto.kault.auth.approle
 
-import com.github.hansanto.kault.KaultDsl
+import com.github.hansanto.kault.BuilderDsl
 import com.github.hansanto.kault.ServiceBuilder
 import com.github.hansanto.kault.VaultClient
 import com.github.hansanto.kault.auth.VaultAuth
@@ -41,7 +41,7 @@ import kotlin.contracts.contract
  */
 public suspend inline fun VaultAuthAppRole.createOrUpdate(
     roleName: String,
-    payloadBuilder: @KaultDsl CreateOrUpdatePayload.() -> Unit
+    payloadBuilder: BuilderDsl<CreateOrUpdatePayload>
 ): Boolean {
     contract { callsInPlace(payloadBuilder, InvocationKind.EXACTLY_ONCE) }
     val payload = CreateOrUpdatePayload().apply(payloadBuilder)
@@ -53,7 +53,7 @@ public suspend inline fun VaultAuthAppRole.createOrUpdate(
  */
 public suspend inline fun VaultAuthAppRole.generateSecretID(
     roleName: String,
-    payloadBuilder: @KaultDsl GenerateSecretIDPayload.() -> Unit
+    payloadBuilder: BuilderDsl<GenerateSecretIDPayload>
 ): WriteSecretIdResponse {
     contract { callsInPlace(payloadBuilder, InvocationKind.EXACTLY_ONCE) }
     val payload = GenerateSecretIDPayload().apply(payloadBuilder)
@@ -65,7 +65,7 @@ public suspend inline fun VaultAuthAppRole.generateSecretID(
  */
 public suspend inline fun VaultAuthAppRole.createCustomSecretID(
     roleName: String,
-    payloadBuilder: CreateCustomSecretIDPayload.Builder.() -> Unit
+    payloadBuilder: BuilderDsl<CreateCustomSecretIDPayload.Builder>
 ): WriteSecretIdResponse {
     contract { callsInPlace(payloadBuilder, InvocationKind.EXACTLY_ONCE) }
     val payload = CreateCustomSecretIDPayload.Builder().apply(payloadBuilder).build()
@@ -76,7 +76,7 @@ public suspend inline fun VaultAuthAppRole.createCustomSecretID(
  * @see VaultAuthAppRole.login(payload)
  */
 public suspend inline fun VaultAuthAppRole.login(
-    payloadBuilder: LoginPayload.Builder.() -> Unit
+    payloadBuilder: BuilderDsl<LoginPayload.Builder>
 ): LoginResponse {
     contract { callsInPlace(payloadBuilder, InvocationKind.EXACTLY_ONCE) }
     val payload = LoginPayload.Builder().apply(payloadBuilder).build()
@@ -244,7 +244,7 @@ public class VaultAuthAppRoleImpl(
         public inline operator fun invoke(
             client: HttpClient,
             parentPath: String?,
-            builder: Builder.() -> Unit
+            builder: BuilderDsl<Builder>
         ): VaultAuthAppRoleImpl = Builder().apply(builder).build(client, parentPath)
     }
 

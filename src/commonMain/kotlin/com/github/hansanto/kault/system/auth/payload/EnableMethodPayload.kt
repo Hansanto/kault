@@ -1,5 +1,6 @@
 package com.github.hansanto.kault.system.auth.payload
 
+import com.github.hansanto.kault.BuilderDsl
 import com.github.hansanto.kault.KaultDsl
 import com.github.hansanto.kault.serializer.VaultDuration
 import com.github.hansanto.kault.system.auth.common.ListingVisibility
@@ -193,7 +194,7 @@ public data class EnableMethodPayload(
          *
          * @param builder Builder to create [Config] instance.
          */
-        public fun config(builder: Config.() -> Unit) {
+        public fun config(builder: BuilderDsl<Config>) {
             configBuilder = builder
         }
     }

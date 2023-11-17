@@ -1,5 +1,6 @@
 package com.github.hansanto.kault.system.audit
 
+import com.github.hansanto.kault.BuilderDsl
 import com.github.hansanto.kault.ServiceBuilder
 import com.github.hansanto.kault.VaultClient
 import com.github.hansanto.kault.extension.decodeBodyJsonFieldObject
@@ -22,7 +23,7 @@ import kotlin.contracts.contract
  */
 public suspend inline fun VaultSystemAudit.enable(
     roleName: String,
-    payloadBuilder: AuditingEnableDevicePayload.Builder.() -> Unit
+    payloadBuilder: BuilderDsl<AuditingEnableDevicePayload.Builder>
 ): Boolean {
     contract { callsInPlace(payloadBuilder, InvocationKind.EXACTLY_ONCE) }
     val payload = AuditingEnableDevicePayload.Builder().apply(payloadBuilder).build()
@@ -86,7 +87,7 @@ public class VaultSystemAuditImpl(
         public inline operator fun invoke(
             client: HttpClient,
             parentPath: String?,
-            builder: Builder.() -> Unit
+            builder: BuilderDsl<Builder>
         ): VaultSystemAuditImpl = Builder().apply(builder).build(client, parentPath)
     }
 

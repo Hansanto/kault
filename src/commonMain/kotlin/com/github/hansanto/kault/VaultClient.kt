@@ -69,7 +69,7 @@ public class VaultClient(
          * @param builder Builder to create the instance.
          * @return Instance of [VaultClient].
          */
-        public inline operator fun invoke(builder: Builder.() -> Unit): VaultClient =
+        public inline operator fun invoke(builder: BuilderDsl<Builder>): VaultClient =
             Builder().apply(builder).build()
     }
 
@@ -117,17 +117,17 @@ public class VaultClient(
         /**
          * Builder to define header keys.
          */
-        private var headerBuilder: Headers.Builder.() -> Unit = {}
+        private var headerBuilder: BuilderDsl<Headers.Builder> = {}
 
         /**
          * Builder to define authentication service.
          */
-        private var authBuilder: VaultAuth.Builder.() -> Unit = {}
+        private var authBuilder: BuilderDsl<VaultAuth.Builder> = {}
 
         /**
          * Builder to define system service.
          */
-        private var sysBuilder: VaultSystem.Builder.() -> Unit = {}
+        private var sysBuilder: BuilderDsl<VaultSystem.Builder> = {}
 
         /**
          * Builder to custom the HTTP client.
@@ -159,7 +159,7 @@ public class VaultClient(
          *
          * @param builder Builder to create [Headers] instance.
          */
-        public fun headers(builder: Headers.Builder.() -> Unit) {
+        public fun headers(builder: BuilderDsl<Headers.Builder>) {
             headerBuilder = builder
         }
 
@@ -168,7 +168,7 @@ public class VaultClient(
          *
          * @param builder Builder to create [VaultAuth] instance.
          */
-        public fun auth(builder: VaultAuth.Builder.() -> Unit) {
+        public fun auth(builder: BuilderDsl<VaultAuth.Builder>) {
             authBuilder = builder
         }
 
@@ -177,7 +177,7 @@ public class VaultClient(
          *
          * @param builder Builder to create [VaultSystem] instance.
          */
-        public fun system(builder: VaultSystem.Builder.() -> Unit) {
+        public fun system(builder: BuilderDsl<VaultSystem.Builder>) {
             sysBuilder = builder
         }
 
@@ -289,7 +289,7 @@ public class VaultClient(
              * @param builder Builder to create the instance.
              * @return Instance of [Headers].
              */
-            public inline operator fun invoke(builder: Builder.() -> Unit): Headers =
+            public inline operator fun invoke(builder: BuilderDsl<Builder>): Headers =
                 Builder().apply(builder).build()
         }
 
