@@ -2,7 +2,7 @@ package com.github.hansanto.kault
 
 import com.github.hansanto.kault.auth.VaultAuth
 import com.github.hansanto.kault.exception.VaultAPIException
-import com.github.hansanto.kault.extension.URL_SEPARATOR
+import com.github.hansanto.kault.extension.URL_PATH_SEPARATOR
 import com.github.hansanto.kault.extension.addURLChildPath
 import com.github.hansanto.kault.system.VaultSystem
 import io.ktor.client.HttpClient
@@ -224,7 +224,7 @@ public class VaultClient(
             }
 
             val headers = Headers(headerBuilder)
-            val baseUrl = this@Builder.url.addURLChildPath(path) + URL_SEPARATOR
+            val baseUrl = this@Builder.url.addURLChildPath(path) + URL_PATH_SEPARATOR
             defaultRequest {
                 url(baseUrl)
                 header(headers.token, tokenResolver())

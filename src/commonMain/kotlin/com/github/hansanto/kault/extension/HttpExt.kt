@@ -14,7 +14,7 @@ import kotlinx.serialization.json.jsonObject
  *
  * This constant defines the string value "/" which is commonly used as a separator in URLs.
  */
-public const val URL_SEPARATOR: String = "/"
+public const val URL_PATH_SEPARATOR: String = "/"
 
 /**
  * Decodes the response body as a JSON object and returns the value of the specified field.
