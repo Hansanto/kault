@@ -17,7 +17,7 @@ import kotlin.enums.EnumEntries
  * @property enumToValue The function used to transform an enum value to a string.
  * @constructor Creates an instance of EnumSerializer with the given serial name and enum values.
  */
-public open class EnumSerializer<T : Enum<T>>(
+public abstract class EnumSerializer<T : Enum<T>>(
     serialName: String,
     private val values: EnumEntries<T>,
     private val enumToValue: (T) -> String
