@@ -2,7 +2,7 @@ package com.github.hansanto.kault
 
 import com.github.hansanto.kault.auth.VaultAuth
 import com.github.hansanto.kault.exception.VaultAPIException
-import com.github.hansanto.kault.extension.URL_SEPARATOR
+import com.github.hansanto.kault.extension.URL_PATH_SEPARATOR
 import com.github.hansanto.kault.extension.addURLChildPath
 import com.github.hansanto.kault.system.VaultSystem
 import io.ktor.client.HttpClient
@@ -29,12 +29,20 @@ import kotlinx.serialization.json.jsonPrimitive
 public typealias TokenResolver = () -> String?
 
 /**
+ * Function that resolves the namespace.
+ */
+public typealias NamespaceResolver = () -> String?
+
+/**
  * Client to interact with a Vault server.
  * @property client Http client to interact through REST API.
+ * @property namespace Namespace to use.
  * @property auth Authentication service.
+ * @property system System service.
  */
 public class VaultClient(
     public val client: HttpClient,
+    public var namespace: String? = null,
     public val auth: VaultAuth,
     public val system: VaultSystem
 ) : CoroutineScope by client, Closeable by client {
@@ -61,7 +69,7 @@ public class VaultClient(
          * @param builder Builder to create the instance.
          * @return Instance of [VaultClient].
          */
-        public inline operator fun invoke(builder: Builder.() -> Unit): VaultClient =
+        public inline operator fun invoke(builder: BuilderDsl<Builder>): VaultClient =
             Builder().apply(builder).build()
     }
 
@@ -84,6 +92,7 @@ public class VaultClient(
     /**
      * Builder class to simplify the creation of [VaultClient].
      */
+    @KaultDsl
     @Suppress("MemberVisibilityCanBePrivate")
     public class Builder {
 
@@ -108,40 +117,41 @@ public class VaultClient(
         /**
          * Builder to define header keys.
          */
-        private var headerBuilder: Headers.Builder.() -> Unit = {}
+        private var headerBuilder: BuilderDsl<Headers.Builder> = {}
 
         /**
          * Builder to define authentication service.
          */
-        private var authBuilder: VaultAuth.Builder.() -> Unit = {}
+        private var authBuilder: BuilderDsl<VaultAuth.Builder> = {}
 
         /**
          * Builder to define system service.
          */
-        private var sysBuilder: VaultSystem.Builder.() -> Unit = {}
+        private var sysBuilder: BuilderDsl<VaultSystem.Builder> = {}
 
         /**
          * Builder to custom the HTTP client.
          * The token resolver is passed as parameter and must not be used before the client is built.
          * [Documentation](https://ktor.io/docs/clients-index.html)
          */
-        private var httpClientBuilder: ((TokenResolver) -> HttpClient)? = null
+        private var httpClientBuilder: ((TokenResolver, NamespaceResolver) -> HttpClient)? = null
 
         /**
          * Build the instance of [VaultClient] with the values defined in builder.
          * @return A new instance.
          */
         public fun build(): VaultClient {
-            lateinit var auth: VaultAuth
-            val tokenResolver: TokenResolver = { auth.token }
-            val client = httpClientBuilder?.invoke(tokenResolver) ?: createHttpClient(tokenResolver)
-            auth = VaultAuth(client, null, this.authBuilder)
+            lateinit var vaultClient: VaultClient
+            val tokenResolver = { vaultClient.auth.token }
+            val namespaceResolver = { vaultClient.namespace }
+            val client = httpClientBuilder?.invoke(tokenResolver, namespaceResolver) ?: createHttpClient(tokenResolver, namespaceResolver)
 
             return VaultClient(
                 client = client,
-                auth = auth,
+                namespace = this.namespace,
+                auth = VaultAuth(client, null, this.authBuilder),
                 system = VaultSystem(client, null, this.sysBuilder)
-            )
+            ).also { vaultClient = it }
         }
 
         /**
@@ -149,7 +159,7 @@ public class VaultClient(
          *
          * @param builder Builder to create [Headers] instance.
          */
-        public fun headers(builder: Headers.Builder.() -> Unit) {
+        public fun headers(builder: BuilderDsl<Headers.Builder>) {
             headerBuilder = builder
         }
 
@@ -158,7 +168,7 @@ public class VaultClient(
          *
          * @param builder Builder to create [VaultAuth] instance.
          */
-        public fun auth(builder: VaultAuth.Builder.() -> Unit) {
+        public fun auth(builder: BuilderDsl<VaultAuth.Builder>) {
             authBuilder = builder
         }
 
@@ -167,7 +177,7 @@ public class VaultClient(
          *
          * @param builder Builder to create [VaultSystem] instance.
          */
-        public fun system(builder: VaultSystem.Builder.() -> Unit) {
+        public fun system(builder: BuilderDsl<VaultSystem.Builder>) {
             sysBuilder = builder
         }
 
@@ -176,7 +186,7 @@ public class VaultClient(
          *
          * @param builder Builder to create [HttpClientConfig] instance.
          */
-        public fun httpClient(builder: ((TokenResolver) -> HttpClient)?) {
+        public fun httpClient(builder: ((TokenResolver, NamespaceResolver) -> HttpClient)?) {
             httpClientBuilder = builder
         }
 
@@ -184,10 +194,11 @@ public class VaultClient(
          * Creates an HttpClient with the default configuration.
          *
          * @param tokenResolver Function that resolves the authentication token.
+         * @param namespaceResolver Function that returns the namespace.
          * @return The configured [HttpClient] instance.
          */
-        private fun createHttpClient(tokenResolver: TokenResolver): HttpClient = HttpClient {
-            defaultHttpClientConfiguration(tokenResolver)
+        private fun createHttpClient(tokenResolver: TokenResolver, namespaceResolver: NamespaceResolver): HttpClient = HttpClient {
+            defaultHttpClientConfiguration(tokenResolver, namespaceResolver)
         }
 
         /**
@@ -196,7 +207,10 @@ public class VaultClient(
          * @param tokenResolver Function that returns the token for authentication.
          * @return Function which can be used to configure the HttpClient.
          */
-        public fun HttpClientConfig<*>.defaultHttpClientConfiguration(tokenResolver: TokenResolver) {
+        public fun HttpClientConfig<*>.defaultHttpClientConfiguration(
+            tokenResolver: TokenResolver,
+            namespaceResolver: NamespaceResolver
+        ) {
             install(ContentNegotiation) {
                 json(json)
             }
@@ -210,11 +224,11 @@ public class VaultClient(
             }
 
             val headers = Headers(headerBuilder)
-            val baseUrl = this@Builder.url.addURLChildPath(path) + URL_SEPARATOR
+            val baseUrl = this@Builder.url.addURLChildPath(path) + URL_PATH_SEPARATOR
             defaultRequest {
                 url(baseUrl)
                 header(headers.token, tokenResolver())
-                header(headers.namespace, this@Builder.namespace)
+                header(headers.namespace, namespaceResolver())
             }
         }
 
@@ -275,13 +289,14 @@ public class VaultClient(
              * @param builder Builder to create the instance.
              * @return Instance of [Headers].
              */
-            public inline operator fun invoke(builder: Builder.() -> Unit): Headers =
+            public inline operator fun invoke(builder: BuilderDsl<Builder>): Headers =
                 Builder().apply(builder).build()
         }
 
         /**
          * Builder class to simplify the creation of [Headers].
          */
+        @KaultDsl
         @Suppress("MemberVisibilityCanBePrivate")
         public class Builder {
 

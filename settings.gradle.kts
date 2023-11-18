@@ -45,6 +45,7 @@ dependencyResolutionManagement {
             library("kotest-core", "io.kotest", "kotest-assertions-core").versionRef("kotest")
             library("kotest-engine", "io.kotest", "kotest-framework-engine").versionRef("kotest")
             library("kotest-junit5", "io.kotest", "kotest-runner-junit5").versionRef("kotest")
+            library("kotest-json", "io.kotest", "kotest-assertions-json").versionRef("kotest")
 
             library("resources", "com.goncalossilva", "resources").versionRef("resources")
 
@@ -54,7 +55,7 @@ dependencyResolutionManagement {
                 "ktor-common",
                 listOf("ktor-core", "ktor-serialization", "ktor-content-negotiation", "ktor-serialization-json")
             )
-            bundle("kotest-common", listOf("kotest-core", "kotest-engine"))
+            bundle("kotest-common", listOf("kotest-core", "kotest-engine", "kotest-json"))
             bundle("kt-common", listOf("kt-serialization-json", "kt-datetime", "kt-coroutines"))
         }
     }

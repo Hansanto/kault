@@ -7,14 +7,14 @@ import kotlinx.serialization.json.jsonPrimitive
 
 class ListingVisibilitySerializerTest : FunSpec({
 
-    test("should encode with value property") {
+    test("should encode with name lowercase property") {
         ListingVisibility.entries.forEach { visibility ->
             val serialized = Json.encodeToJsonElement(ListingVisibilitySerializer, visibility)
-            serialized.jsonPrimitive.content shouldBe visibility.value
+            serialized.jsonPrimitive.content shouldBe visibility.name.lowercase()
         }
     }
 
-    test("should decode with value property") {
+    test("should decode with name lowercase property") {
         ListingVisibility.entries.forEach { visibility ->
             val serialized = Json.encodeToJsonElement(ListingVisibilitySerializer, visibility)
             Json.decodeFromJsonElement(ListingVisibilitySerializer, serialized) shouldBe visibility

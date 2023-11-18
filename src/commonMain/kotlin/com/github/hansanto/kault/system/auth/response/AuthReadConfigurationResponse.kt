@@ -1,5 +1,7 @@
 package com.github.hansanto.kault.system.auth.response
 
+import com.github.hansanto.kault.auth.approle.common.TokenType
+import com.github.hansanto.kault.serializer.VaultDuration
 import com.github.hansanto.kault.system.auth.common.ListingVisibility
 import com.github.hansanto.kault.system.auth.payload.EnableMethodPayload
 import kotlinx.serialization.SerialName
@@ -54,13 +56,13 @@ public data class AuthReadConfigurationResponse(
          * The default lease duration, specified as a string duration like "5s" or "30m".
          */
         @SerialName("default_lease_ttl")
-        public var defaultLeaseTTL: Long,
+        public var defaultLeaseTTL: VaultDuration,
 
         /**
          * The maximum lease duration, specified as a string duration like "5s" or "30m".
          */
         @SerialName("max_lease_ttl")
-        public var maxLeaseTTL: Long,
+        public var maxLeaseTTL: VaultDuration,
 
         /**
          * Specifies the type of tokens that should be returned by the mount. The following values are available:
@@ -71,11 +73,8 @@ public data class AuthReadConfigurationResponse(
          * batch: Override any auth method preference and always issue batch tokens from this mount
          */
         @SerialName("token_type")
-        public var tokenType: String,
+        public var tokenType: TokenType,
 
-        /**
-         * _Missing documentation._
-         */
         @SerialName("force_no_cache")
         public var forceNoCache: Boolean,
 

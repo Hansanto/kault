@@ -1,5 +1,7 @@
 package com.github.hansanto.kault.auth.approle.payload
 
+import com.github.hansanto.kault.auth.approle.common.TokenType
+import com.github.hansanto.kault.serializer.VaultDuration
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -27,7 +29,7 @@ public data class CreateOrUpdatePayload(
      * Duration in either an integer number of seconds (3600) or an integer time unit (60m) after which by default any SecretID expires. A value of zero will allow the SecretID to not expire. However, this option may be overridden by the request's 'ttl' field when generating a SecretID.
      */
     @SerialName("secret_id_ttl")
-    public var secretIdTTL: String? = null,
+    public var secretIdTTL: VaultDuration? = null,
 
     /**
      * If set, the secret IDs generated using this role will be cluster local. This can only be set during role creation and once set, it can't be reset later.
@@ -39,13 +41,13 @@ public data class CreateOrUpdatePayload(
      * The incremental lifetime for generated tokens. This current value of this will be referenced at renewal time.
      */
     @SerialName("token_ttl")
-    public var tokenTTL: String? = null,
+    public var tokenTTL: VaultDuration? = null,
 
     /**
      * The maximum lifetime for generated tokens. This current value of this will be referenced at renewal time.
      */
     @SerialName("token_max_ttl")
-    public var tokenMaxTTL: String? = null,
+    public var tokenMaxTTL: VaultDuration? = null,
 
     /**
      * List of token policies to encode onto generated tokens. Depending on the auth method, this list may be supplemented by user/group/other values.
@@ -63,7 +65,7 @@ public data class CreateOrUpdatePayload(
      * If set, will encode an explicit max TTL onto the token. This is a hard cap even if token_ttl and token_max_ttl would otherwise allow a renewal.
      */
     @SerialName("token_explicit_max_ttl")
-    public var tokenExplicitMaxTTL: Long? = null,
+    public var tokenExplicitMaxTTL: VaultDuration? = null,
 
     /**
      * If set, the default policy will not be set on generated tokens; otherwise it will be added to the policies set in token_policies.
@@ -81,11 +83,11 @@ public data class CreateOrUpdatePayload(
      * The maximum allowed period value when a periodic token is requested from this role.
      */
     @SerialName("token_period")
-    public var tokenPeriod: Long? = null,
+    public var tokenPeriod: VaultDuration? = null,
 
     /**
-     * The type of token that should be generated. Can be service, batch, or default to use the mount's tuned default (which unless changed will be service tokens). For token store roles, there are two additional possibilities: default-service and default-batch which specify the type to return unless the client requests a different type at generation time.
+     * The type of token that should be generated.
      */
     @SerialName("token_type")
-    public var tokenType: String? = null
+    public var tokenType: TokenType? = null
 )

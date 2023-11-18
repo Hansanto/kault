@@ -1,5 +1,6 @@
 package com.github.hansanto.kault.auth.approle.response
 
+import com.github.hansanto.kault.serializer.VaultDuration
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -27,5 +28,5 @@ public data class WriteSecretIdResponse(
      * Duration in seconds after which the issued secret ID expires.
      */
     @SerialName("secret_id_ttl")
-    public val secretIdTTL: Long
+    public val secretIdTTL: VaultDuration
 )

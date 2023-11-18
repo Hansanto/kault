@@ -1,5 +1,7 @@
 package com.github.hansanto.kault.system.auth.payload
 
+import com.github.hansanto.kault.auth.approle.common.TokenType
+import com.github.hansanto.kault.serializer.VaultDuration
 import com.github.hansanto.kault.system.auth.common.ListingVisibility
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -34,7 +36,7 @@ public data class AuthTuneConfigurationParametersPayload(
      * Specifies the default time-to-live. If set on a specific auth path, this overrides the global default.
      */
     @SerialName("default_lease_ttl")
-    public var defaultLeaseTTL: String? = null,
+    public var defaultLeaseTTL: VaultDuration? = null,
 
     /**
      * Specifies the description of the mount. This overrides the current stored value, if any.
@@ -43,7 +45,7 @@ public data class AuthTuneConfigurationParametersPayload(
     public var description: String? = null,
 
     /**
-     * Specifies whether to show this mount in the UI-specific listing endpoint. Valid values are "unauth" or "hidden", with the default "" being equivalent to "hidden".
+     * Specifies whether to show this mount in the UI-specific listing endpoint.
      */
     @SerialName("listing_visibility")
     public var listingVisibility: ListingVisibility? = null,
@@ -52,7 +54,7 @@ public data class AuthTuneConfigurationParametersPayload(
      * Specifies the maximum time-to-live. If set on a specific auth path, this overrides the global default.
      */
     @SerialName("max_lease_ttl")
-    public var maxLeaseTTL: String? = null,
+    public var maxLeaseTTL: VaultDuration? = null,
 
     /**
      * Specifies the semantic version of the plugin to use, e.g. "v1.0.0". Changes will not take effect until the mount is reloaded.
@@ -67,10 +69,10 @@ public data class AuthTuneConfigurationParametersPayload(
     public var options: Map<String, String>? = null,
 
     /**
-     * Specifies the type of tokens that should be returned by the mount. The following values are available:
+     * Specifies the type of tokens that should be returned by the mount.
      */
     @SerialName("token_type")
-    public var tokenType: String? = null,
+    public var tokenType: TokenType? = null,
 
     /**
      * Specifies the user lockout configuration for the mount. User lockout feature was added in Vault 1.13.
@@ -91,13 +93,13 @@ public data class AuthTuneConfigurationParametersPayload(
          * Specifies the duration for which an user will be locked out, specified as a string duration like "5s" or "30m".
          */
         @SerialName("lockout_duration")
-        public var lockoutDuration: String? = null,
+        public var lockoutDuration: VaultDuration? = null,
 
         /**
          * Specifies the duration after which the lockout counter is reset with no failed login attempts, specified as a string duration like "5s" or "30m".
          */
         @SerialName("lockout_counter_reset")
-        public var lockoutCounterReset: String? = null,
+        public var lockoutCounterReset: VaultDuration? = null,
 
         /**
          * Disables the user lockout feature for this mount if set to true.

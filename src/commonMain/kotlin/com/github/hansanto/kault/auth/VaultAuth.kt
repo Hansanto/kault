@@ -1,5 +1,6 @@
 package com.github.hansanto.kault.auth
 
+import com.github.hansanto.kault.BuilderDsl
 import com.github.hansanto.kault.ServiceBuilder
 import com.github.hansanto.kault.VaultClient
 import com.github.hansanto.kault.auth.approle.VaultAuthAppRole
@@ -34,7 +35,7 @@ public class VaultAuth(
         public inline operator fun invoke(
             client: HttpClient,
             parentPath: String?,
-            builder: Builder.() -> Unit
+            builder: BuilderDsl<Builder>
         ): VaultAuth = Builder().apply(builder).build(client, parentPath)
     }
 
@@ -64,7 +65,7 @@ public class VaultAuth(
         /**
          * Builder to define authentication appRole service.
          */
-        private var appRoleBuilder: VaultAuthAppRoleImpl.Builder.() -> Unit = {}
+        private var appRoleBuilder: BuilderDsl<VaultAuthAppRoleImpl.Builder> = {}
 
         override fun buildWithFullPath(client: HttpClient, fullPath: String): VaultAuth {
             return VaultAuth(
@@ -78,7 +79,7 @@ public class VaultAuth(
          *
          * @param builder Builder to create [VaultAuthAppRoleImpl] instance.
          */
-        public fun appRole(builder: VaultAuthAppRoleImpl.Builder.() -> Unit) {
+        public fun appRole(builder: BuilderDsl<VaultAuthAppRoleImpl.Builder>) {
             appRoleBuilder = builder
         }
     }

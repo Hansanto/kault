@@ -1,15 +1,17 @@
 package com.github.hansanto.kault.system.audit.payload
 
+import com.github.hansanto.kault.KaultDsl
+import com.github.hansanto.kault.system.audit.common.AuditType
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
 public data class AuditingEnableDevicePayload(
     /**
-     * Specifies the type of the audit device. Valid types are file, socket and syslog.
+     * Specifies the type of the audit device.
      */
     @SerialName("type")
-    public var type: String,
+    public var type: AuditType,
 
     /**
      * Specifies a human-friendly description of the audit device.
@@ -33,13 +35,14 @@ public data class AuditingEnableDevicePayload(
     /**
      * Builder class to simplify the creation of [AuditingEnableDevicePayload].
      */
+    @KaultDsl
     @Suppress("MemberVisibilityCanBePrivate")
     public class Builder {
 
         /**
          * @see [AuditingEnableDevicePayload.type]
          */
-        public lateinit var type: String
+        public lateinit var type: AuditType
 
         /**
          * @see [AuditingEnableDevicePayload.description]

@@ -7,7 +7,7 @@ import kotlinx.serialization.json.Json
 /**
  * Convert a Map to a JSON string.
  * Example:
- * ```
+ * ```kotlin
  * val map = mapOf("key1" to "value1", "key2" to "value2")
  * // "{\"key1\":\"value1\",\"key2\":\"value2\"}"
  * val jsonString = map.toJsonString(String.serializer(), String.serializer())

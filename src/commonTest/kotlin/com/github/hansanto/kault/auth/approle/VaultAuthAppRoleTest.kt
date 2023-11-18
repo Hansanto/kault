@@ -20,7 +20,6 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
-import kotlinx.coroutines.flow.toList
 
 private const val DEFAULT_ROLE_NAME = "test"
 
@@ -46,7 +45,7 @@ class VaultAuthAppRoleTest : FunSpec({
 
     beforeTest {
         runCatching {
-            appRole.list().collect {
+            appRole.list().forEach {
                 appRole.delete(it) shouldBe true
             }
         }
@@ -56,14 +55,14 @@ class VaultAuthAppRoleTest : FunSpec({
 
     test("list with no roles") {
         shouldThrow<VaultAPIException> {
-            appRole.list().toList()
+            appRole.list()
         }
     }
 
     test("list with roles") {
         val roles = List(10) { "test-$it" }
         roles.forEach { appRole.createOrUpdate(it) shouldBe true }
-        appRole.list().toList() shouldBe roles
+        appRole.list() shouldBe roles
     }
 
     test("create without options") {
@@ -178,7 +177,7 @@ class VaultAuthAppRoleTest : FunSpec({
 
         repeat(10) {
             appRole.generateSecretID(DEFAULT_ROLE_NAME)
-            appRole.secretIdAccessors(DEFAULT_ROLE_NAME).keys.size shouldBe it + 1
+            appRole.secretIdAccessors(DEFAULT_ROLE_NAME).size shouldBe it + 1
         }
     }
 

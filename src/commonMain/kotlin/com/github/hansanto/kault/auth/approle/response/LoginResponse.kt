@@ -1,5 +1,7 @@
 package com.github.hansanto.kault.auth.approle.response
 
+import com.github.hansanto.kault.auth.approle.common.TokenType
+import com.github.hansanto.kault.serializer.VaultDuration
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -34,7 +36,7 @@ public data class LoginResponse(
      * Duration in seconds before the token expires.
      */
     @SerialName("lease_duration")
-    public val leaseDuration: Long,
+    public val leaseDuration: VaultDuration,
 
     /**
      * Whether the token is renewable.
@@ -52,7 +54,7 @@ public data class LoginResponse(
      * The type of token that should be generated. Can be service, batch, or default to use the mount's tuned default (which unless changed will be service tokens). For token store roles, there are two additional possibilities: default-service and default-batch which specify the type to return unless the client requests a different type at generation time.
      */
     @SerialName("token_type")
-    public val tokenType: String,
+    public val tokenType: TokenType,
 
     /**
      * If true, tokens created against this policy will be orphan tokens (they will have no parent). As such, they will not be automatically revoked by the revocation of any other token.

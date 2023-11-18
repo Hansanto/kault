@@ -1,5 +1,6 @@
 package com.github.hansanto.kault.auth.approle.payload
 
+import com.github.hansanto.kault.KaultDsl
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -23,6 +24,7 @@ public data class LoginPayload(
     /**
      * Builder class to simplify the creation of [LoginPayload].
      */
+    @KaultDsl
     @Suppress("MemberVisibilityCanBePrivate")
     public class Builder {
 

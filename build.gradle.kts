@@ -63,6 +63,7 @@ kotlin {
         all {
             languageSettings {
                 optIn("kotlin.contracts.ExperimentalContracts")
+                optIn("kotlinx.serialization.ExperimentalSerializationApi")
             }
         }
 

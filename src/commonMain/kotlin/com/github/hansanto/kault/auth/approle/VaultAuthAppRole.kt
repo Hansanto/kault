@@ -1,5 +1,6 @@
 package com.github.hansanto.kault.auth.approle
 
+import com.github.hansanto.kault.BuilderDsl
 import com.github.hansanto.kault.ServiceBuilder
 import com.github.hansanto.kault.VaultClient
 import com.github.hansanto.kault.auth.VaultAuth
@@ -30,8 +31,6 @@ import io.ktor.http.HttpMethod
 import io.ktor.http.appendPathSegments
 import io.ktor.http.contentType
 import io.ktor.http.isSuccess
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
 
@@ -40,7 +39,7 @@ import kotlin.contracts.contract
  */
 public suspend inline fun VaultAuthAppRole.createOrUpdate(
     roleName: String,
-    payloadBuilder: CreateOrUpdatePayload.() -> Unit
+    payloadBuilder: BuilderDsl<CreateOrUpdatePayload>
 ): Boolean {
     contract { callsInPlace(payloadBuilder, InvocationKind.EXACTLY_ONCE) }
     val payload = CreateOrUpdatePayload().apply(payloadBuilder)
@@ -52,7 +51,7 @@ public suspend inline fun VaultAuthAppRole.createOrUpdate(
  */
 public suspend inline fun VaultAuthAppRole.generateSecretID(
     roleName: String,
-    payloadBuilder: GenerateSecretIDPayload.() -> Unit
+    payloadBuilder: BuilderDsl<GenerateSecretIDPayload>
 ): WriteSecretIdResponse {
     contract { callsInPlace(payloadBuilder, InvocationKind.EXACTLY_ONCE) }
     val payload = GenerateSecretIDPayload().apply(payloadBuilder)
@@ -64,7 +63,7 @@ public suspend inline fun VaultAuthAppRole.generateSecretID(
  */
 public suspend inline fun VaultAuthAppRole.createCustomSecretID(
     roleName: String,
-    payloadBuilder: CreateCustomSecretIDPayload.Builder.() -> Unit
+    payloadBuilder: BuilderDsl<CreateCustomSecretIDPayload.Builder>
 ): WriteSecretIdResponse {
     contract { callsInPlace(payloadBuilder, InvocationKind.EXACTLY_ONCE) }
     val payload = CreateCustomSecretIDPayload.Builder().apply(payloadBuilder).build()
@@ -75,7 +74,7 @@ public suspend inline fun VaultAuthAppRole.createCustomSecretID(
  * @see VaultAuthAppRole.login(payload)
  */
 public suspend inline fun VaultAuthAppRole.login(
-    payloadBuilder: LoginPayload.Builder.() -> Unit
+    payloadBuilder: BuilderDsl<LoginPayload.Builder>
 ): LoginResponse {
     contract { callsInPlace(payloadBuilder, InvocationKind.EXACTLY_ONCE) }
     val payload = LoginPayload.Builder().apply(payloadBuilder).build()
@@ -92,7 +91,7 @@ public interface VaultAuthAppRole {
      * [Documentation](https://developer.hashicorp.com/vault/api-docs/auth/approle#list-roles)
      * @return List of AppRoles.
      */
-    public fun list(): Flow<String>
+    public suspend fun list(): List<String>
 
     /**
      * Creates a new AppRole or updates an existing AppRole. This endpoint supports both create and update capabilities. There can be one or more constraints enabled on the role. It is required to have at least one of them enabled while creating or updating a role.
@@ -157,7 +156,7 @@ public interface VaultAuthAppRole {
      * @param roleName Name of the AppRole. Must be less than 4096 bytes.
      * @return List of SecretID accessors.
      */
-    public suspend fun secretIdAccessors(roleName: String): StandardListResponse
+    public suspend fun secretIdAccessors(roleName: String): List<String>
 
     /**
      * Reads out the properties of a SecretID.
@@ -243,7 +242,7 @@ public class VaultAuthAppRoleImpl(
         public inline operator fun invoke(
             client: HttpClient,
             parentPath: String?,
-            builder: Builder.() -> Unit
+            builder: BuilderDsl<Builder>
         ): VaultAuthAppRoleImpl = Builder().apply(builder).build(client, parentPath)
     }
 
@@ -273,18 +272,14 @@ public class VaultAuthAppRoleImpl(
             )
     }
 
-    override fun list(): Flow<String> {
-        return flow {
-            val response = client.request {
-                method = HttpMethod("LIST")
-                url {
-                    appendPathSegments(path, "role")
-                }
-            }
-            response.decodeBodyJsonFieldObject<StandardListResponse>("data", VaultClient.json).keys.forEach {
-                emit(it)
+    override suspend fun list(): List<String> {
+        val response = client.request {
+            method = HttpMethod("LIST")
+            url {
+                appendPathSegments(path, "role")
             }
         }
+        return response.decodeBodyJsonFieldObject<StandardListResponse>("data", VaultClient.json).keys
     }
 
     override suspend fun createOrUpdate(roleName: String, payload: CreateOrUpdatePayload): Boolean {
@@ -350,14 +345,14 @@ public class VaultAuthAppRoleImpl(
         return response.decodeBodyJsonFieldObject("data", VaultClient.json)
     }
 
-    override suspend fun secretIdAccessors(roleName: String): StandardListResponse {
+    override suspend fun secretIdAccessors(roleName: String): List<String> {
         val response = client.request {
             method = HttpMethod("LIST")
             url {
                 appendPathSegments(path, "role", roleName, "secret-id")
             }
         }
-        return response.decodeBodyJsonFieldObject("data", VaultClient.json)
+        return response.decodeBodyJsonFieldObject<StandardListResponse>("data", VaultClient.json).keys
     }
 
     override suspend fun readSecretID(roleName: String, secretId: String): LookUpSecretIdResponse? {

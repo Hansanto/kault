@@ -1,5 +1,8 @@
 package com.github.hansanto.kault.system.auth.payload
 
+import com.github.hansanto.kault.BuilderDsl
+import com.github.hansanto.kault.KaultDsl
+import com.github.hansanto.kault.serializer.VaultDuration
 import com.github.hansanto.kault.system.auth.common.ListingVisibility
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -67,13 +70,13 @@ public data class EnableMethodPayload(
          * The default lease duration, specified as a string duration like "5s" or "30m".
          */
         @SerialName("default_lease_ttl")
-        public var defaultLeaseTTL: String? = null,
+        public var defaultLeaseTTL: VaultDuration? = null,
 
         /**
          * The maximum lease duration, specified as a string duration like "5s" or "30m".
          */
         @SerialName("max_lease_ttl")
-        public var maxLeaseTTL: String? = null,
+        public var maxLeaseTTL: VaultDuration? = null,
 
         /**
          * List of keys that will not be HMAC'd by audit devices in the request data object.
@@ -115,6 +118,7 @@ public data class EnableMethodPayload(
     /**
      * Builder class to simplify the creation of [EnableMethodPayload].
      */
+    @KaultDsl
     @Suppress("MemberVisibilityCanBePrivate")
     public class Builder {
 
@@ -126,7 +130,7 @@ public data class EnableMethodPayload(
         /**
          * Builder to define the [Config] of [EnableMethodPayload].
          */
-        private var configBuilder: (Config.() -> Unit)? = null
+        private var configBuilder: BuilderDsl<Config>? = null
 
         /**
          * @see [EnableMethodPayload.description]
@@ -190,7 +194,7 @@ public data class EnableMethodPayload(
          *
          * @param builder Builder to create [Config] instance.
          */
-        public fun config(builder: Config.() -> Unit) {
+        public fun config(builder: BuilderDsl<Config>) {
             configBuilder = builder
         }
     }
