@@ -1,6 +1,7 @@
 package io.github.hansanto.kault
 
 import io.github.hansanto.kault.auth.VaultAuth
+import io.github.hansanto.kault.engine.VaultSecretEngine
 import io.github.hansanto.kault.exception.VaultAPIException
 import io.github.hansanto.kault.extension.URL_PATH_SEPARATOR
 import io.github.hansanto.kault.extension.addURLChildPath
@@ -44,7 +45,8 @@ public class VaultClient(
     public val client: HttpClient,
     public var namespace: String? = null,
     public val auth: VaultAuth,
-    public val system: VaultSystem
+    public val system: VaultSystem,
+    public val secret: VaultSecretEngine,
 ) : CoroutineScope by client, Closeable by client {
 
     public companion object {
@@ -130,6 +132,11 @@ public class VaultClient(
         private var sysBuilder: BuilderDsl<VaultSystem.Builder> = {}
 
         /**
+         * Builder to define secret engine service.
+         */
+        private var secretBuilder: BuilderDsl<VaultSecretEngine.Builder> = {}
+
+        /**
          * Builder to custom the HTTP client.
          * The token resolver is passed as parameter and must not be used before the client is built.
          * [Documentation](https://ktor.io/docs/clients-index.html)
@@ -150,7 +157,8 @@ public class VaultClient(
                 client = client,
                 namespace = this.namespace,
                 auth = VaultAuth(client, null, this.authBuilder),
-                system = VaultSystem(client, null, this.sysBuilder)
+                system = VaultSystem(client, null, this.sysBuilder),
+                secret = VaultSecretEngine(client, this.secretBuilder)
             ).also { vaultClient = it }
         }
 
@@ -179,6 +187,15 @@ public class VaultClient(
          */
         public fun system(builder: BuilderDsl<VaultSystem.Builder>) {
             sysBuilder = builder
+        }
+
+        /**
+         * Sets the secret engine service builder.
+         *
+         * @param builder Builder to create [VaultSecretEngine] instance.
+         */
+        public fun secret(builder: BuilderDsl<VaultSecretEngine.Builder>) {
+            secretBuilder = builder
         }
 
         /**
