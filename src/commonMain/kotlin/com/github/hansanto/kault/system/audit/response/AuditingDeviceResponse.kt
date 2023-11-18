@@ -1,15 +1,16 @@
 package com.github.hansanto.kault.system.audit.response
 
+import com.github.hansanto.kault.system.audit.common.AuditType
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
 public data class AuditingDeviceResponse(
     /**
-     * Specifies the type of the audit device. Valid types are file, socket and syslog.
+     * Specifies the type of the audit device.
      */
     @SerialName("type")
-    public var type: String,
+    public var type: AuditType,
 
     /**
      * Specifies the path of the audit device.

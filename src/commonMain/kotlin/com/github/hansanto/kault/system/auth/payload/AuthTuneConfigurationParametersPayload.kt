@@ -1,5 +1,6 @@
 package com.github.hansanto.kault.system.auth.payload
 
+import com.github.hansanto.kault.auth.approle.common.TokenType
 import com.github.hansanto.kault.serializer.VaultDuration
 import com.github.hansanto.kault.system.auth.common.ListingVisibility
 import kotlinx.serialization.SerialName
@@ -68,10 +69,10 @@ public data class AuthTuneConfigurationParametersPayload(
     public var options: Map<String, String>? = null,
 
     /**
-     * Specifies the type of tokens that should be returned by the mount. The following values are available:
+     * Specifies the type of tokens that should be returned by the mount.
      */
     @SerialName("token_type")
-    public var tokenType: String? = null,
+    public var tokenType: TokenType? = null,
 
     /**
      * Specifies the user lockout configuration for the mount. User lockout feature was added in Vault 1.13.
