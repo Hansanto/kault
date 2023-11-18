@@ -130,7 +130,7 @@ public data class EnableMethodPayload(
         /**
          * Builder to define the [Config] of [EnableMethodPayload].
          */
-        private var configBuilder: (Config.() -> Unit)? = null
+        private var configBuilder: BuilderDsl<Config>? = null
 
         /**
          * @see [EnableMethodPayload.description]
