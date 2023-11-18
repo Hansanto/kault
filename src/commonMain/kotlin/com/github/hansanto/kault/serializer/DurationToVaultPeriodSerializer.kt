@@ -39,25 +39,43 @@ public object DurationToVaultPeriodSerializer : KSerializer<Duration> {
 
     override fun deserialize(decoder: Decoder): Duration {
         val value = decoder.decodeString()
+        // Get the unit time: 50s -> s
         val unit = value.last()
 
-        // Without unit, according to Vault, the duration is in seconds.
-        if (unit.isDigit()) {
-            return value.toLongOrNull()?.seconds ?: invalidFormat(value)
+        // If the unit is a digit, the duration is in seconds.
+        val time: Duration? = if (unit.isDigit()) {
+            // Without unit, according to Vault, the duration is in seconds.
+            value.toLongOrNull()?.seconds
+        } else {
+            // Remove the unit time: 50s -> 50
+            value.dropLast(1).toLongOrNull()?.let {
+                parseDuration(it, unit)
+            }
         }
 
-        val time = value.dropLast(1).toLongOrNull() ?: invalidFormat(value)
-        return when (unit) {
-            's' -> time.seconds
-            'm' -> time.minutes
-            'h' -> time.hours
-            'd' -> time.days
-            else -> invalidFormat(value)
-        }
+        return time ?: invalidFormat(value)
     }
 
     override fun serialize(encoder: Encoder, value: Duration) {
         encoder.encodeString("${value.inWholeSeconds}s")
+    }
+
+    /**
+     * Parses the given time and unit to a [Duration].
+     * If the unit is 's', the time is interpreted as seconds.
+     * If the unit is 'm', the time is interpreted as minutes.
+     * If the unit is 'h', the time is interpreted as hours.
+     * If the unit is 'd', the time is interpreted as days.
+     * @param time Time value.
+     * @param unit Unit of the time.
+     * @return The parsed duration, or null if the unit is not supported.
+     */
+    private fun parseDuration(time: Long, unit: Char) = when (unit) {
+        's' -> time.seconds
+        'm' -> time.minutes
+        'h' -> time.hours
+        'd' -> time.days
+        else -> null
     }
 
     /**
