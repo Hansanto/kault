@@ -1,5 +1,6 @@
 package com.github.hansanto.kault.system.auth.response
 
+import com.github.hansanto.kault.auth.approle.common.TokenType
 import com.github.hansanto.kault.serializer.VaultDuration
 import com.github.hansanto.kault.system.auth.common.ListingVisibility
 import com.github.hansanto.kault.system.auth.payload.EnableMethodPayload
@@ -72,11 +73,8 @@ public data class AuthReadConfigurationResponse(
          * batch: Override any auth method preference and always issue batch tokens from this mount
          */
         @SerialName("token_type")
-        public var tokenType: String,
+        public var tokenType: TokenType,
 
-        /**
-         * _Missing documentation._
-         */
         @SerialName("force_no_cache")
         public var forceNoCache: Boolean,
 
