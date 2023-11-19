@@ -1,7 +1,7 @@
 package io.github.hansanto.kault.engine.kv.v2.response
 
 import io.github.hansanto.kault.VaultClient
-import io.github.hansanto.kault.serializer.VaultDuration
+import kotlinx.datetime.Instant
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -13,7 +13,7 @@ import kotlinx.serialization.serializer
 public data class KvV2WriteResponse(
 
     @SerialName("created_time")
-    val createdTime: VaultDuration,
+    val createdTime: Instant,
 
     @SerialName("custom_metadata")
     val customMetadata: JsonObject? = null,
