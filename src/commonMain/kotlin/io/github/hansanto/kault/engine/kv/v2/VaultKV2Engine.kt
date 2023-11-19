@@ -2,7 +2,20 @@ package io.github.hansanto.kault.engine.kv.v2
 
 import io.github.hansanto.kault.BuilderDsl
 import io.github.hansanto.kault.ServiceBuilder
+import io.github.hansanto.kault.VaultClient
+import io.github.hansanto.kault.engine.kv.v2.payload.KvV2ConfigureRequest
+import io.github.hansanto.kault.engine.kv.v2.response.KvV2ReadConfigurationResponse
+import io.github.hansanto.kault.engine.kv.v2.response.KvV2ReadResponse
+import io.github.hansanto.kault.extension.decodeBodyJsonFieldObject
 import io.ktor.client.HttpClient
+import io.ktor.client.request.get
+import io.ktor.client.request.parameter
+import io.ktor.client.request.post
+import io.ktor.client.request.setBody
+import io.ktor.http.ContentType
+import io.ktor.http.appendPathSegments
+import io.ktor.http.contentType
+import io.ktor.http.isSuccess
 
 /**
  * Provides methods for managing the KV version 2 secrets engine.
@@ -13,25 +26,26 @@ public interface VaultKV2Engine {
     /**
      * This path configures backend level settings that are applied to every key in the key-value store.
      * [Documentation](https://developer.hashicorp.com/vault/api-docs/secret/kv/kv-v2#configure-the-kv-engine)
-     * @param payload TODO
-     * @return TODO
+     * @param payload Payload to configure the KV engine.
+     * @return True if the configuration was updated.
      */
-    public suspend fun configure(payload: Any): Any
+    public suspend fun configure(payload: KvV2ConfigureRequest): Boolean
 
     /**
      * This path retrieves the current configuration for the secrets backend at the given path.
      * [Documentation](https://developer.hashicorp.com/vault/api-docs/secret/kv/kv-v2#read-kv-engine-configuration)
-     * @return TODO
+     * @return Response.
      */
-    public suspend fun readConfiguration(): Any
+    public suspend fun readConfiguration(): KvV2ReadConfigurationResponse
 
     /**
      * This endpoint retrieves the secret at the specified location. The metadata fields created_time, deletion_time, destroyed, and version are version specific. The custom_metadata field is part of the secret's key metadata and is included in the response whether or not the calling token has read access to the associated metadata endpoint.
      * [Documentation](https://developer.hashicorp.com/vault/api-docs/secret/kv/kv-v2#read-secret-version)
      * @param path Specifies the path of the secret to read. This is specified as part of the URL.
+     * @param version Specifies the version to return. If not set the latest version is returned.
      * @return TODO
      */
-    public suspend fun readSecret(path: String): Any
+    public suspend fun readSecret(path: String, version: Int?): Any
 
     /**
      * This endpoint creates a new version of a secret at the specified location. If the value does not yet exist, the calling token must have an ACL policy granting the create capability. If the value already exists, the calling token must have an ACL policy granting the update capability.
@@ -194,5 +208,35 @@ public class VaultKV2EngineImpl(
             client = client,
             path = fullPath
         )
+    }
+
+    override suspend fun configure(payload: KvV2ConfigureRequest): Boolean {
+        val response = client.post {
+            url {
+                appendPathSegments(this@VaultKV2EngineImpl.path, "config")
+            }
+            contentType(ContentType.Application.Json)
+            setBody(payload)
+        }
+        return response.status.isSuccess()
+    }
+
+    override suspend fun readConfiguration(): KvV2ReadConfigurationResponse {
+        val response = client.get {
+            url {
+                appendPathSegments(this@VaultKV2EngineImpl.path, "config")
+            }
+        }
+        return response.decodeBodyJsonFieldObject("data", VaultClient.json)
+    }
+
+    override suspend fun readSecret(path: String, version: Int?): KvV2ReadResponse {
+        val response = client.get {
+            url {
+                appendPathSegments(this@VaultKV2EngineImpl.path, "data", path)
+                parameter("version", version)
+            }
+        }
+        return response.decodeBodyJsonFieldObject("data", VaultClient.json)
     }
 }
