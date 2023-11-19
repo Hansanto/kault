@@ -18,6 +18,20 @@ import io.ktor.http.ContentType
 import io.ktor.http.appendPathSegments
 import io.ktor.http.contentType
 import io.ktor.http.isSuccess
+import kotlin.contracts.InvocationKind
+import kotlin.contracts.contract
+
+/**
+ * @see VaultKV2Engine.createOrUpdateSecret(path, payload)
+ */
+public suspend inline fun VaultKV2Engine.createOrUpdateSecret(
+    path: String,
+    payloadBuilder: BuilderDsl<KvV2WriteRequest.Builder>
+): KvV2WriteResponse {
+    contract { callsInPlace(payloadBuilder, InvocationKind.EXACTLY_ONCE) }
+    val payload = KvV2WriteRequest.Builder().apply(payloadBuilder).build()
+    return createOrUpdateSecret(path, payload)
+}
 
 /**
  * Provides methods for managing the KV version 2 secrets engine.
@@ -47,7 +61,7 @@ public interface VaultKV2Engine {
      * @param version Specifies the version to return. If not set the latest version is returned.
      * @return Response.
      */
-    public suspend fun readSecret(path: String, version: Int?): KvV2ReadResponse
+    public suspend fun readSecret(path: String, version: Long? = null): KvV2ReadResponse
 
     /**
      * This endpoint creates a new version of a secret at the specified location. If the value does not yet exist, the calling token must have an ACL policy granting the create capability. If the value already exists, the calling token must have an ACL policy granting the update capability.
@@ -232,7 +246,7 @@ public class VaultKV2EngineImpl(
         return response.decodeBodyJsonFieldObject("data", VaultClient.json)
     }
 
-    override suspend fun readSecret(path: String, version: Int?): KvV2ReadResponse {
+    override suspend fun readSecret(path: String, version: Long?): KvV2ReadResponse {
         val response = client.get {
             url {
                 appendPathSegments(this@VaultKV2EngineImpl.path, "data", path)
