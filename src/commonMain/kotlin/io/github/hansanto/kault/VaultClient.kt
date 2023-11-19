@@ -46,7 +46,7 @@ public class VaultClient(
     public var namespace: String? = null,
     public val auth: VaultAuth,
     public val system: VaultSystem,
-    public val secret: VaultSecretEngine,
+    public val secret: VaultSecretEngine
 ) : CoroutineScope by client, Closeable by client {
 
     public companion object {
