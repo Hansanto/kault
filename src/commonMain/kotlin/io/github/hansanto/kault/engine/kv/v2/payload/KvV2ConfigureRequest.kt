@@ -10,7 +10,7 @@ public data class KvV2ConfigureRequest(
     /**
      * If true all keys will require the cas parameter to be set on all write requests.
      */
-    @SerialName("cas-required")
+    @SerialName("cas_required")
     val casRequired: Boolean? = null,
 
     /**
