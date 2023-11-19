@@ -172,13 +172,9 @@ public data class EnableMethodPayload(
          * @return A new instance.
          */
         public fun build(): EnableMethodPayload {
-            val config = Config().apply {
-                configBuilder?.invoke(this)
-            }
-
             return EnableMethodPayload(
                 type = type,
-                config = config,
+                config = configBuilder?.let { Config().apply(it) },
                 description = description,
                 externalEntropyAccess = externalEntropyAccess,
                 local = local,
