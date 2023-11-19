@@ -4,8 +4,10 @@ import io.github.hansanto.kault.BuilderDsl
 import io.github.hansanto.kault.ServiceBuilder
 import io.github.hansanto.kault.VaultClient
 import io.github.hansanto.kault.engine.kv.v2.payload.KvV2ConfigureRequest
+import io.github.hansanto.kault.engine.kv.v2.payload.KvV2WriteRequest
 import io.github.hansanto.kault.engine.kv.v2.response.KvV2ReadConfigurationResponse
 import io.github.hansanto.kault.engine.kv.v2.response.KvV2ReadResponse
+import io.github.hansanto.kault.engine.kv.v2.response.KvV2WriteResponse
 import io.github.hansanto.kault.extension.decodeBodyJsonFieldObject
 import io.ktor.client.HttpClient
 import io.ktor.client.request.get
@@ -29,7 +31,7 @@ public interface VaultKV2Engine {
      * @param payload Payload to configure the KV engine.
      * @return True if the configuration was updated.
      */
-    public suspend fun configure(payload: KvV2ConfigureRequest): Boolean
+    public suspend fun configure(payload: KvV2ConfigureRequest = KvV2ConfigureRequest()): Boolean
 
     /**
      * This path retrieves the current configuration for the secrets backend at the given path.
@@ -43,9 +45,9 @@ public interface VaultKV2Engine {
      * [Documentation](https://developer.hashicorp.com/vault/api-docs/secret/kv/kv-v2#read-secret-version)
      * @param path Specifies the path of the secret to read. This is specified as part of the URL.
      * @param version Specifies the version to return. If not set the latest version is returned.
-     * @return TODO
+     * @return Response.
      */
-    public suspend fun readSecret(path: String, version: Int?): Any
+    public suspend fun readSecret(path: String, version: Int?): KvV2ReadResponse
 
     /**
      * This endpoint creates a new version of a secret at the specified location. If the value does not yet exist, the calling token must have an ACL policy granting the create capability. If the value already exists, the calling token must have an ACL policy granting the update capability.
@@ -54,7 +56,7 @@ public interface VaultKV2Engine {
      * @param payload TODO
      * @return TODO
      */
-    public suspend fun createOrUpdateSecret(path: String, payload: Any): Any
+    public suspend fun createOrUpdateSecret(path: String, payload: KvV2WriteRequest): KvV2WriteResponse
 
     /**
      * This endpoint provides the ability to patch an existing secret at the specified location. The secret must neither be deleted nor destroyed. The calling token must have an ACL policy granting the patch capability. Currently, only JSON merge patch is supported and must be specified using a Content-Type header value of application/merge-patch+json. A new version will be created upon successfully applying a patch with the provided data.
@@ -238,5 +240,60 @@ public class VaultKV2EngineImpl(
             }
         }
         return response.decodeBodyJsonFieldObject("data", VaultClient.json)
+    }
+
+    override suspend fun createOrUpdateSecret(path: String, payload: KvV2WriteRequest): KvV2WriteResponse {
+        val response = client.post {
+            url {
+                appendPathSegments(this@VaultKV2EngineImpl.path, "data", path)
+            }
+            contentType(ContentType.Application.Json)
+            setBody(payload)
+        }
+        return response.decodeBodyJsonFieldObject("data", VaultClient.json)
+    }
+
+    override suspend fun patchSecret(path: String, payload: Any): Any {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun readSecretSubKeys(path: String): Any {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun deleteSecretLatestVersion(path: String): Any {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun deleteSecretVersions(path: String, versions: List<Int>): Any {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun undeleteSecretVersions(path: String, versions: List<Int>): Any {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun destroySecretVersions(path: String, versions: List<Int>): Any {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun listSecrets(path: String): Any {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun readSecretMetadata(path: String): Any {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun createOrUpdateMetadata(path: String, payload: Any): Any {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun patchMetadata(path: String, payload: Any): Any {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun deleteMetadataAndAllVersions(path: String): Any {
+        TODO("Not yet implemented")
     }
 }

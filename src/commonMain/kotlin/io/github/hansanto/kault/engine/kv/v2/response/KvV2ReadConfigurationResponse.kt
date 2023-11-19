@@ -10,7 +10,7 @@ public data class KvV2ReadConfigurationResponse(
     /**
      * If true, the backend will require the cas parameter to be set for each write
      */
-    @SerialName("cas-required")
+    @SerialName("cas_required")
     val casRequired: Boolean,
 
     /**
@@ -23,5 +23,5 @@ public data class KvV2ReadConfigurationResponse(
      * The number of versions to keep for each key.
      */
     @SerialName("max_versions")
-    val maxVersions: Long,
+    val maxVersions: Long
 )
