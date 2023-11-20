@@ -1,0 +1,11 @@
+{
+  "data": {
+    "foo": "bar",
+    "test": {
+      "nested": 10
+    }
+  },
+  "options": {
+    "cas": 0
+  }
+}

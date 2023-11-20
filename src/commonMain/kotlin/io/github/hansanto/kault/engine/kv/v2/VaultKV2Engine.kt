@@ -67,8 +67,8 @@ public interface VaultKV2Engine {
      * This endpoint creates a new version of a secret at the specified location. If the value does not yet exist, the calling token must have an ACL policy granting the create capability. If the value already exists, the calling token must have an ACL policy granting the update capability.
      * [Documentation](https://developer.hashicorp.com/vault/api-docs/secret/kv/kv-v2#create-update-secret)
      * @param path Specifies the path of the secret to update. This is specified as part of the URL.
-     * @param payload TODO
-     * @return TODO
+     * @param payload New secret to create or update.
+     * @return Response.
      */
     public suspend fun createOrUpdateSecret(path: String, payload: KvV2WriteRequest): KvV2WriteResponse
 

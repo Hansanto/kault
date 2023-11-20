@@ -5,6 +5,7 @@ import io.github.hansanto.kault.engine.kv.v2.payload.KvV2ConfigureRequest
 import io.github.hansanto.kault.engine.kv.v2.payload.KvV2WriteRequest
 import io.github.hansanto.kault.engine.kv.v2.response.KvV2ReadConfigurationResponse
 import io.github.hansanto.kault.engine.kv.v2.response.KvV2ReadResponse
+import io.github.hansanto.kault.engine.kv.v2.response.KvV2WriteResponse
 import io.github.hansanto.kault.exception.VaultAPIException
 import io.github.hansanto.kault.util.createVaultClient
 import io.github.hansanto.kault.util.randomString
@@ -99,13 +100,22 @@ class VaultKV2EngineTest : FunSpec({
 
     test("create new secret") {
         val path = randomString()
-        val writeGiven = readJson<KvV2WriteRequest>("cases/engine/kv/v2/create_secret/create_given.json")
-        val response = kv2.createOrUpdateSecret(path, writeGiven)
-        val writeResponse = readJson<KvV2WriteRequest>("cases/engine/kv/v2/create_secret/create_expected.json")
-        response shouldBe writeResponse
+        val createGiven = readJson<KvV2WriteRequest>("cases/engine/kv/v2/create_secret/given.json")
+
+        val response = kv2.createOrUpdateSecret(path, createGiven)
+        val createExpectedResponse = readJson<KvV2WriteResponse>("cases/engine/kv/v2/create_secret/expected_write.json").copy(
+            createdTime = response.createdTime,
+            deletionTime = response.deletionTime
+        )
+        response shouldBe createExpectedResponse
 
         val readResponse = kv2.readSecret(path)
-        val expected = readJson<KvV2ReadResponse>("cases/engine/kv/v2/create_secret/read_expected.json")
+        val expected = readJson<KvV2ReadResponse>("cases/engine/kv/v2/create_secret/expected_read.json")
+            .copy(
+                metadata = readResponse.metadata.copy(
+                    createdTime = response.createdTime
+                )
+            )
         readResponse shouldBe expected
     }
 
