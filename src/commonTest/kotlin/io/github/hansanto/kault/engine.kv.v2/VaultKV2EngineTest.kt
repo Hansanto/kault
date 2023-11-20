@@ -102,18 +102,19 @@ class VaultKV2EngineTest : FunSpec({
         val path = randomString()
         val createGiven = readJson<KvV2WriteRequest>("cases/engine/kv/v2/create_secret/given.json")
 
-        val response = kv2.createOrUpdateSecret(path, createGiven)
-        val createExpectedResponse = readJson<KvV2WriteResponse>("cases/engine/kv/v2/create_secret/expected_write.json").copy(
-            createdTime = response.createdTime,
-            deletionTime = response.deletionTime
-        )
-        response shouldBe createExpectedResponse
+        val writeResponse = kv2.createOrUpdateSecret(path, createGiven)
+        val createExpectedResponse =
+            readJson<KvV2WriteResponse>("cases/engine/kv/v2/create_secret/expected_write.json").copy(
+                createdTime = writeResponse.createdTime,
+                deletionTime = writeResponse.deletionTime
+            )
+        writeResponse shouldBe createExpectedResponse
 
         val readResponse = kv2.readSecret(path)
         val expected = readJson<KvV2ReadResponse>("cases/engine/kv/v2/create_secret/expected_read.json")
             .copy(
                 metadata = readResponse.metadata.copy(
-                    createdTime = response.createdTime
+                    createdTime = writeResponse.createdTime
                 )
             )
         readResponse shouldBe expected
@@ -121,14 +122,25 @@ class VaultKV2EngineTest : FunSpec({
 
     test("update existing secret") {
         val path = randomString()
-        val writeGiven = readJson<KvV2WriteRequest>("cases/engine/kv/v2/update_secret/create_given.json")
+        val writeGiven = readJson<KvV2WriteRequest>("cases/engine/kv/v2/update_secret/given_create.json")
         kv2.createOrUpdateSecret(path, writeGiven)
-        val writeUpdateGiven = readJson<KvV2WriteRequest>("cases/engine/kv/v2/update_secret/update_given_2.json")
-        val writeResponse = readJson<KvV2WriteRequest>("cases/engine/kv/v2/update_secret/update_expected.json")
-        writeUpdateGiven shouldBe writeResponse
+
+        val writeUpdateGiven = readJson<KvV2WriteRequest>("cases/engine/kv/v2/update_secret/given_update.json")
+        val writeResponse = kv2.createOrUpdateSecret(path, writeUpdateGiven)
+
+        val writeExpectedResponse = readJson<KvV2WriteResponse>("cases/engine/kv/v2/update_secret/expected_update.json").copy(
+            createdTime = writeResponse.createdTime,
+            deletionTime = writeResponse.deletionTime
+        )
+        writeResponse shouldBe writeExpectedResponse
 
         val readResponse = kv2.readSecret(path)
-        val expected = readJson<KvV2ReadResponse>("cases/engine/kv/v2/update_secret/read_expected.json")
+        val expected = readJson<KvV2ReadResponse>("cases/engine/kv/v2/update_secret/expected_read.json")
+            .copy(
+                metadata = readResponse.metadata.copy(
+                    createdTime = writeResponse.createdTime
+                )
+            )
         readResponse shouldBe expected
     }
 })
