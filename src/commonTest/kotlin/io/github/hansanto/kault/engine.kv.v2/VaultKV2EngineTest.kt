@@ -121,26 +121,64 @@ class VaultKV2EngineTest : FunSpec({
     }
 
     test("update existing secret") {
-        val path = randomString()
-        val writeGiven = readJson<KvV2WriteRequest>("cases/engine/kv/v2/update_secret/given_create.json")
-        kv2.createOrUpdateSecret(path, writeGiven)
-
-        val writeUpdateGiven = readJson<KvV2WriteRequest>("cases/engine/kv/v2/update_secret/given_update.json")
-        val writeResponse = kv2.createOrUpdateSecret(path, writeUpdateGiven)
-
-        val writeExpectedResponse = readJson<KvV2WriteResponse>("cases/engine/kv/v2/update_secret/expected_update.json").copy(
-            createdTime = writeResponse.createdTime,
-            deletionTime = writeResponse.deletionTime
+        createAndUpdate(
+            kv2,
+            "cases/engine/kv/v2/update_secret/given_create.json",
+            "cases/engine/kv/v2/update_secret/given_update.json",
+            "cases/engine/kv/v2/update_secret/expected_update.json",
+            "cases/engine/kv/v2/update_secret/expected_read.json",
+            kv2::createOrUpdateSecret
         )
-        writeResponse shouldBe writeExpectedResponse
+    }
 
-        val readResponse = kv2.readSecret(path)
-        val expected = readJson<KvV2ReadResponse>("cases/engine/kv/v2/update_secret/expected_read.json")
-            .copy(
-                metadata = readResponse.metadata.copy(
-                    createdTime = writeResponse.createdTime
-                )
-            )
-        readResponse shouldBe expected
+    test("patch non-existing secret") {
+        val path = randomString()
+        shouldThrow<VaultAPIException> {
+            kv2.patchSecret(path) {
+                data(mapOf(randomString() to randomString()))
+            }
+        }
+    }
+
+    test("patch with added secret part") {
+        createAndUpdate(
+            kv2,
+            "cases/engine/kv/v2/patch_secret/given_create.json",
+            "cases/engine/kv/v2/patch_secret/given_patch.json",
+            "cases/engine/kv/v2/patch_secret/expected_patch.json",
+            "cases/engine/kv/v2/patch_secret/expected_read.json",
+            kv2::patchSecret
+        )
     }
 })
+
+private suspend fun createAndUpdate(
+    kv2: VaultKV2Engine,
+    writeGiven: String,
+    writeUpdateGiven: String,
+    writeExpectedResponse: String,
+    readExpectedResponse: String,
+    update: suspend (String, KvV2WriteRequest) -> KvV2WriteResponse
+) {
+    val path = randomString()
+    val writeGiven = readJson<KvV2WriteRequest>(writeGiven)
+    kv2.createOrUpdateSecret(path, writeGiven)
+
+    val patchGiven = readJson<KvV2WriteRequest>(writeUpdateGiven)
+    val writeResponse = update(path, patchGiven)
+
+    val writeExpectedResponse = readJson<KvV2WriteResponse>(writeExpectedResponse).copy(
+        createdTime = writeResponse.createdTime,
+        deletionTime = writeResponse.deletionTime
+    )
+    writeResponse shouldBe writeExpectedResponse
+
+    val readResponse = kv2.readSecret(path)
+    val expected = readJson<KvV2ReadResponse>(readExpectedResponse)
+        .copy(
+            metadata = readResponse.metadata.copy(
+                createdTime = writeResponse.createdTime
+            )
+        )
+    readResponse shouldBe expected
+}

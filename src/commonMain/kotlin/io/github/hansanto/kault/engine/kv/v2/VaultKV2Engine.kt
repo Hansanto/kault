@@ -12,6 +12,7 @@ import io.github.hansanto.kault.extension.decodeBodyJsonFieldObject
 import io.ktor.client.HttpClient
 import io.ktor.client.request.get
 import io.ktor.client.request.parameter
+import io.ktor.client.request.patch
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
@@ -31,6 +32,18 @@ public suspend inline fun VaultKV2Engine.createOrUpdateSecret(
     contract { callsInPlace(payloadBuilder, InvocationKind.EXACTLY_ONCE) }
     val payload = KvV2WriteRequest.Builder().apply(payloadBuilder).build()
     return createOrUpdateSecret(path, payload)
+}
+
+/**
+ * @see VaultKV2Engine.patchSecret(path, payload)
+ */
+public suspend inline fun VaultKV2Engine.patchSecret(
+    path: String,
+    payloadBuilder: BuilderDsl<KvV2WriteRequest.Builder>
+): KvV2WriteResponse {
+    contract { callsInPlace(payloadBuilder, InvocationKind.EXACTLY_ONCE) }
+    val payload = KvV2WriteRequest.Builder().apply(payloadBuilder).build()
+    return patchSecret(path, payload)
 }
 
 /**
@@ -76,10 +89,10 @@ public interface VaultKV2Engine {
      * This endpoint provides the ability to patch an existing secret at the specified location. The secret must neither be deleted nor destroyed. The calling token must have an ACL policy granting the patch capability. Currently, only JSON merge patch is supported and must be specified using a Content-Type header value of application/merge-patch+json. A new version will be created upon successfully applying a patch with the provided data.
      * [Documentation](https://developer.hashicorp.com/vault/api-docs/secret/kv/kv-v2#patch-secret)
      * @param path Specifies the path of the secret to patch. This is specified as part of the URL.
-     * @param payload TODO
-     * @return TODO
+     * @param payload Part of the secret to update.
+     * @return Response.
      */
-    public suspend fun patchSecret(path: String, payload: Any): Any
+    public suspend fun patchSecret(path: String, payload: KvV2WriteRequest): KvV2WriteResponse
 
     /**
      * This endpoint provides the subkeys within a secret entry that exists at the requested path. The secret entry at this path will be retrieved and stripped of all data by replacing underlying values of leaf keys (i.e. non-map keys or map keys with no underlying subkeys) with null.
@@ -267,8 +280,15 @@ public class VaultKV2EngineImpl(
         return response.decodeBodyJsonFieldObject("data", VaultClient.json)
     }
 
-    override suspend fun patchSecret(path: String, payload: Any): Any {
-        TODO("Not yet implemented")
+    override suspend fun patchSecret(path: String, payload: KvV2WriteRequest): KvV2WriteResponse {
+        val response = client.patch {
+            url {
+                appendPathSegments(this@VaultKV2EngineImpl.path, "data", path)
+            }
+            contentType(ContentType("application", "merge-patch+json"))
+            setBody(payload)
+        }
+        return response.decodeBodyJsonFieldObject("data", VaultClient.json)
     }
 
     override suspend fun readSecretSubKeys(path: String): Any {
