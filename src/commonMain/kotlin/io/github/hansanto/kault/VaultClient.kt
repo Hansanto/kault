@@ -14,11 +14,11 @@ import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.request.header
 import io.ktor.client.statement.HttpResponse
 import io.ktor.client.statement.bodyAsText
-import io.ktor.http.contentType
 import io.ktor.http.isSuccess
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.utils.io.core.Closeable
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
@@ -151,7 +151,10 @@ public class VaultClient(
             lateinit var vaultClient: VaultClient
             val tokenResolver = { vaultClient.auth.token }
             val namespaceResolver = { vaultClient.namespace }
-            val client = httpClientBuilder?.invoke(tokenResolver, namespaceResolver) ?: createHttpClient(tokenResolver, namespaceResolver)
+            val client = httpClientBuilder?.invoke(tokenResolver, namespaceResolver) ?: createHttpClient(
+                tokenResolver,
+                namespaceResolver
+            )
 
             return VaultClient(
                 client = client,
@@ -214,9 +217,10 @@ public class VaultClient(
          * @param namespaceResolver Function that returns the namespace.
          * @return The configured [HttpClient] instance.
          */
-        private fun createHttpClient(tokenResolver: TokenResolver, namespaceResolver: NamespaceResolver): HttpClient = HttpClient {
-            defaultHttpClientConfiguration(tokenResolver, namespaceResolver)
-        }
+        private fun createHttpClient(tokenResolver: TokenResolver, namespaceResolver: NamespaceResolver): HttpClient =
+            HttpClient {
+                defaultHttpClientConfiguration(tokenResolver, namespaceResolver)
+            }
 
         /**
          * Configures the default HttpClient settings to interact with the Vault API.
@@ -258,32 +262,37 @@ public class VaultClient(
          * @return A list of error messages found in the response. Returns an empty list if no errors are found.
          */
         private suspend fun findErrorsInResponse(response: HttpResponse): List<String> {
-            if (response.contentType() != null) {
-                val jsonBody = json.parseToJsonElement(response.bodyAsText()).jsonObject
-                /**
-                 * {
-                 *  "errors": [
-                 *    "error1",
-                 *    "error2"
-                 *    ...
-                 *  ]
-                 * }
-                 */
-                jsonBody["errors"]?.jsonArray?.let { array ->
-                    return array.map { it.jsonPrimitive.content }
-                }
-
-                /**
-                 * {
-                 *  "data": {
-                 *   "error": "error1"
-                 *  }
-                 * }
-                 */
-                jsonBody["data"]?.jsonObject?.get("error")?.jsonPrimitive?.content?.let {
-                    return listOf(it)
-                }
+            val jsonBody = try {
+                json.parseToJsonElement(response.bodyAsText()).jsonObject
+            } catch (e: SerializationException) {
+                // The response doesn't have a body
+                return emptyList()
             }
+
+            /**
+             * {
+             *  "errors": [
+             *    "error1",
+             *    "error2"
+             *    ...
+             *  ]
+             * }
+             */
+            jsonBody["errors"]?.jsonArray?.let { array ->
+                return array.map { it.jsonPrimitive.content }
+            }
+
+            /**
+             * {
+             *  "data": {
+             *   "error": "error1"
+             *  }
+             * }
+             */
+            jsonBody["data"]?.jsonObject?.get("error")?.jsonPrimitive?.content?.let {
+                return listOf(it)
+            }
+
             return emptyList()
         }
     }
