@@ -10,5 +10,5 @@ public class RoleIdPayload(
      * Identifier of the role.
      */
     @SerialName("role_id")
-    public val roleId: String
+    public var roleId: String
 )

@@ -10,7 +10,7 @@ public class SecretIdPayload(
      * Secret ID attached to the role.
      */
     @SerialName("secret_id")
-    public val secretId: String
+    public var secretId: String
 )
 
 @Serializable
@@ -20,5 +20,5 @@ public class SecretIdAccessorPayload(
      * Secret ID accessor attached to the role.
      */
     @SerialName("secret_id_accessor")
-    public val secretId: String
+    public var secretId: String
 )
