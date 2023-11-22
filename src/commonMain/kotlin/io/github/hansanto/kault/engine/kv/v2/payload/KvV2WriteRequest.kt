@@ -19,13 +19,13 @@ public data class KvV2WriteRequest(
      * The contents of the data map will be stored and returned on read.
      */
     @SerialName("data")
-    val data: JsonObject,
+    var data: JsonObject,
 
     /**
      * An object that holds option settings.
      */
     @SerialName("options")
-    val options: Options? = null
+    var options: Options? = null
 
 ) {
 
