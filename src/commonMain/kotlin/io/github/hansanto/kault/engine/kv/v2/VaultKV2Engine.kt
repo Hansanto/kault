@@ -4,9 +4,11 @@ import io.github.hansanto.kault.BuilderDsl
 import io.github.hansanto.kault.ServiceBuilder
 import io.github.hansanto.kault.VaultClient
 import io.github.hansanto.kault.engine.kv.v2.payload.KvV2ConfigureRequest
+import io.github.hansanto.kault.engine.kv.v2.payload.KvV2SubKeysRequest
 import io.github.hansanto.kault.engine.kv.v2.payload.KvV2WriteRequest
 import io.github.hansanto.kault.engine.kv.v2.response.KvV2ReadConfigurationResponse
 import io.github.hansanto.kault.engine.kv.v2.response.KvV2ReadResponse
+import io.github.hansanto.kault.engine.kv.v2.response.KvV2ReadSubkeysResponse
 import io.github.hansanto.kault.engine.kv.v2.response.KvV2WriteResponse
 import io.github.hansanto.kault.extension.decodeBodyJsonFieldObject
 import io.ktor.client.HttpClient
@@ -44,6 +46,18 @@ public suspend inline fun VaultKV2Engine.patchSecret(
     contract { callsInPlace(payloadBuilder, InvocationKind.EXACTLY_ONCE) }
     val payload = KvV2WriteRequest.Builder().apply(payloadBuilder).build()
     return patchSecret(path, payload)
+}
+
+/**
+ * @see VaultKV2Engine.readSecretSubKeys(path, payload)
+ */
+public suspend inline fun VaultKV2Engine.readSecretSubKeys(
+    path: String,
+    payloadBuilder: BuilderDsl<KvV2SubKeysRequest>
+): KvV2ReadSubkeysResponse {
+    contract { callsInPlace(payloadBuilder, InvocationKind.EXACTLY_ONCE) }
+    val payload = KvV2SubKeysRequest().apply(payloadBuilder)
+    return readSecretSubKeys(path, payload)
 }
 
 /**
@@ -98,9 +112,10 @@ public interface VaultKV2Engine {
      * This endpoint provides the subkeys within a secret entry that exists at the requested path. The secret entry at this path will be retrieved and stripped of all data by replacing underlying values of leaf keys (i.e. non-map keys or map keys with no underlying subkeys) with null.
      * [Documentation](https://developer.hashicorp.com/vault/api-docs/secret/kv/kv-v2#read-secret-subkeys)
      * @param path Specifies the path of the secret to read. This is specified as part of the URL.
-     * @return TODO
+     * @param payload Specifies the options for reading the secret subkeys.
+     * @return Response.
      */
-    public suspend fun readSecretSubKeys(path: String): Any
+    public suspend fun readSecretSubKeys(path: String, payload: KvV2SubKeysRequest = KvV2SubKeysRequest()): KvV2ReadSubkeysResponse
 
     /**
      * This endpoint issues a soft delete of the secret's latest version at the specified location. This marks the version as deleted and will stop it from being returned from reads, but the underlying data will not be removed. A delete can be undone using the undelete path.
@@ -291,8 +306,15 @@ public class VaultKV2EngineImpl(
         return response.decodeBodyJsonFieldObject("data", VaultClient.json)
     }
 
-    override suspend fun readSecretSubKeys(path: String): Any {
-        TODO("Not yet implemented")
+    override suspend fun readSecretSubKeys(path: String, payload: KvV2SubKeysRequest): KvV2ReadSubkeysResponse {
+        val response = client.get {
+            url {
+                appendPathSegments(this@VaultKV2EngineImpl.path, "subkeys", path)
+            }
+            parameter("version", payload.version)
+            parameter("depth", payload.depth)
+        }
+        return response.decodeBodyJsonFieldObject("data", VaultClient.json)
     }
 
     override suspend fun deleteSecretLatestVersion(path: String): Any {

@@ -2,9 +2,11 @@ package io.github.hansanto.kault.engine.kv.v2
 
 import io.github.hansanto.kault.VaultClient
 import io.github.hansanto.kault.engine.kv.v2.payload.KvV2ConfigureRequest
+import io.github.hansanto.kault.engine.kv.v2.payload.KvV2SubKeysRequest
 import io.github.hansanto.kault.engine.kv.v2.payload.KvV2WriteRequest
 import io.github.hansanto.kault.engine.kv.v2.response.KvV2ReadConfigurationResponse
 import io.github.hansanto.kault.engine.kv.v2.response.KvV2ReadResponse
+import io.github.hansanto.kault.engine.kv.v2.response.KvV2ReadSubkeysResponse
 import io.github.hansanto.kault.engine.kv.v2.response.KvV2WriteResponse
 import io.github.hansanto.kault.exception.VaultAPIException
 import io.github.hansanto.kault.util.createVaultClient
@@ -149,6 +151,59 @@ class VaultKV2EngineTest : FunSpec({
             "cases/engine/kv/v2/patch_secret/expected_read.json",
             kv2::patchSecret
         )
+    }
+
+    test("read sub keys with non existing secret") {
+        val path = randomString()
+        shouldThrow<VaultAPIException> {
+            kv2.readSecretSubKeys(path)
+        }
+    }
+
+    test("read sub keys with non existing version") {
+        val path = randomString()
+        kv2.createOrUpdateSecret(path) {
+            data(mapOf(randomString() to randomString()))
+        }
+
+        shouldThrow<VaultAPIException> {
+            kv2.readSecretSubKeys(path) {
+                version = 2
+            }
+        }
+    }
+
+    test("read sub keys without options") {
+        val path = randomString()
+
+        val writeGiven = readJson<KvV2WriteRequest>("cases/engine/kv/v2/read_sub_keys/without_options/given.json")
+        val writeResponse = kv2.createOrUpdateSecret(path, writeGiven)
+
+        val readResponse = kv2.readSecretSubKeys(path)
+        val expected = readJson<KvV2ReadSubkeysResponse>("cases/engine/kv/v2/read_sub_keys/without_options/expected.json").copy(
+            metadata = readResponse.metadata.copy(
+                createdTime = writeResponse.createdTime
+            )
+        )
+        readResponse shouldBe expected
+    }
+
+    test("read sub keys with options") {
+        val path = randomString()
+
+        val writeGiven = readJson<KvV2WriteRequest>("cases/engine/kv/v2/read_sub_keys/with_options/given_1.json")
+        val writeResponse = kv2.createOrUpdateSecret(path, writeGiven)
+
+        kv2.createOrUpdateSecret(path, readJson<KvV2WriteRequest>("cases/engine/kv/v2/read_sub_keys/with_options/given_2.json"))
+
+        val parameters = readJson<KvV2SubKeysRequest>("cases/engine/kv/v2/read_sub_keys/with_options/parameters.json")
+        val readResponse = kv2.readSecretSubKeys(path, parameters)
+        val expected = readJson<KvV2ReadSubkeysResponse>("cases/engine/kv/v2/read_sub_keys/with_options/expected.json").copy(
+            metadata = readResponse.metadata.copy(
+                createdTime = writeResponse.createdTime
+            )
+        )
+        readResponse shouldBe expected
     }
 })
 
