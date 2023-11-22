@@ -12,6 +12,7 @@ import io.github.hansanto.kault.engine.kv.v2.response.KvV2ReadSubkeysResponse
 import io.github.hansanto.kault.engine.kv.v2.response.KvV2WriteResponse
 import io.github.hansanto.kault.extension.decodeBodyJsonFieldObject
 import io.ktor.client.HttpClient
+import io.ktor.client.request.delete
 import io.ktor.client.request.get
 import io.ktor.client.request.parameter
 import io.ktor.client.request.patch
@@ -121,9 +122,9 @@ public interface VaultKV2Engine {
      * This endpoint issues a soft delete of the secret's latest version at the specified location. This marks the version as deleted and will stop it from being returned from reads, but the underlying data will not be removed. A delete can be undone using the undelete path.
      * [Documentation](https://developer.hashicorp.com/vault/api-docs/secret/kv/kv-v2#delete-latest-version-of-secret)
      * @param path Specifies the path of the secret to delete. This is specified as part of the URL.
-     * @return TODO
+     * @return True if the latest version was deleted.
      */
-    public suspend fun deleteSecretLatestVersion(path: String): Any
+    public suspend fun deleteSecretLatestVersion(path: String): Boolean
 
     /**
      * This endpoint issues a soft delete of the specified versions of the secret. This marks the versions as deleted and will stop them from being returned from reads, but the underlying data will not be removed. A delete can be undone using the undelete path.
@@ -317,8 +318,13 @@ public class VaultKV2EngineImpl(
         return response.decodeBodyJsonFieldObject("data", VaultClient.json)
     }
 
-    override suspend fun deleteSecretLatestVersion(path: String): Any {
-        TODO("Not yet implemented")
+    override suspend fun deleteSecretLatestVersion(path: String): Boolean {
+        val response = client.delete {
+            url {
+                appendPathSegments(this@VaultKV2EngineImpl.path, "data", path)
+            }
+        }
+        return response.status.isSuccess()
     }
 
     override suspend fun deleteSecretVersions(path: String, versions: List<Int>): Any {

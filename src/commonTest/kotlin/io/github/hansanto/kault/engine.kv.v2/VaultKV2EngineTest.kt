@@ -205,6 +205,41 @@ class VaultKV2EngineTest : FunSpec({
         )
         readResponse shouldBe expected
     }
+
+    test("delete latest version without secret") {
+        val path = randomString()
+        kv2.deleteSecretLatestVersion(path) shouldBe true
+    }
+
+    test("delete latest version with secret and unique version") {
+        val path = randomString()
+        kv2.createOrUpdateSecret(path) {
+            data(mapOf(randomString() to randomString()))
+        }
+        kv2.deleteSecretLatestVersion(path)
+        shouldThrow<VaultAPIException> {
+            kv2.readSecret(path)
+        }
+    }
+
+    test("delete latest version with secret and multiple versions") {
+        val path = randomString()
+        val expected = mapOf("version" to "1")
+        kv2.createOrUpdateSecret(path) {
+            data(expected)
+        }
+        kv2.createOrUpdateSecret(path) {
+            data(mapOf("version" to "2"))
+        }
+        kv2.deleteSecretLatestVersion(path)
+
+        shouldThrow<VaultAPIException> {
+            kv2.readSecret(path)
+        }
+
+        val readResponse = kv2.readSecret(path, 1)
+        readResponse.data<Map<String, String>>() shouldBe expected
+    }
 })
 
 private suspend fun createAndUpdate(
