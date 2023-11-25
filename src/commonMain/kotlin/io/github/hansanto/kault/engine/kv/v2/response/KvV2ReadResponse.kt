@@ -17,7 +17,7 @@ public data class KvV2ReadResponse(
      * The value has an arbitrary structure, encoded using JSON.
      */
     @SerialName("data")
-    val data: JsonObject,
+    val data: JsonObject?,
 
     /**
      * Metadata contains the information relative to the secret version.
@@ -36,5 +36,5 @@ public data class KvV2ReadResponse(
     public inline fun <reified T> data(
         format: Json = VaultClient.json,
         serializer: KSerializer<T> = format.serializersModule.serializer<T>()
-    ): T = format.decodeFromJsonElement(serializer, data)
+    ): T? = data?.let { format.decodeFromJsonElement(serializer, it) }
 }

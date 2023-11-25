@@ -4,6 +4,7 @@ import io.github.hansanto.kault.BuilderDsl
 import io.github.hansanto.kault.ServiceBuilder
 import io.github.hansanto.kault.VaultClient
 import io.github.hansanto.kault.engine.kv.v2.payload.KvV2ConfigureRequest
+import io.github.hansanto.kault.engine.kv.v2.payload.KvV2DeleteVersionsRequest
 import io.github.hansanto.kault.engine.kv.v2.payload.KvV2SubKeysRequest
 import io.github.hansanto.kault.engine.kv.v2.payload.KvV2WriteRequest
 import io.github.hansanto.kault.engine.kv.v2.response.KvV2ReadConfigurationResponse
@@ -131,9 +132,9 @@ public interface VaultKV2Engine {
      * [Documentation](https://developer.hashicorp.com/vault/api-docs/secret/kv/kv-v2#delete-secret-versions)
      * @param path Specifies the path of the secret to delete. This is specified as part of the URL.
      * @param versions The versions to be deleted. The versioned data will not be deleted, but it will no longer be returned in normal get requests.
-     * @return TODO
+     * @return True if the versions were deleted.
      */
-    public suspend fun deleteSecretVersions(path: String, versions: List<Int>): Any
+    public suspend fun deleteSecretVersions(path: String, versions: List<Long>): Boolean
 
     /**
      * Undeletes the data for the provided version and path in the key-value store. This restores the data, allowing it to be returned on get requests.
@@ -327,8 +328,15 @@ public class VaultKV2EngineImpl(
         return response.status.isSuccess()
     }
 
-    override suspend fun deleteSecretVersions(path: String, versions: List<Int>): Any {
-        TODO("Not yet implemented")
+    override suspend fun deleteSecretVersions(path: String, versions: List<Long>): Boolean {
+        val response = client.post {
+            url {
+                appendPathSegments(this@VaultKV2EngineImpl.path, "delete", path)
+            }
+            contentType(ContentType.Application.Json)
+            setBody(KvV2DeleteVersionsRequest(versions))
+        }
+        return response.status.isSuccess()
     }
 
     override suspend fun undeleteSecretVersions(path: String, versions: List<Int>): Any {
