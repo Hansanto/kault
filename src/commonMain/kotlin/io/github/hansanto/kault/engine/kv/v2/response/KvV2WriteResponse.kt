@@ -19,7 +19,7 @@ public data class KvV2WriteResponse(
     val customMetadata: JsonObject? = null,
 
     @SerialName("deletion_time")
-    val deletionTime: String,
+    val deletionTime: Instant,
 
     @SerialName("destroyed")
     val destroyed: Boolean,

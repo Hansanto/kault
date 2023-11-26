@@ -42,5 +42,11 @@ public data class KvV2ReadResponse(
      * Check if the secret is deleted.
      * @return True if the secret is deleted, false otherwise.
      */
-    public fun isDeleted(): Boolean = data == null
+    public fun isDeleted(): Boolean = data == null && !metadata.destroyed
+
+    /**
+     * Check if the secret is destroyed.
+     * @return True if the secret is destroyed, false otherwise.
+     */
+    public fun isDestroyed(): Boolean = metadata.destroyed
 }

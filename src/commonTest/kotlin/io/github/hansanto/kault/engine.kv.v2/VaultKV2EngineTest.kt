@@ -113,7 +113,8 @@ class VaultKV2EngineTest : FunSpec({
         val expected = readJson<KvV2ReadResponse>("cases/engine/kv/v2/create_secret/expected_read.json")
             .copy(
                 metadata = readResponse.metadata.copy(
-                    createdTime = writeResponse.createdTime
+                    createdTime = writeResponse.createdTime,
+                    deletionTime = writeResponse.deletionTime
                 )
             )
         readResponse shouldBe expected
@@ -176,7 +177,8 @@ class VaultKV2EngineTest : FunSpec({
         val expected =
             readJson<KvV2ReadSubkeysResponse>("cases/engine/kv/v2/read_sub_keys/without_options/expected.json").copy(
                 metadata = readResponse.metadata.copy(
-                    createdTime = writeResponse.createdTime
+                    createdTime = writeResponse.createdTime,
+                    deletionTime = writeResponse.deletionTime
                 )
             )
         readResponse shouldBe expected
@@ -198,7 +200,8 @@ class VaultKV2EngineTest : FunSpec({
         val expected =
             readJson<KvV2ReadSubkeysResponse>("cases/engine/kv/v2/read_sub_keys/with_options/expected.json").copy(
                 metadata = readResponse.metadata.copy(
-                    createdTime = writeResponse.createdTime
+                    createdTime = writeResponse.createdTime,
+                    deletionTime = writeResponse.deletionTime
                 )
             )
         readResponse shouldBe expected
@@ -241,6 +244,7 @@ class VaultKV2EngineTest : FunSpec({
         val path = randomString()
         kv2.createOrUpdateSecret(path, simpleWriteRequestBuilder())
         kv2.deleteSecretVersions(path, listOf(10)) shouldBe true
+        kv2.readSecret(path).isDeleted() shouldBe false
     }
 
     test("delete secret with existing secret and version") {
@@ -284,6 +288,32 @@ class VaultKV2EngineTest : FunSpec({
         kv2.readSecret(path, writeResponse2.version).isDeleted() shouldBe true
         kv2.readSecret(path, writeResponse3.version).isDeleted() shouldBe false
     }
+
+    test("destroy secret with non existing secret") {
+        val path = randomString()
+        kv2.destroySecretVersions(path, listOf(1)) shouldBe true
+    }
+
+    test("destroy secret with non existing version") {
+        val path = randomString()
+        kv2.createOrUpdateSecret(path, simpleWriteRequestBuilder())
+        kv2.destroySecretVersions(path, listOf(10)) shouldBe true
+        kv2.readSecret(path).isDestroyed() shouldBe false
+    }
+
+    test("destroy secret with existing secret and version") {
+        val path = randomString()
+        val writeResponse1 = kv2.createOrUpdateSecret(path, simpleWriteRequestBuilder())
+        val writeResponse2 = kv2.createOrUpdateSecret(path, simpleWriteRequestBuilder())
+
+        kv2.destroySecretVersions(path, listOf(writeResponse1.version)) shouldBe true
+
+        kv2.readSecret(path, writeResponse1.version).isDestroyed() shouldBe true
+        kv2.readSecret(path, writeResponse2.version).isDestroyed() shouldBe false
+
+        kv2.undeleteSecretVersions(path, listOf(writeResponse1.version)) shouldBe true
+        kv2.readSecret(path, writeResponse1.version).isDestroyed() shouldBe true
+    }
 })
 
 fun simpleWriteRequestBuilder(): BuilderDsl<KvV2WriteRequest.Builder> = {
@@ -315,7 +345,8 @@ private suspend fun createAndUpdate(
     val expected = readJson<KvV2ReadResponse>(readExpectedResponse)
         .copy(
             metadata = readResponse.metadata.copy(
-                createdTime = writeResponse.createdTime
+                createdTime = writeResponse.createdTime,
+                deletionTime = writeResponse.deletionTime
             )
         )
     readResponse shouldBe expected

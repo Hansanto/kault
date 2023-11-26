@@ -28,7 +28,7 @@ public data class Metadata(
      * The time at which the version was deleted.
      */
     @SerialName("deletion_time")
-    val deletionTime: Instant?,
+    val deletionTime: Instant,
 
     /**
      * True if the version is destroyed.

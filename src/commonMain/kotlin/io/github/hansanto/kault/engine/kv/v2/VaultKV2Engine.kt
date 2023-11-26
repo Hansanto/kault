@@ -18,6 +18,7 @@ import io.ktor.client.request.get
 import io.ktor.client.request.parameter
 import io.ktor.client.request.patch
 import io.ktor.client.request.post
+import io.ktor.client.request.put
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.appendPathSegments
@@ -152,7 +153,7 @@ public interface VaultKV2Engine {
      * @param versions The versions to destroy. Their data will be permanently deleted.
      * @return TODO
      */
-    public suspend fun destroySecretVersions(path: String, versions: List<Int>): Any
+    public suspend fun destroySecretVersions(path: String, versions: List<Long>): Boolean
 
     /**
      * This endpoint returns a list of key names at the specified location. Folders are suffixed with /. The input must be a folder; list on a file will not return a value. Note that no policy-based filtering is performed on keys; do not encode sensitive information in key names. The values themselves are not accessible via this command.
@@ -350,8 +351,15 @@ public class VaultKV2EngineImpl(
         return response.status.isSuccess()
     }
 
-    override suspend fun destroySecretVersions(path: String, versions: List<Int>): Any {
-        TODO("Not yet implemented")
+    override suspend fun destroySecretVersions(path: String, versions: List<Long>): Boolean {
+        val response = client.put {
+            url {
+                appendPathSegments(this@VaultKV2EngineImpl.path, "destroy", path)
+            }
+            contentType(ContentType.Application.Json)
+            setBody(KvV2DeleteVersionsRequest(versions))
+        }
+        return response.status.isSuccess()
     }
 
     override suspend fun listSecrets(path: String): Any {
