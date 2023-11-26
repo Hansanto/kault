@@ -37,4 +37,10 @@ public data class KvV2ReadResponse(
         format: Json = VaultClient.json,
         serializer: KSerializer<T> = format.serializersModule.serializer<T>()
     ): T? = data?.let { format.decodeFromJsonElement(serializer, it) }
+
+    /**
+     * Check if the secret is deleted.
+     * @return True if the secret is deleted, false otherwise.
+     */
+    public fun isDeleted(): Boolean = data == null
 }

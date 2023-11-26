@@ -16,7 +16,6 @@ import io.github.hansanto.kault.util.readJson
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.shouldNotBe
 import kotlin.time.Duration.Companion.hours
 
 class VaultKV2EngineTest : FunSpec({
@@ -214,8 +213,7 @@ class VaultKV2EngineTest : FunSpec({
         val path = randomString()
         kv2.createOrUpdateSecret(path, simpleWriteRequestBuilder())
         kv2.deleteSecretLatestVersion(path)
-        val readResponse = kv2.readSecret(path)
-        readResponse.metadata.deletionTime shouldNotBe null
+        kv2.readSecret(path).isDeleted() shouldBe true
     }
 
     test("delete latest version with secret and multiple versions") {
@@ -228,7 +226,7 @@ class VaultKV2EngineTest : FunSpec({
         kv2.deleteSecretLatestVersion(path)
 
         val readResponseLatestVersion = kv2.readSecret(path)
-        readResponseLatestVersion.metadata.deletionTime shouldNotBe null
+        readResponseLatestVersion.isDeleted() shouldBe true
 
         val readResponse = kv2.readSecret(path, 1)
         readResponse.data<Map<String, String>>() shouldBe expected
@@ -254,11 +252,37 @@ class VaultKV2EngineTest : FunSpec({
 
         kv2.deleteSecretVersions(path, listOf(writeResponse1.version, writeResponse3.version)) shouldBe true
         val readResponse1 = kv2.readSecret(path, writeResponse1.version)
-        readResponse1.metadata.deletionTime shouldNotBe null
+        readResponse1.isDeleted() shouldBe true
 
         kv2.readSecret(path, writeResponse2.version)
         val readResponse2 = kv2.readSecret(path, writeResponse3.version)
-        readResponse2.metadata.deletionTime shouldNotBe null
+        readResponse2.isDeleted() shouldBe true
+    }
+
+    test("undelete secret with non existing secret") {
+        val path = randomString()
+        kv2.undeleteSecretVersions(path, listOf(1)) shouldBe true
+    }
+
+    test("undelete secret with non existing version") {
+        val path = randomString()
+        kv2.createOrUpdateSecret(path, simpleWriteRequestBuilder())
+        kv2.undeleteSecretVersions(path, listOf(10)) shouldBe true
+        kv2.readSecret(path).isDeleted() shouldBe false
+    }
+
+    test("undelete secret with existing secret and version") {
+        val path = randomString()
+        val writeResponse1 = kv2.createOrUpdateSecret(path, simpleWriteRequestBuilder())
+        val writeResponse2 = kv2.createOrUpdateSecret(path, simpleWriteRequestBuilder())
+        val writeResponse3 = kv2.createOrUpdateSecret(path, simpleWriteRequestBuilder())
+
+        kv2.deleteSecretVersions(path, listOf(writeResponse1.version, writeResponse2.version, writeResponse3.version)) shouldBe true
+        kv2.undeleteSecretVersions(path, listOf(writeResponse1.version, writeResponse3.version)) shouldBe true
+
+        kv2.readSecret(path, writeResponse1.version).isDeleted() shouldBe false
+        kv2.readSecret(path, writeResponse2.version).isDeleted() shouldBe true
+        kv2.readSecret(path, writeResponse3.version).isDeleted() shouldBe false
     }
 })
 

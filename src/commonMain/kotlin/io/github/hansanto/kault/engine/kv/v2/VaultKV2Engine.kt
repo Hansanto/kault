@@ -143,7 +143,7 @@ public interface VaultKV2Engine {
      * @param versions The versions to undelete. The versions will be restored and their data will be returned on normal get requests.
      * @return TODO
      */
-    public suspend fun undeleteSecretVersions(path: String, versions: List<Int>): Any
+    public suspend fun undeleteSecretVersions(path: String, versions: List<Long>): Boolean
 
     /**
      * Permanently removes the specified version data for the provided key and version numbers from the key-value store.
@@ -339,8 +339,15 @@ public class VaultKV2EngineImpl(
         return response.status.isSuccess()
     }
 
-    override suspend fun undeleteSecretVersions(path: String, versions: List<Int>): Any {
-        TODO("Not yet implemented")
+    override suspend fun undeleteSecretVersions(path: String, versions: List<Long>): Boolean {
+        val response = client.post {
+            url {
+                appendPathSegments(this@VaultKV2EngineImpl.path, "undelete", path)
+            }
+            contentType(ContentType.Application.Json)
+            setBody(KvV2DeleteVersionsRequest(versions))
+        }
+        return response.status.isSuccess()
     }
 
     override suspend fun destroySecretVersions(path: String, versions: List<Int>): Any {
