@@ -2,8 +2,12 @@ package io.github.hansanto.kault.extension
 
 import io.github.hansanto.kault.exception.VaultAPIException
 import io.github.hansanto.kault.exception.VaultFieldNotFoundException
+import io.ktor.client.HttpClient
+import io.ktor.client.request.HttpRequestBuilder
+import io.ktor.client.request.request
 import io.ktor.client.statement.HttpResponse
 import io.ktor.client.statement.bodyAsText
+import io.ktor.http.HttpMethod
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
@@ -19,7 +23,37 @@ import kotlinx.serialization.json.jsonPrimitive
  */
 public const val URL_PATH_SEPARATOR: String = "/"
 
+/**
+ * Represents the error message when the API doesn't provide a response body.
+ */
 private const val VAULT_API_ERROR_NO_BODY = "The API didn't provide a response body."
+
+/**
+ * Represents the HTTP method LIST.
+ * Allows building once the HttpMethod object.
+ */
+private val listHttpMethod = HttpMethod("LIST")
+
+public val HttpMethod.Companion.List: HttpMethod
+    get() = listHttpMethod
+
+/**
+ * Executes an [HttpClient]'s LIST request with the parameters configured in [block].
+ *
+ * Learn more from [Making requests](https://ktor.io/docs/request.html).
+ */
+public suspend inline fun HttpClient.list(block: HttpRequestBuilder.() -> Unit): HttpResponse =
+    list(HttpRequestBuilder().apply(block))
+
+/**
+ * Executes an [HttpClient]'s LIST request with the parameters configured in [builder].
+ *
+ * Learn more from [Making requests](https://ktor.io/docs/request.html).
+ */
+public suspend inline fun HttpClient.list(builder: HttpRequestBuilder): HttpResponse {
+    builder.method = HttpMethod.List
+    return request(builder)
+}
 
 /**
  * Decodes the response body as a JSON object and returns the value of the specified field.

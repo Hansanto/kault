@@ -12,6 +12,8 @@ import io.github.hansanto.kault.engine.kv.v2.response.KvV2ReadResponse
 import io.github.hansanto.kault.engine.kv.v2.response.KvV2ReadSubkeysResponse
 import io.github.hansanto.kault.engine.kv.v2.response.KvV2WriteResponse
 import io.github.hansanto.kault.extension.decodeBodyJsonFieldObject
+import io.github.hansanto.kault.extension.list
+import io.github.hansanto.kault.response.StandardListResponse
 import io.ktor.client.HttpClient
 import io.ktor.client.request.delete
 import io.ktor.client.request.get
@@ -142,7 +144,7 @@ public interface VaultKV2Engine {
      * [Documentation](https://developer.hashicorp.com/vault/api-docs/secret/kv/kv-v2#undelete-secret-versions)
      * @param path Specifies the path of the secret to undelete. This is specified as part of the URL.
      * @param versions The versions to undelete. The versions will be restored and their data will be returned on normal get requests.
-     * @return TODO
+     * @return True if the versions were undeleted.
      */
     public suspend fun undeleteSecretVersions(path: String, versions: List<Long>): Boolean
 
@@ -151,7 +153,7 @@ public interface VaultKV2Engine {
      * [Documentation](https://developer.hashicorp.com/vault/api-docs/secret/kv/kv-v2#destroy-secret-versions)
      * @param path Specifies the path of the secret to destroy. This is specified as part of the URL.
      * @param versions The versions to destroy. Their data will be permanently deleted.
-     * @return TODO
+     * @return True if the versions were destroyed.
      */
     public suspend fun destroySecretVersions(path: String, versions: List<Long>): Boolean
 
@@ -160,9 +162,9 @@ public interface VaultKV2Engine {
      * To list secrets for KV v2, a user must have a policy granting them the list capability on this /metadata/ path - even if all the rest of their interactions with the KV v2 are via the /data/ APIs. Access to at least list the /metadata/ path should typically also be granted.
      * [Documentation](https://developer.hashicorp.com/vault/api-docs/secret/kv/kv-v2#list-secrets)
      * @param path Specifies the path of the secrets to list. This is specified as part of the URL.
-     * @return TODO
+     * @return List of keys.
      */
-    public suspend fun listSecrets(path: String): Any
+    public suspend fun listSecrets(path: String): List<String>
 
     /**
      * This endpoint retrieves the metadata and versions for the secret at the specified path. Metadata is version-agnostic.
@@ -362,8 +364,13 @@ public class VaultKV2EngineImpl(
         return response.status.isSuccess()
     }
 
-    override suspend fun listSecrets(path: String): Any {
-        TODO("Not yet implemented")
+    override suspend fun listSecrets(path: String): List<String> {
+        val response = client.list {
+            url {
+                appendPathSegments(this@VaultKV2EngineImpl.path, "metadata", path)
+            }
+        }
+        return response.decodeBodyJsonFieldObject<StandardListResponse>("data", VaultClient.json).keys
     }
 
     override suspend fun readSecretMetadata(path: String): Any {
