@@ -110,13 +110,7 @@ class VaultKV2EngineTest : FunSpec({
         writeResponse shouldBe createExpectedResponse
 
         val readResponse = kv2.readSecret(path)
-        val expected = readJson<KvV2ReadResponse>("cases/engine/kv/v2/create_secret/expected_read.json")
-            .copy(
-                metadata = readResponse.metadata.copy(
-                    createdTime = writeResponse.createdTime,
-                    deletionTime = writeResponse.deletionTime
-                )
-            )
+        val expected = readSecretResponse("cases/engine/kv/v2/create_secret/expected_read.json", writeResponse)
         readResponse shouldBe expected
     }
 
@@ -174,13 +168,7 @@ class VaultKV2EngineTest : FunSpec({
         val writeResponse = kv2.createOrUpdateSecret(path, writeGiven)
 
         val readResponse = kv2.readSecretSubKeys(path)
-        val expected =
-            readJson<KvV2ReadSubkeysResponse>("cases/engine/kv/v2/read_sub_keys/without_options/expected.json").copy(
-                metadata = readResponse.metadata.copy(
-                    createdTime = writeResponse.createdTime,
-                    deletionTime = writeResponse.deletionTime
-                )
-            )
+        val expected = readSubKeysResponse("cases/engine/kv/v2/read_sub_keys/without_options/expected.json", writeResponse)
         readResponse shouldBe expected
     }
 
@@ -197,13 +185,7 @@ class VaultKV2EngineTest : FunSpec({
 
         val parameters = readJson<KvV2SubKeysRequest>("cases/engine/kv/v2/read_sub_keys/with_options/parameters.json")
         val readResponse = kv2.readSecretSubKeys(path, parameters)
-        val expected =
-            readJson<KvV2ReadSubkeysResponse>("cases/engine/kv/v2/read_sub_keys/with_options/expected.json").copy(
-                metadata = readResponse.metadata.copy(
-                    createdTime = writeResponse.createdTime,
-                    deletionTime = writeResponse.deletionTime
-                )
-            )
+        val expected = readSubKeysResponse("cases/engine/kv/v2/read_sub_keys/with_options/expected.json", writeResponse)
         readResponse shouldBe expected
     }
 
@@ -316,6 +298,30 @@ class VaultKV2EngineTest : FunSpec({
     }
 })
 
+private fun readSubKeysResponse(
+    path: String,
+    writeResponse: KvV2WriteResponse
+) = readJson<KvV2ReadSubkeysResponse>(path).let {
+    it.copy(
+        metadata = it.metadata.copy(
+            createdTime = writeResponse.createdTime,
+            deletionTime = writeResponse.deletionTime
+        )
+    )
+}
+
+private fun readSecretResponse(
+    path: String,
+    writeResponse: KvV2WriteResponse
+) = readJson<KvV2ReadResponse>(path).let {
+    it.copy(
+        metadata = it.metadata.copy(
+            createdTime = writeResponse.createdTime,
+            deletionTime = writeResponse.deletionTime
+        )
+    )
+}
+
 fun simpleWriteRequestBuilder(): BuilderDsl<KvV2WriteRequest.Builder> = {
     data(mapOf(randomString() to randomString()))
 }
@@ -342,12 +348,6 @@ private suspend fun createAndUpdate(
     writeResponse shouldBe writeExpectedResponse
 
     val readResponse = kv2.readSecret(path)
-    val expected = readJson<KvV2ReadResponse>(readExpectedResponse)
-        .copy(
-            metadata = readResponse.metadata.copy(
-                createdTime = writeResponse.createdTime,
-                deletionTime = writeResponse.deletionTime
-            )
-        )
+    val expected = readSecretResponse(readExpectedResponse, writeResponse)
     readResponse shouldBe expected
 }
