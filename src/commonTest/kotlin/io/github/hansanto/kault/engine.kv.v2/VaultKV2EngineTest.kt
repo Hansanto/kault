@@ -15,6 +15,7 @@ import io.github.hansanto.kault.util.randomString
 import io.github.hansanto.kault.util.readJson
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
 import kotlin.time.Duration.Companion.hours
 
@@ -298,12 +299,23 @@ class VaultKV2EngineTest : FunSpec({
         kv2.readSecret(path, writeResponse1.version).isDestroyed() shouldBe true
     }
 
-    test("list with non-existing secret") {
-        TODO()
+    test("list with non-existing folder") {
+        val path = randomString()
+        shouldThrow<VaultAPIException> {
+            kv2.listSecrets(path)
+        }
     }
 
-    test("list with existing secret") {
-        TODO()
+    test("list with existing folder") {
+        val path = randomString()
+        val key1 = randomString()
+        val key2 = randomString()
+
+        kv2.createOrUpdateSecret("$path/$key1", simpleWriteRequestBuilder())
+        kv2.createOrUpdateSecret("$path/$key2/test", simpleWriteRequestBuilder())
+
+        val response = kv2.listSecrets(path)
+        response shouldContainExactlyInAnyOrder listOf(key1, "$key2/")
     }
 })
 
@@ -345,23 +357,23 @@ fun simpleWriteRequestBuilder(): BuilderDsl<KvV2WriteRequest.Builder> = {
 
 private suspend fun createAndUpdate(
     kv2: VaultKV2Engine,
-    writeGiven: String,
-    writeUpdateGiven: String,
-    writeExpectedResponse: String,
-    readExpectedResponse: String,
+    writeGivenPath: String,
+    writeUpdateGivenPath: String,
+    writeExpectedResponsePath: String,
+    readExpectedResponsePath: String,
     update: suspend (String, KvV2WriteRequest) -> KvV2WriteResponse
 ) {
     val path = randomString()
-    val writeGiven = readJson<KvV2WriteRequest>(writeGiven)
+    val writeGiven = readJson<KvV2WriteRequest>(writeGivenPath)
     kv2.createOrUpdateSecret(path, writeGiven)
 
-    val patchGiven = readJson<KvV2WriteRequest>(writeUpdateGiven)
+    val patchGiven = readJson<KvV2WriteRequest>(writeUpdateGivenPath)
     val writeResponse = update(path, patchGiven)
 
-    val writeExpectedResponse = readWriteResponse(writeExpectedResponse, writeResponse)
+    val writeExpectedResponse = readWriteResponse(writeExpectedResponsePath, writeResponse)
     writeResponse shouldBe writeExpectedResponse
 
     val readResponse = kv2.readSecret(path)
-    val expected = readSecretResponse(readExpectedResponse, writeResponse)
+    val expected = readSecretResponse(readExpectedResponsePath, writeResponse)
     readResponse shouldBe expected
 }
