@@ -6,6 +6,7 @@ import io.github.hansanto.kault.engine.kv.v2.payload.KvV2ConfigureRequest
 import io.github.hansanto.kault.engine.kv.v2.payload.KvV2SubKeysRequest
 import io.github.hansanto.kault.engine.kv.v2.payload.KvV2WriteRequest
 import io.github.hansanto.kault.engine.kv.v2.response.KvV2ReadConfigurationResponse
+import io.github.hansanto.kault.engine.kv.v2.response.KvV2ReadMetadataResponse
 import io.github.hansanto.kault.engine.kv.v2.response.KvV2ReadResponse
 import io.github.hansanto.kault.engine.kv.v2.response.KvV2ReadSubkeysResponse
 import io.github.hansanto.kault.engine.kv.v2.response.KvV2WriteResponse
@@ -316,6 +317,32 @@ class VaultKV2EngineTest : FunSpec({
 
         val response = kv2.listSecrets(path)
         response shouldContainExactlyInAnyOrder listOf(key1, "$key2/")
+    }
+
+    test("read secret metadata with non existing secret") {
+        val path = randomString()
+        shouldThrow<VaultAPIException> {
+            kv2.readSecretMetadata(path)
+        }
+    }
+
+    test("read secret metadata with existing secret") {
+        val path = randomString()
+        val writeResponse = kv2.createOrUpdateSecret(path, simpleWriteRequestBuilder())
+        val response = kv2.readSecretMetadata(path)
+        val expected = readJson<KvV2ReadMetadataResponse>("cases/engine/kv/v2/read_secret_metadata/expected.json").let {
+            it.copy(
+                createdTime = writeResponse.createdTime,
+                updatedTime = writeResponse.createdTime,
+                versions = it.versions.mapValues { (_, version) ->
+                    version.copy(
+                        createdTime = writeResponse.createdTime,
+                        deletionTime = writeResponse.deletionTime
+                    )
+                }
+            )
+        }
+        response shouldBe expected
     }
 })
 

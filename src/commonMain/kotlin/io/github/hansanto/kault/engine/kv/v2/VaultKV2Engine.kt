@@ -8,6 +8,7 @@ import io.github.hansanto.kault.engine.kv.v2.payload.KvV2DeleteVersionsRequest
 import io.github.hansanto.kault.engine.kv.v2.payload.KvV2SubKeysRequest
 import io.github.hansanto.kault.engine.kv.v2.payload.KvV2WriteRequest
 import io.github.hansanto.kault.engine.kv.v2.response.KvV2ReadConfigurationResponse
+import io.github.hansanto.kault.engine.kv.v2.response.KvV2ReadMetadataResponse
 import io.github.hansanto.kault.engine.kv.v2.response.KvV2ReadResponse
 import io.github.hansanto.kault.engine.kv.v2.response.KvV2ReadSubkeysResponse
 import io.github.hansanto.kault.engine.kv.v2.response.KvV2WriteResponse
@@ -170,9 +171,9 @@ public interface VaultKV2Engine {
      * This endpoint retrieves the metadata and versions for the secret at the specified path. Metadata is version-agnostic.
      * [Documentation](https://developer.hashicorp.com/vault/api-docs/secret/kv/kv-v2#read-secret-metadata)
      * @param path Specifies the path of the secret to read. This is specified as part of the URL.
-     * @return TODO
+     * @return Response.
      */
-    public suspend fun readSecretMetadata(path: String): Any
+    public suspend fun readSecretMetadata(path: String): KvV2ReadMetadataResponse
 
     /**
      * This endpoint creates or updates the metadata of a secret at the specified location. It does not create a new version.
@@ -373,8 +374,13 @@ public class VaultKV2EngineImpl(
         return response.decodeBodyJsonFieldObject<StandardListResponse>("data", VaultClient.json).keys
     }
 
-    override suspend fun readSecretMetadata(path: String): Any {
-        TODO("Not yet implemented")
+    override suspend fun readSecretMetadata(path: String): KvV2ReadMetadataResponse {
+        val response = client.get {
+            url {
+                appendPathSegments(this@VaultKV2EngineImpl.path, "metadata", path)
+            }
+        }
+        return response.decodeBodyJsonFieldObject("data", VaultClient.json)
     }
 
     override suspend fun createOrUpdateMetadata(path: String, payload: Any): Any {
