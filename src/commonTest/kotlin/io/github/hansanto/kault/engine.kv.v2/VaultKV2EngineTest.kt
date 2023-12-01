@@ -328,13 +328,22 @@ class VaultKV2EngineTest : FunSpec({
 
     test("read secret metadata with existing secret") {
         val path = randomString()
-        val writeResponse = kv2.createOrUpdateSecret(path, simpleWriteRequestBuilder())
+
+        val writeResponse1 = kv2.createOrUpdateSecret(path, simpleWriteRequestBuilder())
+        val writeResponse2 = kv2.createOrUpdateSecret(path, simpleWriteRequestBuilder())
+        kv2.destroySecretVersions(path, listOf(writeResponse1.version))
         val response = kv2.readSecretMetadata(path)
         val expected = readJson<KvV2ReadMetadataResponse>("cases/engine/kv/v2/read_secret_metadata/expected.json").let {
             it.copy(
-                createdTime = writeResponse.createdTime,
-                updatedTime = writeResponse.createdTime,
-                versions = it.versions.mapValues { (_, version) ->
+                createdTime = writeResponse1.createdTime,
+                updatedTime = writeResponse2.createdTime,
+                versions = it.versions.mapValues { (id, version) ->
+                    val writeResponse = when (id) {
+                        writeResponse1.version -> writeResponse1
+                        writeResponse2.version -> writeResponse2
+                        else -> throw IllegalStateException("Unexpected version id: $id")
+                    }
+
                     version.copy(
                         createdTime = writeResponse.createdTime,
                         deletionTime = writeResponse.deletionTime
