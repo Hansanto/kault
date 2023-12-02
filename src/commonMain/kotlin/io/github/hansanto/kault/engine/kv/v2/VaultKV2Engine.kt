@@ -195,10 +195,11 @@ public interface VaultKV2Engine {
 
     /**
      * This endpoint permanently deletes the key metadata and all version data for the specified key. All version history will be removed.
+     * [Documentation](https://developer.hashicorp.com/vault/api-docs/secret/kv/kv-v2#delete-metadata-and-all-versions)
      * @param path Specifies the path of the secret to delete. This is specified as part of the URL.
-     * @return TODO
+     * @return True if the metadata and all versions were deleted.
      */
-    public suspend fun deleteMetadataAndAllVersions(path: String): Any
+    public suspend fun deleteMetadataAndAllVersions(path: String): Boolean
 }
 
 /**
@@ -391,7 +392,12 @@ public class VaultKV2EngineImpl(
         TODO("Not yet implemented")
     }
 
-    override suspend fun deleteMetadataAndAllVersions(path: String): Any {
-        TODO("Not yet implemented")
+    override suspend fun deleteMetadataAndAllVersions(path: String): Boolean {
+        val response = client.delete {
+            url {
+                appendPathSegments(this@VaultKV2EngineImpl.path, "metadata", path)
+            }
+        }
+        return response.status.isSuccess()
     }
 }

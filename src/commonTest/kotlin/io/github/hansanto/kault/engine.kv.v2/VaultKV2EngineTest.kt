@@ -353,6 +353,24 @@ class VaultKV2EngineTest : FunSpec({
         }
         response shouldBe expected
     }
+
+    test("delete metadata and all versions with non existing secret") {
+        val path = randomString()
+        kv2.deleteMetadataAndAllVersions(path) shouldBe true
+    }
+
+    test("delete metadata and all versions with existing secret") {
+        val path = randomString()
+        kv2.createOrUpdateSecret(path, simpleWriteRequestBuilder())
+        kv2.createOrUpdateSecret(path, simpleWriteRequestBuilder())
+        kv2.deleteMetadataAndAllVersions(path) shouldBe true
+        shouldThrow<VaultAPIException> {
+            kv2.readSecret(path)
+        }
+        shouldThrow<VaultAPIException> {
+            kv2.readSecretMetadata(path)
+        }
+    }
 })
 
 private fun readSubKeysResponse(
