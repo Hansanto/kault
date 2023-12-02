@@ -7,6 +7,7 @@ import io.ktor.client.request.HttpRequestBuilder
 import io.ktor.client.request.request
 import io.ktor.client.statement.HttpResponse
 import io.ktor.client.statement.bodyAsText
+import io.ktor.http.ContentType
 import io.ktor.http.HttpMethod
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
@@ -30,12 +31,16 @@ private const val VAULT_API_ERROR_NO_BODY = "The API didn't provide a response b
 
 /**
  * Represents the HTTP method LIST.
- * Allows building once the HttpMethod object.
  */
-private val listHttpMethod = HttpMethod("LIST")
-
 public val HttpMethod.Companion.List: HttpMethod
-    get() = listHttpMethod
+    get() = HttpMethod("LIST")
+
+/**
+ * Represents the content type "application/merge-patch+json".
+ */
+@Suppress("UnusedReceiverParameter")
+public val ContentType.Application.MergePatchJson: ContentType
+    get() = ContentType("application", "merge-patch+json")
 
 /**
  * Executes an [HttpClient]'s LIST request with the parameters configured in [block].

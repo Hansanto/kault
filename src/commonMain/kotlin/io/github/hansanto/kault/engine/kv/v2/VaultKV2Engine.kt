@@ -6,12 +6,14 @@ import io.github.hansanto.kault.VaultClient
 import io.github.hansanto.kault.engine.kv.v2.payload.KvV2ConfigureRequest
 import io.github.hansanto.kault.engine.kv.v2.payload.KvV2DeleteVersionsRequest
 import io.github.hansanto.kault.engine.kv.v2.payload.KvV2SubKeysRequest
+import io.github.hansanto.kault.engine.kv.v2.payload.KvV2WriteMetadataRequest
 import io.github.hansanto.kault.engine.kv.v2.payload.KvV2WriteRequest
 import io.github.hansanto.kault.engine.kv.v2.response.KvV2ReadConfigurationResponse
 import io.github.hansanto.kault.engine.kv.v2.response.KvV2ReadMetadataResponse
 import io.github.hansanto.kault.engine.kv.v2.response.KvV2ReadResponse
 import io.github.hansanto.kault.engine.kv.v2.response.KvV2ReadSubkeysResponse
 import io.github.hansanto.kault.engine.kv.v2.response.KvV2WriteResponse
+import io.github.hansanto.kault.extension.MergePatchJson
 import io.github.hansanto.kault.extension.decodeBodyJsonFieldObject
 import io.github.hansanto.kault.extension.list
 import io.github.hansanto.kault.response.StandardListResponse
@@ -64,6 +66,30 @@ public suspend inline fun VaultKV2Engine.readSecretSubKeys(
     contract { callsInPlace(payloadBuilder, InvocationKind.EXACTLY_ONCE) }
     val payload = KvV2SubKeysRequest().apply(payloadBuilder)
     return readSecretSubKeys(path, payload)
+}
+
+/**
+ * @see VaultKV2Engine.createOrUpdateMetadata(path, payload)
+ */
+public suspend inline fun VaultKV2Engine.createOrUpdateMetadata(
+    path: String,
+    payloadBuilder: BuilderDsl<KvV2WriteMetadataRequest>
+): Boolean {
+    contract { callsInPlace(payloadBuilder, InvocationKind.EXACTLY_ONCE) }
+    val payload = KvV2WriteMetadataRequest().apply(payloadBuilder)
+    return createOrUpdateMetadata(path, payload)
+}
+
+/**
+ * @see VaultKV2Engine.patchMetadata(path, payload)
+ */
+public suspend inline fun VaultKV2Engine.patchMetadata(
+    path: String,
+    payloadBuilder: BuilderDsl<KvV2WriteMetadataRequest>
+): Boolean {
+    contract { callsInPlace(payloadBuilder, InvocationKind.EXACTLY_ONCE) }
+    val payload = KvV2WriteMetadataRequest().apply(payloadBuilder)
+    return patchMetadata(path, payload)
 }
 
 /**
@@ -179,19 +205,19 @@ public interface VaultKV2Engine {
      * This endpoint creates or updates the metadata of a secret at the specified location. It does not create a new version.
      * [Documentation](https://developer.hashicorp.com/vault/api-docs/secret/kv/kv-v2#create-update-metadata)
      * @param path Specifies the path of the secret to update. This is specified as part of the URL.
-     * @param payload TODO
-     * @return TODO
+     * @param payload Payload to update the metadata.
+     * @return True if the metadata was updated.
      */
-    public suspend fun createOrUpdateMetadata(path: String, payload: Any): Any
+    public suspend fun createOrUpdateMetadata(path: String, payload: KvV2WriteMetadataRequest = KvV2WriteMetadataRequest()): Boolean
 
     /**
      * This endpoint patches an existing metadata entry of a secret at the specified location. The calling token must have an ACL policy granting the patch capability. Currently, only JSON merge patch is supported and must be specified using a Content-Type header value of application/merge-patch+json. It does not create a new version.
      * [Documentation](https://developer.hashicorp.com/vault/api-docs/secret/kv/kv-v2#patch-metadata)
      * @param path Specifies the path of the secret to patch. This is specified as part of the URL.
-     * @param payload TODO
-     * @return TODO
+     * @param payload Payload to update the metadata.
+     * @return True if the metadata was updated.
      */
-    public suspend fun patchMetadata(path: String, payload: Any): Any
+    public suspend fun patchMetadata(path: String, payload: KvV2WriteMetadataRequest = KvV2WriteMetadataRequest()): Boolean
 
     /**
      * This endpoint permanently deletes the key metadata and all version data for the specified key. All version history will be removed.
@@ -307,7 +333,7 @@ public class VaultKV2EngineImpl(
             url {
                 appendPathSegments(this@VaultKV2EngineImpl.path, "data", path)
             }
-            contentType(ContentType("application", "merge-patch+json"))
+            contentType(ContentType.Application.MergePatchJson)
             setBody(payload)
         }
         return response.decodeBodyJsonFieldObject("data", VaultClient.json)
@@ -384,12 +410,26 @@ public class VaultKV2EngineImpl(
         return response.decodeBodyJsonFieldObject("data", VaultClient.json)
     }
 
-    override suspend fun createOrUpdateMetadata(path: String, payload: Any): Any {
-        TODO("Not yet implemented")
+    override suspend fun createOrUpdateMetadata(path: String, payload: KvV2WriteMetadataRequest): Boolean {
+        val response = client.post {
+            url {
+                appendPathSegments(this@VaultKV2EngineImpl.path, "metadata", path)
+            }
+            contentType(ContentType.Application.Json)
+            setBody(payload)
+        }
+        return response.status.isSuccess()
     }
 
-    override suspend fun patchMetadata(path: String, payload: Any): Any {
-        TODO("Not yet implemented")
+    override suspend fun patchMetadata(path: String, payload: KvV2WriteMetadataRequest): Boolean {
+        val response = client.patch {
+            url {
+                appendPathSegments(this@VaultKV2EngineImpl.path, "metadata", path)
+            }
+            contentType(ContentType.Application.MergePatchJson)
+            setBody(payload)
+        }
+        return response.status.isSuccess()
     }
 
     override suspend fun deleteMetadataAndAllVersions(path: String): Boolean {

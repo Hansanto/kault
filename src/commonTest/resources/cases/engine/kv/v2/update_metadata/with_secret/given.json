@@ -1,0 +1,8 @@
+{
+  "max_versions": 180,
+  "cas_required": false,
+  "delete_version_after": "60d",
+  "custom_metadata": {
+    "key": "value"
+  }
+}

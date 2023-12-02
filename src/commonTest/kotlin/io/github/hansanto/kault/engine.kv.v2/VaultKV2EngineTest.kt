@@ -4,6 +4,7 @@ import io.github.hansanto.kault.BuilderDsl
 import io.github.hansanto.kault.VaultClient
 import io.github.hansanto.kault.engine.kv.v2.payload.KvV2ConfigureRequest
 import io.github.hansanto.kault.engine.kv.v2.payload.KvV2SubKeysRequest
+import io.github.hansanto.kault.engine.kv.v2.payload.KvV2WriteMetadataRequest
 import io.github.hansanto.kault.engine.kv.v2.payload.KvV2WriteRequest
 import io.github.hansanto.kault.engine.kv.v2.response.KvV2ReadConfigurationResponse
 import io.github.hansanto.kault.engine.kv.v2.response.KvV2ReadMetadataResponse
@@ -354,6 +355,47 @@ class VaultKV2EngineTest : FunSpec({
         response shouldBe expected
     }
 
+    test("create or update metadata with non existing secret") {
+        val path = randomString()
+        val writeGiven = readJson<KvV2WriteMetadataRequest>("cases/engine/kv/v2/update_metadata/without_secret/given.json")
+        kv2.createOrUpdateMetadata(path, writeGiven) shouldBe true
+
+        val readResponse = kv2.readSecretMetadata(path)
+        val expected = readJson<KvV2ReadMetadataResponse>("cases/engine/kv/v2/update_metadata/without_secret/expected.json").copy(
+            createdTime = readResponse.createdTime,
+            updatedTime = readResponse.updatedTime
+        )
+        readResponse shouldBe expected
+    }
+
+    test("create or update metadata with existing secret") {
+        updateMetadataWithSecret(
+            kv2,
+            "cases/engine/kv/v2/update_metadata/with_secret/given.json",
+            "cases/engine/kv/v2/update_metadata/with_secret/expected.json",
+            kv2::createOrUpdateMetadata
+        )
+    }
+
+    test("patch metadata with non existing secret") {
+        val path = randomString()
+        val writeGiven = readJson<KvV2WriteMetadataRequest>("cases/engine/kv/v2/update_metadata/without_secret/given.json")
+        kv2.patchMetadata(path, writeGiven) shouldBe false
+
+        shouldThrow<VaultAPIException> {
+            kv2.readSecretMetadata(path)
+        }
+    }
+
+    test("patch metadata with existing secret") {
+        updateMetadataWithSecret(
+            kv2,
+            "cases/engine/kv/v2/update_metadata/with_secret/given.json",
+            "cases/engine/kv/v2/update_metadata/with_secret/expected.json",
+            kv2::patchMetadata
+        )
+    }
+
     test("delete metadata and all versions with non existing secret") {
         val path = randomString()
         kv2.deleteMetadataAndAllVersions(path) shouldBe true
@@ -372,6 +414,33 @@ class VaultKV2EngineTest : FunSpec({
         }
     }
 })
+
+private suspend inline fun updateMetadataWithSecret(
+    kv2: VaultKV2Engine,
+    writeGivenPath: String,
+    readExpectedPath: String,
+    updateMetadata: suspend (String, KvV2WriteMetadataRequest) -> Boolean
+) {
+    val path = randomString()
+    val writeSecretResponse = kv2.createOrUpdateSecret(path, simpleWriteRequestBuilder())
+
+    val writeGiven = readJson<KvV2WriteMetadataRequest>(writeGivenPath)
+    updateMetadata(path, writeGiven) shouldBe true
+
+    val readResponse = kv2.readSecretMetadata(path)
+    val expected = readJson<KvV2ReadMetadataResponse>(readExpectedPath).copy(
+        createdTime = readResponse.createdTime,
+        updatedTime = readResponse.createdTime,
+        versions = readResponse.versions.mapValues { (_, version) ->
+            version.copy(
+                createdTime = writeSecretResponse.createdTime,
+                deletionTime = writeSecretResponse.deletionTime
+            )
+        }
+    )
+
+    readResponse shouldBe expected
+}
 
 private fun readSubKeysResponse(
     path: String,

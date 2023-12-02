@@ -1,0 +1,8 @@
+{
+  "max_versions": 3,
+  "cas_required": true,
+  "delete_version_after": "10d",
+  "custom_metadata": {
+    "foo": "bar"
+  }
+}
