@@ -12,18 +12,33 @@ import kotlinx.serialization.serializer
 @Serializable
 public data class KvV2WriteResponse(
 
+    /**
+     * The time at which the version was created.
+     */
     @SerialName("created_time")
     val createdTime: Instant,
 
+    /**
+     * A map of arbitrary string to string valued user-provided metadata meant to describe the secret.
+     */
     @SerialName("custom_metadata")
     val customMetadata: JsonObject? = null,
 
+    /**
+     * The time at which the version was deleted.
+     */
     @SerialName("deletion_time")
     val deletionTime: Instant,
 
+    /**
+     * True if the version is destroyed.
+     */
     @SerialName("destroyed")
     val destroyed: Boolean,
 
+    /**
+     * The version of the secret.
+     */
     @SerialName("version")
     val version: Long
 
