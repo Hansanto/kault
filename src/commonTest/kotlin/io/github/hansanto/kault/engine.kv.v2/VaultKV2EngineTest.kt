@@ -62,6 +62,30 @@ class VaultKV2EngineTest : FunSpec({
         response shouldBe expected
     }
 
+    test("create or update secret from builder") {
+        val path = randomString()
+        suspend fun createWithCas(data: Map<String, String>, cas: Int) = kv2.createOrUpdateSecret(path) {
+            this.data(data)
+            options {
+                this.cas = cas
+            }
+        }
+
+        suspend fun createAndRead(data: Map<String, String>, cas: Int) {
+            createWithCas(data, cas)
+            val readResponse = kv2.readSecret(path)
+            val version1Data = readResponse.data<Map<String, String>>()
+            version1Data shouldBe data
+        }
+
+        shouldThrow<VaultAPIException> {
+            createWithCas(emptyMap(), 1)
+        }
+
+        createAndRead(mapOf(randomString() to randomString()), 0)
+        createAndRead(mapOf(randomString() to randomString()), 1)
+    }
+
     test("read secret when secret does not exist") {
         shouldThrow<VaultAPIException> {
             kv2.readSecret("test")
@@ -143,6 +167,23 @@ class VaultKV2EngineTest : FunSpec({
         )
     }
 
+    test("patch secret from builder") {
+        createAndUpdate(
+            kv2,
+            "cases/engine/kv/v2/patch_secret/given_create.json",
+            "cases/engine/kv/v2/patch_secret/given_patch.json",
+            "cases/engine/kv/v2/patch_secret/expected_patch.json",
+            "cases/engine/kv/v2/patch_secret/expected_read.json"
+        ) { path, writeGiven ->
+            kv2.patchSecret(path) {
+                this.data(writeGiven.data)
+                this.options {
+                    this.cas = writeGiven.options?.cas
+                }
+            }
+        }
+    }
+
     test("read sub keys with non existing secret") {
         val path = randomString()
         shouldThrow<VaultAPIException> {
@@ -174,20 +215,29 @@ class VaultKV2EngineTest : FunSpec({
     }
 
     test("read sub keys with options") {
-        val path = randomString()
-
-        val writeGiven = readJson<KvV2WriteRequest>("cases/engine/kv/v2/read_sub_keys/with_options/given_1.json")
-        val writeResponse = kv2.createOrUpdateSecret(path, writeGiven)
-
-        kv2.createOrUpdateSecret(
-            path,
-            readJson<KvV2WriteRequest>("cases/engine/kv/v2/read_sub_keys/with_options/given_2.json")
+        readSecretSubKeysWithOption(
+            kv2,
+            "cases/engine/kv/v2/read_sub_keys/with_options/given_1.json",
+            "cases/engine/kv/v2/read_sub_keys/with_options/given_2.json",
+            "cases/engine/kv/v2/read_sub_keys/with_options/parameters.json",
+            "cases/engine/kv/v2/read_sub_keys/with_options/expected.json",
+            kv2::readSecretSubKeys
         )
+    }
 
-        val parameters = readJson<KvV2SubKeysRequest>("cases/engine/kv/v2/read_sub_keys/with_options/parameters.json")
-        val readResponse = kv2.readSecretSubKeys(path, parameters)
-        val expected = readSubKeysResponse("cases/engine/kv/v2/read_sub_keys/with_options/expected.json", writeResponse)
-        readResponse shouldBe expected
+    test("read secret sub keys from builder") {
+        readSecretSubKeysWithOption(
+            kv2,
+            "cases/engine/kv/v2/read_sub_keys/with_options/given_1.json",
+            "cases/engine/kv/v2/read_sub_keys/with_options/given_2.json",
+            "cases/engine/kv/v2/read_sub_keys/with_options/parameters.json",
+            "cases/engine/kv/v2/read_sub_keys/with_options/expected.json"
+        ) { path, parameters ->
+            kv2.readSecretSubKeys(path) {
+                this.version = parameters.version
+                this.depth = parameters.depth
+            }
+        }
     }
 
     test("delete latest version without secret") {
@@ -377,6 +427,21 @@ class VaultKV2EngineTest : FunSpec({
         )
     }
 
+    test("create or update metadata from builder") {
+        updateMetadataWithSecret(
+            kv2,
+            "cases/engine/kv/v2/update_metadata/with_secret/given.json",
+            "cases/engine/kv/v2/update_metadata/with_secret/expected.json"
+        ) { path, writeGiven ->
+            kv2.createOrUpdateMetadata(path) {
+                this.casRequired = writeGiven.casRequired
+                this.maxVersions = writeGiven.maxVersions
+                this.deleteVersionAfter = writeGiven.deleteVersionAfter
+                this.customMetadata = writeGiven.customMetadata
+            }
+        }
+    }
+
     test("patch metadata with non existing secret") {
         val path = randomString()
         val writeGiven = readJson<KvV2WriteMetadataRequest>("cases/engine/kv/v2/update_metadata/without_secret/given.json")
@@ -394,6 +459,21 @@ class VaultKV2EngineTest : FunSpec({
             "cases/engine/kv/v2/update_metadata/with_secret/expected.json",
             kv2::patchMetadata
         )
+    }
+
+    test("patch metadata from builder") {
+        updateMetadataWithSecret(
+            kv2,
+            "cases/engine/kv/v2/update_metadata/with_secret/given.json",
+            "cases/engine/kv/v2/update_metadata/with_secret/expected.json"
+        ) { path, writeGiven ->
+            kv2.patchMetadata(path) {
+                this.casRequired = writeGiven.casRequired
+                this.maxVersions = writeGiven.maxVersions
+                this.deleteVersionAfter = writeGiven.deleteVersionAfter
+                this.customMetadata = writeGiven.customMetadata
+            }
+        }
     }
 
     test("delete metadata and all versions with non existing secret") {
@@ -415,7 +495,7 @@ class VaultKV2EngineTest : FunSpec({
     }
 })
 
-private suspend inline fun updateMetadataWithSecret(
+private suspend fun updateMetadataWithSecret(
     kv2: VaultKV2Engine,
     writeGivenPath: String,
     readExpectedPath: String,
@@ -439,6 +519,53 @@ private suspend inline fun updateMetadataWithSecret(
         }
     )
 
+    readResponse shouldBe expected
+}
+
+private suspend fun readSecretSubKeysWithOption(
+    kv2: VaultKV2Engine,
+    writeGiven1Path: String,
+    writeGiven2Path: String,
+    readPayloadPath: String,
+    readExpectedPath: String,
+    callReadSubKeys: suspend (String, KvV2SubKeysRequest) -> KvV2ReadSubkeysResponse
+) {
+    val path = randomString()
+
+    val writeGiven = readJson<KvV2WriteRequest>(writeGiven1Path)
+    val writeResponse = kv2.createOrUpdateSecret(path, writeGiven)
+
+    kv2.createOrUpdateSecret(
+        path,
+        readJson<KvV2WriteRequest>(writeGiven2Path)
+    )
+
+    val parameters = readJson<KvV2SubKeysRequest>(readPayloadPath)
+    val readResponse = callReadSubKeys(path, parameters)
+    val expected = readSubKeysResponse(readExpectedPath, writeResponse)
+    readResponse shouldBe expected
+}
+
+private suspend fun createAndUpdate(
+    kv2: VaultKV2Engine,
+    writeGivenPath: String,
+    writeUpdateGivenPath: String,
+    writeExpectedResponsePath: String,
+    readExpectedResponsePath: String,
+    update: suspend (String, KvV2WriteRequest) -> KvV2WriteResponse
+) {
+    val path = randomString()
+    val writeGiven = readJson<KvV2WriteRequest>(writeGivenPath)
+    kv2.createOrUpdateSecret(path, writeGiven)
+
+    val patchGiven = readJson<KvV2WriteRequest>(writeUpdateGivenPath)
+    val writeResponse = update(path, patchGiven)
+
+    val writeExpectedResponse = readWriteResponse(writeExpectedResponsePath, writeResponse)
+    writeResponse shouldBe writeExpectedResponse
+
+    val readResponse = kv2.readSecret(path)
+    val expected = readSecretResponse(readExpectedResponsePath, writeResponse)
     readResponse shouldBe expected
 }
 
@@ -475,28 +602,12 @@ private fun readWriteResponse(
 )
 
 fun simpleWriteRequestBuilder(): BuilderDsl<KvV2WriteRequest.Builder> = {
-    data(mapOf(randomString() to randomString()))
-}
-
-private suspend fun createAndUpdate(
-    kv2: VaultKV2Engine,
-    writeGivenPath: String,
-    writeUpdateGivenPath: String,
-    writeExpectedResponsePath: String,
-    readExpectedResponsePath: String,
-    update: suspend (String, KvV2WriteRequest) -> KvV2WriteResponse
-) {
-    val path = randomString()
-    val writeGiven = readJson<KvV2WriteRequest>(writeGivenPath)
-    kv2.createOrUpdateSecret(path, writeGiven)
-
-    val patchGiven = readJson<KvV2WriteRequest>(writeUpdateGivenPath)
-    val writeResponse = update(path, patchGiven)
-
-    val writeExpectedResponse = readWriteResponse(writeExpectedResponsePath, writeResponse)
-    writeResponse shouldBe writeExpectedResponse
-
-    val readResponse = kv2.readSecret(path)
-    val expected = readSecretResponse(readExpectedResponsePath, writeResponse)
-    readResponse shouldBe expected
+    data(
+        buildMap {
+            val numberOfValues = (1..10).random()
+            repeat(numberOfValues) {
+                put(randomString(), randomString())
+            }
+        }
+    )
 }
