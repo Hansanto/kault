@@ -19,15 +19,14 @@ import io.github.hansanto.kault.auth.approle.response.WriteSecretIdResponse
 import io.github.hansanto.kault.extension.decodeBodyJsonFieldArray
 import io.github.hansanto.kault.extension.decodeBodyJsonFieldObject
 import io.github.hansanto.kault.extension.decodeBodyJsonFieldObjectOrNull
+import io.github.hansanto.kault.extension.list
 import io.github.hansanto.kault.response.StandardListResponse
 import io.ktor.client.HttpClient
 import io.ktor.client.request.delete
 import io.ktor.client.request.get
 import io.ktor.client.request.post
-import io.ktor.client.request.request
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
-import io.ktor.http.HttpMethod
 import io.ktor.http.appendPathSegments
 import io.ktor.http.contentType
 import io.ktor.http.isSuccess
@@ -273,8 +272,7 @@ public class VaultAuthAppRoleImpl(
     }
 
     override suspend fun list(): List<String> {
-        val response = client.request {
-            method = HttpMethod("LIST")
+        val response = client.list {
             url {
                 appendPathSegments(path, "role")
             }
@@ -346,8 +344,7 @@ public class VaultAuthAppRoleImpl(
     }
 
     override suspend fun secretIdAccessors(roleName: String): List<String> {
-        val response = client.request {
-            method = HttpMethod("LIST")
+        val response = client.list {
             url {
                 appendPathSegments(path, "role", roleName, "secret-id")
             }

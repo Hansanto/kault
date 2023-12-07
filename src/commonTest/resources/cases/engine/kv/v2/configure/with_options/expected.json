@@ -1,0 +1,5 @@
+{
+  "cas_required": true,
+  "delete_version_after": "60s",
+  "max_versions": 142302
+}

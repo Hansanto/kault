@@ -1,0 +1,18 @@
+{
+  "data": {
+    "new": "test",
+    "new nested": {
+      "123": "toto",
+      "another nested": {
+        "foo-bar": 17
+      }
+    }
+  },
+  "metadata": {
+    "created_time": "1970-01-01T00:00:00Z",
+    "custom_metadata": null,
+    "deletion_time": "1970-01-01T00:00:00Z",
+    "destroyed": false,
+    "version": 2
+  }
+}

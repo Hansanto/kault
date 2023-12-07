@@ -11,13 +11,13 @@ public data class LoginPayload(
      * RoleID of the AppRole.
      */
     @SerialName("role_id")
-    public val roleId: String,
+    public var roleId: String,
 
     /**
      * SecretID belonging to AppRole.
      */
     @SerialName("secret_id")
-    public val secretId: String
+    public var secretId: String
 
 ) {
 

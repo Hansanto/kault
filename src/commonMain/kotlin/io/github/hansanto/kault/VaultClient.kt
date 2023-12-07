@@ -1,9 +1,11 @@
 package io.github.hansanto.kault
 
 import io.github.hansanto.kault.auth.VaultAuth
+import io.github.hansanto.kault.engine.VaultSecretEngine
 import io.github.hansanto.kault.exception.VaultAPIException
 import io.github.hansanto.kault.extension.URL_PATH_SEPARATOR
 import io.github.hansanto.kault.extension.addURLChildPath
+import io.github.hansanto.kault.extension.findErrorFromVaultResponseBody
 import io.github.hansanto.kault.system.VaultSystem
 import io.ktor.client.HttpClient
 import io.ktor.client.HttpClientConfig
@@ -11,17 +13,13 @@ import io.ktor.client.plugins.HttpResponseValidator
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.request.header
-import io.ktor.client.statement.HttpResponse
 import io.ktor.client.statement.bodyAsText
-import io.ktor.http.contentType
 import io.ktor.http.isSuccess
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.utils.io.core.Closeable
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
-import kotlinx.serialization.json.jsonPrimitive
 
 /**
  * Function that resolves the authentication token.
@@ -44,7 +42,8 @@ public class VaultClient(
     public val client: HttpClient,
     public var namespace: String? = null,
     public val auth: VaultAuth,
-    public val system: VaultSystem
+    public val system: VaultSystem,
+    public val secret: VaultSecretEngine
 ) : CoroutineScope by client, Closeable by client {
 
     public companion object {
@@ -130,6 +129,11 @@ public class VaultClient(
         private var sysBuilder: BuilderDsl<VaultSystem.Builder> = {}
 
         /**
+         * Builder to define secret engine service.
+         */
+        private var secretBuilder: BuilderDsl<VaultSecretEngine.Builder> = {}
+
+        /**
          * Builder to custom the HTTP client.
          * The token resolver is passed as parameter and must not be used before the client is built.
          * [Documentation](https://ktor.io/docs/clients-index.html)
@@ -144,13 +148,17 @@ public class VaultClient(
             lateinit var vaultClient: VaultClient
             val tokenResolver = { vaultClient.auth.token }
             val namespaceResolver = { vaultClient.namespace }
-            val client = httpClientBuilder?.invoke(tokenResolver, namespaceResolver) ?: createHttpClient(tokenResolver, namespaceResolver)
+            val client = httpClientBuilder?.invoke(tokenResolver, namespaceResolver) ?: createHttpClient(
+                tokenResolver,
+                namespaceResolver
+            )
 
             return VaultClient(
                 client = client,
                 namespace = this.namespace,
                 auth = VaultAuth(client, null, this.authBuilder),
-                system = VaultSystem(client, null, this.sysBuilder)
+                system = VaultSystem(client, null, this.sysBuilder),
+                secret = VaultSecretEngine(client, this.secretBuilder)
             ).also { vaultClient = it }
         }
 
@@ -182,6 +190,15 @@ public class VaultClient(
         }
 
         /**
+         * Sets the secret engine service builder.
+         *
+         * @param builder Builder to create [VaultSecretEngine] instance.
+         */
+        public fun secret(builder: BuilderDsl<VaultSecretEngine.Builder>) {
+            secretBuilder = builder
+        }
+
+        /**
          * Sets the HTTP client builder.
          *
          * @param builder Builder to create [HttpClientConfig] instance.
@@ -197,9 +214,10 @@ public class VaultClient(
          * @param namespaceResolver Function that returns the namespace.
          * @return The configured [HttpClient] instance.
          */
-        private fun createHttpClient(tokenResolver: TokenResolver, namespaceResolver: NamespaceResolver): HttpClient = HttpClient {
-            defaultHttpClientConfiguration(tokenResolver, namespaceResolver)
-        }
+        private fun createHttpClient(tokenResolver: TokenResolver, namespaceResolver: NamespaceResolver): HttpClient =
+            HttpClient {
+                defaultHttpClientConfiguration(tokenResolver, namespaceResolver)
+            }
 
         /**
          * Configures the default HttpClient settings to interact with the Vault API.
@@ -218,7 +236,16 @@ public class VaultClient(
             HttpResponseValidator {
                 validateResponse { response ->
                     if (!response.status.isSuccess()) {
-                        throw VaultAPIException(findErrorsInResponse(response))
+                        val text = response.bodyAsText()
+                        if (text.isEmpty()) {
+                            return@validateResponse
+                        }
+
+                        val jsonBody = json.parseToJsonElement(text).jsonObject
+                        val errors = findErrorFromVaultResponseBody(jsonBody)
+                        if (errors != null) {
+                            throw VaultAPIException(errors)
+                        }
                     }
                 }
             }
@@ -230,44 +257,6 @@ public class VaultClient(
                 header(headers.token, tokenResolver())
                 header(headers.namespace, namespaceResolver())
             }
-        }
-
-        /**
-         * Finds errors in the given HttpResponse.
-         * When checking fields,
-         * we force the type of json element to know if the format changes between several versions of the API.
-         *
-         * @param response The HttpResponse to check for errors.
-         * @return A list of error messages found in the response. Returns an empty list if no errors are found.
-         */
-        private suspend fun findErrorsInResponse(response: HttpResponse): List<String> {
-            if (response.contentType() != null) {
-                val jsonBody = json.parseToJsonElement(response.bodyAsText()).jsonObject
-                /**
-                 * {
-                 *  "errors": [
-                 *    "error1",
-                 *    "error2"
-                 *    ...
-                 *  ]
-                 * }
-                 */
-                jsonBody["errors"]?.jsonArray?.let { array ->
-                    return array.map { it.jsonPrimitive.content }
-                }
-
-                /**
-                 * {
-                 *  "data": {
-                 *   "error": "error1"
-                 *  }
-                 * }
-                 */
-                jsonBody["data"]?.jsonObject?.get("error")?.jsonPrimitive?.content?.let {
-                    return listOf(it)
-                }
-            }
-            return emptyList()
         }
     }
 

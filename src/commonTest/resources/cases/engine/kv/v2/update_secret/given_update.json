@@ -1,0 +1,14 @@
+{
+  "data": {
+    "new": "test",
+    "new nested": {
+      "123": "toto",
+        "another nested": {
+            "foo-bar": 17
+        }
+    }
+  },
+  "options": {
+    "cas": 1
+  }
+}

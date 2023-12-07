@@ -7,7 +7,7 @@
   "metadata": {
     "role_name": "test"
   },
-  "lease_duration": -1,
+  "lease_duration": 0,
   "renewable": true,
   "entity_id": "REPLACED_DYNAMICALLY",
   "token_type": "service",

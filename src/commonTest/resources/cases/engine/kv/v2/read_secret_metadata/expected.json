@@ -1,0 +1,22 @@
+{
+  "cas_required": false,
+  "created_time": "1970-01-01T00:00:00Z",
+  "current_version": 2,
+  "custom_metadata": null,
+  "delete_version_after": "0s",
+  "max_versions": 0,
+  "oldest_version": 0,
+  "updated_time": "1970-01-01T00:00:00Z",
+  "versions": {
+    "1": {
+      "created_time": "1970-01-01T00:00:00Z",
+      "deletion_time": "1970-01-01T00:00:00Z",
+      "destroyed": true
+    },
+    "2": {
+      "created_time": "1970-01-01T00:00:00Z",
+      "deletion_time": "1970-01-01T00:00:00Z",
+      "destroyed": false
+    }
+  }
+}

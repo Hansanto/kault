@@ -1,0 +1,18 @@
+{
+  "subkeys": {
+    "foo": null,
+    "test": {
+      "a": null,
+      "parameters": {
+        "car": null
+      }
+    }
+  },
+  "metadata": {
+    "created_time": "1970-01-01T00:00:00Z",
+    "custom_metadata": null,
+    "deletion_time": "1970-01-01T00:00:00Z",
+    "destroyed": false,
+    "version": 1
+  }
+}

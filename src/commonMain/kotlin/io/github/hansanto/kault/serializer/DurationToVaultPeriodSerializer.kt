@@ -33,27 +33,62 @@ public typealias VaultDuration =
  * - Xd (e.g. 1d, 2d, 3d, etc.)
  */
 public object DurationToVaultPeriodSerializer : KSerializer<Duration> {
+    /**
+     * Symbol to find the day unit.
+     */
+    private const val DAY_UNIT = 'd'
+
+    /**
+     * Symbol to find the hour unit.
+     */
+    private const val HOUR_UNIT = 'h'
+
+    /**
+     * Symbol to find the minute unit.
+     */
+    private const val MINUTE_UNIT = 'm'
+
+    /**
+     * Symbol to find the second unit.
+     */
+    private const val SECOND_UNIT = 's'
+
+    /**
+     * Regular expression pattern for matching time durations.
+     *
+     * The pattern matches the following format:
+     * - Optional days value followed by the "[DAY_UNIT]"
+     * - Optional hours value followed by the "[HOUR_UNIT]"
+     * - Optional minutes value followed by the "[MINUTE_UNIT]"
+     * - Optional seconds value followed by the "[SECOND_UNIT]" or nothing.
+     * Vault can send a duration without a unit, in which case it is interpreted as seconds.
+     */
+    private val timeRegex =
+        Regex("""^(?:(?<days>\d+)$DAY_UNIT)?(?:(?<hours>\d+)$HOUR_UNIT)?(?:(?<minutes>\d+)$MINUTE_UNIT)?(?:(?<seconds>\d+)$SECOND_UNIT?)?$""")
 
     override val descriptor: SerialDescriptor =
         PrimitiveSerialDescriptor("durationToVaultStringDate", PrimitiveKind.STRING)
 
     override fun deserialize(decoder: Decoder): Duration {
-        val value = decoder.decodeString()
-        // Get the unit time: 50s -> s
-        val unit = value.last()
+        val decoded = decoder.decodeString()
+        val matcher = timeRegex.matchEntire(decoded)
 
-        // If the unit is a digit, the duration is in seconds.
-        val time: Duration? = if (unit.isDigit()) {
-            // Without unit, according to Vault, the duration is in seconds.
-            value.toLongOrNull()?.seconds
-        } else {
-            // Remove the unit time: 50s -> 50
-            value.dropLast(1).toLongOrNull()?.let {
-                parseDuration(it, unit)
-            }
+        val (days, hours, minutes, seconds) = matcher?.destructured ?: invalidFormat(decoded)
+
+        var time = Duration.ZERO
+        if (days.isNotEmpty()) {
+            time += days.toLongOrNull()?.days ?: invalidFormat(decoded, days, DAY_UNIT)
         }
-
-        return time ?: invalidFormat(value)
+        if (hours.isNotEmpty()) {
+            time += hours.toLongOrNull()?.hours ?: invalidFormat(decoded, hours, HOUR_UNIT)
+        }
+        if (minutes.isNotEmpty()) {
+            time += minutes.toLongOrNull()?.minutes ?: invalidFormat(decoded, minutes, MINUTE_UNIT)
+        }
+        if (seconds.isNotEmpty()) {
+            time += seconds.toLongOrNull()?.seconds ?: invalidFormat(decoded, seconds, SECOND_UNIT)
+        }
+        return time
     }
 
     override fun serialize(encoder: Encoder, value: Duration) {
@@ -61,27 +96,22 @@ public object DurationToVaultPeriodSerializer : KSerializer<Duration> {
     }
 
     /**
-     * Parses the given time and unit to a [Duration].
-     * If the unit is 's', the time is interpreted as seconds.
-     * If the unit is 'm', the time is interpreted as minutes.
-     * If the unit is 'h', the time is interpreted as hours.
-     * If the unit is 'd', the time is interpreted as days.
-     * @param time Time value.
-     * @param unit Unit of the time.
-     * @return The parsed duration, or null if the unit is not supported.
+     * Throws a [SerializationException] with the given duration string to indicate that the format is invalid.
+     * @param decodedString The duration string that is invalid.
+     * @param unitValue The value of the unit that is invalid.
+     * @param unit The unit that is invalid.
      */
-    private fun parseDuration(time: Long, unit: Char) = when (unit) {
-        's' -> time.seconds
-        'm' -> time.minutes
-        'h' -> time.hours
-        'd' -> time.days
-        else -> null
-    }
+    private fun invalidFormat(
+        decodedString: String,
+        unitValue: String,
+        unit: Char
+    ): Nothing =
+        throw SerializationException("Invalid duration format [$decodedString] with value [$unitValue] for unit [$unit].")
 
     /**
      * Throws a [SerializationException] with the given duration string to indicate that the format is invalid.
      * @param durationString The duration string that is invalid.
      */
     private fun invalidFormat(durationString: String): Nothing =
-        throw SerializationException("Invalid duration format: $durationString, expected format: 1, 1s, 1m, 1h, or 1d")
+        throw SerializationException("Invalid duration format [$durationString]")
 }

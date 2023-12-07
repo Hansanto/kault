@@ -1,0 +1,13 @@
+{
+  "cas_required": true,
+  "created_time": "1970-01-01T00:00:00Z",
+  "current_version": 0,
+  "custom_metadata": {
+    "foo": "bar"
+  },
+  "delete_version_after": "864000s",
+  "max_versions": 3,
+  "oldest_version": 0,
+  "updated_time": "1970-01-01T00:00:00Z",
+  "versions": {}
+}

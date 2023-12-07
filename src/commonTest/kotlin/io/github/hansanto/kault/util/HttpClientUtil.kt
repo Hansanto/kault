@@ -16,7 +16,7 @@ fun createVaultClient(): VaultClient = VaultClient {
         HttpClient {
             install(Logging) {
                 logger = Logger.DEFAULT
-                level = LogLevel.ALL
+                level = LogLevel.INFO
             }
             defaultHttpClientConfiguration(tokenResolver, namespaceResolver)
         }

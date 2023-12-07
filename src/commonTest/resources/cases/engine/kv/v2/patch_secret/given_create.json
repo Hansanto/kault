@@ -1,0 +1,11 @@
+{
+  "data": {
+    "first_key": "first_value",
+    "nested_object": {
+      "foo": "600"
+    }
+  },
+  "options": {
+    "cas": 0
+  }
+}
