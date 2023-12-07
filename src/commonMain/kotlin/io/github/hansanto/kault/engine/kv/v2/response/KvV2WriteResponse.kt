@@ -1,6 +1,7 @@
 package io.github.hansanto.kault.engine.kv.v2.response
 
 import io.github.hansanto.kault.VaultClient
+import io.github.hansanto.kault.common.SecretVersion
 import kotlinx.datetime.Instant
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerialName
@@ -40,7 +41,7 @@ public data class KvV2WriteResponse(
      * The version of the secret.
      */
     @SerialName("version")
-    val version: Long
+    val version: SecretVersion
 
 ) {
 

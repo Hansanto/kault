@@ -1,5 +1,6 @@
 package io.github.hansanto.kault.engine.kv.v2.response
 
+import io.github.hansanto.kault.common.SecretVersion
 import io.github.hansanto.kault.serializer.VaultDuration
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -23,5 +24,5 @@ public data class KvV2ReadConfigurationResponse(
      * The number of versions to keep for each key.
      */
     @SerialName("max_versions")
-    val maxVersions: Long
+    val maxVersions: SecretVersion
 )

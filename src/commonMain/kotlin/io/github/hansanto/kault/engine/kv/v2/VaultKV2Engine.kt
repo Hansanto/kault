@@ -3,6 +3,7 @@ package io.github.hansanto.kault.engine.kv.v2
 import io.github.hansanto.kault.BuilderDsl
 import io.github.hansanto.kault.ServiceBuilder
 import io.github.hansanto.kault.VaultClient
+import io.github.hansanto.kault.common.SecretVersion
 import io.github.hansanto.kault.engine.kv.v2.payload.KvV2ConfigureRequest
 import io.github.hansanto.kault.engine.kv.v2.payload.KvV2DeleteVersionsRequest
 import io.github.hansanto.kault.engine.kv.v2.payload.KvV2SubKeysRequest
@@ -120,7 +121,7 @@ public interface VaultKV2Engine {
      * @param version Specifies the version to return. If not set the latest version is returned.
      * @return Response.
      */
-    public suspend fun readSecret(path: String, version: Long? = null): KvV2ReadResponse
+    public suspend fun readSecret(path: String, version: SecretVersion? = null): KvV2ReadResponse
 
     /**
      * This endpoint creates a new version of a secret at the specified location. If the value does not yet exist, the calling token must have an ACL policy granting the create capability. If the value already exists, the calling token must have an ACL policy granting the update capability.
@@ -164,7 +165,7 @@ public interface VaultKV2Engine {
      * @param versions The versions to be deleted. The versioned data will not be deleted, but it will no longer be returned in normal get requests.
      * @return True if the versions were deleted.
      */
-    public suspend fun deleteSecretVersions(path: String, versions: List<Long>): Boolean
+    public suspend fun deleteSecretVersions(path: String, versions: List<SecretVersion>): Boolean
 
     /**
      * Undeletes the data for the provided version and path in the key-value store. This restores the data, allowing it to be returned on get requests.
@@ -173,7 +174,7 @@ public interface VaultKV2Engine {
      * @param versions The versions to undelete. The versions will be restored and their data will be returned on normal get requests.
      * @return True if the versions were undeleted.
      */
-    public suspend fun undeleteSecretVersions(path: String, versions: List<Long>): Boolean
+    public suspend fun undeleteSecretVersions(path: String, versions: List<SecretVersion>): Boolean
 
     /**
      * Permanently removes the specified version data for the provided key and version numbers from the key-value store.
@@ -182,7 +183,7 @@ public interface VaultKV2Engine {
      * @param versions The versions to destroy. Their data will be permanently deleted.
      * @return True if the versions were destroyed.
      */
-    public suspend fun destroySecretVersions(path: String, versions: List<Long>): Boolean
+    public suspend fun destroySecretVersions(path: String, versions: List<SecretVersion>): Boolean
 
     /**
      * This endpoint returns a list of key names at the specified location. Folders are suffixed with /. The input must be a folder; list on a file will not return a value. Note that no policy-based filtering is performed on keys; do not encode sensitive information in key names. The values themselves are not accessible via this command.
@@ -359,7 +360,7 @@ public class VaultKV2EngineImpl(
         return response.status.isSuccess()
     }
 
-    override suspend fun deleteSecretVersions(path: String, versions: List<Long>): Boolean {
+    override suspend fun deleteSecretVersions(path: String, versions: List<SecretVersion>): Boolean {
         val response = client.post {
             url {
                 appendPathSegments(this@VaultKV2EngineImpl.path, "delete", path)
@@ -370,7 +371,7 @@ public class VaultKV2EngineImpl(
         return response.status.isSuccess()
     }
 
-    override suspend fun undeleteSecretVersions(path: String, versions: List<Long>): Boolean {
+    override suspend fun undeleteSecretVersions(path: String, versions: List<SecretVersion>): Boolean {
         val response = client.post {
             url {
                 appendPathSegments(this@VaultKV2EngineImpl.path, "undelete", path)
@@ -381,7 +382,7 @@ public class VaultKV2EngineImpl(
         return response.status.isSuccess()
     }
 
-    override suspend fun destroySecretVersions(path: String, versions: List<Long>): Boolean {
+    override suspend fun destroySecretVersions(path: String, versions: List<SecretVersion>): Boolean {
         val response = client.put {
             url {
                 appendPathSegments(this@VaultKV2EngineImpl.path, "destroy", path)
