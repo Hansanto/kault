@@ -1,5 +1,6 @@
 package io.github.hansanto.kault.engine.kv.v2.payload
 
+import io.github.hansanto.kault.common.SecretVersion
 import io.github.hansanto.kault.serializer.VaultDuration
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -11,7 +12,7 @@ public data class KvV2WriteMetadataRequest(
      * The number of versions to keep per key. If not set, the backend’s configured max version is used. Once a key has more than the configured allowed versions, the oldest version will be permanently deleted.
      */
     @SerialName("max_versions")
-    var maxVersions: Long? = null,
+    var maxVersions: SecretVersion? = null,
 
     /**
      * If true, the key will require the cas parameter to be set on all write requests. If false, the backend’s configuration will be used.

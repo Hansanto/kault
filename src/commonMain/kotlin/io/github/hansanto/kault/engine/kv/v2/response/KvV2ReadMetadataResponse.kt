@@ -1,5 +1,6 @@
 package io.github.hansanto.kault.engine.kv.v2.response
 
+import io.github.hansanto.kault.common.SecretVersion
 import io.github.hansanto.kault.serializer.VaultDuration
 import io.ktor.http.content.Version
 import kotlinx.datetime.Instant
@@ -17,7 +18,7 @@ public data class KvV2ReadMetadataResponse(
     val createdTime: Instant,
 
     @SerialName("current_version")
-    val currentVersion: Long,
+    val currentVersion: SecretVersion,
 
     @SerialName("custom_metadata")
     val customMetadata: JsonObject?,
@@ -26,16 +27,16 @@ public data class KvV2ReadMetadataResponse(
     val deleteVersionAfter: VaultDuration,
 
     @SerialName("max_versions")
-    val maxVersions: Long,
+    val maxVersions: SecretVersion,
 
     @SerialName("oldest_version")
-    val oldestVersion: Long,
+    val oldestVersion: SecretVersion,
 
     @SerialName("updated_time")
     val updatedTime: Instant,
 
     @SerialName("versions")
-    val versions: Map<Long, Version>
+    val versions: Map<SecretVersion, Version>
 ) {
     @Serializable
     public data class Version(

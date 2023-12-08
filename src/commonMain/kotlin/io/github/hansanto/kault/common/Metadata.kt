@@ -40,7 +40,7 @@ public data class Metadata(
      * Version of the secret.
      */
     @SerialName("version")
-    val version: Int
+    val version: SecretVersion
 ) {
 
     /**
