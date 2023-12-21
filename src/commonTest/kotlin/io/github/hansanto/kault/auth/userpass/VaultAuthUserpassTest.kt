@@ -2,6 +2,7 @@ package io.github.hansanto.kault.auth.userpass
 
 import io.github.hansanto.kault.VaultClient
 import io.github.hansanto.kault.auth.userpass.payload.UserpassWriteUserPayload
+import io.github.hansanto.kault.auth.userpass.response.ReadUserResponse
 import io.github.hansanto.kault.system.auth.enable
 import io.github.hansanto.kault.util.createVaultClient
 import io.github.hansanto.kault.util.randomString
@@ -54,5 +55,8 @@ private suspend fun assertCreate(
     val username = randomString()
     val given = readJson<UserpassWriteUserPayload>(givenPath)
     userpass.createOrUpdate(username, given) shouldBe true
-    // TODO: Check read username
+
+    val response = userpass.read(username)
+    val expected = readJson<ReadUserResponse>(expectedReadPath)
+    response shouldBe expected
 }

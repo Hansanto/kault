@@ -8,7 +8,6 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 public data class UserpassWriteUserPayload(
-
     /**
      * The password for the user. Only required when creating the user.
      */

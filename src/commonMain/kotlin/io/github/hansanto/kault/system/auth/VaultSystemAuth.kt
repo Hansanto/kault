@@ -2,8 +2,7 @@ package io.github.hansanto.kault.system.auth
 
 import io.github.hansanto.kault.BuilderDsl
 import io.github.hansanto.kault.ServiceBuilder
-import io.github.hansanto.kault.VaultClient
-import io.github.hansanto.kault.extension.decodeBodyJsonFieldObject
+import io.github.hansanto.kault.extension.decodeBodyJsonDataFieldObject
 import io.github.hansanto.kault.system.auth.payload.AuthTuneConfigurationParametersPayload
 import io.github.hansanto.kault.system.auth.payload.EnableMethodPayload
 import io.github.hansanto.kault.system.auth.response.AuthReadConfigurationResponse
@@ -159,7 +158,7 @@ public class VaultSystemAuthImpl(
                 appendPathSegments(this@VaultSystemAuthImpl.path)
             }
         }
-        return response.decodeBodyJsonFieldObject("data", VaultClient.json)
+        return response.decodeBodyJsonDataFieldObject()
     }
 
     override suspend fun enable(path: String, payload: EnableMethodPayload): Boolean {
@@ -179,7 +178,7 @@ public class VaultSystemAuthImpl(
                 appendPathSegments(this@VaultSystemAuthImpl.path, path)
             }
         }
-        return response.decodeBodyJsonFieldObject("data", VaultClient.json)
+        return response.decodeBodyJsonDataFieldObject()
     }
 
     override suspend fun disable(path: String): Boolean {
@@ -197,7 +196,7 @@ public class VaultSystemAuthImpl(
                 appendPathSegments(this@VaultSystemAuthImpl.path, path, "tune")
             }
         }
-        return response.decodeBodyJsonFieldObject("data", VaultClient.json)
+        return response.decodeBodyJsonDataFieldObject()
     }
 
     override suspend fun tune(path: String, payload: AuthTuneConfigurationParametersPayload): Boolean {

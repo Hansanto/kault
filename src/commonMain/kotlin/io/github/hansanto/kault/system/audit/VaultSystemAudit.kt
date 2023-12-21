@@ -2,8 +2,7 @@ package io.github.hansanto.kault.system.audit
 
 import io.github.hansanto.kault.BuilderDsl
 import io.github.hansanto.kault.ServiceBuilder
-import io.github.hansanto.kault.VaultClient
-import io.github.hansanto.kault.extension.decodeBodyJsonFieldObject
+import io.github.hansanto.kault.extension.decodeBodyJsonDataFieldObject
 import io.github.hansanto.kault.system.audit.payload.AuditingEnableDevicePayload
 import io.github.hansanto.kault.system.audit.response.AuditingDeviceResponse
 import io.ktor.client.HttpClient
@@ -122,7 +121,7 @@ public class VaultSystemAuditImpl(
             }
         }
 
-        return response.decodeBodyJsonFieldObject("data", VaultClient.json)
+        return response.decodeBodyJsonDataFieldObject()
     }
 
     override suspend fun enable(path: String, payload: AuditingEnableDevicePayload): Boolean {
