@@ -89,7 +89,7 @@ public class VaultAuth(
     }
 
     /**
-     * Authenticates using the provided credentials and stores the token.
+     * Process the login request using [VaultAuth]'s service and set the [token][VaultAuth.token] from the response.
      *
      * Example of usage:
      * ```kotlin
