@@ -24,6 +24,11 @@ import kotlinx.serialization.json.jsonPrimitive
 private const val DATA_FIELD_RESPONSE = "data"
 
 /**
+ * Represents the name of the field that contains the response auth.
+ */
+private const val AUTH_FIELD_RESPONSE = "auth"
+
+/**
  * Represents the separator used in URLs.
  *
  * This constant defines the string value "/" which is commonly used as a separator in URLs.
@@ -64,6 +69,17 @@ public suspend inline fun HttpClient.list(block: HttpRequestBuilder.() -> Unit):
 public suspend inline fun HttpClient.list(builder: HttpRequestBuilder): HttpResponse {
     builder.method = HttpMethod.List
     return request(builder)
+}
+
+/**
+ * Decodes the response body as a JSON object and returns the value of the "auth" field.
+ *
+ * @receiver HttpResponse the HTTP response that contains the body to extract the JSON field from.
+ * @param format Format to use to decode the JSON object.
+ * @return Decoded value of the specified field.
+ */
+internal suspend inline fun <reified T> HttpResponse.decodeBodyJsonAuthFieldObject(format: Json = VaultClient.json): T {
+    return decodeBodyJsonFieldObject(AUTH_FIELD_RESPONSE, format)
 }
 
 /**

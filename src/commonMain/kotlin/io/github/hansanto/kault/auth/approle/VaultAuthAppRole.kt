@@ -15,10 +15,10 @@ import io.github.hansanto.kault.auth.approle.response.LookUpSecretIdResponse
 import io.github.hansanto.kault.auth.approle.response.ReadRoleIdResponse
 import io.github.hansanto.kault.auth.approle.response.ReadRoleResponse
 import io.github.hansanto.kault.auth.approle.response.WriteSecretIdResponse
+import io.github.hansanto.kault.extension.decodeBodyJsonAuthFieldObject
 import io.github.hansanto.kault.extension.decodeBodyJsonDataFieldObject
 import io.github.hansanto.kault.extension.decodeBodyJsonDataFieldObjectOrNull
 import io.github.hansanto.kault.extension.decodeBodyJsonFieldArray
-import io.github.hansanto.kault.extension.decodeBodyJsonFieldObject
 import io.github.hansanto.kault.extension.list
 import io.github.hansanto.kault.response.StandardListResponse
 import io.ktor.client.HttpClient
@@ -425,7 +425,7 @@ public class VaultAuthAppRoleImpl(
             contentType(ContentType.Application.Json)
             setBody(payload)
         }
-        return response.decodeBodyJsonFieldObject("auth")
+        return response.decodeBodyJsonAuthFieldObject()
     }
 
     override suspend fun tidyTokens(): List<String> {
