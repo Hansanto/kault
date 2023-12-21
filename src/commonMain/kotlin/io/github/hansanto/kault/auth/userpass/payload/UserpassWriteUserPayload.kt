@@ -144,5 +144,4 @@ public data class UserpassWriteUserPayload(
             tokenType = tokenType
         )
     }
-
 }
