@@ -4,7 +4,10 @@ import io.github.hansanto.kault.BuilderDsl
 import io.github.hansanto.kault.ServiceBuilder
 import io.github.hansanto.kault.auth.VaultAuth
 import io.github.hansanto.kault.auth.userpass.payload.UserpassWriteUserPayload
+import io.github.hansanto.kault.auth.userpass.response.ReadUserResponse
+import io.github.hansanto.kault.extension.decodeBodyJsonDataFieldObject
 import io.ktor.client.HttpClient
+import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
@@ -42,6 +45,13 @@ public interface VaultAuthUserpass {
         username: String,
         payload: UserpassWriteUserPayload
     ): Boolean
+
+    /**
+     * Reads the properties of an existing username.
+     * @param username The username for the user.
+     * @return UserpassReadUserPayload
+     */
+    public suspend fun read(username: String): ReadUserResponse
 }
 
 /**
@@ -103,5 +113,15 @@ public class VaultAuthUserpassImpl(
             setBody(payload)
         }
         return response.status.isSuccess()
+    }
+
+    override suspend fun read(username: String): ReadUserResponse {
+        val response = client.get {
+            url {
+                appendPathSegments(path, "users", username)
+            }
+            contentType(ContentType.Application.Json)
+        }
+        return response.decodeBodyJsonDataFieldObject()
     }
 }

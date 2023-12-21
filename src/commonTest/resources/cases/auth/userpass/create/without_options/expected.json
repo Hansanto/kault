@@ -1,0 +1,11 @@
+{
+  "token_ttl": "0s",
+  "token_max_ttl": "0s",
+  "token_policies": [],
+  "token_bound_cidrs": [],
+  "token_explicit_max_ttl": "0s",
+  "token_no_default_policy": false,
+  "token_num_uses": 0,
+  "token_period": "0s",
+  "token_type": "default"
+}
