@@ -7,6 +7,8 @@ import io.github.hansanto.kault.VaultClient
 import io.github.hansanto.kault.auth.approle.VaultAuthAppRole
 import io.github.hansanto.kault.auth.approle.VaultAuthAppRoleImpl
 import io.github.hansanto.kault.auth.approle.response.LoginResponse
+import io.github.hansanto.kault.auth.userpass.VaultAuthUserpass
+import io.github.hansanto.kault.auth.userpass.VaultAuthUserpassImpl
 import io.ktor.client.HttpClient
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
@@ -24,7 +26,12 @@ public class VaultAuth(
     /**
      * Authentication appRole service.
      */
-    public val appRole: VaultAuthAppRole
+    public val appRole: VaultAuthAppRole,
+
+    /**
+     * Authentication username & password service.
+     */
+    public val userpass: VaultAuthUserpass
 ) {
 
     public companion object {
@@ -71,10 +78,16 @@ public class VaultAuth(
          */
         private var appRoleBuilder: BuilderDsl<VaultAuthAppRoleImpl.Builder> = {}
 
+        /**
+         * Builder to define authentication username & password service.
+         */
+        private var userpassBuilder: BuilderDsl<VaultAuthUserpassImpl.Builder> = {}
+
         override fun buildWithFullPath(client: HttpClient, fullPath: String): VaultAuth {
             return VaultAuth(
                 token = token,
-                appRole = VaultAuthAppRoleImpl.Builder().apply(appRoleBuilder).build(client, fullPath)
+                appRole = VaultAuthAppRoleImpl.Builder().apply(appRoleBuilder).build(client, fullPath),
+                userpass = VaultAuthUserpassImpl.Builder().apply(userpassBuilder).build(client, fullPath)
             )
         }
 
@@ -85,6 +98,15 @@ public class VaultAuth(
          */
         public fun appRole(builder: BuilderDsl<VaultAuthAppRoleImpl.Builder>) {
             appRoleBuilder = builder
+        }
+
+        /**
+         * Sets the authentication username & password service builder.
+         *
+         * @param builder Builder to create [VaultAuthUserpassImpl] instance.
+         */
+        public fun userpass(builder: BuilderDsl<VaultAuthUserpassImpl.Builder>) {
+            userpassBuilder = builder
         }
     }
 
