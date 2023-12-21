@@ -50,7 +50,6 @@ class VaultAuthTest : FunSpec({
         auth.token = randomString()
         loginShouldReplaceToken(auth)
     }
-
 })
 
 private suspend fun loginShouldReplaceToken(auth: VaultAuth) {
