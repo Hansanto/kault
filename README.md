@@ -94,7 +94,7 @@ val client = VaultClient {
     // All options below are optional
     namespace = "my-namespace" // Enterprise plan feature
     auth {
-        token = "existing-token" // Can set or generated with the client
+        token = "existing-token" // Can be set here or get after from API
         appRole {
             path = "approle"
         }
@@ -102,4 +102,22 @@ val client = VaultClient {
     }
     // Other options ...
 }
+````
+
+### Generate a token
+
+````kotlin
+TODO
+````
+
+### Read a secret
+
+````kotlin
+TODO
+````
+
+### Write a secret
+
+````kotlin
+TODO
 ````
