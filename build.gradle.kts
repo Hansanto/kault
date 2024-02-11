@@ -19,7 +19,7 @@ plugins {
 
 val signingKey: String? = System.getenv("SIGNING_KEY")
 val signingPassword: String? = System.getenv("SIGNING_PASSWORD")
-if(signingKey != null && signingPassword != null) {
+if (signingKey != null && signingPassword != null) {
     signing {
         useInMemoryPgpKeys(signingKey, signingPassword)
         sign(publishing.publications)
