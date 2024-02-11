@@ -19,6 +19,7 @@ dependencyResolutionManagement {
             version("dokka", "1.9.10")
             version("detekt", "1.23.1")
             version("ktlint", "11.6.1")
+            version("publish", "2.0.0-rc-2")
 
             plugin("kt-multiplatform", "org.jetbrains.kotlin.multiplatform").versionRef("kotlin")
             plugin("kt-serialization", "org.jetbrains.kotlin.plugin.serialization").versionRef("kotlin")
@@ -27,6 +28,7 @@ dependencyResolutionManagement {
             plugin("detekt", "io.gitlab.arturbosch.detekt").versionRef("detekt")
             plugin("ktlint", "org.jlleitschuh.gradle.ktlint").versionRef("ktlint")
             plugin("resources", "com.goncalossilva.resources").versionRef("resources")
+            plugin("gradle-publish", "io.github.gradle-nexus.publish-plugin").versionRef("publish")
 
             library("ktor-core", "io.ktor", "ktor-client-core").versionRef("ktor")
             library("ktor-serialization", "io.ktor", "ktor-client-serialization").versionRef("ktor")
