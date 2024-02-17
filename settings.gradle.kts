@@ -19,7 +19,7 @@ dependencyResolutionManagement {
             version("dokka", "1.9.10")
             version("detekt", "1.23.1")
             version("ktlint", "11.6.1")
-            version("publish", "2.0.0-rc-2")
+            version("publish", "1.3.0")
 
             plugin("kt-multiplatform", "org.jetbrains.kotlin.multiplatform").versionRef("kotlin")
             plugin("kt-serialization", "org.jetbrains.kotlin.plugin.serialization").versionRef("kotlin")
