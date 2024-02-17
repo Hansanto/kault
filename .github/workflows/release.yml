@@ -1,0 +1,43 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    outputs:
+      release_created: ${{ steps.release.outputs.release_created }}
+      tag_name: ${{ steps.release.outputs.tag_name }}
+
+    steps:
+      - uses: google-github-actions/release-please-action@v4
+        id: release
+
+  publish:
+    needs: release
+    runs-on: ubuntu-latest
+    if: ${{ needs.release.outputs.release_created }}
+    steps:
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Initialization
+        uses: ./.github/actions/init
+
+      - name: Build
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: publishToSonatype closeAndReleaseSonatypeStagingRepository
+        env:
+          REPOSITORY_USERNAME: ${{ secrets.REPOSITORY_USERNAME }}
+          REPOSITORY_PASSWORD: ${{ secrets.REPOSITORY_PASSWORD }}
+          SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
+          SIGNING_PASSWORD: ${{ secrets.SIGNING_PASSWORD }}

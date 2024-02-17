@@ -11,8 +11,30 @@ plugins {
         alias(detekt)
         alias(ktlint)
         alias(resources)
+        alias(gradle.publish)
     }
     `maven-publish`
+    signing
+}
+
+val signingKey: String? = System.getenv("SIGNING_KEY")
+val signingPassword: String? = System.getenv("SIGNING_PASSWORD")
+if (signingKey != null && signingPassword != null) {
+    signing {
+        useInMemoryPgpKeys(signingKey, signingPassword)
+        sign(publishing.publications)
+    }
+}
+
+nexusPublishing {
+    repositories {
+        sonatype {
+            nexusUrl.set(uri("https://s01.oss.sonatype.org/service/local/"))
+            snapshotRepositoryUrl.set(uri("https://s01.oss.sonatype.org/content/repositories/snapshots/"))
+            username.set(System.getenv("REPOSITORY_USERNAME"))
+            password.set(System.getenv("REPOSITORY_PASSWORD"))
+        }
+    }
 }
 
 repositories {
