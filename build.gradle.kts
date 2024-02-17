@@ -137,6 +137,29 @@ kotlin {
 }
 
 val dokkaOutputDir = "${rootProject.projectDir}/dokka"
+
+val deleteDokkaOutputDir by tasks.register<Delete>("deleteDokkaOutputDirectory") {
+    group = JavaBasePlugin.DOCUMENTATION_GROUP
+    description = "Deletes the dokka output directory."
+    delete(dokkaOutputDir)
+}
+
+val javadocJar = tasks.register<Jar>("docJar") {
+    group = JavaBasePlugin.DOCUMENTATION_GROUP
+    description = "Creates a jar containing the documentation."
+    dependsOn(deleteDokkaOutputDir, tasks.dokkaHtml)
+    archiveClassifier.set("javadoc")
+    from(dokkaOutputDir)
+}
+
+//region Fix Gradle warning about signing tasks using publishing task outputs without explicit dependencies
+// https://github.com/gradle/gradle/issues/26091
+tasks.withType<AbstractPublishToMaven>().configureEach {
+    val signingTasks = tasks.withType<Sign>()
+    mustRunAfter(signingTasks)
+}
+//endregion
+
 tasks {
     configure<org.jlleitschuh.gradle.ktlint.KtlintExtension> {
         reporters {
@@ -169,13 +192,59 @@ tasks {
         delete(dokkaOutputDir)
     }
 
-    val deleteDokkaOutputDir by register<Delete>("deleteDokkaOutputDirectory") {
-        group = "documentation"
-        delete(dokkaOutputDir)
-    }
-
     dokkaHtml.configure {
         dependsOn(deleteDokkaOutputDir)
         outputDirectory.set(file(dokkaOutputDir))
+    }
+}
+
+publishing {
+    publications {
+        val projectName = project.name
+        val projectOrganizationPath = "Hansanto/$projectName"
+        val projectGitUrl = "https://github.com/$projectOrganizationPath"
+
+        withType<MavenPublication> {
+            artifact(javadocJar)
+            pom {
+                name.set(rootProject.name)
+                description.set(project.description)
+                url.set(projectGitUrl)
+
+                issueManagement {
+                    system.set("GitHub")
+                    url.set("$projectGitUrl/issues")
+                }
+
+                ciManagement {
+                    system.set("GitHub Actions")
+                }
+
+                licenses {
+                    license {
+                        name.set("Apache-2.0")
+                        url.set("https://www.apache.org/licenses/")
+                    }
+                }
+
+                developers {
+                    developer {
+                        name.set("Hansanto")
+                        email.set("anthony.hanson@outlook.fr")
+                        url.set("https://github.com/Hansanto")
+                    }
+                }
+
+                scm {
+                    connection.set("scm:git:$projectGitUrl.git")
+                    developerConnection.set("scm:git:git@github.com:$projectOrganizationPath.git")
+                    url.set(projectGitUrl)
+                }
+
+                distributionManagement {
+                    downloadUrl.set("$projectGitUrl/releases")
+                }
+            }
+        }
     }
 }
