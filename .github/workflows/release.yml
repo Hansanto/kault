@@ -31,11 +31,6 @@ jobs:
 
       - name: Initialization
         uses: ./.github/actions/init
-        with:
-          jdk: 8
-
-      - name: Docker up
-        run: docker-compose up -d
 
       - name: Build
         uses: gradle/gradle-build-action@v2

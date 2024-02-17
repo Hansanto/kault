@@ -2,6 +2,8 @@ name: Build
 
 on:
   push:
+    branches-ignore:
+      - "v*" # Skip tags
 
 concurrency:
   group: build-${{ github.ref }}
