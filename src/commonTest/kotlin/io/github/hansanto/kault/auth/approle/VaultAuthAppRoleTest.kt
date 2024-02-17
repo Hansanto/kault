@@ -1,6 +1,5 @@
 package io.github.hansanto.kault.auth.approle
 
-import io.github.hansanto.kault.STRING_REPLACE
 import io.github.hansanto.kault.VaultClient
 import io.github.hansanto.kault.auth.approle.payload.CreateCustomSecretIDPayload
 import io.github.hansanto.kault.auth.approle.payload.CreateOrUpdatePayload
@@ -13,6 +12,7 @@ import io.github.hansanto.kault.auth.approle.response.ReadRoleResponse
 import io.github.hansanto.kault.auth.approle.response.WriteSecretIdResponse
 import io.github.hansanto.kault.exception.VaultAPIException
 import io.github.hansanto.kault.system.auth.enable
+import io.github.hansanto.kault.util.STRING_REPLACE
 import io.github.hansanto.kault.util.createVaultClient
 import io.github.hansanto.kault.util.readJson
 import io.kotest.assertions.throwables.shouldNotThrow
