@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.1](https://github.com/Hansanto/kault/compare/v1.0.0...v1.0.1) (2024-02-17)
+
+
+### Bug Fixes
+
+* **publish:** Add description and build JVM jar ([#21](https://github.com/Hansanto/kault/issues/21)) ([e98c2a2](https://github.com/Hansanto/kault/commit/e98c2a27936ed5077bd7bb895f2f029ebe8cb581))
+
 ## [1.0.0](https://github.com/Hansanto/kault/compare/v0.0.1...v1.0.0) (2024-02-17)
 
 
