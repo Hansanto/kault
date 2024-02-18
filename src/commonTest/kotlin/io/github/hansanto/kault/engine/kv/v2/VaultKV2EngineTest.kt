@@ -2,7 +2,6 @@ package io.github.hansanto.kault.engine.kv.v2
 
 import io.github.hansanto.kault.BuilderDsl
 import io.github.hansanto.kault.VaultClient
-import io.github.hansanto.kault.auth.approle.VaultAuthAppRoleImpl
 import io.github.hansanto.kault.engine.kv.v2.payload.KvV2ConfigureRequest
 import io.github.hansanto.kault.engine.kv.v2.payload.KvV2SubKeysRequest
 import io.github.hansanto.kault.engine.kv.v2.payload.KvV2WriteMetadataRequest
