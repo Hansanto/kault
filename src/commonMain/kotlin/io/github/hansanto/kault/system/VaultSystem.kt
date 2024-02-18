@@ -56,11 +56,6 @@ public class VaultSystem(
      */
     public class Builder : ServiceBuilder<VaultSystem>() {
 
-        /**
-         * @see [VaultAuth.token]
-         */
-        public var token: String? = null
-
         public override var path: String = Default.PATH
 
         /**
