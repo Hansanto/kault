@@ -2,6 +2,7 @@ package io.github.hansanto.kault.engine.kv.v2
 
 import io.github.hansanto.kault.BuilderDsl
 import io.github.hansanto.kault.VaultClient
+import io.github.hansanto.kault.auth.approle.VaultAuthAppRoleImpl
 import io.github.hansanto.kault.engine.kv.v2.payload.KvV2ConfigureRequest
 import io.github.hansanto.kault.engine.kv.v2.payload.KvV2SubKeysRequest
 import io.github.hansanto.kault.engine.kv.v2.payload.KvV2WriteMetadataRequest
@@ -44,6 +45,21 @@ class VaultKV2EngineTest : FunSpec({
 
     afterSpec {
         client.close()
+    }
+
+    test("builder default variables should be set correctly") {
+        VaultKV2EngineImpl.Default.PATH shouldBe "secret"
+    }
+
+    test("builder should set values correctly") {
+        val randomPath = randomString()
+        val parentPath = randomString()
+
+        val built = VaultKV2EngineImpl(client.client, parentPath) {
+            path = randomPath
+        }
+
+        built.path shouldBe "$parentPath/$randomPath"
     }
 
     test("configure without options") {

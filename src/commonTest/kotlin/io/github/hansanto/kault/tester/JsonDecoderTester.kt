@@ -1,4 +1,4 @@
-package io.github.hansanto.kault.test
+package io.github.hansanto.kault.tester
 
 import io.github.hansanto.kault.util.ComplexSerializableClass
 import io.github.hansanto.kault.util.SimpleSerializableClass
@@ -10,19 +10,19 @@ import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.encodeToJsonElement
 import kotlinx.serialization.json.jsonObject
 
-object JsonObjectDecoderTester {
+object JsonDecoderTester {
 
     fun testDecode(
         scope: FunSpec,
         createAndRetrieve: (JsonObject?) -> ComplexSerializableClass?
     ) {
-        scope.test("should decode custom metadata") {
+        scope.test("should decode value") {
             val value = createSerializableObject()
             val customMetadata = Json.encodeToJsonElement(value).jsonObject
             createAndRetrieve(customMetadata) shouldBe value
         }
 
-        scope.test("should return null when data is null") {
+        scope.test("should return null when value is null") {
             createAndRetrieve(null) shouldBe null
         }
 

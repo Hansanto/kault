@@ -1,6 +1,6 @@
 package io.github.hansanto.kault.engine.kv.v2.response
 
-import io.github.hansanto.kault.test.JsonObjectDecoderTester
+import io.github.hansanto.kault.tester.JsonDecoderTester
 import io.github.hansanto.kault.util.ComplexSerializableClass
 import io.kotest.core.spec.style.FunSpec
 import kotlinx.datetime.Instant
@@ -8,7 +8,7 @@ import kotlinx.serialization.json.JsonObject
 
 class KvV2WriteResponseTest : FunSpec({
 
-    JsonObjectDecoderTester.testDecode(this) {
+    JsonDecoderTester.testDecode(this) {
         val response = createResponse(it)
         response.customMetadata<ComplexSerializableClass>()
     }

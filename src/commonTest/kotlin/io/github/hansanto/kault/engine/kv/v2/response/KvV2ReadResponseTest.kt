@@ -1,7 +1,7 @@
 package io.github.hansanto.kault.engine.kv.v2.response
 
 import io.github.hansanto.kault.common.Metadata
-import io.github.hansanto.kault.test.JsonObjectDecoderTester
+import io.github.hansanto.kault.tester.JsonDecoderTester
 import io.github.hansanto.kault.util.ComplexSerializableClass
 import io.github.hansanto.kault.util.randomBoolean
 import io.kotest.core.spec.style.FunSpec
@@ -42,7 +42,7 @@ class KvV2ReadResponseTest : FunSpec({
         response.isDestroyed() shouldBe false
     }
 
-    JsonObjectDecoderTester.testDecode(this) {
+    JsonDecoderTester.testDecode(this) {
         val response = createResponse(it)
         response.data<ComplexSerializableClass>()
     }
