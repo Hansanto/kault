@@ -276,10 +276,6 @@ public class VaultKV2EngineImpl(
      */
     public class Builder : ServiceBuilder<VaultKV2EngineImpl>() {
 
-        /**
-         * The path to the KV mount to interact with, such as secret. This is specified as part of the URL.
-         * [Documentation](https://developer.hashicorp.com/vault/api-docs/secret/kv/kv-v2)
-         */
         public override var path: String = Default.PATH
 
         override fun buildWithFullPath(client: HttpClient, fullPath: String): VaultKV2EngineImpl = VaultKV2EngineImpl(
