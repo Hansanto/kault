@@ -42,5 +42,4 @@ object JsonObjectDecoderTester {
     }
 
     private fun createSerializableObject() = ComplexSerializableClass("value", 1, SimpleSerializableClass("value2", 2))
-
 }

@@ -1,6 +1,5 @@
 package io.github.hansanto.kault.system.audit.payload
 
-import io.github.hansanto.kault.auth.approle.payload.CreateCustomSecretIDPayload
 import io.github.hansanto.kault.system.audit.common.AuditType
 import io.github.hansanto.kault.util.randomBoolean
 import io.github.hansanto.kault.util.randomString

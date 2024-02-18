@@ -17,7 +17,8 @@ class KvV2ReadResponseTest : FunSpec({
     }
 
     test("is deleted should return false when data is not null") {
-        val response = KvV2ReadResponse(JsonObject(emptyMap()),
+        val response = KvV2ReadResponse(
+            JsonObject(emptyMap()),
             createResponse(randomBoolean())
         )
         response.isDeleted() shouldBe false
@@ -34,7 +35,8 @@ class KvV2ReadResponseTest : FunSpec({
     }
 
     test("is destroyed should return false when metadata is not destroyed") {
-        val response = KvV2ReadResponse(JsonObject(emptyMap()),
+        val response = KvV2ReadResponse(
+            JsonObject(emptyMap()),
             createResponse(false)
         )
         response.isDestroyed() shouldBe false
