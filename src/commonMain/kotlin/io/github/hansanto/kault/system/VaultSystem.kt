@@ -68,10 +68,10 @@ public class VaultSystem(
          */
         private var auditBuilder: BuilderDsl<VaultSystemAuditImpl.Builder> = {}
 
-        override fun buildWithFullPath(client: HttpClient, fullPath: String): VaultSystem {
+        override fun buildWithCompletePath(client: HttpClient, completePath: String): VaultSystem {
             return VaultSystem(
-                auth = VaultSystemAuthImpl.Builder().apply(authBuilder).build(client, fullPath),
-                audit = VaultSystemAuditImpl.Builder().apply(auditBuilder).build(client, fullPath)
+                auth = VaultSystemAuthImpl.Builder().apply(authBuilder).build(client, completePath),
+                audit = VaultSystemAuditImpl.Builder().apply(auditBuilder).build(client, completePath)
             )
         }
 

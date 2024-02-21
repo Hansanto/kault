@@ -1,4 +1,4 @@
-package io.github.hansanto.kault.tester
+package io.github.hansanto.kault.compose
 
 import io.github.hansanto.kault.util.ComplexSerializableClass
 import io.github.hansanto.kault.util.SimpleSerializableClass
@@ -10,9 +10,9 @@ import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.encodeToJsonElement
 import kotlinx.serialization.json.jsonObject
 
-object JsonDecoderTester {
+object JsonDecoderComposer {
 
-    fun testDecode(
+    fun composeSerialFieldTest(
         scope: FunSpec,
         createAndRetrieve: (JsonObject?) -> ComplexSerializableClass?
     ) {

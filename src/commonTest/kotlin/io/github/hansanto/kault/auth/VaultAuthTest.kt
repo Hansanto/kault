@@ -44,6 +44,12 @@ class VaultAuthTest : FunSpec({
 
     test("builder default variables should be set correctly") {
         VaultAuth.Default.PATH shouldBe "auth"
+
+        val built = VaultAuth(client.client, null) {
+        }
+
+        built.token shouldBe null
+        (built.appRole as VaultAuthAppRoleImpl).path shouldBe "${VaultAuth.Default.PATH}/${VaultAuthAppRoleImpl.Default.PATH}"
     }
 
     test("builder should set values correctly") {

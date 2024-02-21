@@ -71,10 +71,10 @@ public class VaultAuth(
          */
         private var appRoleBuilder: BuilderDsl<VaultAuthAppRoleImpl.Builder> = {}
 
-        override fun buildWithFullPath(client: HttpClient, fullPath: String): VaultAuth {
+        override fun buildWithCompletePath(client: HttpClient, completePath: String): VaultAuth {
             return VaultAuth(
                 token = token,
-                appRole = VaultAuthAppRoleImpl.Builder().apply(appRoleBuilder).build(client, fullPath)
+                appRole = VaultAuthAppRoleImpl.Builder().apply(appRoleBuilder).build(client, completePath)
             )
         }
 
