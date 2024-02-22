@@ -4,6 +4,7 @@ import io.github.hansanto.kault.VaultClient
 import io.github.hansanto.kault.system.audit.payload.AuditingEnableDevicePayload
 import io.github.hansanto.kault.system.audit.response.AuditingDeviceResponse
 import io.github.hansanto.kault.util.createVaultClient
+import io.github.hansanto.kault.util.randomString
 import io.github.hansanto.kault.util.readJson
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
@@ -24,6 +25,26 @@ class VaultSystemAuditTest : FunSpec({
 
     afterSpec {
         client.close()
+    }
+
+    test("builder default variables should be set correctly") {
+        VaultSystemAuditImpl.Default.PATH shouldBe "audit"
+
+        val built = VaultSystemAuditImpl(client.client, null) {
+        }
+
+        built.path shouldBe VaultSystemAuditImpl.Default.PATH
+    }
+
+    test("builder should set values correctly") {
+        val randomPath = randomString()
+        val parentPath = randomString()
+
+        val built = VaultSystemAuditImpl(client.client, parentPath) {
+            path = randomPath
+        }
+
+        built.path shouldBe "$parentPath/$randomPath"
     }
 
     test("list without audit enabled") {

@@ -12,6 +12,7 @@ dependencyResolutionManagement {
             version("ktor", "3.0.0-beta-1")
             version("kotlin-serialization", "1.6.0")
             version("kotest", "5.8.0")
+            version("kover", "0.7.6")
             version("kotlinx-datetime", "0.4.1")
             version("kotlinx-coroutines", "1.7.3")
             version("resources", "0.4.0")
@@ -19,14 +20,17 @@ dependencyResolutionManagement {
             version("dokka", "1.9.10")
             version("detekt", "1.23.1")
             version("ktlint", "11.6.1")
+            version("publish", "1.3.0")
 
             plugin("kt-multiplatform", "org.jetbrains.kotlin.multiplatform").versionRef("kotlin")
             plugin("kt-serialization", "org.jetbrains.kotlin.plugin.serialization").versionRef("kotlin")
             plugin("kotest", "io.kotest.multiplatform").versionRef("kotest")
+            plugin("kover", "org.jetbrains.kotlinx.kover").versionRef("kover")
             plugin("dokka", "org.jetbrains.dokka").versionRef("dokka")
             plugin("detekt", "io.gitlab.arturbosch.detekt").versionRef("detekt")
             plugin("ktlint", "org.jlleitschuh.gradle.ktlint").versionRef("ktlint")
             plugin("resources", "com.goncalossilva.resources").versionRef("resources")
+            plugin("gradle-publish", "io.github.gradle-nexus.publish-plugin").versionRef("publish")
 
             library("ktor-core", "io.ktor", "ktor-client-core").versionRef("ktor")
             library("ktor-serialization", "io.ktor", "ktor-client-serialization").versionRef("ktor")
@@ -62,7 +66,7 @@ dependencyResolutionManagement {
 }
 
 plugins {
-    id("org.gradle.toolchains.foojay-resolver-convention") version "0.7.0"
+    id("org.gradle.toolchains.foojay-resolver-convention") version "0.8.0"
 }
 
 rootProject.name = "kault"

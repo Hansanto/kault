@@ -95,7 +95,10 @@ public interface VaultSystemAuth {
      * @param path Specifies the path in which to tune.
      * @return Response.
      */
-    public suspend fun tune(path: String, payload: AuthTuneConfigurationParametersPayload = AuthTuneConfigurationParametersPayload()): Boolean
+    public suspend fun tune(
+        path: String,
+        payload: AuthTuneConfigurationParametersPayload = AuthTuneConfigurationParametersPayload()
+    ): Boolean
 }
 
 /**
@@ -147,10 +150,11 @@ public class VaultSystemAuthImpl(
 
         public override var path: String = Default.PATH
 
-        override fun buildWithFullPath(client: HttpClient, fullPath: String): VaultSystemAuthImpl = VaultSystemAuthImpl(
-            client = client,
-            path = fullPath
-        )
+        override fun buildWithCompletePath(client: HttpClient, completePath: String): VaultSystemAuthImpl =
+            VaultSystemAuthImpl(
+                client = client,
+                path = completePath
+            )
     }
 
     override suspend fun list(): Map<String, AuthReadConfigurationResponse> {

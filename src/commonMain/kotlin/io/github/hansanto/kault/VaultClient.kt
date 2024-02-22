@@ -158,7 +158,7 @@ public class VaultClient(
                 namespace = this.namespace,
                 auth = VaultAuth(client, null, this.authBuilder),
                 system = VaultSystem(client, null, this.sysBuilder),
-                secret = VaultSecretEngine(client, this.secretBuilder)
+                secret = VaultSecretEngine(client, null, this.secretBuilder)
             ).also { vaultClient = it }
         }
 

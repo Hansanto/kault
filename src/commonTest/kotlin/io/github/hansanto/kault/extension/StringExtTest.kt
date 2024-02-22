@@ -8,7 +8,15 @@ class StringExtTest : FunSpec({
     test("add url child path with empty parent and child") {
         val parent = ""
         val child = ""
-        val expected = "/"
+        val expected = ""
+        val actual = parent.addURLChildPath(child)
+        actual shouldBe expected
+    }
+
+    test("add url child path with empty parent and non-empty child with leading slash") {
+        val parent = "/"
+        val child = "/test/"
+        val expected = "test"
         val actual = parent.addURLChildPath(child)
         actual shouldBe expected
     }
@@ -16,7 +24,7 @@ class StringExtTest : FunSpec({
     test("add url child path with empty parent and non-empty child") {
         val parent = ""
         val child = "v1"
-        val expected = "/v1"
+        val expected = "v1"
         val actual = parent.addURLChildPath(child)
         actual shouldBe expected
     }

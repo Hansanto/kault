@@ -1,11 +1,15 @@
 package io.github.hansanto.kault.auth
 
 import io.github.hansanto.kault.BuilderDsl
+import io.github.hansanto.kault.KaultDsl
 import io.github.hansanto.kault.ServiceBuilder
 import io.github.hansanto.kault.VaultClient
 import io.github.hansanto.kault.auth.approle.VaultAuthAppRole
 import io.github.hansanto.kault.auth.approle.VaultAuthAppRoleImpl
+import io.github.hansanto.kault.auth.approle.response.LoginResponse
 import io.ktor.client.HttpClient
+import kotlin.contracts.InvocationKind
+import kotlin.contracts.contract
 
 /**
  * Service to interact with Vault auth API.
@@ -67,10 +71,10 @@ public class VaultAuth(
          */
         private var appRoleBuilder: BuilderDsl<VaultAuthAppRoleImpl.Builder> = {}
 
-        override fun buildWithFullPath(client: HttpClient, fullPath: String): VaultAuth {
+        override fun buildWithCompletePath(client: HttpClient, completePath: String): VaultAuth {
             return VaultAuth(
                 token = token,
-                appRole = VaultAuthAppRoleImpl.Builder().apply(appRoleBuilder).build(client, fullPath)
+                appRole = VaultAuthAppRoleImpl.Builder().apply(appRoleBuilder).build(client, completePath)
             )
         }
 
@@ -82,5 +86,21 @@ public class VaultAuth(
         public fun appRole(builder: BuilderDsl<VaultAuthAppRoleImpl.Builder>) {
             appRoleBuilder = builder
         }
+    }
+
+    /**
+     * Process the login request using [VaultAuth]'s service and set the [token][VaultAuth.token] from the response.
+     *
+     * Example of usage:
+     * ```kotlin
+     * login { appRole.login(payload) }
+     * ```
+     * @param loginRequest Function to authenticate and return the response.
+     */
+    public inline fun login(loginRequest: @KaultDsl VaultAuth.() -> LoginResponse) {
+        contract {
+            callsInPlace(loginRequest, InvocationKind.EXACTLY_ONCE)
+        }
+        token = loginRequest(this).clientToken
     }
 }

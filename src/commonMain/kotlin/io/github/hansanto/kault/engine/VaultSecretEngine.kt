@@ -2,6 +2,7 @@ package io.github.hansanto.kault.engine
 
 import io.github.hansanto.kault.BuilderDsl
 import io.github.hansanto.kault.KaultDsl
+import io.github.hansanto.kault.ServiceBuilder
 import io.github.hansanto.kault.engine.kv.v2.VaultKV2Engine
 import io.github.hansanto.kault.engine.kv.v2.VaultKV2EngineImpl
 import io.ktor.client.HttpClient
@@ -23,28 +24,27 @@ public class VaultSecretEngine(
          */
         public inline operator fun invoke(
             client: HttpClient,
+            parentPath: String?,
             builder: BuilderDsl<Builder>
-        ): VaultSecretEngine = Builder().apply(builder).build(client)
+        ): VaultSecretEngine = Builder().apply(builder).build(client, parentPath)
     }
 
     /**
      * Builder class to simplify the creation of [VaultSecretEngine].
      */
     @KaultDsl
-    public class Builder {
+    public class Builder : ServiceBuilder<VaultSecretEngine>() {
+
+        override var path: String = ""
 
         /**
          * Builder to define the key-value version 2 service.
          */
         private var kv2Builder: BuilderDsl<VaultKV2EngineImpl.Builder> = {}
 
-        /**
-         * Build the instance of [VaultSecretEngine] with the values defined in builder.
-         * @return A new instance.
-         */
-        public fun build(client: HttpClient): VaultSecretEngine {
+        override fun buildWithCompletePath(client: HttpClient, completePath: String): VaultSecretEngine {
             return VaultSecretEngine(
-                kv2 = VaultKV2EngineImpl.Builder().apply(kv2Builder).build(client)
+                kv2 = VaultKV2EngineImpl.Builder().apply(kv2Builder).build(client, completePath)
             )
         }
 
