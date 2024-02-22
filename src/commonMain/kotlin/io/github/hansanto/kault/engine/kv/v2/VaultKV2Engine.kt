@@ -148,7 +148,10 @@ public interface VaultKV2Engine {
      * @param payload Specifies the options for reading the secret subkeys.
      * @return Response.
      */
-    public suspend fun readSecretSubKeys(path: String, payload: KvV2SubKeysRequest = KvV2SubKeysRequest()): KvV2ReadSubkeysResponse
+    public suspend fun readSecretSubKeys(
+        path: String,
+        payload: KvV2SubKeysRequest = KvV2SubKeysRequest()
+    ): KvV2ReadSubkeysResponse
 
     /**
      * This endpoint issues a soft delete of the secret's latest version at the specified location. This marks the version as deleted and will stop it from being returned from reads, but the underlying data will not be removed. A delete can be undone using the undelete path.
@@ -209,7 +212,10 @@ public interface VaultKV2Engine {
      * @param payload Payload to update the metadata.
      * @return True if the metadata was updated.
      */
-    public suspend fun createOrUpdateMetadata(path: String, payload: KvV2WriteMetadataRequest = KvV2WriteMetadataRequest()): Boolean
+    public suspend fun createOrUpdateMetadata(
+        path: String,
+        payload: KvV2WriteMetadataRequest = KvV2WriteMetadataRequest()
+    ): Boolean
 
     /**
      * This endpoint patches an existing metadata entry of a secret at the specified location. The calling token must have an ACL policy granting the patch capability. Currently, only JSON merge patch is supported and must be specified using a Content-Type header value of application/merge-patch+json. It does not create a new version.
@@ -218,7 +224,10 @@ public interface VaultKV2Engine {
      * @param payload Payload to update the metadata.
      * @return True if the metadata was updated.
      */
-    public suspend fun patchMetadata(path: String, payload: KvV2WriteMetadataRequest = KvV2WriteMetadataRequest()): Boolean
+    public suspend fun patchMetadata(
+        path: String,
+        payload: KvV2WriteMetadataRequest = KvV2WriteMetadataRequest()
+    ): Boolean
 
     /**
      * This endpoint permanently deletes the key metadata and all version data for the specified key. All version history will be removed.
@@ -276,16 +285,13 @@ public class VaultKV2EngineImpl(
      */
     public class Builder : ServiceBuilder<VaultKV2EngineImpl>() {
 
-        /**
-         * The path to the KV mount to interact with, such as secret. This is specified as part of the URL.
-         * [Documentation](https://developer.hashicorp.com/vault/api-docs/secret/kv/kv-v2)
-         */
         public override var path: String = Default.PATH
 
-        override fun buildWithFullPath(client: HttpClient, fullPath: String): VaultKV2EngineImpl = VaultKV2EngineImpl(
-            client = client,
-            path = fullPath
-        )
+        override fun buildWithCompletePath(client: HttpClient, completePath: String): VaultKV2EngineImpl =
+            VaultKV2EngineImpl(
+                client = client,
+                path = completePath
+            )
     }
 
     override suspend fun configure(payload: KvV2ConfigureRequest): Boolean {

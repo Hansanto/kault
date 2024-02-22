@@ -109,10 +109,11 @@ public class VaultSystemAuditImpl(
 
         public override var path: String = Default.PATH
 
-        override fun buildWithFullPath(client: HttpClient, fullPath: String): VaultSystemAuditImpl = VaultSystemAuditImpl(
-            client = client,
-            path = fullPath
-        )
+        override fun buildWithCompletePath(client: HttpClient, completePath: String): VaultSystemAuditImpl =
+            VaultSystemAuditImpl(
+                client = client,
+                path = completePath
+            )
     }
 
     override suspend fun list(): Map<String, AuditingDeviceResponse> {

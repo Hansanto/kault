@@ -46,6 +46,26 @@ class VaultKV2EngineTest : FunSpec({
         client.close()
     }
 
+    test("builder default variables should be set correctly") {
+        VaultKV2EngineImpl.Default.PATH shouldBe "secret"
+
+        val built = VaultKV2EngineImpl(client.client, null) {
+        }
+
+        built.path shouldBe VaultKV2EngineImpl.Default.PATH
+    }
+
+    test("builder should set values correctly") {
+        val randomPath = randomString()
+        val parentPath = randomString()
+
+        val built = VaultKV2EngineImpl(client.client, parentPath) {
+            path = randomPath
+        }
+
+        built.path shouldBe "$parentPath/$randomPath"
+    }
+
     test("configure without options") {
         val currentConfiguration = kv2.readConfiguration()
         kv2.configure() shouldBe true
@@ -407,14 +427,16 @@ class VaultKV2EngineTest : FunSpec({
 
     test("create or update metadata with non existing secret") {
         val path = randomString()
-        val writeGiven = readJson<KvV2WriteMetadataRequest>("cases/engine/kv/v2/update_metadata/without_secret/given.json")
+        val writeGiven =
+            readJson<KvV2WriteMetadataRequest>("cases/engine/kv/v2/update_metadata/without_secret/given.json")
         kv2.createOrUpdateMetadata(path, writeGiven) shouldBe true
 
         val readResponse = kv2.readSecretMetadata(path)
-        val expected = readJson<KvV2ReadMetadataResponse>("cases/engine/kv/v2/update_metadata/without_secret/expected.json").copy(
-            createdTime = readResponse.createdTime,
-            updatedTime = readResponse.updatedTime
-        )
+        val expected =
+            readJson<KvV2ReadMetadataResponse>("cases/engine/kv/v2/update_metadata/without_secret/expected.json").copy(
+                createdTime = readResponse.createdTime,
+                updatedTime = readResponse.updatedTime
+            )
         readResponse shouldBe expected
     }
 
@@ -444,7 +466,8 @@ class VaultKV2EngineTest : FunSpec({
 
     test("patch metadata with non existing secret") {
         val path = randomString()
-        val writeGiven = readJson<KvV2WriteMetadataRequest>("cases/engine/kv/v2/update_metadata/without_secret/given.json")
+        val writeGiven =
+            readJson<KvV2WriteMetadataRequest>("cases/engine/kv/v2/update_metadata/without_secret/given.json")
         kv2.patchMetadata(path, writeGiven) shouldBe false
 
         shouldThrow<VaultAPIException> {

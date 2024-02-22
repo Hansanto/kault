@@ -6,3 +6,11 @@ fun randomString(
 ): String {
     return List(size) { allowedChar.random() }.joinToString("")
 }
+
+fun randomBoolean(): Boolean {
+    return listOf(true, false).random()
+}
+
+fun randomLong(range: LongRange = 0L..100L): Long {
+    return range.random()
+}

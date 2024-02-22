@@ -7,6 +7,7 @@ plugins {
         alias(kt.multiplatform)
         alias(kt.serialization)
         alias(kotest)
+        alias(kover)
         alias(dokka)
         alias(detekt)
         alias(ktlint)
@@ -42,10 +43,24 @@ repositories {
     maven("https://maven.pkg.jetbrains.space/public/p/ktor/eap")
 }
 
+val reportFolder = file("reports")
+
 detekt {
     ignoreFailures = System.getenv("DETEKT_IGNORE_FAILURES")?.toBooleanStrictOrNull() ?: false
     config.from(file("config/detekt/detekt.yml"))
-    reportsDir = file("reports/detekt")
+    reportsDir = reportFolder.resolve("detekt")
+}
+
+koverReport {
+    val reportKoverFolder = reportFolder.resolve("kover")
+    defaults {
+        xml {
+            this.setReportFile(reportKoverFolder.resolve("xml/result.xml"))
+        }
+        html {
+            this.setReportDir(reportKoverFolder.resolve("html"))
+        }
+    }
 }
 
 kotlin {
@@ -136,7 +151,7 @@ kotlin {
     }
 }
 
-val dokkaOutputDir = "${rootProject.projectDir}/dokka"
+val dokkaOutputDir = file("dokka")
 
 val deleteDokkaOutputDir by tasks.register<Delete>("deleteDokkaOutputDirectory") {
     group = JavaBasePlugin.DOCUMENTATION_GROUP
@@ -169,7 +184,7 @@ tasks {
     }
 
     withType<org.jlleitschuh.gradle.ktlint.tasks.GenerateReportsTask> {
-        reportsOutputDirectory.set(file("reports/klint/$name"))
+        reportsOutputDirectory.set(reportFolder.resolve("klint/$name"))
     }
 
     withType<Detekt>().configureEach {

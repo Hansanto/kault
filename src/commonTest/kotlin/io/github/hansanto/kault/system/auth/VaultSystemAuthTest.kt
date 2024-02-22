@@ -7,6 +7,7 @@ import io.github.hansanto.kault.system.auth.payload.EnableMethodPayload
 import io.github.hansanto.kault.system.auth.response.AuthReadConfigurationResponse
 import io.github.hansanto.kault.system.auth.response.AuthReadTuningInformationResponse
 import io.github.hansanto.kault.util.createVaultClient
+import io.github.hansanto.kault.util.randomString
 import io.github.hansanto.kault.util.readJson
 import io.kotest.assertions.throwables.shouldNotThrow
 import io.kotest.assertions.throwables.shouldThrow
@@ -37,6 +38,26 @@ class VaultSystemAuthTest : FunSpec({
 
     afterSpec {
         client.close()
+    }
+
+    test("builder default variables should be set correctly") {
+        VaultSystemAuthImpl.Default.PATH shouldBe "auth"
+
+        val built = VaultSystemAuthImpl(client.client, null) {
+        }
+
+        built.path shouldBe VaultSystemAuthImpl.Default.PATH
+    }
+
+    test("builder should set values correctly") {
+        val randomPath = randomString()
+        val parentPath = randomString()
+
+        val built = VaultSystemAuthImpl(client.client, parentPath) {
+            path = randomPath
+        }
+
+        built.path shouldBe "$parentPath/$randomPath"
     }
 
     test("list with no additional auth methods") {
@@ -148,7 +169,8 @@ private suspend fun assertTune(
         type = DEFAULT_METHOD
     } shouldBe true
 
-    val payload = givenPath?.let { readJson<AuthTuneConfigurationParametersPayload>(it) } ?: AuthTuneConfigurationParametersPayload()
+    val payload = givenPath?.let { readJson<AuthTuneConfigurationParametersPayload>(it) }
+        ?: AuthTuneConfigurationParametersPayload()
     auth.tune(DEFAULT_METHOD, payload) shouldBe true
 
     val tuneInfo = auth.readTuning(DEFAULT_METHOD)
