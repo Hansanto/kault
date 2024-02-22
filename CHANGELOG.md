@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.2](https://github.com/Hansanto/kault/compare/v1.0.1...v1.0.2) (2024-02-22)
+
+
+### Bug Fixes
+
+* **publish:** Add pom information ([#23](https://github.com/Hansanto/kault/issues/23)) ([d7965e3](https://github.com/Hansanto/kault/commit/d7965e31eac5df822438d17df23fdc4172090d2e))
+
 ## [1.0.1](https://github.com/Hansanto/kault/compare/v1.0.0...v1.0.1) (2024-02-17)
 
 
