@@ -34,6 +34,17 @@ public annotation class KaultDsl
 public typealias BuilderDsl<T> = @KaultDsl T.() -> Unit
 
 /**
+ * Alias for defining a DSL function that applies a set of operations on a given object and returns a result.
+ * The generic type T represents the type in argument of the function,
+ * and the generic type R represents the return type of the function.
+ *
+ * ```kotlin
+ * fun example(body: BuilderResultDsl<Example, Result>) // fun example(body: @KaultDsl (Example) -> Result)
+ * ```
+ */
+public typealias BuilderResultDsl<T, R> = @KaultDsl (T) -> R
+
+/**
  * ServiceBuilder is an interface that defines the contract for building a service instance.
  *
  * @param T the type of the service that will be built.
