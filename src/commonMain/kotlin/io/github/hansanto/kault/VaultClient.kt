@@ -77,11 +77,9 @@ public class VaultClient(
         /**
          * Default headers builder.
          */
-        public val headers: BuilderResultDsl<VaultClient, Headers> = { client ->
-            buildMap {
-                put("X-Vault-Token", client.auth.token)
-                put("X-Vault-Namespace", client.namespace)
-            }
+        public val headers: BuilderDslWithArg<MutableMap<String, String?>, VaultClient> = { client ->
+            put("X-Vault-Token", client.auth.token)
+            put("X-Vault-Namespace", client.namespace)
         }
     }
 
@@ -113,7 +111,7 @@ public class VaultClient(
         /**
          * Builder to define headers to use in each request.
          */
-        private var headerBuilder: BuilderResultDsl<VaultClient, Headers> = Default.headers
+        private var headerBuilder: BuilderDslWithArg<MutableMap<String, String?>, VaultClient> = Default.headers
 
         /**
          * Builder to define authentication service.
@@ -135,7 +133,7 @@ public class VaultClient(
          * The token resolver is passed as parameter and must not be used before the client is built.
          * [Documentation](https://ktor.io/docs/clients-index.html)
          */
-        private var httpClientBuilder: BuilderResultDsl<() -> Headers, HttpClient>? = null
+        private var httpClientBuilder: ((() -> Headers) -> HttpClient)? = null
 
         /**
          * Build the instance of [VaultClient] with the values defined in builder.
@@ -143,7 +141,9 @@ public class VaultClient(
          */
         public fun build(): VaultClient {
             lateinit var vaultClient: VaultClient
-            val headerBuilder: () -> Headers = { headerBuilder(vaultClient) }
+            val headerBuilder: () -> Headers = {
+                buildMap { headerBuilder(vaultClient) }
+            }
             val client = httpClientBuilder?.invoke(headerBuilder) ?: createHttpClient(headerBuilder)
 
             return VaultClient(
@@ -160,7 +160,7 @@ public class VaultClient(
          *
          * @param builder Builder to create [Headers] instance.
          */
-        public fun headers(builder: BuilderResultDsl<VaultClient, Headers>) {
+        public fun headers(builder: BuilderDslWithArg<MutableMap<String, String?>, VaultClient>) {
             headerBuilder = builder
         }
 
@@ -194,9 +194,9 @@ public class VaultClient(
         /**
          * Sets the HTTP client builder.
          *
-         * @param builder Builder to create [HttpClientConfig] instance.
+         * @param builder Builder to create [HttpClientConfig] instance with the header builder as parameter.
          */
-        public fun httpClient(builder: BuilderResultDsl<() -> Headers, HttpClient>?) {
+        public fun httpClient(builder: ((() -> Headers) -> HttpClient)?) {
             httpClientBuilder = builder
         }
 
