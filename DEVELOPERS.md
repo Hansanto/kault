@@ -119,8 +119,7 @@ We follow the [Vault API documentation](https://developer.hashicorp.com/vault/ap
 corresponding
 services.
 
-For example, for the [developer.hashicorp.com/vault/api-docs/**auth/approle
-**](https://developer.hashicorp.com/vault/api-docs/auth/approle) url, the service is
+For example, for the [developer.hashicorp.com/vault/api-docs/auth/approle](https://developer.hashicorp.com/vault/api-docs/auth/approle) url, the service is
 located in the [auth/approle](src/commonMain/kotlin/io/github/hansanto/kault/auth/approle) package.
 
 That allows retrieving easily the service you need to use according to the Vault API documentation.
