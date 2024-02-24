@@ -14,13 +14,13 @@ fun createVaultClient(): VaultClient = VaultClient {
     auth {
         token = ROOT_TOKEN
     }
-    httpClient { tokenResolver, namespaceResolver ->
+    httpClient { headerBuilder ->
         HttpClient {
             install(Logging) {
                 logger = Logger.DEFAULT
                 level = LogLevel.INFO
             }
-            defaultHttpClientConfiguration(tokenResolver, namespaceResolver)
+            defaultHttpClientConfiguration(headerBuilder)
         }
     }
 }
