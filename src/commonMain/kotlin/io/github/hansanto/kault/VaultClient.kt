@@ -21,6 +21,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 
+/**
+ * Headers used in each request to the [VaultClient].
+ */
 public typealias Headers = Map<String, String?>
 
 /**
