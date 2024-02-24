@@ -21,7 +21,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 
-public typealias Headers = Map<String, () -> String?>
+public typealias Headers = Map<String, String?>
 
 /**
  * Client to interact with a Vault server.
@@ -79,11 +79,8 @@ public class VaultClient(
          */
         public val headers: BuilderResultDsl<VaultClient, Headers> = { client ->
             buildMap {
-                put("X-Vault-Token") {
-                    println("Is processing the token")
-                    client.auth.token
-                }
-                put("X-Vault-Namespace") { client.namespace }
+                put("X-Vault-Token", client.auth.token)
+                put("X-Vault-Namespace", client.namespace)
             }
         }
     }
@@ -116,11 +113,7 @@ public class VaultClient(
         /**
          * Builder to define headers to use in each request.
          */
-        private var headerBuilder: BuilderResultDsl<() -> VaultClient, () -> Headers> = { getClient ->
-            {
-                Default.headers(getClient())
-            }
-        }
+        private var headerBuilder: BuilderResultDsl<VaultClient, Headers> = Default.headers
 
         /**
          * Builder to define authentication service.
@@ -142,7 +135,7 @@ public class VaultClient(
          * The token resolver is passed as parameter and must not be used before the client is built.
          * [Documentation](https://ktor.io/docs/clients-index.html)
          */
-        private var httpClientBuilder: BuilderResultDsl<() -> Headers,  HttpClient>? = null
+        private var httpClientBuilder: BuilderResultDsl<() -> Headers, HttpClient>? = null
 
         /**
          * Build the instance of [VaultClient] with the values defined in builder.
@@ -150,7 +143,7 @@ public class VaultClient(
          */
         public fun build(): VaultClient {
             lateinit var vaultClient: VaultClient
-            val headerBuilder = headerBuilder { vaultClient }
+            val headerBuilder: () -> Headers = { headerBuilder(vaultClient) }
             val client = httpClientBuilder?.invoke(headerBuilder) ?: createHttpClient(headerBuilder)
 
             return VaultClient(
@@ -167,7 +160,7 @@ public class VaultClient(
          *
          * @param builder Builder to create [Headers] instance.
          */
-        public fun headers(builder: BuilderResultDsl<() -> VaultClient, () -> Headers>) {
+        public fun headers(builder: BuilderResultDsl<VaultClient, Headers>) {
             headerBuilder = builder
         }
 
@@ -203,28 +196,28 @@ public class VaultClient(
          *
          * @param builder Builder to create [HttpClientConfig] instance.
          */
-        public fun httpClient(builder: BuilderResultDsl<() -> Headers,  HttpClient>?) {
+        public fun httpClient(builder: BuilderResultDsl<() -> Headers, HttpClient>?) {
             httpClientBuilder = builder
         }
 
         /**
          * Creates an HttpClient with the default configuration.
          *
-         * @param headers Headers to use in each request.
+         * @param headerBuilder Builder to create [Headers] instance.
          * @return The configured [HttpClient] instance.
          */
-        private fun createHttpClient(headers: () -> Headers): HttpClient =
+        private inline fun createHttpClient(crossinline headerBuilder: () -> Headers): HttpClient =
             HttpClient {
-                defaultHttpClientConfiguration(headers)
+                defaultHttpClientConfiguration(headerBuilder)
             }
 
         /**
          * Configures the default HttpClient settings to interact with the Vault API.
          *
-         * @param headerBuilder Headers to use in each request.
+         * @param headerBuilder Builder to create [Headers] instance.
          * @return Function which can be used to configure the HttpClient.
          */
-        public fun HttpClientConfig<*>.defaultHttpClientConfiguration(headerBuilder: () -> Headers) {
+        public inline fun HttpClientConfig<*>.defaultHttpClientConfiguration(crossinline headerBuilder: () -> Headers) {
             install(ContentNegotiation) {
                 json(json)
             }
@@ -251,7 +244,7 @@ public class VaultClient(
                 url(baseUrl)
 
                 headerBuilder().forEach { (key, value) ->
-                    header(key, value())
+                    header(key, value)
                 }
             }
         }
