@@ -123,7 +123,7 @@ For example:
   url -> [auth](src/commonMain/kotlin/io/github/hansanto/kault/auth) package.
 - [/auth/approle](https://developer.hashicorp.com/vault/api-docs/auth/approle)
   url -> [auth/approle](src/commonMain/kotlin/io/github/hansanto/kault/auth/approle) package.
-- /[system](https://developer.hashicorp.com/vault/api-docs/system)
+- [/system](https://developer.hashicorp.com/vault/api-docs/system)
   url -> [system](src/commonMain/kotlin/io/github/hansanto/kault/system) package.
 
 That allows retrieving easily the service you need to use according to the Vault API documentation.
