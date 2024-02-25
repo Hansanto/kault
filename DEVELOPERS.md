@@ -116,10 +116,15 @@ To check the formatting:
 ## Design
 
 We follow the [Vault API documentation](https://developer.hashicorp.com/vault/api-docs) paths to create the
-corresponding
-services.
+corresponding services.
 
-For example, for the [developer.hashicorp.com/vault/api-docs/auth/approle](https://developer.hashicorp.com/vault/api-docs/auth/approle) url, the service is
-located in the [auth/approle](src/commonMain/kotlin/io/github/hansanto/kault/auth/approle) package.
+For example:
+
+- [/auth](https://developer.hashicorp.com/vault/api-docs/auth)
+  url -> [auth](src/commonMain/kotlin/io/github/hansanto/kault/auth) package.
+- [/auth/approle](https://developer.hashicorp.com/vault/api-docs/auth/approle)
+  url -> [auth/approle](src/commonMain/kotlin/io/github/hansanto/kault/auth/approle) package.
+- /[system](https://developer.hashicorp.com/vault/api-docs/system)
+  url -> [system](src/commonMain/kotlin/io/github/hansanto/kault/system) package.
 
 That allows retrieving easily the service you need to use according to the Vault API documentation.
