@@ -3,7 +3,6 @@
 | Element                                                                    | Usage                            |
 |----------------------------------------------------------------------------|----------------------------------|
 | [![](https://img.shields.io/badge/Kotlin-orange?logo=kotlin)](#kotlin)     | Development language             |
-| [![](https://img.shields.io/badge/Coroutines-orange?logo=kotlin)](#kotlin) | Asynchronous programming library |
 | [![](https://img.shields.io/badge/Gradle-blue?logo=gradle)](#gradle)       | Build tool                       |
 | [![](https://img.shields.io/badge/Docker-blue?logo=docker)](#docker)       | Test environment                 |
 
