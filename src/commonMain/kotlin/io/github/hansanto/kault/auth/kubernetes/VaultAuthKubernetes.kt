@@ -2,6 +2,7 @@ package io.github.hansanto.kault.auth.kubernetes
 
 import io.github.hansanto.kault.BuilderDsl
 import io.github.hansanto.kault.ServiceBuilder
+import io.github.hansanto.kault.auth.approle.response.LoginResponse
 import io.github.hansanto.kault.auth.kubernetes.payload.KubernetesConfigureAuthPayload
 import io.ktor.client.HttpClient
 import io.ktor.client.request.post
@@ -22,6 +23,61 @@ public interface VaultAuthKubernetes {
      * @return Returns true if the configuration was updated successfully.
      */
     public suspend fun configure(payload: KubernetesConfigureAuthPayload): Boolean
+
+    /**
+     * Reads the current configuration for the Kubernetes auth method.
+     * [Documentation](https://developer.hashicorp.com/vault/api-docs/auth/kubernetes#read-config)
+     * @return The previously configured config, excluding credentials.
+     */
+    public suspend fun readConfiguration(): Any
+
+    /**
+     * Registers a role in the auth method.
+     * Role types have specific entities that can perform login operations against this endpoint.
+     * Constraints specific to the role type must be set on the role.
+     * These are applied to the authenticated entities attempting to login.
+     * [Documentation](https://developer.hashicorp.com/vault/api-docs/auth/kubernetes#create-update-role)
+     * @param roleName Name of the role
+     * @param payload Optional parameters for creating or updating a role.
+     * @return Returns true if the role was created or updated successfully.
+     */
+    public suspend fun createOrUpdate(
+        roleName: String,
+        payload: Any
+    ): Boolean
+
+    /**
+     * Returns the previously registered role configuration.
+     * [Documentation](https://developer.hashicorp.com/vault/api-docs/auth/kubernetes#read-role)
+     * @param roleName Name of the role.
+     * @return Response.
+     */
+    public suspend fun read(roleName: String): Any
+
+    /**
+     * Lists all the roles that are registered with the auth method.
+     * [Documentation](https://developer.hashicorp.com/vault/api-docs/auth/kubernetes#list-roles)
+     * @return List of role names.
+     */
+    public suspend fun list(): List<String>
+
+    /**
+     * Deletes the role configuration.
+     * [Documentation](https://developer.hashicorp.com/vault/api-docs/auth/kubernetes#delete-role)
+     * @param roleName Name of the role.
+     * @return Returns true if the role was deleted successfully.
+     */
+    public suspend fun delete(roleName: String): Boolean
+
+    /**
+     * Fetch a token.
+     * This endpoint takes a signed JSON Web Token (JWT) and a role name for some entity.
+     * It verifies the JWT signature to authenticate that entity and then authorizes the entity for the given role.
+     * [Documentation](https://developer.hashicorp.com/vault/api-docs/auth/kubernetes#login)
+     * @param payload Parameters to login with Kubernetes.
+     * @return Response.
+     */
+    public suspend fun login(payload: Any): LoginResponse
 }
 
 /**
