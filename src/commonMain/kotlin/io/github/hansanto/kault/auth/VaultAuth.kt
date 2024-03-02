@@ -7,6 +7,8 @@ import io.github.hansanto.kault.VaultClient
 import io.github.hansanto.kault.auth.approle.VaultAuthAppRole
 import io.github.hansanto.kault.auth.approle.VaultAuthAppRoleImpl
 import io.github.hansanto.kault.auth.approle.response.LoginResponse
+import io.github.hansanto.kault.auth.kubernetes.VaultAuthKubernetes
+import io.github.hansanto.kault.auth.kubernetes.VaultAuthKubernetesImpl
 import io.ktor.client.HttpClient
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
@@ -24,7 +26,12 @@ public class VaultAuth(
     /**
      * Authentication appRole service.
      */
-    public val appRole: VaultAuthAppRole
+    public val appRole: VaultAuthAppRole,
+
+    /**
+     * Authentication kubernetes service.
+     */
+    public val kubernetes: VaultAuthKubernetes
 ) {
 
     public companion object {
@@ -71,10 +78,16 @@ public class VaultAuth(
          */
         private var appRoleBuilder: BuilderDsl<VaultAuthAppRoleImpl.Builder> = {}
 
+        /**
+         * Builder to define authentication kubernetes service.
+         */
+        private var kubernetesBuilder: BuilderDsl<VaultAuthKubernetesImpl.Builder> = {}
+
         override fun buildWithCompletePath(client: HttpClient, completePath: String): VaultAuth {
             return VaultAuth(
                 token = token,
-                appRole = VaultAuthAppRoleImpl.Builder().apply(appRoleBuilder).build(client, completePath)
+                appRole = VaultAuthAppRoleImpl.Builder().apply(appRoleBuilder).build(client, completePath),
+                kubernetes = VaultAuthKubernetesImpl.Builder().apply(kubernetesBuilder).build(client, completePath)
             )
         }
 
@@ -85,6 +98,15 @@ public class VaultAuth(
          */
         public fun appRole(builder: BuilderDsl<VaultAuthAppRoleImpl.Builder>) {
             appRoleBuilder = builder
+        }
+
+        /**
+         * Sets the authentication kubernetes service builder.
+         *
+         * @param builder Builder to create [VaultAuthKubernetesImpl] instance.
+         */
+        public fun kubernetes(builder: BuilderDsl<VaultAuthKubernetesImpl.Builder>) {
+            kubernetesBuilder = builder
         }
     }
 
