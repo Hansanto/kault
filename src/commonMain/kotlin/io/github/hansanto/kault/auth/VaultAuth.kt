@@ -3,7 +3,6 @@ package io.github.hansanto.kault.auth
 import io.github.hansanto.kault.BuilderDsl
 import io.github.hansanto.kault.KaultDsl
 import io.github.hansanto.kault.ServiceBuilder
-import io.github.hansanto.kault.VaultClient
 import io.github.hansanto.kault.auth.approle.VaultAuthAppRole
 import io.github.hansanto.kault.auth.approle.VaultAuthAppRoleImpl
 import io.github.hansanto.kault.auth.approle.response.LoginResponse
@@ -19,7 +18,6 @@ import kotlin.contracts.contract
 public class VaultAuth(
     /**
      * Token used to interact with API.
-     * This value is used through the header [VaultClient.Headers.token].
      */
     public var token: String? = null,
 
