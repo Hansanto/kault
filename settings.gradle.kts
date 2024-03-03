@@ -9,6 +9,7 @@ dependencyResolutionManagement {
     versionCatalogs {
         create("libs") {
             version("kotlin", "1.9.21")
+            version("kotlinx-io", "0.3.1")
             version("ktor", "3.0.0-beta-1")
             version("kotlin-serialization", "1.6.0")
             version("kotest", "5.8.0")
@@ -51,6 +52,7 @@ dependencyResolutionManagement {
             library("kotest-junit5", "io.kotest", "kotest-runner-junit5").versionRef("kotest")
             library("kotest-json", "io.kotest", "kotest-assertions-json").versionRef("kotest")
 
+            library("kotlinx-io", "org.jetbrains.kotlinx", "kotlinx-io-core").versionRef("kotlinx-io")
             library("resources", "com.goncalossilva", "resources").versionRef("resources")
 
             library("slf4j-simple", "org.slf4j", "slf4j-simple").versionRef("slf4j")

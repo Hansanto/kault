@@ -102,6 +102,7 @@ kotlin {
             languageSettings {
                 optIn("kotlin.contracts.ExperimentalContracts")
                 optIn("kotlinx.serialization.ExperimentalSerializationApi")
+                optIn("kotlin.ExperimentalStdlibApi")
             }
         }
 
@@ -117,6 +118,7 @@ kotlin {
                 implementation(libs.bundles.kotest.common)
                 implementation(libs.ktor.logging)
                 implementation(libs.resources)
+                implementation(libs.kotlinx.io)
             }
         }
 

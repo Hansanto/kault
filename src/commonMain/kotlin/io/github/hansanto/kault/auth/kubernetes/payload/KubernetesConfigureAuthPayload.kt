@@ -1,12 +1,8 @@
 package io.github.hansanto.kault.auth.kubernetes.payload
 
 import io.github.hansanto.kault.KaultDsl
-import io.github.hansanto.kault.auth.approle.payload.CreateCustomSecretIDPayload
-import io.github.hansanto.kault.extension.toJsonString
-import io.github.hansanto.kault.serializer.VaultDuration
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.builtins.serializer
 
 @Serializable
 public data class KubernetesConfigureAuthPayload(
@@ -28,7 +24,6 @@ public data class KubernetesConfigureAuthPayload(
      */
     @SerialName("kubernetes_ca_cert")
     public var kubernetesCaCert: String? = null,
-
 
     /**
      * Optional list of PEM-formated public keys or certificates used to verify the signatures of kubernetes service account JWTs. If a certificate is given, its public key will be extracted. Not every installation of Kubernetes exposes these keys.
@@ -87,5 +82,4 @@ public data class KubernetesConfigureAuthPayload(
             tokenReviewerJwt = tokenReviewerJwt
         )
     }
-
 }

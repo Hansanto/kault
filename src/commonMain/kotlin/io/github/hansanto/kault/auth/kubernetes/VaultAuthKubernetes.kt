@@ -3,8 +3,6 @@ package io.github.hansanto.kault.auth.kubernetes
 import io.github.hansanto.kault.BuilderDsl
 import io.github.hansanto.kault.ServiceBuilder
 import io.github.hansanto.kault.VaultClient
-import io.github.hansanto.kault.auth.approle.VaultAuthAppRole
-import io.github.hansanto.kault.auth.approle.payload.CreateOrUpdatePayload
 import io.github.hansanto.kault.auth.approle.response.LoginResponse
 import io.github.hansanto.kault.auth.kubernetes.payload.KubernetesConfigureAuthPayload
 import io.github.hansanto.kault.extension.decodeBodyJsonFieldObject
