@@ -2,15 +2,35 @@ package io.github.hansanto.kault.auth.kubernetes
 
 import io.github.hansanto.kault.BuilderDsl
 import io.github.hansanto.kault.ServiceBuilder
+import io.github.hansanto.kault.VaultClient
+import io.github.hansanto.kault.auth.approle.VaultAuthAppRole
+import io.github.hansanto.kault.auth.approle.payload.CreateOrUpdatePayload
 import io.github.hansanto.kault.auth.approle.response.LoginResponse
 import io.github.hansanto.kault.auth.kubernetes.payload.KubernetesConfigureAuthPayload
+import io.github.hansanto.kault.extension.decodeBodyJsonFieldObject
+import io.github.hansanto.kault.extension.list
 import io.ktor.client.HttpClient
+import io.ktor.client.request.delete
+import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.appendPathSegments
 import io.ktor.http.contentType
 import io.ktor.http.isSuccess
+import kotlin.contracts.InvocationKind
+import kotlin.contracts.contract
+
+/**
+ * @see VaultAuthKubernetes.configure(payload)
+ */
+public suspend inline fun VaultAuthKubernetes.configure(
+    payloadBuilder: BuilderDsl<KubernetesConfigureAuthPayload.Builder>
+): Boolean {
+    contract { callsInPlace(payloadBuilder, InvocationKind.EXACTLY_ONCE) }
+    val payload = KubernetesConfigureAuthPayload.Builder().apply(payloadBuilder).build()
+    return configure(payload)
+}
 
 /**
  * Provides methods for managing Kubernetes authentication within Vault.
@@ -139,5 +159,63 @@ public class VaultAuthKubernetesImpl(
             setBody(payload)
         }
         return response.status.isSuccess()
+    }
+
+    override suspend fun readConfiguration(): Any {
+        val response = client.get {
+            url {
+                appendPathSegments(path, "config")
+            }
+        }
+        return response.decodeBodyJsonFieldObject("data", VaultClient.json)
+    }
+
+    override suspend fun createOrUpdate(roleName: String, payload: Any): Boolean {
+        val response = client.post {
+            url {
+                appendPathSegments(path, "role", roleName)
+            }
+            contentType(ContentType.Application.Json)
+            setBody(payload)
+        }
+        return response.status.isSuccess()
+    }
+
+    override suspend fun read(roleName: String): Any {
+        val response = client.get {
+            url {
+                appendPathSegments(path, "role", roleName)
+            }
+        }
+        return response.decodeBodyJsonFieldObject("data", VaultClient.json)
+    }
+
+    override suspend fun list(): List<String> {
+        val response = client.list {
+            url {
+                appendPathSegments(path, "role")
+            }
+        }
+        return response.decodeBodyJsonFieldObject("data", VaultClient.json)
+    }
+
+    override suspend fun delete(roleName: String): Boolean {
+        val response = client.delete {
+            url {
+                appendPathSegments(path, "role", roleName)
+            }
+        }
+        return response.status.isSuccess()
+    }
+
+    override suspend fun login(payload: Any): LoginResponse {
+        val response = client.post {
+            url {
+                appendPathSegments(path, "login")
+            }
+            contentType(ContentType.Application.Json)
+            setBody(payload)
+        }
+        return response.decodeBodyJsonFieldObject("auth", VaultClient.json)
     }
 }
