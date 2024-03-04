@@ -47,9 +47,11 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Initialization
+        id: init
         uses: ./.github/actions/init
         with:
           jdk: 8
+          minikube: true
 
       - name: Docker up
         run: docker-compose up -d
@@ -58,3 +60,5 @@ jobs:
         uses: gradle/gradle-build-action@v3
         with:
           arguments: build
+        env:
+          MINIKUBE_IP: ${{ steps.init.outputs.minikube-ip }}

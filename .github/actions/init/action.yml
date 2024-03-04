@@ -5,6 +5,15 @@ inputs:
   jdk:
     description: Version of JDK that must be loaded.
     required: false
+  minikube:
+    description: Determine if minikube should be started, 'true' to start minikube, 'false' to skip.
+    required: false
+    default: 'false'
+
+outputs:
+  minikube-ip:
+    description: The IP address of the minikube instance.
+    value: ${{ steps.minikube-info.outputs.MINIKUBE_IP }}
 
 runs:
   using: composite
@@ -28,3 +37,16 @@ runs:
         key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
         restore-keys: |
           ${{ runner.os }}-gradle-
+
+    - name: Start minikube
+      if: ${{ inputs.minikube == true }}
+      id: minikube
+      uses: medyagh/setup-minikube@v0.0.15
+
+    - name: Get minikube info
+      if: ${{ inputs.minikube == true }}
+      id: minikube-info
+      shell: bash
+      run: |
+        MINIKUBE_IP=$(minikube ip)
+        echo "MINIKUBE_IP=$MINIKUBE_IP" >> $GITHUB_ENV
