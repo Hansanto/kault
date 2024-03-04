@@ -118,7 +118,7 @@ kotlin {
                 implementation(libs.bundles.kotest.common)
                 implementation(libs.ktor.logging)
                 implementation(libs.resources)
-                implementation(libs.kotlinx.io)
+                implementation(libs.kt.io)
             }
         }
 
