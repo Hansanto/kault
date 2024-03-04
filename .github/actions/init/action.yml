@@ -39,12 +39,12 @@ runs:
           ${{ runner.os }}-gradle-
 
     - name: Start minikube
-      if: ${{ inputs.minikube == true }}
+      if: ${{ inputs.minikube == 'true' }}
       id: minikube
       uses: medyagh/setup-minikube@v0.0.15
 
     - name: Get minikube info
-      if: ${{ inputs.minikube == true }}
+      if: ${{ inputs.minikube == 'true' }}
       id: minikube-info
       shell: bash
       run: |
