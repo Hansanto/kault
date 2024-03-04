@@ -49,4 +49,4 @@ runs:
       shell: bash
       run: |
         MINIKUBE_IP=$(minikube ip)
-        echo "MINIKUBE_IP=$MINIKUBE_IP" >> $GITHUB_ENV
+        echo "MINIKUBE_IP=$MINIKUBE_IP" >> $GITHUB_OUTPUT
