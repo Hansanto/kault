@@ -1,6 +1,7 @@
 package io.github.hansanto.kault.auth.kubernetes
 
 import io.github.hansanto.kault.VaultClient
+import io.github.hansanto.kault.auth.kubernetes.response.KubernetesConfigureAuthResponse
 import io.github.hansanto.kault.system.auth.enable
 import io.github.hansanto.kault.util.createVaultClient
 import io.github.hansanto.kault.util.getKubernetesCaCert
@@ -30,6 +31,13 @@ class VaultAuthKubernetesTest : FunSpec({
         }
     }
 
+    beforeTest {
+        kubernetes.configure {
+            this.kubernetesHost = kubernetesHost
+            this.kubernetesCaCert = kubernetesCaCert
+        }
+    }
+
     afterSpec {
         client.close()
     }
@@ -54,12 +62,12 @@ class VaultAuthKubernetesTest : FunSpec({
         built.path shouldBe "$parentPath/$builderPath"
     }
 
-    test("should set configuration") {
-        val response = kubernetes.configure {
-            this.kubernetesHost = kubernetesHost
-            this.kubernetesCaCert = kubernetesCaCert
-        }
-
-        response shouldBe true
+    test("should read default configuration") {
+        kubernetes.readConfiguration() shouldBe KubernetesConfigureAuthResponse(
+            kubernetesHost = kubernetesHost,
+            kubernetesCaCert = kubernetesCaCert,
+            pemKeys = emptyList(),
+            disableLocalCaJwt = false
+        )
     }
 })
