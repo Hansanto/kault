@@ -5,6 +5,7 @@ import io.github.hansanto.kault.ServiceBuilder
 import io.github.hansanto.kault.VaultClient
 import io.github.hansanto.kault.auth.approle.response.LoginResponse
 import io.github.hansanto.kault.auth.kubernetes.payload.KubernetesConfigureAuthPayload
+import io.github.hansanto.kault.auth.kubernetes.response.KubernetesConfigureAuthResponse
 import io.github.hansanto.kault.extension.decodeBodyJsonFieldObject
 import io.github.hansanto.kault.extension.list
 import io.ktor.client.HttpClient
@@ -47,7 +48,7 @@ public interface VaultAuthKubernetes {
      * [Documentation](https://developer.hashicorp.com/vault/api-docs/auth/kubernetes#read-config)
      * @return The previously configured config, excluding credentials.
      */
-    public suspend fun readConfiguration(): Any
+    public suspend fun readConfiguration(): KubernetesConfigureAuthResponse
 
     /**
      * Registers a role in the auth method.
@@ -159,7 +160,7 @@ public class VaultAuthKubernetesImpl(
         return response.status.isSuccess()
     }
 
-    override suspend fun readConfiguration(): Any {
+    override suspend fun readConfiguration(): KubernetesConfigureAuthResponse {
         val response = client.get {
             url {
                 appendPathSegments(path, "config")

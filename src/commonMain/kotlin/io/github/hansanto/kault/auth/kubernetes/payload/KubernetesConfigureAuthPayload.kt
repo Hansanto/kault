@@ -14,22 +14,25 @@ public data class KubernetesConfigureAuthPayload(
     public var kubernetesHost: String,
 
     /**
-     * Disable defaulting to the local CA cert and service account JWT when running in a Kubernetes pod
-     */
-    @SerialName("disable_local_ca_jwt")
-    public var disableLocalCaJwt: Boolean? = null,
-
-    /**
      * PEM encoded CA cert for use by the TLS client used to talk with the API.
      */
     @SerialName("kubernetes_ca_cert")
     public var kubernetesCaCert: String? = null,
 
     /**
-     * Optional list of PEM-formated public keys or certificates used to verify the signatures of kubernetes service account JWTs. If a certificate is given, its public key will be extracted. Not every installation of Kubernetes exposes these keys.
+     * Optional list of PEM-formated public keys or certificates
+     * used to verify the signatures of kubernetes service account JWTs.
+     * If a certificate is given, its public key will be extracted.
+     * Not every installation of Kubernetes exposes these keys.
      */
     @SerialName("pem_keys")
     public var pemKeys: List<String>? = null,
+
+    /**
+     * Disable defaulting to the local CA cert and service account JWT when running in a Kubernetes pod.
+     */
+    @SerialName("disable_local_ca_jwt")
+    public var disableLocalCaJwt: Boolean? = null,
 
     /**
      * A service account JWT (or other token) used as a bearer token to access the TokenReview API to validate other JWTs during login. If not set the JWT used for login will be used to access the API.
