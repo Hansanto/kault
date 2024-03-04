@@ -1,6 +1,6 @@
 package io.github.hansanto.kault.util
 
-import io.kotest.mpp.env
+import io.kotest.mpp.syspropOrEnv
 import kotlinx.io.files.Path
 
 /**
@@ -33,7 +33,7 @@ private const val CA_CERT_FILE = "ca.crt"
  * @param port Port of minikube, default is [MINIKUBE_DEFAULT_PORT].
  * @return URL of kubernetes host.
  */
-fun getKubernetesHost(port: Int = env(MINIKUBE_PORT_ENV)?.toInt() ?: MINIKUBE_DEFAULT_PORT): String {
+fun getKubernetesHost(port: Int = syspropOrEnv(MINIKUBE_PORT_ENV)?.toInt() ?: MINIKUBE_DEFAULT_PORT): String {
     return "http://${getKubernetesIp()}:$port"
 }
 
@@ -42,7 +42,7 @@ fun getKubernetesHost(port: Int = env(MINIKUBE_PORT_ENV)?.toInt() ?: MINIKUBE_DE
  * @return IP of minikube.
  */
 fun getKubernetesIp(): String {
-    return env(MINIKUBE_IP_ENV) ?: throw IllegalStateException("$MINIKUBE_IP_ENV environment variable must be set")
+    return syspropOrEnv(MINIKUBE_IP_ENV) ?: throw IllegalStateException("$MINIKUBE_IP_ENV environment variable must be set")
 }
 
 /**
