@@ -1,0 +1,19 @@
+{
+  "alias_name_source": "serviceaccount_uid",
+  "audience": null,
+  "bound_service_account_names": [
+    "default_service_account"
+  ],
+  "bound_service_account_namespaces": [
+    "default_namespace"
+  ],
+  "token_bound_cidrs": [],
+  "token_explicit_max_ttl": 0,
+  "token_max_ttl": 0,
+  "token_no_default_policy": false,
+  "token_num_uses": 0,
+  "token_period": 0,
+  "token_policies": [],
+  "token_ttl": 0,
+  "token_type": "default"
+}

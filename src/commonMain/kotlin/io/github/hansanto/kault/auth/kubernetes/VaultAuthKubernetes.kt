@@ -10,6 +10,7 @@ import io.github.hansanto.kault.auth.kubernetes.response.KubernetesConfigureAuth
 import io.github.hansanto.kault.auth.kubernetes.response.KubernetesReadAuthRoleResponse
 import io.github.hansanto.kault.extension.decodeBodyJsonFieldObject
 import io.github.hansanto.kault.extension.list
+import io.github.hansanto.kault.response.StandardListResponse
 import io.ktor.client.HttpClient
 import io.ktor.client.request.delete
 import io.ktor.client.request.get
@@ -209,7 +210,7 @@ public class VaultAuthKubernetesImpl(
                 appendPathSegments(path, "role")
             }
         }
-        return response.decodeBodyJsonFieldObject("data", VaultClient.json)
+        return response.decodeBodyJsonFieldObject<StandardListResponse>("data", VaultClient.json).keys
     }
 
     override suspend fun delete(roleName: String): Boolean {

@@ -4,12 +4,14 @@ import io.github.hansanto.kault.VaultClient
 import io.github.hansanto.kault.auth.kubernetes.payload.KubernetesWriteAuthRolePayload
 import io.github.hansanto.kault.auth.kubernetes.response.KubernetesConfigureAuthResponse
 import io.github.hansanto.kault.auth.kubernetes.response.KubernetesReadAuthRoleResponse
+import io.github.hansanto.kault.exception.VaultAPIException
 import io.github.hansanto.kault.system.auth.enable
 import io.github.hansanto.kault.util.createVaultClient
 import io.github.hansanto.kault.util.getKubernetesCaCert
 import io.github.hansanto.kault.util.getKubernetesHost
 import io.github.hansanto.kault.util.randomString
 import io.github.hansanto.kault.util.readJson
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 
@@ -41,6 +43,14 @@ class VaultAuthKubernetesTest : FunSpec({
             this.kubernetesHost = kubernetesHost
             this.kubernetesCaCert = kubernetesCaCert
         }
+
+        runCatching {
+            kubernetes.list().forEach {
+                kubernetes.delete(it) shouldBe true
+            }
+        }
+
+        shouldThrow<VaultAPIException> { kubernetes.read(DEFAULT_ROLE_NAME) }
     }
 
     afterSpec {
@@ -76,6 +86,14 @@ class VaultAuthKubernetesTest : FunSpec({
         )
     }
 
+    test("create without options") {
+        assertCreate(
+            kubernetes,
+            "cases/auth/kubernetes/create/without_options/given.json",
+            "cases/auth/kubernetes/create/without_options/expected.json"
+        )
+    }
+
     test("create with options") {
         assertCreate(
             kubernetes,
@@ -94,7 +112,6 @@ private suspend fun assertCreate(
     kubernetes.createOrUpdate(DEFAULT_ROLE_NAME, given) shouldBe true
 
     val response = kubernetes.read(DEFAULT_ROLE_NAME)
-    println(response)
     val expected = readJson<KubernetesReadAuthRoleResponse>(expectedReadPath)
     response shouldBe expected
 }
