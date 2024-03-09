@@ -1,6 +1,7 @@
 package io.github.hansanto.kault.auth.kubernetes
 
 import io.github.hansanto.kault.VaultClient
+import io.github.hansanto.kault.auth.kubernetes.payload.KubernetesLoginPayload
 import io.github.hansanto.kault.auth.kubernetes.payload.KubernetesWriteAuthRolePayload
 import io.github.hansanto.kault.auth.kubernetes.response.KubernetesConfigureAuthResponse
 import io.github.hansanto.kault.auth.kubernetes.response.KubernetesReadAuthRoleResponse
@@ -11,8 +12,10 @@ import io.github.hansanto.kault.util.getKubernetesCaCert
 import io.github.hansanto.kault.util.getKubernetesHost
 import io.github.hansanto.kault.util.randomString
 import io.github.hansanto.kault.util.readJson
+import io.kotest.assertions.throwables.shouldNotThrow
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
 
 private const val DEFAULT_ROLE_NAME = "test"
@@ -101,7 +104,51 @@ class VaultAuthKubernetesTest : FunSpec({
             "cases/auth/kubernetes/create/with_options/expected.json"
         )
     }
+
+    test("list with no roles") {
+        shouldThrow<VaultAPIException> {
+            kubernetes.list()
+        }
+    }
+
+    test("list with roles") {
+        val roles = List(10) { "test-$it" }
+        roles.forEach { createRole(kubernetes, it) }
+        kubernetes.list() shouldContainExactlyInAnyOrder roles
+    }
+
+    test("delete non-existing role") {
+        shouldThrow<VaultAPIException> { kubernetes.read(DEFAULT_ROLE_NAME) }
+        kubernetes.delete(DEFAULT_ROLE_NAME) shouldBe true
+        shouldThrow<VaultAPIException> { kubernetes.read(DEFAULT_ROLE_NAME) }
+    }
+
+    test("delete existing role") {
+        createRole(kubernetes, DEFAULT_ROLE_NAME)
+        shouldNotThrow<VaultAPIException> { kubernetes.read(DEFAULT_ROLE_NAME) }
+        kubernetes.delete(DEFAULT_ROLE_NAME) shouldBe true
+        shouldThrow<VaultAPIException> { kubernetes.read(DEFAULT_ROLE_NAME) }
+    }
+
+    test("login with non-existing role") {
+        shouldThrow<VaultAPIException> { kubernetes.login(KubernetesLoginPayload(DEFAULT_ROLE_NAME, "x")) }
+    }
+
+    test("login with existing role") {
+        createRole(kubernetes, DEFAULT_ROLE_NAME)
+        val response = kubernetes.login(KubernetesLoginPayload(DEFAULT_ROLE_NAME, "x"))
+    }
 })
+
+private suspend fun createRole(
+    kubernetes: VaultAuthKubernetes,
+    role: String
+) {
+    kubernetes.createOrUpdate(role) {
+        boundServiceAccountNames = listOf("*")
+        boundServiceAccountNamespaces = listOf("*")
+    } shouldBe true
+}
 
 private suspend fun assertCreate(
     kubernetes: VaultAuthKubernetes,

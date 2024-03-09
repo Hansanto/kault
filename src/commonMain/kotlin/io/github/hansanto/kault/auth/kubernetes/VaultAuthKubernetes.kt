@@ -5,6 +5,7 @@ import io.github.hansanto.kault.ServiceBuilder
 import io.github.hansanto.kault.VaultClient
 import io.github.hansanto.kault.auth.approle.response.LoginResponse
 import io.github.hansanto.kault.auth.kubernetes.payload.KubernetesConfigureAuthPayload
+import io.github.hansanto.kault.auth.kubernetes.payload.KubernetesLoginPayload
 import io.github.hansanto.kault.auth.kubernetes.payload.KubernetesWriteAuthRolePayload
 import io.github.hansanto.kault.auth.kubernetes.response.KubernetesConfigureAuthResponse
 import io.github.hansanto.kault.auth.kubernetes.response.KubernetesReadAuthRoleResponse
@@ -44,6 +45,17 @@ public suspend inline fun VaultAuthKubernetes.createOrUpdate(
     contract { callsInPlace(payloadBuilder, InvocationKind.EXACTLY_ONCE) }
     val payload = KubernetesWriteAuthRolePayload.Builder().apply(payloadBuilder).build()
     return createOrUpdate(roleName, payload)
+}
+
+/**
+ * @see VaultAuthKubernetes.login
+ */
+public suspend inline fun VaultAuthKubernetes.login(
+    payloadBuilder: BuilderDsl<KubernetesLoginPayload.Builder>
+): LoginResponse {
+    contract { callsInPlace(payloadBuilder, InvocationKind.EXACTLY_ONCE) }
+    val payload = KubernetesLoginPayload.Builder().apply(payloadBuilder).build()
+    return login(payload)
 }
 
 /**
@@ -111,7 +123,7 @@ public interface VaultAuthKubernetes {
      * @param payload Parameters to login with Kubernetes.
      * @return Response.
      */
-    public suspend fun login(payload: Any): LoginResponse
+    public suspend fun login(payload: KubernetesLoginPayload): LoginResponse
 }
 
 /**
@@ -222,7 +234,7 @@ public class VaultAuthKubernetesImpl(
         return response.status.isSuccess()
     }
 
-    override suspend fun login(payload: Any): LoginResponse {
+    override suspend fun login(payload: KubernetesLoginPayload): LoginResponse {
         val response = client.post {
             url {
                 appendPathSegments(path, "login")
