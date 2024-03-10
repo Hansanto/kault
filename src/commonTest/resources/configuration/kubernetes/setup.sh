@@ -4,5 +4,5 @@
 cd "$(dirname "$0")" || exit 1
 
 kubectl create namespace kault-test
-kubectl create serviceaccount vault -n kault_test
+kubectl create serviceaccount vault -n kault-test
 kubectl apply -f permissions.yml
