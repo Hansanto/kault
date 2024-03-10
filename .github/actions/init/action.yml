@@ -19,7 +19,7 @@ outputs:
     value: ${{ steps.kubernetes-info.outputs.KUBERNETES_PORT }}
   kubernetes-token:
     description: The token to authenticate with the Kubernetes cluster.
-    value: ${{ steps.kubernetes-info.outputs.KUBERNETES_TOKEN }}
+    value: ${{ steps.kubernetes-setup.outputs.KUBERNETES_TOKEN }}
 
 runs:
   using: composite
@@ -51,10 +51,13 @@ runs:
       with:
           driver: docker
 
-    - name: Configure kubernetes
+    - name: Setup kubernetes
       if: ${{ inputs.minikube == 'true' }}
+      id: kubernetes-setup
       shell: bash
-      run: sh src/commonTest/resources/configuration/kubernetes/setup.sh
+      run: |
+        KUBERNETES_TOKEN=$(sh src/commonTest/resources/configuration/kubernetes/setup.sh)
+        echo "KUBERNETES_TOKEN=$KUBERNETES_TOKEN" >> $GITHUB_OUTPUT
 
     - name: Get kubernetes info
       if: ${{ inputs.minikube == 'true' }}
@@ -66,6 +69,3 @@ runs:
         
         KUBERNETES_PORT=$(kubectl describe service kubernetes -n default | grep "TargetPort:" | awk '{print $2}' | cut -d '/' -f1)
         echo "KUBERNETES_PORT=$KUBERNETES_PORT" >> $GITHUB_OUTPUT
-        
-        KUBERNETES_TOKEN=$(kubectl create token default)
-        echo "KUBERNETES_TOKEN=$KUBERNETES_TOKEN" >> $GITHUB_OUTPUT
