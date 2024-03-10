@@ -11,4 +11,4 @@ kubectl create serviceaccount $SERVICE_ACCOUNT -n $NAMESPACE
 kubectl apply -f permissions.yml
 
 KUBERNETES_TOKEN=$(kubectl create token $SERVICE_ACCOUNT -n $NAMESPACE)
-echo "$KUBERNETES_TOKEN"
+echo "$KUBERNETES_TOKEN" > token.tmp

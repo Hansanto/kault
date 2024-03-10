@@ -56,8 +56,9 @@ runs:
       id: kubernetes-setup
       shell: bash
       run: |
-        KUBERNETES_TOKEN=$(sh src/commonTest/resources/configuration/kubernetes/setup.sh)
-        echo "Token is: $KUBERNETES_TOKEN"
+        sh src/commonTest/resources/configuration/kubernetes/setup.sh
+        KUBERNETES_TOKEN=$(cat src/commonTest/resources/configuration/kubernetes/token.tmp)
+        
         echo "KUBERNETES_TOKEN=$KUBERNETES_TOKEN" >> $GITHUB_OUTPUT
 
     - name: Get kubernetes info
