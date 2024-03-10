@@ -7,7 +7,14 @@ services:
     ports:
       - "8200:8200"
     environment:
+      - VAULT_LOG_LEVEL=debug
       - VAULT_DEV_ROOT_TOKEN_ID=root
       - VAULT_DEV_LISTEN_ADDRESS=0.0.0.0:8200
     cap_add:
       - IPC_LOCK
+    networks:
+      - minikube
+
+networks:
+  minikube:
+    external: true

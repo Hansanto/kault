@@ -10,6 +10,7 @@ import io.github.hansanto.kault.system.auth.enable
 import io.github.hansanto.kault.util.createVaultClient
 import io.github.hansanto.kault.util.getKubernetesCaCert
 import io.github.hansanto.kault.util.getKubernetesHost
+import io.github.hansanto.kault.util.getKubernetesToken
 import io.github.hansanto.kault.util.randomString
 import io.github.hansanto.kault.util.readJson
 import io.kotest.assertions.throwables.shouldNotThrow
@@ -45,6 +46,7 @@ class VaultAuthKubernetesTest : FunSpec({
         kubernetes.configure {
             this.kubernetesHost = kubernetesHost
             this.kubernetesCaCert = kubernetesCaCert
+            tokenReviewerJwt = getKubernetesToken()
         }
 
         runCatching {
@@ -135,8 +137,11 @@ class VaultAuthKubernetesTest : FunSpec({
     }
 
     test("login with existing role") {
-        createRole(kubernetes, DEFAULT_ROLE_NAME)
-        val response = kubernetes.login(KubernetesLoginPayload(DEFAULT_ROLE_NAME, "x"))
+        kubernetes.createOrUpdate(DEFAULT_ROLE_NAME) {
+            boundServiceAccountNames = listOf("*")
+            boundServiceAccountNamespaces = listOf("*")
+        } shouldBe true
+        val response = kubernetes.login(KubernetesLoginPayload(DEFAULT_ROLE_NAME, getKubernetesToken()))
     }
 })
 

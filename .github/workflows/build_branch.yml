@@ -61,4 +61,6 @@ jobs:
         with:
           arguments: build
         env:
-          MINIKUBE_IP: ${{ steps.init.outputs.minikube-ip }}
+          KUBERNETES_IP: ${{ steps.init.outputs.kubernetes-ip }}
+          KUBERNETES_PORT: ${{ steps.init.outputs.kubernetes-port }}
+          KUBERNETES_TOKEN: ${{ steps.init.outputs.kubernetes-token }}

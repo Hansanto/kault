@@ -11,9 +11,15 @@ inputs:
     default: 'false'
 
 outputs:
-  minikube-ip:
-    description: The IP address of the minikube instance.
-    value: ${{ steps.minikube-info.outputs.MINIKUBE_IP }}
+  kubernetes-ip:
+    description: The IP address of the Kubernetes cluster.
+    value: ${{ steps.minikube-info.outputs.KUBERNETES_IP }}
+  kubernetes-port:
+    description: The port to interact with the Kubernetes cluster.
+    value: ${{ steps.minikube-info.outputs.KUBERNETES_PORT }}
+  kubernetes-token:
+    description: The token to authenticate with the Kubernetes cluster.
+    value: ${{ steps.minikube-info.outputs.KUBERNETES_TOKEN }}
 
 runs:
   using: composite
@@ -42,12 +48,19 @@ runs:
       if: ${{ inputs.minikube == 'true' }}
       id: minikube
       uses: medyagh/setup-minikube@v0.0.15
+      with:
+          driver: docker
 
-    - name: Get minikube info
+    - name: Get kubernetes info
       if: ${{ inputs.minikube == 'true' }}
       id: minikube-info
       shell: bash
       run: |
-        MINIKUBE_IP=$(minikube ip)
-        echo "Minikube ip: $MINIKUBE_IP"
-        echo "MINIKUBE_IP=$MINIKUBE_IP" >> $GITHUB_OUTPUT
+        KUBERNETES_IP=$(minikube ip)
+        echo "KUBERNETES_IP=$KUBERNETES_IP" >> $GITHUB_OUTPUT
+        
+        KUBERNETES_PORT=8443
+        echo "KUBERNETES_PORT=$KUBERNETES_PORT" >> $GITHUB_OUTPUT
+        
+        KUBERNETES_TOKEN=$(kubectl create token default)
+        echo "KUBERNETES_TOKEN=$KUBERNETES_TOKEN" >> $GITHUB_OUTPUT
