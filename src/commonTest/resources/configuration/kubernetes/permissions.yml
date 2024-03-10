@@ -17,5 +17,5 @@ roleRef:
   name: tokenreview-clusterrole
 subjects:
   - kind: ServiceAccount
-    name: default
-    namespace: default
+    name: vault
+    namespace: kault-test

@@ -51,10 +51,10 @@ runs:
       with:
           driver: docker
 
-    - name: Apply kubernetes permissions
+    - name: Configure kubernetes
       if: ${{ inputs.minikube == 'true' }}
       shell: bash
-      run: kubectl apply -f src/commonTest/resources/configuration/kubernetes/permissions.yml
+      run: sh src/commonTest/resources/configuration/kubernetes/setup.sh
 
     - name: Get kubernetes info
       if: ${{ inputs.minikube == 'true' }}
@@ -64,7 +64,7 @@ runs:
         KUBERNETES_IP=$(minikube ip)
         echo "KUBERNETES_IP=$KUBERNETES_IP" >> $GITHUB_OUTPUT
         
-        KUBERNETES_PORT=$(kubectl describe service kubernetes -n default | grep "TargetPort:" | awk '{print $2}' | cut -d'/' -f1)
+        KUBERNETES_PORT=$(kubectl describe service kubernetes -n default | grep "TargetPort:" | awk '{print $2}' | cut -d '/' -f1)
         echo "KUBERNETES_PORT=$KUBERNETES_PORT" >> $GITHUB_OUTPUT
         
         KUBERNETES_TOKEN=$(kubectl create token default)
