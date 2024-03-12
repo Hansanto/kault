@@ -1,12 +1,14 @@
 package io.github.hansanto.kault.auth.kubernetes
 
 import io.github.hansanto.kault.VaultClient
+import io.github.hansanto.kault.auth.approle.response.LoginResponse
 import io.github.hansanto.kault.auth.kubernetes.payload.KubernetesLoginPayload
 import io.github.hansanto.kault.auth.kubernetes.payload.KubernetesWriteAuthRolePayload
 import io.github.hansanto.kault.auth.kubernetes.response.KubernetesConfigureAuthResponse
 import io.github.hansanto.kault.auth.kubernetes.response.KubernetesReadAuthRoleResponse
 import io.github.hansanto.kault.exception.VaultAPIException
 import io.github.hansanto.kault.system.auth.enable
+import io.github.hansanto.kault.util.DEFAULT_ROLE_NAME
 import io.github.hansanto.kault.util.createVaultClient
 import io.github.hansanto.kault.util.getKubernetesCaCert
 import io.github.hansanto.kault.util.getKubernetesHost
@@ -18,8 +20,6 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
-
-private const val DEFAULT_ROLE_NAME = "test"
 
 class VaultAuthKubernetesTest : FunSpec({
 
@@ -42,6 +42,10 @@ class VaultAuthKubernetesTest : FunSpec({
         }
     }
 
+    afterSpec {
+        client.close()
+    }
+
     beforeTest {
         kubernetes.configure {
             this.kubernetesHost = kubernetesHost
@@ -56,10 +60,6 @@ class VaultAuthKubernetesTest : FunSpec({
         }
 
         shouldThrow<VaultAPIException> { kubernetes.read(DEFAULT_ROLE_NAME) }
-    }
-
-    afterSpec {
-        client.close()
     }
 
     test("builder default variables should be set correctly") {
@@ -133,15 +133,31 @@ class VaultAuthKubernetesTest : FunSpec({
     }
 
     test("login with non-existing role") {
-        shouldThrow<VaultAPIException> { kubernetes.login(KubernetesLoginPayload(DEFAULT_ROLE_NAME, "x")) }
+        shouldThrow<VaultAPIException> { kubernetes.login(KubernetesLoginPayload(DEFAULT_ROLE_NAME, getKubernetesToken())) }
+    }
+
+    test("login with invalid token") {
+        createRole(kubernetes, DEFAULT_ROLE_NAME)
+        shouldThrow<VaultAPIException> { kubernetes.login(KubernetesLoginPayload(DEFAULT_ROLE_NAME, "invalid-token")) }
     }
 
     test("login with existing role") {
-        kubernetes.createOrUpdate(DEFAULT_ROLE_NAME) {
-            boundServiceAccountNames = listOf("*")
-            boundServiceAccountNamespaces = listOf("*")
-        } shouldBe true
+        createRole(kubernetes, DEFAULT_ROLE_NAME)
+
         val response = kubernetes.login(KubernetesLoginPayload(DEFAULT_ROLE_NAME, getKubernetesToken()))
+        val expected = readJson<LoginResponse>("cases/auth/kubernetes/login/expected.json").run {
+            copy(
+                clientToken = response.clientToken,
+                accessor = response.accessor,
+                entityId = response.entityId,
+                leaseDuration = response.leaseDuration,
+                metadata = metadata.toMutableMap().apply {
+                    put("service_account_uid", response.metadata["service_account_uid"]!!)
+                }
+            )
+        }
+
+        response shouldBe expected
     }
 })
 
