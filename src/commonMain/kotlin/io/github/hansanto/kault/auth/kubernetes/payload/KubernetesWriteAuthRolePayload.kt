@@ -30,8 +30,9 @@ public data class KubernetesWriteAuthRolePayload(
 
     /**
      * Source to use when deriving the Alias name.
-     * Valid choices: "serviceaccount_uid" : <token.uid> e.g. 474b11b5-0f20-4f9d-8ca5-65715ab325e0 (most secure choice)
-     * "serviceaccount_name" : / e.g. vault/vault-agent
+     * Valid choices:
+     * "serviceaccount_uid": <token.uid> e.g., 474b11b5-0f20-4f9d-8ca5-65715ab325e0 (most secure choice)
+     * "serviceaccount_name": / e.g., vault/vault-agent
      * default: "serviceaccount_uid"
      */
     @SerialName("alias_name_source")
