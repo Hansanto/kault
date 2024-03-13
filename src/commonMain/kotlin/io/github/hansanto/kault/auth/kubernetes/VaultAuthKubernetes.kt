@@ -36,19 +36,19 @@ public suspend inline fun VaultAuthKubernetes.configure(
 }
 
 /**
- * @see VaultAuthKubernetes.createOrUpdate
+ * @see VaultAuthKubernetes.createOrUpdateRole(roleName, payload)
  */
-public suspend inline fun VaultAuthKubernetes.createOrUpdate(
+public suspend inline fun VaultAuthKubernetes.createOrUpdateRole(
     roleName: String,
     payloadBuilder: BuilderDsl<KubernetesWriteAuthRolePayload.Builder>
 ): Boolean {
     contract { callsInPlace(payloadBuilder, InvocationKind.EXACTLY_ONCE) }
     val payload = KubernetesWriteAuthRolePayload.Builder().apply(payloadBuilder).build()
-    return createOrUpdate(roleName, payload)
+    return createOrUpdateRole(roleName, payload)
 }
 
 /**
- * @see VaultAuthKubernetes.login
+ * @see VaultAuthKubernetes.login(payload)
  */
 public suspend inline fun VaultAuthKubernetes.login(
     payloadBuilder: BuilderDsl<KubernetesLoginPayload.Builder>
@@ -87,7 +87,7 @@ public interface VaultAuthKubernetes {
      * @param payload Optional parameters for creating or updating a role.
      * @return Returns true if the role was created or updated successfully.
      */
-    public suspend fun createOrUpdate(
+    public suspend fun createOrUpdateRole(
         roleName: String,
         payload: KubernetesWriteAuthRolePayload
     ): Boolean
@@ -98,7 +98,7 @@ public interface VaultAuthKubernetes {
      * @param roleName Name of the role.
      * @return Response.
      */
-    public suspend fun read(roleName: String): KubernetesReadAuthRoleResponse
+    public suspend fun readRole(roleName: String): KubernetesReadAuthRoleResponse
 
     /**
      * Lists all the roles that are registered with the auth method.
@@ -113,7 +113,7 @@ public interface VaultAuthKubernetes {
      * @param roleName Name of the role.
      * @return Returns true if the role was deleted successfully.
      */
-    public suspend fun delete(roleName: String): Boolean
+    public suspend fun deleteRole(roleName: String): Boolean
 
     /**
      * Fetch a token.
@@ -196,7 +196,7 @@ public class VaultAuthKubernetesImpl(
         return response.decodeBodyJsonFieldObject("data", VaultClient.json)
     }
 
-    override suspend fun createOrUpdate(roleName: String, payload: KubernetesWriteAuthRolePayload): Boolean {
+    override suspend fun createOrUpdateRole(roleName: String, payload: KubernetesWriteAuthRolePayload): Boolean {
         val response = client.post {
             url {
                 appendPathSegments(path, "role", roleName)
@@ -207,7 +207,7 @@ public class VaultAuthKubernetesImpl(
         return response.status.isSuccess()
     }
 
-    override suspend fun read(roleName: String): KubernetesReadAuthRoleResponse {
+    override suspend fun readRole(roleName: String): KubernetesReadAuthRoleResponse {
         val response = client.get {
             url {
                 appendPathSegments(path, "role", roleName)
@@ -225,7 +225,7 @@ public class VaultAuthKubernetesImpl(
         return response.decodeBodyJsonFieldObject<StandardListResponse>("data", VaultClient.json).keys
     }
 
-    override suspend fun delete(roleName: String): Boolean {
+    override suspend fun deleteRole(roleName: String): Boolean {
         val response = client.delete {
             url {
                 appendPathSegments(path, "role", roleName)

@@ -2,7 +2,7 @@ package io.github.hansanto.kault.auth.kubernetes.payload
 
 import io.github.hansanto.kault.KaultDsl
 import io.github.hansanto.kault.auth.approle.common.TokenType
-import io.github.hansanto.kault.auth.kubernetes.common.AliasNameSourceType
+import io.github.hansanto.kault.auth.kubernetes.common.KubernetesAliasNameSourceType
 import io.github.hansanto.kault.serializer.VaultDuration
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -32,7 +32,7 @@ public data class KubernetesWriteAuthRolePayload(
      * Source to use when deriving the Alias name. valid choices: "serviceaccount_uid" : <token.uid> e.g. 474b11b5-0f20-4f9d-8ca5-65715ab325e0 (most secure choice) "serviceaccount_name" : / e.g. vault/vault-agent default: "serviceaccount_uid"
      */
     @SerialName("alias_name_source")
-    public var aliasNameSource: AliasNameSourceType? = null,
+    public var aliasNameSource: KubernetesAliasNameSourceType? = null,
 
     /**
      * The incremental lifetime for generated tokens. This current value of this will be referenced at renewal time.
@@ -115,7 +115,7 @@ public data class KubernetesWriteAuthRolePayload(
         /**
          * @see [KubernetesWriteAuthRolePayload.aliasNameSource]
          */
-        public var aliasNameSource: AliasNameSourceType? = null
+        public var aliasNameSource: KubernetesAliasNameSourceType? = null
 
         /**
          * @see [KubernetesWriteAuthRolePayload.tokenTTL]

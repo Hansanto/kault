@@ -51,11 +51,11 @@ class VaultAuthKubernetesTest : FunSpec({
 
         runCatching {
             kubernetes.list().forEach {
-                kubernetes.delete(it) shouldBe true
+                kubernetes.deleteRole(it) shouldBe true
             }
         }
 
-        shouldThrow<VaultAPIException> { kubernetes.read(DEFAULT_ROLE_NAME) }
+        shouldThrow<VaultAPIException> { kubernetes.readRole(DEFAULT_ROLE_NAME) }
     }
 
     afterSpec {
@@ -120,16 +120,16 @@ class VaultAuthKubernetesTest : FunSpec({
     }
 
     test("delete non-existing role") {
-        shouldThrow<VaultAPIException> { kubernetes.read(DEFAULT_ROLE_NAME) }
-        kubernetes.delete(DEFAULT_ROLE_NAME) shouldBe true
-        shouldThrow<VaultAPIException> { kubernetes.read(DEFAULT_ROLE_NAME) }
+        shouldThrow<VaultAPIException> { kubernetes.readRole(DEFAULT_ROLE_NAME) }
+        kubernetes.deleteRole(DEFAULT_ROLE_NAME) shouldBe true
+        shouldThrow<VaultAPIException> { kubernetes.readRole(DEFAULT_ROLE_NAME) }
     }
 
     test("delete existing role") {
         createRole(kubernetes, DEFAULT_ROLE_NAME)
-        shouldNotThrow<VaultAPIException> { kubernetes.read(DEFAULT_ROLE_NAME) }
-        kubernetes.delete(DEFAULT_ROLE_NAME) shouldBe true
-        shouldThrow<VaultAPIException> { kubernetes.read(DEFAULT_ROLE_NAME) }
+        shouldNotThrow<VaultAPIException> { kubernetes.readRole(DEFAULT_ROLE_NAME) }
+        kubernetes.deleteRole(DEFAULT_ROLE_NAME) shouldBe true
+        shouldThrow<VaultAPIException> { kubernetes.readRole(DEFAULT_ROLE_NAME) }
     }
 
     test("login with non-existing role") {
@@ -137,7 +137,7 @@ class VaultAuthKubernetesTest : FunSpec({
     }
 
     test("login with existing role") {
-        kubernetes.createOrUpdate(DEFAULT_ROLE_NAME) {
+        kubernetes.createOrUpdateRole(DEFAULT_ROLE_NAME) {
             boundServiceAccountNames = listOf("*")
             boundServiceAccountNamespaces = listOf("*")
         } shouldBe true
@@ -149,7 +149,7 @@ private suspend fun createRole(
     kubernetes: VaultAuthKubernetes,
     role: String
 ) {
-    kubernetes.createOrUpdate(role) {
+    kubernetes.createOrUpdateRole(role) {
         boundServiceAccountNames = listOf("*")
         boundServiceAccountNamespaces = listOf("*")
     } shouldBe true
@@ -161,9 +161,9 @@ private suspend fun assertCreate(
     expectedReadPath: String
 ) {
     val given = readJson<KubernetesWriteAuthRolePayload>(givenPath)
-    kubernetes.createOrUpdate(DEFAULT_ROLE_NAME, given) shouldBe true
+    kubernetes.createOrUpdateRole(DEFAULT_ROLE_NAME, given) shouldBe true
 
-    val response = kubernetes.read(DEFAULT_ROLE_NAME)
+    val response = kubernetes.readRole(DEFAULT_ROLE_NAME)
     val expected = readJson<KubernetesReadAuthRoleResponse>(expectedReadPath)
     response shouldBe expected
 }
