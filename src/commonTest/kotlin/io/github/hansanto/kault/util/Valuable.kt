@@ -2,14 +2,11 @@ package io.github.hansanto.kault.util
 
 import io.kotest.mpp.syspropOrEnv
 
-interface Variable {
-    /**
-     * Value of the variable.
-     */
+interface Valuable {
     val value: String
 }
 
-typealias VariableFallback = () -> String?
+typealias ValueFallback = () -> String?
 
 /**
  * Load a value from the system properties or environment variables.
@@ -17,26 +14,28 @@ typealias VariableFallback = () -> String?
  * @property name Name of the environment variable.
  * @property fallback Fallback to use if the environment variable is not set.
  */
-data class EnvVariable(
+data class EnvValue(
     val name: String,
-    val fallback: VariableFallback = { null }
-) : Variable {
+    val fallback: ValueFallback = { null }
+) : Valuable {
     override val value: String by lazy {
-        syspropOrEnv(name) ?: fallback() ?: throw IllegalStateException("Environment variable $name is not set")
+        syspropOrEnv(name) ?: fallback() ?: throw IllegalStateException("Environment variable [$name] is not set")
     }
 }
 
 /**
- * Load a value from the content of a file from the resources test folder or through the system file by walking through the parent folders.
+ * Load a value from a file in the system file.
  * @property pathFile Path of the file to load.
+ * @property fallback Fallback to use if the file is not found.
  */
-data class FileVariable(
-    val pathFile: String
-) : Variable {
+data class SystemFileValue(
+    val pathFile: String,
+    val fallback: ValueFallback = { null }
+) : Valuable {
     override val value: String by lazy {
-        readFileFromResources()
-            ?: readFileFromSystem()
-            ?: throw IllegalStateException("File $pathFile is not findable in the system or resources folder")
+        readFileFromSystem()
+            ?: fallback()
+            ?: throw IllegalStateException("File [$pathFile] is not findable in the file system")
     }
 
     /**
@@ -58,9 +57,25 @@ data class FileVariable(
 
         return targetedFilePath.readLines()
     }
+}
+
+/**
+ * Load a value from a file in the "resources" folder.
+ * @property pathFile Path of the file to load.
+ * @property fallback Fallback to use if the file is not found.
+ */
+data class ResourceValue(
+    val pathFile: String,
+    val fallback: ValueFallback = { null }
+) : Valuable {
+    override val value: String by lazy {
+        readFileFromResources()
+            ?: fallback()
+            ?: throw IllegalStateException("File [$pathFile] is not findable in the resources folder")
+    }
 
     /**
-     * Read the file from the resources' folder.
+     * Read the file from the "resources" folder.
      * @return Content of the file if readable, null otherwise.
      */
     private fun readFileFromResources(): String? {

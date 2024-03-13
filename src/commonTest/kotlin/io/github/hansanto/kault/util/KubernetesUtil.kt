@@ -1,6 +1,6 @@
 package io.github.hansanto.kault.util
 
-object Kubernetes {
+object KubernetesUtil {
     val host: String = getKubernetesHost()
     val token: String = getKubernetesToken()
     val caCert: String = getKubernetesCaCert()
@@ -9,26 +9,26 @@ object Kubernetes {
 /**
  * Environment variable name to retrieve IP of local kubernetes.
  */
-private val KUBERNETES_IP_ENV = EnvVariable("KUBERNETES_IP") { "192.168.49.2" }
+private val KUBERNETES_IP_ENV = EnvValue("KUBERNETES_IP") { "192.168.49.2" }
 
 /**
  * Environment variable name to retrieve port of local kubernetes.
  * For the default port value, check [documentation](https://minikube.sigs.k8s.io/docs/commands/start/).
  */
-private val KUBERNETES_PORT_ENV = EnvVariable("KUBERNETES_PORT") { "8443" }
+private val KUBERNETES_PORT_ENV = EnvValue("KUBERNETES_PORT") { "8443" }
 
 /**
  * Environment variable name to retrieve token of local kubernetes.
  */
-private val KUBERNETES_TOKEN_ENV = EnvVariable("KUBERNETES_TOKEN") {
+private val KUBERNETES_TOKEN_ENV = EnvValue("KUBERNETES_TOKEN") {
     // The token file is defined by the setup script in configuration/kubernetes
-    FileVariable("configuration/kubernetes/token.tmp").value
+    ResourceValue("configuration/kubernetes/token.tmp").value
 }
 
 /**
  * File variable to retrieve CA certificate of local kubernetes.
  */
-private val KUBERNETES_CA_CERT_FILE = FileVariable(".minikube/ca.crt")
+private val KUBERNETES_CA_CERT_FILE = SystemFileValue(".minikube/ca.crt")
 
 /**
  * Get the kubernetes host URL.

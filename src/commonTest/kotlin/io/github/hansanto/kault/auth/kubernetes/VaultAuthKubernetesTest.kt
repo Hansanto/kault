@@ -9,7 +9,7 @@ import io.github.hansanto.kault.auth.kubernetes.response.KubernetesReadAuthRoleR
 import io.github.hansanto.kault.exception.VaultAPIException
 import io.github.hansanto.kault.system.auth.enable
 import io.github.hansanto.kault.util.DEFAULT_ROLE_NAME
-import io.github.hansanto.kault.util.Kubernetes
+import io.github.hansanto.kault.util.KubernetesUtil
 import io.github.hansanto.kault.util.createVaultClient
 import io.github.hansanto.kault.util.randomString
 import io.github.hansanto.kault.util.readJson
@@ -41,9 +41,9 @@ class VaultAuthKubernetesTest : FunSpec({
 
     beforeTest {
         kubernetes.configure {
-            kubernetesHost = Kubernetes.host
-            kubernetesCaCert = Kubernetes.caCert
-            tokenReviewerJwt = Kubernetes.token
+            kubernetesHost = KubernetesUtil.host
+            kubernetesCaCert = KubernetesUtil.caCert
+            tokenReviewerJwt = KubernetesUtil.token
         }
 
         runCatching {
@@ -77,8 +77,8 @@ class VaultAuthKubernetesTest : FunSpec({
 
     test("read default configuration") {
         kubernetes.readConfiguration() shouldBe KubernetesConfigureAuthResponse(
-            kubernetesHost = Kubernetes.host,
-            kubernetesCaCert = Kubernetes.caCert,
+            kubernetesHost = KubernetesUtil.host,
+            kubernetesCaCert = KubernetesUtil.caCert,
             pemKeys = emptyList(),
             disableLocalCaJwt = false
         )
@@ -130,7 +130,7 @@ class VaultAuthKubernetesTest : FunSpec({
             kubernetes.login(
                 KubernetesLoginPayload(
                     DEFAULT_ROLE_NAME,
-                    Kubernetes.token
+                    KubernetesUtil.token
                 )
             )
         }
@@ -144,7 +144,7 @@ class VaultAuthKubernetesTest : FunSpec({
     test("login with existing role") {
         createRole(kubernetes, DEFAULT_ROLE_NAME)
 
-        val response = kubernetes.login(KubernetesLoginPayload(DEFAULT_ROLE_NAME, Kubernetes.token))
+        val response = kubernetes.login(KubernetesLoginPayload(DEFAULT_ROLE_NAME, KubernetesUtil.token))
         val expected = readJson<LoginResponse>("cases/auth/kubernetes/login/expected.json").run {
             copy(
                 clientToken = response.clientToken,
