@@ -51,9 +51,12 @@ jobs:
         uses: ./.github/actions/init
         with:
           jdk: 8
-          minikube: true
 
-      - name: Docker up
+      - name: Setup Kubernetes
+        id: kubernetes
+        uses: ./.github/actions/kubernetes
+
+      - name: Docker Compose up
         run: docker-compose up -d
 
       - name: Build
@@ -61,6 +64,6 @@ jobs:
         with:
           arguments: build
         env:
-          KUBERNETES_IP: ${{ steps.init.outputs.kubernetes-ip }}
-          KUBERNETES_PORT: ${{ steps.init.outputs.kubernetes-port }}
-          KUBERNETES_TOKEN: ${{ steps.init.outputs.kubernetes-token }}
+          KUBERNETES_IP: ${{ steps.kubernetes.outputs.ip }}
+          KUBERNETES_PORT: ${{ steps.kubernetes.outputs.port }}
+          KUBERNETES_TOKEN: ${{ steps.kubernetes.outputs.token }}

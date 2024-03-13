@@ -5,13 +5,12 @@ import io.github.hansanto.kault.auth.approle.VaultAuthAppRoleImpl
 import io.github.hansanto.kault.auth.approle.payload.LoginPayload
 import io.github.hansanto.kault.auth.approle.response.LoginResponse
 import io.github.hansanto.kault.system.auth.enable
+import io.github.hansanto.kault.util.DEFAULT_ROLE_NAME
 import io.github.hansanto.kault.util.ROOT_TOKEN
 import io.github.hansanto.kault.util.createVaultClient
 import io.github.hansanto.kault.util.randomString
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
-
-private const val DEFAULT_ROLE_NAME = "test"
 
 class VaultAuthTest : FunSpec({
 

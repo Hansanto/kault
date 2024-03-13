@@ -1,0 +1,20 @@
+{
+  "client_token": "REPLACED_DYNAMICALLY",
+  "accessor": "REPLACED_DYNAMICALLY",
+  "token_policies": [
+    "default"
+  ],
+  "metadata": {
+    "role": "test",
+    "service_account_name": "vault",
+    "service_account_namespace": "kault-test",
+    "service_account_secret_name": "",
+    "service_account_uid": "REPLACED_DYNAMICALLY"
+  },
+  "lease_duration": "0",
+  "renewable": true,
+  "entity_id": "REPLACED_DYNAMICALLY",
+  "token_type": "service",
+  "orphan": true,
+  "num_uses": 0
+}
