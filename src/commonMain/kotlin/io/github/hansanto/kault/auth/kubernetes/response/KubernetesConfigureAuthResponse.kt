@@ -7,7 +7,7 @@ import kotlinx.serialization.Serializable
 public data class KubernetesConfigureAuthResponse(
 
     /**
-     * Host must be a host string, a host:port pair, or a URL to the base of the Kubernetes API server.
+     * Host string, a host:port pair, or a URL to the base of the Kubernetes API server.
      */
     @SerialName("kubernetes_host")
     public val kubernetesHost: String,
@@ -19,7 +19,10 @@ public data class KubernetesConfigureAuthResponse(
     public val kubernetesCaCert: String,
 
     /**
-     * List of PEM-formated public keys or certificates used to verify the signatures of kubernetes service account JWTs. If a certificate is given, its public key will be extracted. Not every installation of Kubernetes exposes these keys.
+     * List of PEM-formatted public keys or certificates
+     * used to verify the signatures of kubernetes service account JWTs.
+     * If a certificate is given, its public key will be extracted.
+     * Not every installation of Kubernetes exposes these keys.
      */
     @SerialName("pem_keys")
     public val pemKeys: List<String>,

@@ -17,7 +17,7 @@ public data class KubernetesWriteAuthRolePayload(
     public var boundServiceAccountNames: List<String>,
 
     /**
-     * List of namespaces allowed to access this role. If set to "*" all namespaces are allowed.
+     * List of namespaces allowed accessing this role. If set to "*" all namespaces are allowed.
      */
     @SerialName("bound_service_account_namespaces")
     public var boundServiceAccountNamespaces: List<String>,
@@ -29,7 +29,10 @@ public data class KubernetesWriteAuthRolePayload(
     public var audience: String? = null,
 
     /**
-     * Source to use when deriving the Alias name. valid choices: "serviceaccount_uid" : <token.uid> e.g. 474b11b5-0f20-4f9d-8ca5-65715ab325e0 (most secure choice) "serviceaccount_name" : / e.g. vault/vault-agent default: "serviceaccount_uid"
+     * Source to use when deriving the Alias name.
+     * Valid choices: "serviceaccount_uid" : <token.uid> e.g. 474b11b5-0f20-4f9d-8ca5-65715ab325e0 (most secure choice)
+     * "serviceaccount_name" : / e.g. vault/vault-agent
+     * default: "serviceaccount_uid"
      */
     @SerialName("alias_name_source")
     public var aliasNameSource: KubernetesAliasNameSourceType? = null,

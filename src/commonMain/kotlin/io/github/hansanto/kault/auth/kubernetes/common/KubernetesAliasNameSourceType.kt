@@ -1,6 +1,5 @@
 package io.github.hansanto.kault.auth.kubernetes.common
 
-import io.github.hansanto.kault.auth.approle.common.TokenType
 import io.github.hansanto.kault.serializer.EnumSerializer
 import kotlinx.serialization.Serializable
 
@@ -14,6 +13,10 @@ public enum class KubernetesAliasNameSourceType(public val value: String) {
 }
 
 /**
- * Serializer for [TokenType].
+ * Serializer for [KubernetesAliasNameSourceType].
  */
-public object KubernetesAliasNameSourceTypeSerializer : EnumSerializer<KubernetesAliasNameSourceType>("aliasNameSource", KubernetesAliasNameSourceType.entries, { it.value })
+public object KubernetesAliasNameSourceTypeSerializer : EnumSerializer<KubernetesAliasNameSourceType>(
+    "kubernetesAliasNameSource",
+    KubernetesAliasNameSourceType.entries,
+    { it.value }
+)

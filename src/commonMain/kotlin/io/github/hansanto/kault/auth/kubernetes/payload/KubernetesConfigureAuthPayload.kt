@@ -20,7 +20,7 @@ public data class KubernetesConfigureAuthPayload(
     public var kubernetesCaCert: String? = null,
 
     /**
-     * Optional list of PEM-formated public keys or certificates
+     * Optional list of PEM-formatted public keys or certificates
      * used to verify the signatures of kubernetes service account JWTs.
      * If a certificate is given, its public key will be extracted.
      * Not every installation of Kubernetes exposes these keys.
