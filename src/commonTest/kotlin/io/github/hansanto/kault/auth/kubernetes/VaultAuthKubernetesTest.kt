@@ -9,10 +9,8 @@ import io.github.hansanto.kault.auth.kubernetes.response.KubernetesReadAuthRoleR
 import io.github.hansanto.kault.exception.VaultAPIException
 import io.github.hansanto.kault.system.auth.enable
 import io.github.hansanto.kault.util.DEFAULT_ROLE_NAME
+import io.github.hansanto.kault.util.Kubernetes
 import io.github.hansanto.kault.util.createVaultClient
-import io.github.hansanto.kault.util.getKubernetesCaCert
-import io.github.hansanto.kault.util.getKubernetesHost
-import io.github.hansanto.kault.util.getKubernetesToken
 import io.github.hansanto.kault.util.randomString
 import io.github.hansanto.kault.util.readJson
 import io.kotest.assertions.throwables.shouldNotThrow
@@ -26,14 +24,9 @@ class VaultAuthKubernetesTest : FunSpec({
     lateinit var client: VaultClient
     lateinit var kubernetes: VaultAuthKubernetes
 
-    lateinit var kubernetesHost: String
-    lateinit var kubernetesCaCert: String
-
     beforeSpec {
         client = createVaultClient()
         kubernetes = client.auth.kubernetes
-        kubernetesHost = getKubernetesHost()
-        kubernetesCaCert = getKubernetesCaCert()
 
         runCatching {
             client.system.auth.enable("kubernetes") {
@@ -48,9 +41,9 @@ class VaultAuthKubernetesTest : FunSpec({
 
     beforeTest {
         kubernetes.configure {
-            this.kubernetesHost = kubernetesHost
-            this.kubernetesCaCert = kubernetesCaCert
-            tokenReviewerJwt = getKubernetesToken()
+            kubernetesHost = Kubernetes.host
+            kubernetesCaCert = Kubernetes.caCert
+            tokenReviewerJwt = Kubernetes.token
         }
 
         runCatching {
@@ -84,8 +77,8 @@ class VaultAuthKubernetesTest : FunSpec({
 
     test("read default configuration") {
         kubernetes.readConfiguration() shouldBe KubernetesConfigureAuthResponse(
-            kubernetesHost = kubernetesHost,
-            kubernetesCaCert = kubernetesCaCert,
+            kubernetesHost = Kubernetes.host,
+            kubernetesCaCert = Kubernetes.caCert,
             pemKeys = emptyList(),
             disableLocalCaJwt = false
         )
@@ -133,7 +126,14 @@ class VaultAuthKubernetesTest : FunSpec({
     }
 
     test("login with non-existing role") {
-        shouldThrow<VaultAPIException> { kubernetes.login(KubernetesLoginPayload(DEFAULT_ROLE_NAME, getKubernetesToken())) }
+        shouldThrow<VaultAPIException> {
+            kubernetes.login(
+                KubernetesLoginPayload(
+                    DEFAULT_ROLE_NAME,
+                    Kubernetes.token
+                )
+            )
+        }
     }
 
     test("login with invalid token") {
@@ -144,7 +144,7 @@ class VaultAuthKubernetesTest : FunSpec({
     test("login with existing role") {
         createRole(kubernetes, DEFAULT_ROLE_NAME)
 
-        val response = kubernetes.login(KubernetesLoginPayload(DEFAULT_ROLE_NAME, getKubernetesToken()))
+        val response = kubernetes.login(KubernetesLoginPayload(DEFAULT_ROLE_NAME, Kubernetes.token))
         val expected = readJson<LoginResponse>("cases/auth/kubernetes/login/expected.json").run {
             copy(
                 clientToken = response.clientToken,
