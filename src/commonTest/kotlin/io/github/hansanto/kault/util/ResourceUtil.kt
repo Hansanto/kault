@@ -13,7 +13,7 @@ const val STRING_REPLACE = "REPLACED_DYNAMICALLY"
  * @receiver Path of the file that should be present in the resource folder.
  * @return Resource object to read the file content.
  */
-fun String.asFileResource(): Resource {
+fun String.asResourceFile(): Resource {
     return Resource("src/commonTest/resources/$this")
 }
 
@@ -24,5 +24,5 @@ fun String.asFileResource(): Resource {
  * @return Object of type T.
  */
 inline fun <reified T> readJson(name: String): T {
-    return VaultClient.json.decodeFromString(name.asFileResource().readText())
+    return VaultClient.json.decodeFromString(name.asResourceFile().readText())
 }
