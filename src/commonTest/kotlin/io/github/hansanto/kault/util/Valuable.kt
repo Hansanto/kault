@@ -44,12 +44,18 @@ data class SystemFileValue(
      * @return Content of the file if readable, null otherwise.
      */
     private fun readFileFromSystem(): String? {
-        val filePath = findFileInParentDirectories(pathFile)
-        if (filePath == null || !filePath.exists()) {
+        val (folderToFind, childrenPath) = pathFile.split('/', limit = 2)
+        val folderPath = findFolderInParent(folderToFind)
+        if (folderPath == null || !folderPath.exists()) {
             return null
         }
 
-        return filePath.readLines()
+        val targetedFilePath = folderPath.resolve(childrenPath)
+        if (!targetedFilePath.exists()) {
+            return null
+        }
+
+        return targetedFilePath.readLines()
     }
 }
 
@@ -73,10 +79,6 @@ data class ResourceValue(
      * @return Content of the file if readable, null otherwise.
      */
     private fun readFileFromResources(): String? {
-        val filePath = pathFile.asResourcePath()
-        if (!filePath.exists()) {
-            return null
-        }
-        return filePath.readLines()
+        return runCatching { pathFile.asFileResource().readText() }.getOrNull()
     }
 }

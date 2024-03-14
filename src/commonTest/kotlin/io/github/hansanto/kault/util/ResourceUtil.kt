@@ -1,7 +1,7 @@
 package io.github.hansanto.kault.util
 
+import com.goncalossilva.resources.Resource
 import io.github.hansanto.kault.VaultClient
-import kotlinx.io.files.Path
 
 /**
  * Value present in JSON files that should be replaced dynamically.
@@ -13,8 +13,8 @@ const val STRING_REPLACE = "REPLACED_DYNAMICALLY"
  * @receiver Path of the file that should be present in the resource folder.
  * @return Resource object to read the file content.
  */
-fun String.asResourcePath(): Path {
-    return Path(workingDirectory(), "src/commonTest/resources/$this")
+fun String.asFileResource(): Resource {
+    return Resource("src/commonTest/resources/$this")
 }
 
 /**
@@ -24,5 +24,5 @@ fun String.asResourcePath(): Path {
  * @return Object of type T.
  */
 inline fun <reified T> readJson(name: String): T {
-    return VaultClient.json.decodeFromString(name.asResourcePath().readLines())
+    return VaultClient.json.decodeFromString(name.asFileResource().readText())
 }
