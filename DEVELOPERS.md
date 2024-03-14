@@ -1,10 +1,11 @@
 # Overview
 
-| Element                                                                    | Usage                            |
-|----------------------------------------------------------------------------|----------------------------------|
-| [![](https://img.shields.io/badge/Gradle-blue?logo=gradle)](#gradle)       | Build tool                       |
-| [![](https://img.shields.io/badge/Kotlin-orange?logo=kotlin)](#kotlin)     | Development language             |
-| [![](https://img.shields.io/badge/Docker-blue?logo=docker)](#docker)       | Test environment                 |
+| Element                                                                       | Usage                |
+|-------------------------------------------------------------------------------|----------------------|
+| [![](https://img.shields.io/badge/Gradle-blue?logo=gradle)](#gradle)          | Build tool           |
+| [![](https://img.shields.io/badge/Kotlin-orange?logo=kotlin)](#kotlin)        | Development language |
+| [![](https://img.shields.io/badge/Docker-blue?logo=docker)](#docker)          | Test environment     |
+| [![](https://img.shields.io/badge/Minikube-white?logo=kubernetes)](#minikube) | Test environment     |
 
 ## Getting started
 
@@ -48,6 +49,25 @@ For the moment, the use of [TestContainers](https://www.testcontainers.org/) (or
 because of the lack of support for Kotlin Multiplatform.
 If one day it is possible, we will use it to avoid the use of a `docker-compose` file.
 
+### Minikube
+
+![](https://img.shields.io/badge/optional-black)
+[![](https://img.shields.io/badge/minikube-install-blue?logo=kubernetes)](https://minikube.sigs.k8s.io/docs/start/)
+
+Minikube allows running a Kubernetes cluster locally.
+
+To set up the Kubernetes environment,
+you can execute the [setup.sh](src/commonTest/resources/configuration/kubernetes/setup.sh) file:
+
+```shell
+sh src/commonTest/resources/configuration/kubernetes/setup.sh
+```
+
+A specific service account and namespace will be created to run the tests.
+
+An authentication token will be generated
+and sent in the [token.tmp](src/commonTest/resources/configuration/kubernetes/token.tmp) file.
+
 ## Commands
 
 ### Build
@@ -62,10 +82,16 @@ To build the project:
 
 The tests are located in the [src/commonTest](src/commonTest) directory.
 
-You need to start a Vault server before running the tests:
+To start Vault:
 
 ```shell
 docker-compose up -d
+```
+
+To start Minikube:
+
+```shell
+minikube start
 ```
 
 To run the tests:
@@ -74,10 +100,16 @@ To run the tests:
 ./gradlew test
 ```
 
-If you want to stop the Vault server:
+To stop Vault:
 
 ```shell
 docker-compose down
+```
+
+To stop Minikube:
+
+```shell
+minikube stop
 ```
 
 #### Coverage
