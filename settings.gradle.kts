@@ -8,13 +8,14 @@ pluginManagement {
 dependencyResolutionManagement {
     versionCatalogs {
         create("libs") {
-            version("kotlin", "1.9.21")
+            version("kotlin", "1.9.22")
             version("ktor", "3.0.0-beta-1")
             version("kotlin-serialization", "1.6.0")
             version("kotest", "5.8.0")
             version("kover", "0.7.6")
             version("kotlinx-datetime", "0.4.1")
             version("kotlinx-coroutines", "1.7.3")
+            version("kotlinx-io", "0.3.1")
             version("resources", "0.4.0")
             version("slf4j", "2.0.9")
             version("dokka", "1.9.10")
@@ -45,6 +46,7 @@ dependencyResolutionManagement {
             library("kt-serialization-json", "org.jetbrains.kotlinx", "kotlinx-serialization-json").versionRef("kotlin-serialization")
             library("kt-datetime", "org.jetbrains.kotlinx", "kotlinx-datetime").versionRef("kotlinx-datetime")
             library("kt-coroutines", "org.jetbrains.kotlinx", "kotlinx-coroutines-core").versionRef("kotlinx-coroutines")
+            library("kt-io", "org.jetbrains.kotlinx", "kotlinx-io-core").versionRef("kotlinx-io")
 
             library("kotest-core", "io.kotest", "kotest-assertions-core").versionRef("kotest")
             library("kotest-engine", "io.kotest", "kotest-framework-engine").versionRef("kotest")

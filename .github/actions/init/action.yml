@@ -1,5 +1,5 @@
 name: Initialization
-description: Common actions to initialize a Job
+description: Common actions to initialize a Job.
 
 inputs:
   jdk:

@@ -1,0 +1,8 @@
+{
+  "bound_service_account_names": [
+    "default_service_account"
+  ],
+  "bound_service_account_namespaces": [
+    "default_namespace"
+  ]
+}
