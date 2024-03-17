@@ -1,7 +1,7 @@
 package io.github.hansanto.kault.auth.kubernetes.payload
 
 import io.github.hansanto.kault.KaultDsl
-import io.github.hansanto.kault.auth.approle.common.AppRoleTokenType
+import io.github.hansanto.kault.auth.common.common.TokenType
 import io.github.hansanto.kault.auth.kubernetes.common.KubernetesAliasNameSourceType
 import io.github.hansanto.kault.serializer.VaultDuration
 import kotlinx.serialization.SerialName
@@ -90,7 +90,7 @@ public data class KubernetesWriteAuthRolePayload(
      * The type of token that should be generated.
      */
     @SerialName("token_type")
-    public var tokenType: AppRoleTokenType? = null
+    public var tokenType: TokenType? = null
 
 ) {
 
@@ -164,7 +164,7 @@ public data class KubernetesWriteAuthRolePayload(
         /**
          * @see [KubernetesWriteAuthRolePayload.tokenType]
          */
-        public var tokenType: AppRoleTokenType? = null
+        public var tokenType: TokenType? = null
 
         /**
          * Build the instance of [KubernetesWriteAuthRolePayload] with the values defined in builder.

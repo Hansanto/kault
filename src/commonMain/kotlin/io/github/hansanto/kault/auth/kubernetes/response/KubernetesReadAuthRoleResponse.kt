@@ -1,6 +1,6 @@
 package io.github.hansanto.kault.auth.kubernetes.response
 
-import io.github.hansanto.kault.auth.approle.common.AppRoleTokenType
+import io.github.hansanto.kault.auth.common.common.TokenType
 import io.github.hansanto.kault.auth.kubernetes.common.KubernetesAliasNameSourceType
 import io.github.hansanto.kault.serializer.VaultDuration
 import kotlinx.serialization.SerialName
@@ -89,6 +89,6 @@ public data class KubernetesReadAuthRoleResponse(
      * The type of token that should be generated.
      */
     @SerialName("token_type")
-    public val tokenType: AppRoleTokenType
+    public val tokenType: TokenType
 
 )

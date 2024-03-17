@@ -1,6 +1,6 @@
 package io.github.hansanto.kault.system.auth.response
 
-import io.github.hansanto.kault.auth.approle.common.AppRoleTokenType
+import io.github.hansanto.kault.auth.common.common.TokenType
 import io.github.hansanto.kault.serializer.VaultDuration
 import io.github.hansanto.kault.system.auth.common.ListingVisibility
 import kotlinx.serialization.SerialName
@@ -81,7 +81,7 @@ public data class AuthReadTuningInformationResponse(
      * Specifies the type of tokens that should be returned by the mount.
      */
     @SerialName("token_type")
-    public val tokenType: AppRoleTokenType,
+    public val tokenType: TokenType,
 
     /**
      * Specifies the duration after which the lockout counter is reset with no failed login attempts, specified as a string duration like "5s" or "30m".
