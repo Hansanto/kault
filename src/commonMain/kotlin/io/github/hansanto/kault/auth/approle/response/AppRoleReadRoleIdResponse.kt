@@ -4,7 +4,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-public data class ReadRoleIdResponse(
+public data class AppRoleReadRoleIdResponse(
     /**
      * Identifier of the role. Defaults to a UUID.
      */

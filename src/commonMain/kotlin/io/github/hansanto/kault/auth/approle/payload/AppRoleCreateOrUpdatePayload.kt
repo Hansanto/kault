@@ -1,12 +1,12 @@
 package io.github.hansanto.kault.auth.approle.payload
 
-import io.github.hansanto.kault.auth.approle.common.TokenType
+import io.github.hansanto.kault.auth.common.common.TokenType
 import io.github.hansanto.kault.serializer.VaultDuration
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-public data class CreateOrUpdatePayload(
+public data class AppRoleCreateOrUpdatePayload(
     /**
      * Require secret_id to be presented when logging in using this AppRole.
      */

@@ -5,7 +5,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-public data class LoginPayload(
+public data class AppRoleLoginPayload(
 
     /**
      * RoleID of the AppRole.
@@ -22,27 +22,27 @@ public data class LoginPayload(
 ) {
 
     /**
-     * Builder class to simplify the creation of [LoginPayload].
+     * Builder class to simplify the creation of [AppRoleLoginPayload].
      */
     @KaultDsl
     @Suppress("MemberVisibilityCanBePrivate")
     public class Builder {
 
         /**
-         * @see [LoginPayload.roleId]
+         * @see [AppRoleLoginPayload.roleId]
          */
         public lateinit var roleId: String
 
         /**
-         * @see [LoginPayload.secretId]
+         * @see [AppRoleLoginPayload.secretId]
          */
         public lateinit var secretId: String
 
         /**
-         * Build the instance of [LoginPayload] with the values defined in builder.
+         * Build the instance of [AppRoleLoginPayload] with the values defined in builder.
          * @return A new instance.
          */
-        public fun build(): LoginPayload = LoginPayload(
+        public fun build(): AppRoleLoginPayload = AppRoleLoginPayload(
             roleId = roleId,
             secretId = secretId
         )
