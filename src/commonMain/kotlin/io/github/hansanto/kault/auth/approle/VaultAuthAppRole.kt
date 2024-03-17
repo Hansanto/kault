@@ -264,10 +264,10 @@ public class VaultAuthAppRoleImpl(
 
         public override var path: String = Default.PATH
 
-        public override fun buildWithFullPath(client: HttpClient, fullPath: String): VaultAuthAppRoleImpl =
+        public override fun buildWithCompletePath(client: HttpClient, completePath: String): VaultAuthAppRoleImpl =
             VaultAuthAppRoleImpl(
                 client = client,
-                path = fullPath
+                path = completePath
             )
     }
 

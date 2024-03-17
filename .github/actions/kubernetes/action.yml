@@ -1,0 +1,37 @@
+name: Setup Kubernetes
+description: Initializes a Kubernetes cluster.
+
+outputs:
+  ip:
+    description: The IP address of the Kubernetes cluster.
+    value: ${{ steps.configuration.outputs.KUBERNETES_IP }}
+  port:
+    description: The port to interact with the Kubernetes cluster.
+    value: ${{ steps.configuration.outputs.KUBERNETES_PORT }}
+  token:
+    description: The token to authenticate with the Kubernetes cluster.
+    value: ${{ steps.configuration.outputs.KUBERNETES_TOKEN }}
+
+runs:
+  using: composite
+  steps:
+    - name: Start minikube
+      id: minikube
+      uses: medyagh/setup-minikube@v0.0.15
+      with:
+          driver: docker
+
+    - name: Configure Kubernetes
+      id: configuration
+      shell: bash
+      run: |
+        KUBERNETES_IP=$(minikube ip)
+        echo "KUBERNETES_IP=$KUBERNETES_IP" >> $GITHUB_OUTPUT
+        
+        KUBERNETES_PORT=$(kubectl describe service kubernetes | grep "TargetPort:" | awk '{print $2}' | cut -d '/' -f1)
+        echo "KUBERNETES_PORT=$KUBERNETES_PORT" >> $GITHUB_OUTPUT
+        
+        sh src/commonTest/resources/configuration/kubernetes/setup.sh
+        KUBERNETES_TOKEN=$(cat src/commonTest/resources/configuration/kubernetes/token.tmp)
+        
+        echo "KUBERNETES_TOKEN=$KUBERNETES_TOKEN" >> $GITHUB_OUTPUT

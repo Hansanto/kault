@@ -20,5 +20,9 @@ package io.github.hansanto.kault.extension
 public fun String.addURLChildPath(path: String): String {
     val parentPathWithoutSeparator = removeSuffix(URL_PATH_SEPARATOR)
     val pathWithoutSeparator = path.removeSuffix(URL_PATH_SEPARATOR).removePrefix(URL_PATH_SEPARATOR)
-    return parentPathWithoutSeparator + URL_PATH_SEPARATOR + pathWithoutSeparator
+    return if (parentPathWithoutSeparator.isEmpty()) {
+        return pathWithoutSeparator
+    } else {
+        parentPathWithoutSeparator + URL_PATH_SEPARATOR + pathWithoutSeparator
+    }
 }

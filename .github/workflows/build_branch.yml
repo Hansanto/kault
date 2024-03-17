@@ -2,6 +2,8 @@ name: Build
 
 on:
   push:
+    branches-ignore:
+      - "v*" # Skip tags
 
 concurrency:
   group: build-${{ github.ref }}
@@ -14,7 +16,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: gradle/wrapper-validation-action@v1
+      - uses: gradle/wrapper-validation-action@v2
 
   format:
     needs: [ validation ]
@@ -27,7 +29,7 @@ jobs:
         uses: ./.github/actions/init
 
       - name: Check format
-        uses: gradle/gradle-build-action@v2
+        uses: gradle/gradle-build-action@v3
         with:
           arguments: ktlintCheck
 
@@ -45,14 +47,23 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Initialization
+        id: init
         uses: ./.github/actions/init
         with:
           jdk: 8
 
-      - name: Docker up
+      - name: Setup Kubernetes
+        id: kubernetes
+        uses: ./.github/actions/kubernetes
+
+      - name: Docker Compose up
         run: docker-compose up -d
 
       - name: Build
-        uses: gradle/gradle-build-action@v2
+        uses: gradle/gradle-build-action@v3
         with:
           arguments: build
+        env:
+          KUBERNETES_IP: ${{ steps.kubernetes.outputs.ip }}
+          KUBERNETES_PORT: ${{ steps.kubernetes.outputs.port }}
+          KUBERNETES_TOKEN: ${{ steps.kubernetes.outputs.token }}

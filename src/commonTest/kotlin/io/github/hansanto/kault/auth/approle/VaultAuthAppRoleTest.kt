@@ -1,6 +1,5 @@
 package io.github.hansanto.kault.auth.approle
 
-import io.github.hansanto.kault.STRING_REPLACE
 import io.github.hansanto.kault.VaultClient
 import io.github.hansanto.kault.auth.approle.payload.CreateCustomSecretIDPayload
 import io.github.hansanto.kault.auth.approle.payload.CreateOrUpdatePayload
@@ -13,15 +12,16 @@ import io.github.hansanto.kault.auth.approle.response.ReadRoleResponse
 import io.github.hansanto.kault.auth.approle.response.WriteSecretIdResponse
 import io.github.hansanto.kault.exception.VaultAPIException
 import io.github.hansanto.kault.system.auth.enable
+import io.github.hansanto.kault.util.DEFAULT_ROLE_NAME
+import io.github.hansanto.kault.util.STRING_REPLACE
 import io.github.hansanto.kault.util.createVaultClient
+import io.github.hansanto.kault.util.randomString
 import io.github.hansanto.kault.util.readJson
 import io.kotest.assertions.throwables.shouldNotThrow
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
-
-private const val DEFAULT_ROLE_NAME = "test"
 
 class VaultAuthAppRoleTest : FunSpec({
 
@@ -51,6 +51,26 @@ class VaultAuthAppRoleTest : FunSpec({
         }
 
         shouldThrow<VaultAPIException> { appRole.read(DEFAULT_ROLE_NAME) }
+    }
+
+    test("builder default variables should be set correctly") {
+        VaultAuthAppRoleImpl.Default.PATH shouldBe "approle"
+
+        val built = VaultAuthAppRoleImpl(client.client, null) {
+        }
+
+        built.path shouldBe VaultAuthAppRoleImpl.Default.PATH
+    }
+
+    test("builder should set values correctly") {
+        val builderPath = randomString()
+        val parentPath = randomString()
+
+        val built = VaultAuthAppRoleImpl(client.client, parentPath) {
+            path = builderPath
+        }
+
+        built.path shouldBe "$parentPath/$builderPath"
     }
 
     test("list with no roles") {

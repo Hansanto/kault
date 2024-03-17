@@ -3,12 +3,13 @@ package io.github.hansanto.kault.auth
 import io.github.hansanto.kault.BuilderDsl
 import io.github.hansanto.kault.KaultDsl
 import io.github.hansanto.kault.ServiceBuilder
-import io.github.hansanto.kault.VaultClient
 import io.github.hansanto.kault.auth.approle.VaultAuthAppRole
 import io.github.hansanto.kault.auth.approle.VaultAuthAppRoleImpl
 import io.github.hansanto.kault.auth.approle.response.LoginResponse
 import io.github.hansanto.kault.auth.userpass.VaultAuthUserpass
 import io.github.hansanto.kault.auth.userpass.VaultAuthUserpassImpl
+import io.github.hansanto.kault.auth.kubernetes.VaultAuthKubernetes
+import io.github.hansanto.kault.auth.kubernetes.VaultAuthKubernetesImpl
 import io.ktor.client.HttpClient
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
@@ -19,7 +20,6 @@ import kotlin.contracts.contract
 public class VaultAuth(
     /**
      * Token used to interact with API.
-     * This value is used through the header [VaultClient.Headers.token].
      */
     public var token: String? = null,
 
@@ -27,11 +27,16 @@ public class VaultAuth(
      * Authentication appRole service.
      */
     public val appRole: VaultAuthAppRole,
-
+    
     /**
      * Authentication username & password service.
      */
-    public val userpass: VaultAuthUserpass
+    public val userpass: VaultAuthUserpass,
+  
+    /**
+     * Authentication kubernetes service.
+     */
+    public val kubernetes: VaultAuthKubernetes
 ) {
 
     public companion object {
@@ -82,12 +87,18 @@ public class VaultAuth(
          * Builder to define authentication username & password service.
          */
         private var userpassBuilder: BuilderDsl<VaultAuthUserpassImpl.Builder> = {}
+        
+        /**
+         * Builder to define authentication kubernetes service.
+         */
+        private var kubernetesBuilder: BuilderDsl<VaultAuthKubernetesImpl.Builder> = {}
 
-        override fun buildWithFullPath(client: HttpClient, fullPath: String): VaultAuth {
+        override fun buildWithCompletePath(client: HttpClient, completePath: String): VaultAuth {
             return VaultAuth(
                 token = token,
-                appRole = VaultAuthAppRoleImpl.Builder().apply(appRoleBuilder).build(client, fullPath),
-                userpass = VaultAuthUserpassImpl.Builder().apply(userpassBuilder).build(client, fullPath)
+                appRole = VaultAuthAppRoleImpl.Builder().apply(appRoleBuilder).build(client, completePath),
+                userpass = VaultAuthUserpassImpl.Builder().apply(userpassBuilder).build(client, completePath),
+                kubernetes = VaultAuthKubernetesImpl.Builder().apply(kubernetesBuilder).build(client, completePath)
             )
         }
 
@@ -99,7 +110,7 @@ public class VaultAuth(
         public fun appRole(builder: BuilderDsl<VaultAuthAppRoleImpl.Builder>) {
             appRoleBuilder = builder
         }
-
+        
         /**
          * Sets the authentication username & password service builder.
          *
@@ -107,6 +118,15 @@ public class VaultAuth(
          */
         public fun userpass(builder: BuilderDsl<VaultAuthUserpassImpl.Builder>) {
             userpassBuilder = builder
+        }
+        
+        /**
+         * Sets the authentication kubernetes service builder.
+         *
+         * @param builder Builder to create [VaultAuthKubernetesImpl] instance.
+         */
+        public fun kubernetes(builder: BuilderDsl<VaultAuthKubernetesImpl.Builder>) {
+            kubernetesBuilder = builder
         }
     }
 
