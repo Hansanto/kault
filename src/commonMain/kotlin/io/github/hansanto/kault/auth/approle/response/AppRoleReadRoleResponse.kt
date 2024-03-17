@@ -1,12 +1,12 @@
 package io.github.hansanto.kault.auth.approle.response
 
-import io.github.hansanto.kault.auth.approle.common.TokenType
+import io.github.hansanto.kault.auth.approle.common.AppRoleTokenType
 import io.github.hansanto.kault.serializer.VaultDuration
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-public data class ReadRoleResponse(
+public data class AppRoleReadRoleResponse(
     /**
      * Impose secret ID to be presented when logging in using this role.
      */
@@ -89,6 +89,6 @@ public data class ReadRoleResponse(
      * The type of token to generate.
      */
     @SerialName("token_type")
-    val tokenType: TokenType
+    val tokenType: AppRoleTokenType
 
 )

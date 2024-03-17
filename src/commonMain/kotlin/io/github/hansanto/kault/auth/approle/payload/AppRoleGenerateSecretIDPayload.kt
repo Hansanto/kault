@@ -7,7 +7,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.builtins.serializer
 
 @Serializable
-public data class GenerateSecretIDPayload(
+public data class AppRoleGenerateSecretIDPayload(
 
     /**
      * Metadata to be tied to the SecretID. This should be a JSON-formatted string containing the metadata in key-value pairs. This metadata will be set on tokens issued with this SecretID, and is logged in audit logs in plaintext.

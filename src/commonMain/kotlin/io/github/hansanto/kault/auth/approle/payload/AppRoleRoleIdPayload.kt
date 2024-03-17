@@ -4,7 +4,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-public class RoleIdPayload(
+public class AppRoleRoleIdPayload(
 
     /**
      * Identifier of the role.

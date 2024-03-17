@@ -6,8 +6,8 @@ import kotlinx.serialization.Serializable
 /**
  * Enum representing the type of token for AppRole.
  */
-@Serializable(TokenTypeSerializer::class)
-public enum class TokenType(public val value: String) {
+@Serializable(AppRoleTokenTypeSerializer::class)
+public enum class AppRoleTokenType(public val value: String) {
     SERVICE("service"),
     DEFAULT_SERVICE("default-service"),
     BATCH("batch"),
@@ -16,6 +16,10 @@ public enum class TokenType(public val value: String) {
 }
 
 /**
- * Serializer for [TokenType].
+ * Serializer for [AppRoleTokenType].
  */
-public object TokenTypeSerializer : EnumSerializer<TokenType>("tokenType", TokenType.entries, { it.value })
+public object AppRoleTokenTypeSerializer : EnumSerializer<AppRoleTokenType>(
+    "appRoleTokenType",
+    AppRoleTokenType.entries,
+    { it.value }
+)

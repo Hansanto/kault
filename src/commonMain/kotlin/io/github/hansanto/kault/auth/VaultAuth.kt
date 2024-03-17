@@ -5,7 +5,7 @@ import io.github.hansanto.kault.KaultDsl
 import io.github.hansanto.kault.ServiceBuilder
 import io.github.hansanto.kault.auth.approle.VaultAuthAppRole
 import io.github.hansanto.kault.auth.approle.VaultAuthAppRoleImpl
-import io.github.hansanto.kault.auth.approle.response.LoginResponse
+import io.github.hansanto.kault.auth.common.LoginResponse
 import io.github.hansanto.kault.auth.kubernetes.VaultAuthKubernetes
 import io.github.hansanto.kault.auth.kubernetes.VaultAuthKubernetesImpl
 import io.ktor.client.HttpClient

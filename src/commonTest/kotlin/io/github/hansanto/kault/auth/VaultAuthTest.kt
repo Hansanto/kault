@@ -2,8 +2,8 @@ package io.github.hansanto.kault.auth
 
 import io.github.hansanto.kault.VaultClient
 import io.github.hansanto.kault.auth.approle.VaultAuthAppRoleImpl
-import io.github.hansanto.kault.auth.approle.payload.LoginPayload
-import io.github.hansanto.kault.auth.approle.response.LoginResponse
+import io.github.hansanto.kault.auth.approle.payload.AppRoleLoginPayload
+import io.github.hansanto.kault.auth.common.LoginResponse
 import io.github.hansanto.kault.system.auth.enable
 import io.github.hansanto.kault.util.DEFAULT_ROLE_NAME
 import io.github.hansanto.kault.util.ROOT_TOKEN
@@ -93,7 +93,7 @@ private suspend fun loginShouldReplaceToken(auth: VaultAuth) {
     auth.token shouldBe loginResponse.clientToken
 }
 
-private suspend fun createLoginPayload(auth: VaultAuth): LoginPayload {
+private suspend fun createLoginPayload(auth: VaultAuth): AppRoleLoginPayload {
     val appRole = auth.appRole
 
     val oldToken = auth.token
@@ -105,5 +105,5 @@ private suspend fun createLoginPayload(auth: VaultAuth): LoginPayload {
 
     auth.token = oldToken
 
-    return LoginPayload(roleId, secretId)
+    return AppRoleLoginPayload(roleId, secretId)
 }

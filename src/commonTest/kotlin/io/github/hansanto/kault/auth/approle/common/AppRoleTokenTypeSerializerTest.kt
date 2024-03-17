@@ -5,19 +5,19 @@ import io.kotest.matchers.shouldBe
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonPrimitive
 
-class TokenTypeSerializerTest : FunSpec({
+class AppRoleTokenTypeSerializerTest : FunSpec({
 
     test("should encode with name lowercase property") {
-        TokenType.entries.forEach { value ->
-            val serialized = Json.encodeToJsonElement(TokenTypeSerializer, value)
+        AppRoleTokenType.entries.forEach { value ->
+            val serialized = Json.encodeToJsonElement(AppRoleTokenTypeSerializer, value)
             serialized.jsonPrimitive.content shouldBe value.value
         }
     }
 
     test("should decode with name lowercase property") {
-        TokenType.entries.forEach { value ->
-            val serialized = Json.encodeToJsonElement(TokenTypeSerializer, value)
-            Json.decodeFromJsonElement(TokenTypeSerializer, serialized) shouldBe value
+        AppRoleTokenType.entries.forEach { value ->
+            val serialized = Json.encodeToJsonElement(AppRoleTokenTypeSerializer, value)
+            Json.decodeFromJsonElement(AppRoleTokenTypeSerializer, serialized) shouldBe value
         }
     }
 })

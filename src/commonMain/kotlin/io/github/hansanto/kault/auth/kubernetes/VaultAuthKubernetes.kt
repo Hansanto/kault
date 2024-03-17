@@ -3,7 +3,7 @@ package io.github.hansanto.kault.auth.kubernetes
 import io.github.hansanto.kault.BuilderDsl
 import io.github.hansanto.kault.ServiceBuilder
 import io.github.hansanto.kault.VaultClient
-import io.github.hansanto.kault.auth.approle.response.LoginResponse
+import io.github.hansanto.kault.auth.common.LoginResponse
 import io.github.hansanto.kault.auth.kubernetes.payload.KubernetesConfigureAuthPayload
 import io.github.hansanto.kault.auth.kubernetes.payload.KubernetesLoginPayload
 import io.github.hansanto.kault.auth.kubernetes.payload.KubernetesWriteAuthRolePayload
