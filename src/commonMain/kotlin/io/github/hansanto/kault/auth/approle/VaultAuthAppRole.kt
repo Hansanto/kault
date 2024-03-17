@@ -15,7 +15,7 @@ import io.github.hansanto.kault.auth.approle.response.AppRoleLookUpSecretIdRespo
 import io.github.hansanto.kault.auth.approle.response.AppRoleReadRoleIdResponse
 import io.github.hansanto.kault.auth.approle.response.AppRoleReadRoleResponse
 import io.github.hansanto.kault.auth.approle.response.AppRoleWriteSecretIdResponse
-import io.github.hansanto.kault.auth.common.LoginResponse
+import io.github.hansanto.kault.auth.common.response.LoginResponse
 import io.github.hansanto.kault.extension.decodeBodyJsonFieldArray
 import io.github.hansanto.kault.extension.decodeBodyJsonFieldObject
 import io.github.hansanto.kault.extension.decodeBodyJsonFieldObjectOrNull

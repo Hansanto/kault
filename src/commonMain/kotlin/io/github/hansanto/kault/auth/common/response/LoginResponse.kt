@@ -1,4 +1,4 @@
-package io.github.hansanto.kault.auth.common
+package io.github.hansanto.kault.auth.common.response
 
 import io.github.hansanto.kault.auth.approle.common.AppRoleTokenType
 import io.github.hansanto.kault.serializer.VaultDuration

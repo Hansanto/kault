@@ -3,7 +3,7 @@ package io.github.hansanto.kault.auth
 import io.github.hansanto.kault.VaultClient
 import io.github.hansanto.kault.auth.approle.VaultAuthAppRoleImpl
 import io.github.hansanto.kault.auth.approle.payload.AppRoleLoginPayload
-import io.github.hansanto.kault.auth.common.LoginResponse
+import io.github.hansanto.kault.auth.common.response.LoginResponse
 import io.github.hansanto.kault.system.auth.enable
 import io.github.hansanto.kault.util.DEFAULT_ROLE_NAME
 import io.github.hansanto.kault.util.ROOT_TOKEN
