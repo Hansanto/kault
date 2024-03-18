@@ -2,23 +2,23 @@ package io.github.hansanto.kault.auth.approle
 
 import io.github.hansanto.kault.BuilderDsl
 import io.github.hansanto.kault.ServiceBuilder
+import io.github.hansanto.kault.VaultClient
 import io.github.hansanto.kault.auth.VaultAuth
-import io.github.hansanto.kault.auth.approle.payload.CreateCustomSecretIDPayload
-import io.github.hansanto.kault.auth.approle.payload.CreateOrUpdatePayload
-import io.github.hansanto.kault.auth.approle.payload.GenerateSecretIDPayload
-import io.github.hansanto.kault.auth.approle.payload.LoginPayload
-import io.github.hansanto.kault.auth.approle.payload.RoleIdPayload
+import io.github.hansanto.kault.auth.approle.payload.AppRoleCreateCustomSecretIDPayload
+import io.github.hansanto.kault.auth.approle.payload.AppRoleCreateOrUpdatePayload
+import io.github.hansanto.kault.auth.approle.payload.AppRoleGenerateSecretIDPayload
+import io.github.hansanto.kault.auth.approle.payload.AppRoleLoginPayload
+import io.github.hansanto.kault.auth.approle.payload.AppRoleRoleIdPayload
 import io.github.hansanto.kault.auth.approle.payload.SecretIdAccessorPayload
 import io.github.hansanto.kault.auth.approle.payload.SecretIdPayload
-import io.github.hansanto.kault.auth.approle.response.LoginResponse
-import io.github.hansanto.kault.auth.approle.response.LookUpSecretIdResponse
-import io.github.hansanto.kault.auth.approle.response.ReadRoleIdResponse
-import io.github.hansanto.kault.auth.approle.response.ReadRoleResponse
-import io.github.hansanto.kault.auth.approle.response.WriteSecretIdResponse
-import io.github.hansanto.kault.extension.decodeBodyJsonAuthFieldObject
-import io.github.hansanto.kault.extension.decodeBodyJsonDataFieldObject
-import io.github.hansanto.kault.extension.decodeBodyJsonDataFieldObjectOrNull
+import io.github.hansanto.kault.auth.approle.response.AppRoleLookUpSecretIdResponse
+import io.github.hansanto.kault.auth.approle.response.AppRoleReadRoleIdResponse
+import io.github.hansanto.kault.auth.approle.response.AppRoleReadRoleResponse
+import io.github.hansanto.kault.auth.approle.response.AppRoleWriteSecretIdResponse
+import io.github.hansanto.kault.auth.common.response.LoginResponse
 import io.github.hansanto.kault.extension.decodeBodyJsonFieldArray
+import io.github.hansanto.kault.extension.decodeBodyJsonFieldObject
+import io.github.hansanto.kault.extension.decodeBodyJsonFieldObjectOrNull
 import io.github.hansanto.kault.extension.list
 import io.github.hansanto.kault.response.StandardListResponse
 import io.ktor.client.HttpClient
@@ -38,10 +38,10 @@ import kotlin.contracts.contract
  */
 public suspend inline fun VaultAuthAppRole.createOrUpdate(
     roleName: String,
-    payloadBuilder: BuilderDsl<CreateOrUpdatePayload>
+    payloadBuilder: BuilderDsl<AppRoleCreateOrUpdatePayload>
 ): Boolean {
     contract { callsInPlace(payloadBuilder, InvocationKind.EXACTLY_ONCE) }
-    val payload = CreateOrUpdatePayload().apply(payloadBuilder)
+    val payload = AppRoleCreateOrUpdatePayload().apply(payloadBuilder)
     return createOrUpdate(roleName, payload)
 }
 
@@ -50,10 +50,10 @@ public suspend inline fun VaultAuthAppRole.createOrUpdate(
  */
 public suspend inline fun VaultAuthAppRole.generateSecretID(
     roleName: String,
-    payloadBuilder: BuilderDsl<GenerateSecretIDPayload>
-): WriteSecretIdResponse {
+    payloadBuilder: BuilderDsl<AppRoleGenerateSecretIDPayload>
+): AppRoleWriteSecretIdResponse {
     contract { callsInPlace(payloadBuilder, InvocationKind.EXACTLY_ONCE) }
-    val payload = GenerateSecretIDPayload().apply(payloadBuilder)
+    val payload = AppRoleGenerateSecretIDPayload().apply(payloadBuilder)
     return generateSecretID(roleName, payload)
 }
 
@@ -62,10 +62,10 @@ public suspend inline fun VaultAuthAppRole.generateSecretID(
  */
 public suspend inline fun VaultAuthAppRole.createCustomSecretID(
     roleName: String,
-    payloadBuilder: BuilderDsl<CreateCustomSecretIDPayload.Builder>
-): WriteSecretIdResponse {
+    payloadBuilder: BuilderDsl<AppRoleCreateCustomSecretIDPayload.Builder>
+): AppRoleWriteSecretIdResponse {
     contract { callsInPlace(payloadBuilder, InvocationKind.EXACTLY_ONCE) }
-    val payload = CreateCustomSecretIDPayload.Builder().apply(payloadBuilder).build()
+    val payload = AppRoleCreateCustomSecretIDPayload.Builder().apply(payloadBuilder).build()
     return createCustomSecretID(roleName, payload)
 }
 
@@ -73,10 +73,10 @@ public suspend inline fun VaultAuthAppRole.createCustomSecretID(
  * @see VaultAuthAppRole.login(payload)
  */
 public suspend inline fun VaultAuthAppRole.login(
-    payloadBuilder: BuilderDsl<LoginPayload.Builder>
+    payloadBuilder: BuilderDsl<AppRoleLoginPayload.Builder>
 ): LoginResponse {
     contract { callsInPlace(payloadBuilder, InvocationKind.EXACTLY_ONCE) }
-    val payload = LoginPayload.Builder().apply(payloadBuilder).build()
+    val payload = AppRoleLoginPayload.Builder().apply(payloadBuilder).build()
     return login(payload)
 }
 
@@ -101,7 +101,7 @@ public interface VaultAuthAppRole {
      */
     public suspend fun createOrUpdate(
         roleName: String,
-        payload: CreateOrUpdatePayload = CreateOrUpdatePayload()
+        payload: AppRoleCreateOrUpdatePayload = AppRoleCreateOrUpdatePayload()
     ): Boolean
 
     /**
@@ -110,7 +110,7 @@ public interface VaultAuthAppRole {
      * @param roleName Name of the AppRole. Must be less than 4096 bytes.
      * @return Response.
      */
-    public suspend fun read(roleName: String): ReadRoleResponse
+    public suspend fun read(roleName: String): AppRoleReadRoleResponse
 
     /**
      * Deletes an existing AppRole from the method.
@@ -126,7 +126,7 @@ public interface VaultAuthAppRole {
      * @param roleName Name of the AppRole. Must be less than 4096 bytes.
      * @return Response.
      */
-    public suspend fun readRoleID(roleName: String): ReadRoleIdResponse
+    public suspend fun readRoleID(roleName: String): AppRoleReadRoleIdResponse
 
     /**
      * Updates the RoleID of an existing AppRole to a custom value.
@@ -146,8 +146,8 @@ public interface VaultAuthAppRole {
      */
     public suspend fun generateSecretID(
         roleName: String,
-        payload: GenerateSecretIDPayload = GenerateSecretIDPayload()
-    ): WriteSecretIdResponse
+        payload: AppRoleGenerateSecretIDPayload = AppRoleGenerateSecretIDPayload()
+    ): AppRoleWriteSecretIdResponse
 
     /**
      * Lists the accessors of all the SecretIDs issued against the AppRole. This includes the accessors for "custom" SecretIDs as well.
@@ -164,7 +164,7 @@ public interface VaultAuthAppRole {
      * @param secretId Secret ID attached to the role.
      * @return Response.
      */
-    public suspend fun readSecretID(roleName: String, secretId: String): LookUpSecretIdResponse?
+    public suspend fun readSecretID(roleName: String, secretId: String): AppRoleLookUpSecretIdResponse?
 
     /**
      * Destroy an AppRole secret ID.
@@ -182,7 +182,7 @@ public interface VaultAuthAppRole {
      * @param secretIdAccessor Secret ID accessor attached to the role.
      * @return Response.
      */
-    public suspend fun readSecretIDAccessor(roleName: String, secretIdAccessor: String): LookUpSecretIdResponse
+    public suspend fun readSecretIDAccessor(roleName: String, secretIdAccessor: String): AppRoleLookUpSecretIdResponse
 
     /**
      * Destroy an AppRole secret ID by its accessor.
@@ -202,8 +202,8 @@ public interface VaultAuthAppRole {
      */
     public suspend fun createCustomSecretID(
         roleName: String,
-        payload: CreateCustomSecretIDPayload
-    ): WriteSecretIdResponse
+        payload: AppRoleCreateCustomSecretIDPayload
+    ): AppRoleWriteSecretIdResponse
 
     /**
      * Issues a Vault token based on the presented credentials. Role_id is always required; if bind_secret_id is enabled (the default) on the AppRole, secret_id is required too. Any other bound authentication values on the AppRole (such as client IP CIDR) are also evaluated.
@@ -211,7 +211,7 @@ public interface VaultAuthAppRole {
      * @param payload Parameters to login with AppRole.
      * @return Response.
      */
-    public suspend fun login(payload: LoginPayload): LoginResponse
+    public suspend fun login(payload: AppRoleLoginPayload): LoginResponse
 
     /**
      * Performs some maintenance tasks to clean up invalid entries that may remain in the token store. Generally, running this is not needed unless upgrade notes or support personnel suggest it. This may perform a lot of I/O to the storage method so should be used sparingly.
@@ -277,10 +277,10 @@ public class VaultAuthAppRoleImpl(
                 appendPathSegments(path, "role")
             }
         }
-        return response.decodeBodyJsonDataFieldObject<StandardListResponse>().keys
+        return response.decodeBodyJsonFieldObject<StandardListResponse>("data", VaultClient.json).keys
     }
 
-    override suspend fun createOrUpdate(roleName: String, payload: CreateOrUpdatePayload): Boolean {
+    override suspend fun createOrUpdate(roleName: String, payload: AppRoleCreateOrUpdatePayload): Boolean {
         val response = client.post {
             url {
                 appendPathSegments(path, "role", roleName)
@@ -291,13 +291,13 @@ public class VaultAuthAppRoleImpl(
         return response.status.isSuccess()
     }
 
-    override suspend fun read(roleName: String): ReadRoleResponse {
+    override suspend fun read(roleName: String): AppRoleReadRoleResponse {
         val response = client.get {
             url {
                 appendPathSegments(path, "role", roleName)
             }
         }
-        return response.decodeBodyJsonDataFieldObject()
+        return response.decodeBodyJsonFieldObject("data", VaultClient.json)
     }
 
     override suspend fun delete(roleName: String): Boolean {
@@ -309,13 +309,13 @@ public class VaultAuthAppRoleImpl(
         return response.status.isSuccess()
     }
 
-    override suspend fun readRoleID(roleName: String): ReadRoleIdResponse {
+    override suspend fun readRoleID(roleName: String): AppRoleReadRoleIdResponse {
         val response = client.get {
             url {
                 appendPathSegments(path, "role", roleName, "role-id")
             }
         }
-        return response.decodeBodyJsonDataFieldObject()
+        return response.decodeBodyJsonFieldObject("data", VaultClient.json)
     }
 
     override suspend fun updateRoleID(roleName: String, roleId: String): Boolean {
@@ -324,15 +324,15 @@ public class VaultAuthAppRoleImpl(
                 appendPathSegments(path, "role", roleName, "role-id")
             }
             contentType(ContentType.Application.Json)
-            setBody(RoleIdPayload(roleId))
+            setBody(AppRoleRoleIdPayload(roleId))
         }
         return response.status.isSuccess()
     }
 
     override suspend fun generateSecretID(
         roleName: String,
-        payload: GenerateSecretIDPayload
-    ): WriteSecretIdResponse {
+        payload: AppRoleGenerateSecretIDPayload
+    ): AppRoleWriteSecretIdResponse {
         val response = client.post {
             url {
                 appendPathSegments(path, "role", roleName, "secret-id")
@@ -340,7 +340,7 @@ public class VaultAuthAppRoleImpl(
             contentType(ContentType.Application.Json)
             setBody(payload)
         }
-        return response.decodeBodyJsonDataFieldObject()
+        return response.decodeBodyJsonFieldObject("data", VaultClient.json)
     }
 
     override suspend fun secretIdAccessors(roleName: String): List<String> {
@@ -349,10 +349,10 @@ public class VaultAuthAppRoleImpl(
                 appendPathSegments(path, "role", roleName, "secret-id")
             }
         }
-        return response.decodeBodyJsonDataFieldObject<StandardListResponse>().keys
+        return response.decodeBodyJsonFieldObject<StandardListResponse>("data", VaultClient.json).keys
     }
 
-    override suspend fun readSecretID(roleName: String, secretId: String): LookUpSecretIdResponse? {
+    override suspend fun readSecretID(roleName: String, secretId: String): AppRoleLookUpSecretIdResponse? {
         val response = client.post {
             url {
                 appendPathSegments(path, "role", roleName, "secret-id", "lookup")
@@ -362,7 +362,7 @@ public class VaultAuthAppRoleImpl(
         }
 
         // After destroying a secret ID, Vault returns an empty body
-        return response.decodeBodyJsonDataFieldObjectOrNull()
+        return response.decodeBodyJsonFieldObjectOrNull("data", VaultClient.json)
     }
 
     override suspend fun destroySecretID(roleName: String, secretId: String): Boolean {
@@ -380,7 +380,7 @@ public class VaultAuthAppRoleImpl(
     override suspend fun readSecretIDAccessor(
         roleName: String,
         secretIdAccessor: String
-    ): LookUpSecretIdResponse {
+    ): AppRoleLookUpSecretIdResponse {
         val response = client.post {
             url {
                 appendPathSegments(path, "role", roleName, "secret-id-accessor", "lookup")
@@ -389,7 +389,7 @@ public class VaultAuthAppRoleImpl(
             setBody(SecretIdAccessorPayload(secretIdAccessor))
         }
 
-        return response.decodeBodyJsonDataFieldObject()
+        return response.decodeBodyJsonFieldObject("data", VaultClient.json)
     }
 
     override suspend fun destroySecretIDAccessor(roleName: String, secretIdAccessor: String): Boolean {
@@ -405,8 +405,8 @@ public class VaultAuthAppRoleImpl(
 
     override suspend fun createCustomSecretID(
         roleName: String,
-        payload: CreateCustomSecretIDPayload
-    ): WriteSecretIdResponse {
+        payload: AppRoleCreateCustomSecretIDPayload
+    ): AppRoleWriteSecretIdResponse {
         val response = client.post {
             url {
                 appendPathSegments(path, "role", roleName, "custom-secret-id")
@@ -414,10 +414,10 @@ public class VaultAuthAppRoleImpl(
             contentType(ContentType.Application.Json)
             setBody(payload)
         }
-        return response.decodeBodyJsonDataFieldObject()
+        return response.decodeBodyJsonFieldObject("data", VaultClient.json)
     }
 
-    override suspend fun login(payload: LoginPayload): LoginResponse {
+    override suspend fun login(payload: AppRoleLoginPayload): LoginResponse {
         val response = client.post {
             url {
                 appendPathSegments(path, "login")
@@ -425,7 +425,7 @@ public class VaultAuthAppRoleImpl(
             contentType(ContentType.Application.Json)
             setBody(payload)
         }
-        return response.decodeBodyJsonAuthFieldObject()
+        return response.decodeBodyJsonFieldObject("auth", VaultClient.json)
     }
 
     override suspend fun tidyTokens(): List<String> {
@@ -434,6 +434,6 @@ public class VaultAuthAppRoleImpl(
                 appendPathSegments(path, "tidy", "secret-id")
             }
         }
-        return response.decodeBodyJsonFieldArray("warnings")
+        return response.decodeBodyJsonFieldArray("warnings", VaultClient.json)
     }
 }

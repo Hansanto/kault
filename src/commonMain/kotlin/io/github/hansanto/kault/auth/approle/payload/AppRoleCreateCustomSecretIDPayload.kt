@@ -8,7 +8,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.builtins.serializer
 
 @Serializable
-public data class CreateCustomSecretIDPayload(
+public data class AppRoleCreateCustomSecretIDPayload(
 
     /**
      * SecretID to be attached to the Role.
@@ -48,47 +48,47 @@ public data class CreateCustomSecretIDPayload(
 ) {
 
     /**
-     * Builder class to simplify the creation of [CreateCustomSecretIDPayload].
+     * Builder class to simplify the creation of [AppRoleCreateCustomSecretIDPayload].
      */
     @KaultDsl
     @Suppress("MemberVisibilityCanBePrivate")
     public class Builder {
 
         /**
-         * @see [CreateCustomSecretIDPayload.secretId]
+         * @see [AppRoleCreateCustomSecretIDPayload.secretId]
          */
         public lateinit var secretId: String
 
         /**
-         * @see [CreateCustomSecretIDPayload.metadata]
+         * @see [AppRoleCreateCustomSecretIDPayload.metadata]
          */
         public var metadata: String? = null
 
         /**
-         * @see [CreateCustomSecretIDPayload.cidrList]
+         * @see [AppRoleCreateCustomSecretIDPayload.cidrList]
          */
         public var cidrList: List<String>? = null
 
         /**
-         * @see [CreateCustomSecretIDPayload.tokenBoundCidrs]
+         * @see [AppRoleCreateCustomSecretIDPayload.tokenBoundCidrs]
          */
         public var tokenBoundCidrs: List<String>? = null
 
         /**
-         * @see [CreateCustomSecretIDPayload.numUses]
+         * @see [AppRoleCreateCustomSecretIDPayload.numUses]
          */
         public var numUses: Long? = null
 
         /**
-         * @see [CreateCustomSecretIDPayload.ttl]
+         * @see [AppRoleCreateCustomSecretIDPayload.ttl]
          */
         public var ttl: VaultDuration? = null
 
         /**
-         * Build the instance of [CreateCustomSecretIDPayload] with the values defined in builder.
+         * Build the instance of [AppRoleCreateCustomSecretIDPayload] with the values defined in builder.
          * @return A new instance.
          */
-        public fun build(): CreateCustomSecretIDPayload = CreateCustomSecretIDPayload(
+        public fun build(): AppRoleCreateCustomSecretIDPayload = AppRoleCreateCustomSecretIDPayload(
             secretId = secretId,
             metadata = metadata,
             cidrList = cidrList,

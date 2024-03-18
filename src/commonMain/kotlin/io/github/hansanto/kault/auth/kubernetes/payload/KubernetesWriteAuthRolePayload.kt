@@ -1,7 +1,7 @@
 package io.github.hansanto.kault.auth.kubernetes.payload
 
 import io.github.hansanto.kault.KaultDsl
-import io.github.hansanto.kault.auth.approle.common.TokenType
+import io.github.hansanto.kault.auth.common.common.TokenType
 import io.github.hansanto.kault.auth.kubernetes.common.KubernetesAliasNameSourceType
 import io.github.hansanto.kault.serializer.VaultDuration
 import kotlinx.serialization.SerialName

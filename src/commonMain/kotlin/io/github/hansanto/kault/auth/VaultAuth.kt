@@ -5,7 +5,7 @@ import io.github.hansanto.kault.KaultDsl
 import io.github.hansanto.kault.ServiceBuilder
 import io.github.hansanto.kault.auth.approle.VaultAuthAppRole
 import io.github.hansanto.kault.auth.approle.VaultAuthAppRoleImpl
-import io.github.hansanto.kault.auth.approle.response.LoginResponse
+import io.github.hansanto.kault.auth.common.response.LoginResponse
 import io.github.hansanto.kault.auth.userpass.VaultAuthUserpass
 import io.github.hansanto.kault.auth.userpass.VaultAuthUserpassImpl
 import io.github.hansanto.kault.auth.kubernetes.VaultAuthKubernetes
@@ -27,12 +27,12 @@ public class VaultAuth(
      * Authentication appRole service.
      */
     public val appRole: VaultAuthAppRole,
-    
+
     /**
      * Authentication username & password service.
      */
     public val userpass: VaultAuthUserpass,
-  
+
     /**
      * Authentication kubernetes service.
      */
@@ -87,7 +87,7 @@ public class VaultAuth(
          * Builder to define authentication username & password service.
          */
         private var userpassBuilder: BuilderDsl<VaultAuthUserpassImpl.Builder> = {}
-        
+
         /**
          * Builder to define authentication kubernetes service.
          */
@@ -110,7 +110,7 @@ public class VaultAuth(
         public fun appRole(builder: BuilderDsl<VaultAuthAppRoleImpl.Builder>) {
             appRoleBuilder = builder
         }
-        
+
         /**
          * Sets the authentication username & password service builder.
          *
@@ -119,7 +119,7 @@ public class VaultAuth(
         public fun userpass(builder: BuilderDsl<VaultAuthUserpassImpl.Builder>) {
             userpassBuilder = builder
         }
-        
+
         /**
          * Sets the authentication kubernetes service builder.
          *
