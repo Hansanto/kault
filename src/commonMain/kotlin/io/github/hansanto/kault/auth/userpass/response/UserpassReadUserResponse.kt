@@ -6,7 +6,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-public data class ReadUserResponse(
+public data class UserpassReadUserResponse(
     /**
      * The incremental lifetime for generated tokens. This current value of this will be referenced at renewal time.
      */
