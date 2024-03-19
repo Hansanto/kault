@@ -2,7 +2,7 @@ package io.github.hansanto.kault.auth.userpass
 
 import io.github.hansanto.kault.VaultClient
 import io.github.hansanto.kault.auth.userpass.payload.UserpassWriteUserPayload
-import io.github.hansanto.kault.auth.userpass.response.ReadUserResponse
+import io.github.hansanto.kault.auth.userpass.response.UserpassReadUserResponse
 import io.github.hansanto.kault.exception.VaultAPIException
 import io.github.hansanto.kault.system.auth.enable
 import io.github.hansanto.kault.util.DEFAULT_ROLE_NAME
@@ -169,6 +169,6 @@ private suspend fun assertCreate(
     userpass.createOrUpdate(username, given) shouldBe true
 
     val response = userpass.read(username)
-    val expected = readJson<ReadUserResponse>(expectedReadPath)
+    val expected = readJson<UserpassReadUserResponse>(expectedReadPath)
     response shouldBe expected
 }

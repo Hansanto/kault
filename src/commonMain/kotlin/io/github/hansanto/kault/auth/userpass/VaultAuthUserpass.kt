@@ -8,7 +8,7 @@ import io.github.hansanto.kault.auth.userpass.payload.UserpassLoginRequest
 import io.github.hansanto.kault.auth.userpass.payload.UserpassResetPasswordPayload
 import io.github.hansanto.kault.auth.userpass.payload.UserpassResetPoliciesPayload
 import io.github.hansanto.kault.auth.userpass.payload.UserpassWriteUserPayload
-import io.github.hansanto.kault.auth.userpass.response.ReadUserResponse
+import io.github.hansanto.kault.auth.userpass.response.UserpassReadUserResponse
 import io.github.hansanto.kault.extension.decodeBodyJsonAuthFieldObject
 import io.github.hansanto.kault.extension.decodeBodyJsonDataFieldObject
 import io.github.hansanto.kault.extension.list
@@ -57,7 +57,7 @@ public interface VaultAuthUserpass {
      * @param username The username for the user.
      * @return Response.
      */
-    public suspend fun read(username: String): ReadUserResponse
+    public suspend fun read(username: String): UserpassReadUserResponse
 
     /**
      * This endpoint deletes the user from the method.
@@ -164,7 +164,7 @@ public class VaultAuthUserpassImpl(
         return response.status.isSuccess()
     }
 
-    override suspend fun read(username: String): ReadUserResponse {
+    override suspend fun read(username: String): UserpassReadUserResponse {
         val response = client.get {
             url {
                 appendPathSegments(path, "users", username)
