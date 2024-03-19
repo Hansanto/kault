@@ -5,6 +5,7 @@ import io.github.hansanto.kault.auth.userpass.payload.UserpassWriteUserPayload
 import io.github.hansanto.kault.auth.userpass.response.ReadUserResponse
 import io.github.hansanto.kault.exception.VaultAPIException
 import io.github.hansanto.kault.system.auth.enable
+import io.github.hansanto.kault.util.DEFAULT_ROLE_NAME
 import io.github.hansanto.kault.util.createVaultClient
 import io.github.hansanto.kault.util.randomString
 import io.github.hansanto.kault.util.readJson
@@ -59,16 +60,15 @@ class VaultAuthUserpassTest : FunSpec({
     }
 
     test("delete with non existing user") {
-        val username = randomString()
-        userpass.delete(username) shouldBe true
+        userpass.delete(DEFAULT_ROLE_NAME) shouldBe true
 
         shouldThrow<VaultAPIException> {
-            userpass.read(username)
+            userpass.read(DEFAULT_ROLE_NAME)
         }
     }
 
     test("delete with existing user") {
-        val username = randomString()
+        val username = DEFAULT_ROLE_NAME
         userpass.createOrUpdate(username) {
             password = randomString()
         }
@@ -85,7 +85,7 @@ class VaultAuthUserpassTest : FunSpec({
     }
 
     test("update password with non existing user") {
-        val username = randomString()
+        val username = DEFAULT_ROLE_NAME
         val password = randomString()
         shouldThrow<VaultAPIException> {
             userpass.updatePassword(username, password)
@@ -93,7 +93,7 @@ class VaultAuthUserpassTest : FunSpec({
     }
 
     test("update password with existing user") {
-        val username = randomString()
+        val username = DEFAULT_ROLE_NAME
         val firstPassword = randomString()
         val secondPassword = randomString()
         userpass.createOrUpdate(username) {
@@ -120,7 +120,7 @@ class VaultAuthUserpassTest : FunSpec({
     }
 
     test("update policies with non existing user") {
-        val username = randomString()
+        val username = DEFAULT_ROLE_NAME
         val policies = listOf(randomString())
         shouldThrow<VaultAPIException> {
             userpass.updatePolicies(username, policies)
@@ -128,9 +128,9 @@ class VaultAuthUserpassTest : FunSpec({
     }
 
     test("update policies with existing user") {
-        val username = randomString()
-        val initialPolicies = List(3) { randomString() }
-        val newPolicies = listOf(randomString())
+        val username = DEFAULT_ROLE_NAME
+        val initialPolicies = List(3) { "old-policy-$it" }
+        val newPolicies = listOf("new-policy")
         userpass.createOrUpdate(username) {
             password = randomString()
             tokenPolicies = initialPolicies
@@ -139,7 +139,7 @@ class VaultAuthUserpassTest : FunSpec({
         userpass.updatePolicies(username, newPolicies) shouldBe true
 
         val user = userpass.read(username)
-        user.tokenPolicies shouldBe newPolicies
+        user.tokenPolicies shouldContainExactlyInAnyOrder newPolicies
     }
 
     test("list with no users") {
@@ -149,7 +149,7 @@ class VaultAuthUserpassTest : FunSpec({
     }
 
     test("list with users") {
-        val users = List(3) { randomString() }
+        val users = List(3) { "test-$it" }
         users.forEach {
             userpass.createOrUpdate(it) {
                 password = randomString()

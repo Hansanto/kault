@@ -3,7 +3,7 @@ package io.github.hansanto.kault.auth.userpass
 import io.github.hansanto.kault.BuilderDsl
 import io.github.hansanto.kault.ServiceBuilder
 import io.github.hansanto.kault.auth.VaultAuth
-import io.github.hansanto.kault.auth.approle.response.LoginResponse
+import io.github.hansanto.kault.auth.common.response.LoginResponse
 import io.github.hansanto.kault.auth.userpass.payload.UserpassLoginRequest
 import io.github.hansanto.kault.auth.userpass.payload.UserpassResetPasswordPayload
 import io.github.hansanto.kault.auth.userpass.payload.UserpassResetPoliciesPayload
@@ -145,11 +145,12 @@ public class VaultAuthUserpassImpl(
 
         public override var path: String = Default.PATH
 
-        public override fun buildWithFullPath(client: HttpClient, fullPath: String): VaultAuthUserpassImpl =
-            VaultAuthUserpassImpl(
+        override fun buildWithCompletePath(client: HttpClient, completePath: String): VaultAuthUserpassImpl {
+            return VaultAuthUserpassImpl(
                 client = client,
-                path = fullPath
+                path = completePath
             )
+        }
     }
 
     override suspend fun createOrUpdate(username: String, payload: UserpassWriteUserPayload): Boolean {

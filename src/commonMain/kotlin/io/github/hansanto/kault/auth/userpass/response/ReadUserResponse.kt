@@ -1,6 +1,6 @@
 package io.github.hansanto.kault.auth.userpass.response
 
-import io.github.hansanto.kault.auth.approle.common.TokenType
+import io.github.hansanto.kault.auth.common.common.TokenType
 import io.github.hansanto.kault.serializer.VaultDuration
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
