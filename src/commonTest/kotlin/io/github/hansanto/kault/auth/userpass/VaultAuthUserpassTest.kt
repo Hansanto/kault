@@ -43,6 +43,26 @@ class VaultAuthUserpassTest : FunSpec({
         }
     }
 
+    test("builder default variables should be set correctly") {
+        VaultAuthUserpassImpl.Default.PATH shouldBe "userpass"
+
+        val built = VaultAuthUserpassImpl(client.client, null) {
+        }
+
+        built.path shouldBe VaultAuthUserpassImpl.Default.PATH
+    }
+
+    test("builder should set values correctly") {
+        val builderPath = randomString()
+        val parentPath = randomString()
+
+        val built = VaultAuthUserpassImpl(client.client, parentPath) {
+            path = builderPath
+        }
+
+        built.path shouldBe "$parentPath/$builderPath"
+    }
+
     test("create without options") {
         assertCreate(
             userpass,
