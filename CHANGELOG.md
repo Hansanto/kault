@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.1.0](https://github.com/Hansanto/kault/compare/v1.0.2...v1.1.0) (2024-03-21)
+
+
+### Features
+
+* Auth kubernetes ([#31](https://github.com/Hansanto/kault/issues/31)) ([c5375df](https://github.com/Hansanto/kault/commit/c5375dfa2cbb1f9aef46ddc4cad354bcf833580d))
+* Auth Username & Password service ([#15](https://github.com/Hansanto/kault/issues/15)) ([0c35fba](https://github.com/Hansanto/kault/commit/0c35fba8d0500b8c85625213140b95d8b47f8142))
+
+
+### Bug Fixes
+
+* Allow custom header ([#29](https://github.com/Hansanto/kault/issues/29)) ([ba82637](https://github.com/Hansanto/kault/commit/ba826373f6bf1cb9232b6dc0fa1b4178fd866adc))
+
 ## [1.0.2](https://github.com/Hansanto/kault/compare/v1.0.1...v1.0.2) (2024-02-22)
 
 
