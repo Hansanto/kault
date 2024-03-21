@@ -61,6 +61,12 @@ koverReport {
             this.setReportDir(reportKoverFolder.resolve("html"))
         }
     }
+
+    filters {
+        excludes {
+            packages("*.payload", "*.response", "*.common")
+        }
+    }
 }
 
 kotlin {
