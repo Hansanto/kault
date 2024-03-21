@@ -2,7 +2,6 @@ package io.github.hansanto.kault.engine.kv.v2
 
 import io.github.hansanto.kault.BuilderDsl
 import io.github.hansanto.kault.ServiceBuilder
-import io.github.hansanto.kault.VaultClient
 import io.github.hansanto.kault.common.SecretVersion
 import io.github.hansanto.kault.engine.kv.v2.payload.KvV2ConfigureRequest
 import io.github.hansanto.kault.engine.kv.v2.payload.KvV2DeleteVersionsRequest
@@ -15,7 +14,7 @@ import io.github.hansanto.kault.engine.kv.v2.response.KvV2ReadResponse
 import io.github.hansanto.kault.engine.kv.v2.response.KvV2ReadSubkeysResponse
 import io.github.hansanto.kault.engine.kv.v2.response.KvV2WriteResponse
 import io.github.hansanto.kault.extension.MergePatchJson
-import io.github.hansanto.kault.extension.decodeBodyJsonFieldObject
+import io.github.hansanto.kault.extension.decodeBodyJsonDataFieldObject
 import io.github.hansanto.kault.extension.list
 import io.github.hansanto.kault.response.StandardListResponse
 import io.ktor.client.HttpClient
@@ -311,7 +310,7 @@ public class VaultKV2EngineImpl(
                 appendPathSegments(this@VaultKV2EngineImpl.path, "config")
             }
         }
-        return response.decodeBodyJsonFieldObject("data", VaultClient.json)
+        return response.decodeBodyJsonDataFieldObject()
     }
 
     override suspend fun readSecret(path: String, version: Long?): KvV2ReadResponse {
@@ -321,7 +320,7 @@ public class VaultKV2EngineImpl(
                 parameter("version", version)
             }
         }
-        return response.decodeBodyJsonFieldObject("data", VaultClient.json)
+        return response.decodeBodyJsonDataFieldObject()
     }
 
     override suspend fun createOrUpdateSecret(path: String, payload: KvV2WriteRequest): KvV2WriteResponse {
@@ -332,7 +331,7 @@ public class VaultKV2EngineImpl(
             contentType(ContentType.Application.Json)
             setBody(payload)
         }
-        return response.decodeBodyJsonFieldObject("data", VaultClient.json)
+        return response.decodeBodyJsonDataFieldObject()
     }
 
     override suspend fun patchSecret(path: String, payload: KvV2WriteRequest): KvV2WriteResponse {
@@ -343,7 +342,7 @@ public class VaultKV2EngineImpl(
             contentType(ContentType.Application.MergePatchJson)
             setBody(payload)
         }
-        return response.decodeBodyJsonFieldObject("data", VaultClient.json)
+        return response.decodeBodyJsonDataFieldObject()
     }
 
     override suspend fun readSecretSubKeys(path: String, payload: KvV2SubKeysRequest): KvV2ReadSubkeysResponse {
@@ -354,7 +353,7 @@ public class VaultKV2EngineImpl(
             parameter("version", payload.version)
             parameter("depth", payload.depth)
         }
-        return response.decodeBodyJsonFieldObject("data", VaultClient.json)
+        return response.decodeBodyJsonDataFieldObject()
     }
 
     override suspend fun deleteSecretLatestVersion(path: String): Boolean {
@@ -405,7 +404,7 @@ public class VaultKV2EngineImpl(
                 appendPathSegments(this@VaultKV2EngineImpl.path, "metadata", path)
             }
         }
-        return response.decodeBodyJsonFieldObject<StandardListResponse>("data", VaultClient.json).keys
+        return response.decodeBodyJsonDataFieldObject<StandardListResponse>().keys
     }
 
     override suspend fun readSecretMetadata(path: String): KvV2ReadMetadataResponse {
@@ -414,7 +413,7 @@ public class VaultKV2EngineImpl(
                 appendPathSegments(this@VaultKV2EngineImpl.path, "metadata", path)
             }
         }
-        return response.decodeBodyJsonFieldObject("data", VaultClient.json)
+        return response.decodeBodyJsonDataFieldObject()
     }
 
     override suspend fun createOrUpdateMetadata(path: String, payload: KvV2WriteMetadataRequest): Boolean {

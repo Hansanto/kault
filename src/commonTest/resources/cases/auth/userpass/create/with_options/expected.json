@@ -1,0 +1,14 @@
+{
+  "token_ttl": "1800s",
+  "token_max_ttl": "3600s",
+  "token_policies": [
+    "default",
+    "dev"
+  ],
+  "token_bound_cidrs": [],
+  "token_explicit_max_ttl": "60s",
+  "token_no_default_policy": true,
+  "token_num_uses": 10,
+  "token_period": "30s",
+  "token_type": "service"
+}

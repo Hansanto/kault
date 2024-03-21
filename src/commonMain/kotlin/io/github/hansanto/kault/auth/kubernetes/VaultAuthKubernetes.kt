@@ -2,14 +2,14 @@ package io.github.hansanto.kault.auth.kubernetes
 
 import io.github.hansanto.kault.BuilderDsl
 import io.github.hansanto.kault.ServiceBuilder
-import io.github.hansanto.kault.VaultClient
 import io.github.hansanto.kault.auth.common.response.LoginResponse
 import io.github.hansanto.kault.auth.kubernetes.payload.KubernetesConfigureAuthPayload
 import io.github.hansanto.kault.auth.kubernetes.payload.KubernetesLoginPayload
 import io.github.hansanto.kault.auth.kubernetes.payload.KubernetesWriteAuthRolePayload
 import io.github.hansanto.kault.auth.kubernetes.response.KubernetesConfigureAuthResponse
 import io.github.hansanto.kault.auth.kubernetes.response.KubernetesReadAuthRoleResponse
-import io.github.hansanto.kault.extension.decodeBodyJsonFieldObject
+import io.github.hansanto.kault.extension.decodeBodyJsonAuthFieldObject
+import io.github.hansanto.kault.extension.decodeBodyJsonDataFieldObject
 import io.github.hansanto.kault.extension.list
 import io.github.hansanto.kault.response.StandardListResponse
 import io.ktor.client.HttpClient
@@ -193,7 +193,7 @@ public class VaultAuthKubernetesImpl(
                 appendPathSegments(path, "config")
             }
         }
-        return response.decodeBodyJsonFieldObject("data", VaultClient.json)
+        return response.decodeBodyJsonDataFieldObject()
     }
 
     override suspend fun createOrUpdateRole(roleName: String, payload: KubernetesWriteAuthRolePayload): Boolean {
@@ -213,7 +213,7 @@ public class VaultAuthKubernetesImpl(
                 appendPathSegments(path, "role", roleName)
             }
         }
-        return response.decodeBodyJsonFieldObject("data", VaultClient.json)
+        return response.decodeBodyJsonDataFieldObject()
     }
 
     override suspend fun list(): List<String> {
@@ -222,7 +222,7 @@ public class VaultAuthKubernetesImpl(
                 appendPathSegments(path, "role")
             }
         }
-        return response.decodeBodyJsonFieldObject<StandardListResponse>("data", VaultClient.json).keys
+        return response.decodeBodyJsonDataFieldObject<StandardListResponse>().keys
     }
 
     override suspend fun deleteRole(roleName: String): Boolean {
@@ -242,6 +242,6 @@ public class VaultAuthKubernetesImpl(
             contentType(ContentType.Application.Json)
             setBody(payload)
         }
-        return response.decodeBodyJsonFieldObject("auth", VaultClient.json)
+        return response.decodeBodyJsonAuthFieldObject()
     }
 }
