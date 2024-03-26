@@ -1,6 +1,7 @@
 package io.github.hansanto.kault.common
 
 import io.github.hansanto.kault.VaultClient
+import io.github.hansanto.kault.serializer.optional.OptionalInstantSerializer
 import kotlinx.datetime.Instant
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerialName
@@ -28,7 +29,8 @@ public data class Metadata(
      * The time at which the version was deleted.
      */
     @SerialName("deletion_time")
-    val deletionTime: Instant,
+    @Serializable(with = OptionalInstantSerializer::class)
+    val deletionTime: Instant?,
 
     /**
      * True if the version is destroyed.

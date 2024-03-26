@@ -19,25 +19,26 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
-import kotlin.time.Duration.Companion.hours
 
 class VaultKV2EngineTest : FunSpec({
 
     lateinit var client: VaultClient
     lateinit var kv2: VaultKV2Engine
+    lateinit var initialKv2Configuration: KvV2ReadConfigurationResponse
 
     beforeSpec {
         client = createVaultClient()
         kv2 = client.secret.kv2
+        initialKv2Configuration = kv2.readConfiguration()
     }
 
     beforeTest {
         // Reset the configuration to have the same starting point for each test
         kv2.configure(
             KvV2ConfigureRequest(
-                casRequired = false,
-                deleteVersionAfter = 1.hours,
-                maxVersions = 100
+                casRequired = initialKv2Configuration.casRequired,
+                deleteVersionAfter = initialKv2Configuration.deleteVersionAfter,
+                maxVersions = initialKv2Configuration.maxVersions
             )
         )
     }

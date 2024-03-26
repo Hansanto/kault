@@ -3,6 +3,7 @@ package io.github.hansanto.kault.engine.kv.v2.response
 import io.github.hansanto.kault.VaultClient
 import io.github.hansanto.kault.common.SecretVersion
 import io.github.hansanto.kault.serializer.VaultDuration
+import io.github.hansanto.kault.serializer.optional.OptionalInstantSerializer
 import kotlinx.datetime.Instant
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerialName
@@ -54,7 +55,8 @@ public data class KvV2ReadMetadataResponse(
          * The time at which the version was deleted.
          */
         @SerialName("deletion_time")
-        val deletionTime: Instant,
+        @Serializable(with = OptionalInstantSerializer::class)
+        val deletionTime: Instant? = null,
 
         /**
          * True if the version is destroyed.
