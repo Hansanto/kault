@@ -27,11 +27,6 @@ import kotlinx.serialization.json.jsonPrimitive
 public const val URL_PATH_SEPARATOR: String = "/"
 
 /**
- * Represents the error message when the API doesn't provide a response body.
- */
-public const val VAULT_API_ERROR_NO_BODY: String = "The API didn't provide a response body."
-
-/**
  * Represents the HTTP method LIST.
  */
 public val HttpMethod.Companion.List: HttpMethod
@@ -124,7 +119,7 @@ public suspend inline fun <reified T> HttpResponse.decodeBodyJsonFieldObject(
 ): T {
     return decodeBodyJsonFieldObject(
         { it[fieldName]?.jsonObject },
-        { throw VaultAPIException(listOf(VAULT_API_ERROR_NO_BODY)) },
+        { throw VaultAPIException() },
         format
     ) ?: throw VaultFieldNotFoundException(fieldName)
 }
@@ -164,7 +159,7 @@ public suspend inline fun <reified T> HttpResponse.decodeBodyJsonFieldArray(
 ): List<T> {
     return decodeBodyJsonFieldObject(
         { it[fieldName]?.jsonArray },
-        { throw VaultAPIException(listOf(VAULT_API_ERROR_NO_BODY)) },
+        { throw VaultAPIException() },
         format
     ) ?: throw VaultFieldNotFoundException(fieldName)
 }
