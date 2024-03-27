@@ -149,8 +149,8 @@ public suspend inline fun <reified T> HttpResponse.decodeBodyJsonFieldObjectOrNu
  * If the body is null or the field is not found, an exception is thrown.
  *
  * @receiver HttpResponse the HTTP response that contains the body to extract the JSON field from.
- * @param format Format to use to decode the JSON object.
  * @param fieldName Name of the JSON field to retrieve the value from.
+ * @param format Format to use to decode the JSON object.
  * @return List of decoded values from the specified field.
  */
 public suspend inline fun <reified T> HttpResponse.decodeBodyJsonFieldArray(
@@ -168,9 +168,9 @@ public suspend inline fun <reified T> HttpResponse.decodeBodyJsonFieldArray(
  * Decodes the response body as a JSON object and returns the value of the specified field.
  *
  * @receiver HttpResponse the HTTP response that contains the body to extract the JSON field from.
- * @param format Format to use to decode the JSON object.
  * @param getJsonField Lambda that returns the JSON field to extract the value from, or null if the field is not found.
  * @param onEmptyBody Value to return when the response body is empty.
+ * @param format Format to use to decode the JSON object.
  * @return `null` if the field returned by [getJsonField] is `null`, the decoded value otherwise.
  */
 public suspend inline fun <reified T> HttpResponse.decodeBodyJsonFieldObject(
@@ -189,8 +189,7 @@ public suspend inline fun <reified T> HttpResponse.decodeBodyJsonFieldObject(
 
 /**
  * Find an error message from Vault response body.
- * If the field "errors" or "data.error" is found, return the list of errors.
- * Otherwise, return null.
+ * If the field "errors" or "data.error" is found, returns the list of errors, otherwise null.
  * @param jsonBody Json object representing the response body.
  * @return List of errors if found, null otherwise.
  */
