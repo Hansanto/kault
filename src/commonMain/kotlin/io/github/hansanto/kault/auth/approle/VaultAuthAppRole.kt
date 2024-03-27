@@ -18,7 +18,7 @@ import io.github.hansanto.kault.auth.common.response.LoginResponse
 import io.github.hansanto.kault.extension.decodeBodyJsonAuthFieldObject
 import io.github.hansanto.kault.extension.decodeBodyJsonDataFieldObject
 import io.github.hansanto.kault.extension.decodeBodyJsonDataFieldObjectOrNull
-import io.github.hansanto.kault.extension.decodeBodyJsonFieldArray
+import io.github.hansanto.kault.extension.decodeBodyJsonWarningFieldArray
 import io.github.hansanto.kault.extension.list
 import io.github.hansanto.kault.response.StandardListResponse
 import io.ktor.client.HttpClient
@@ -434,6 +434,6 @@ public class VaultAuthAppRoleImpl(
                 appendPathSegments(path, "tidy", "secret-id")
             }
         }
-        return response.decodeBodyJsonFieldArray("warnings")
+        return response.decodeBodyJsonWarningFieldArray()
     }
 }
