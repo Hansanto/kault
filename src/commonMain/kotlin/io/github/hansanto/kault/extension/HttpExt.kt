@@ -3,7 +3,7 @@ package io.github.hansanto.kault.extension
 import io.github.hansanto.kault.VaultClient
 import io.github.hansanto.kault.exception.VaultAPIException
 import io.github.hansanto.kault.exception.VaultFieldNotFoundException
-import io.github.hansanto.kault.response.VaultResponseField
+import io.github.hansanto.kault.response.ResponseFields
 import io.ktor.client.HttpClient
 import io.ktor.client.request.HttpRequestBuilder
 import io.ktor.client.request.request
@@ -63,6 +63,17 @@ public suspend inline fun HttpClient.list(builder: HttpRequestBuilder): HttpResp
 }
 
 /**
+ * Decodes the response body as a JSON object and returns the value of the "warnings" field.
+ *
+ * @receiver HttpResponse the HTTP response that contains the body to extract the JSON field from.
+ * @param format Format to use to decode the JSON object.
+ * @return Decoded value of the specified field.
+ */
+public suspend inline fun HttpResponse.decodeBodyJsonWarningFieldArray(format: Json = VaultClient.json): List<String> {
+    return decodeBodyJsonFieldArray(ResponseFields.WARNINGS, format)
+}
+
+/**
  * Decodes the response body as a JSON object and returns the value of the "auth" field.
  *
  * @receiver HttpResponse the HTTP response that contains the body to extract the JSON field from.
@@ -70,7 +81,7 @@ public suspend inline fun HttpClient.list(builder: HttpRequestBuilder): HttpResp
  * @return Decoded value of the specified field.
  */
 public suspend inline fun <reified T> HttpResponse.decodeBodyJsonAuthFieldObject(format: Json = VaultClient.json): T {
-    return decodeBodyJsonFieldObject(VaultResponseField.AUTH, format)
+    return decodeBodyJsonFieldObject(ResponseFields.AUTH, format)
 }
 
 /**
@@ -81,7 +92,7 @@ public suspend inline fun <reified T> HttpResponse.decodeBodyJsonAuthFieldObject
  * @return Decoded value of the specified field.
  */
 public suspend inline fun <reified T> HttpResponse.decodeBodyJsonDataFieldObject(format: Json = VaultClient.json): T {
-    return decodeBodyJsonFieldObject(VaultResponseField.DATA, format)
+    return decodeBodyJsonFieldObject(ResponseFields.DATA, format)
 }
 
 /**
@@ -95,11 +106,12 @@ public suspend inline fun <reified T> HttpResponse.decodeBodyJsonDataFieldObject
 public suspend inline fun <reified T> HttpResponse.decodeBodyJsonDataFieldObjectOrNull(
     format: Json = VaultClient.json
 ): T? {
-    return decodeBodyJsonFieldObjectOrNull(VaultResponseField.DATA, format)
+    return decodeBodyJsonFieldObjectOrNull(ResponseFields.DATA, format)
 }
 
 /**
  * Decodes the response body as a JSON object and returns the value of the specified field.
+ * If the body is null or the field is not found, an exception is thrown.
  *
  * @receiver HttpResponse the HTTP response that contains the body to extract the JSON field from.
  * @param format Format to use to decode the JSON object.
@@ -139,6 +151,7 @@ public suspend inline fun <reified T> HttpResponse.decodeBodyJsonFieldObjectOrNu
 
 /**
  * Decodes the response body as a JSON array and returns the value of the specified field as a list.
+ * If the body is null or the field is not found, an exception is thrown.
  *
  * @receiver HttpResponse the HTTP response that contains the body to extract the JSON field from.
  * @param format Format to use to decode the JSON object.
