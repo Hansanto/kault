@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.1.1](https://github.com/Hansanto/kault/compare/v1.1.0...v1.1.1) (2024-03-27)
+
+
+### Bug Fixes
+
+* Change scope methods and remove double error verification ([#36](https://github.com/Hansanto/kault/issues/36)) ([5d1b948](https://github.com/Hansanto/kault/commit/5d1b94832d8dedc0cd34e6d679e68b7eab22c384))
+* Handle empty string to nullable value ([#34](https://github.com/Hansanto/kault/issues/34)) ([c2253c3](https://github.com/Hansanto/kault/commit/c2253c3aee395d308f9b306fa1e6ec8e64cf0809))
+
 ## [1.1.0](https://github.com/Hansanto/kault/compare/v1.0.2...v1.1.0) (2024-03-21)
 
 
