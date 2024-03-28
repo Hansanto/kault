@@ -17,7 +17,7 @@ runs:
         distribution: adopt
 
     - name: Cache gradle
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: |
           ~/.gradle/caches
