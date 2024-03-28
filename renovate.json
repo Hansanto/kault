@@ -6,7 +6,6 @@
   "labels": [
     "dependencies"
   ],
-  "automergeType": "pr",
   "automerge": true,
   "packageRules": [
     {
