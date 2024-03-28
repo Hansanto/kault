@@ -5,7 +5,8 @@
   ],
   "labels": ["dependencies"],
   "major": {
-    "dependencyDashboardApproval": true
+    "dependencyDashboardApproval": true,
+    "automerge": false
   },
   "minor": {
     "automerge": true
