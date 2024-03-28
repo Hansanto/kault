@@ -3,15 +3,17 @@
   "extends": [
     "config:recommended"
   ],
-  "labels": ["dependencies"],
-  "major": {
-    "dependencyDashboardApproval": true,
-    "automerge": false
-  },
-  "minor": {
-    "automerge": true
-  },
-  "patch": {
-    "automerge": true
-  }
+  "labels": [
+    "dependencies"
+  ],
+  "automergeType": "pr",
+  "automerge": true,
+  "packageRules": [
+    {
+      "dependencyDashboardApproval": true,
+      "matchUpdateTypes": [
+        "major"
+      ]
+    }
+  ]
 }
