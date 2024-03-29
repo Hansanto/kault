@@ -13,7 +13,7 @@ dependencyResolutionManagement {
             version("kotlin-serialization", "1.6.3")
             version("kotest", "5.8.1")
             version("kover", "0.7.6")
-            version("kotlinx-datetime", "0.4.1")
+            version("kotlinx-datetime", "0.5.0")
             version("kotlinx-coroutines", "1.8.0")
             version("kotlinx-io", "0.3.2")
             version("resources", "0.4.1")
