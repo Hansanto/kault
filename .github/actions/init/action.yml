@@ -11,7 +11,7 @@ runs:
   steps:
     - name: Set up JDK
       if: ${{ inputs.jdk != '' }}
-      uses: actions/setup-java@v3
+      uses: actions/setup-java@v4
       with:
         java-version: ${{ inputs.jdk }}
         distribution: adopt
