@@ -18,7 +18,7 @@ dependencyResolutionManagement {
             version("kotlinx-io", "0.3.1")
             version("resources", "0.4.0")
             version("slf4j", "2.0.9")
-            version("dokka", "1.9.10")
+            version("dokka", "1.9.20")
             version("detekt", "1.23.6")
             version("ktlint", "11.6.1")
             version("publish", "1.3.0")
