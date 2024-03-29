@@ -10,7 +10,7 @@ dependencyResolutionManagement {
         create("libs") {
             version("kotlin", "1.9.23")
             version("ktor", "3.0.0-beta-1")
-            version("kotlin-serialization", "1.6.0")
+            version("kotlin-serialization", "1.6.3")
             version("kotest", "5.8.0")
             version("kover", "0.7.6")
             version("kotlinx-datetime", "0.4.1")
