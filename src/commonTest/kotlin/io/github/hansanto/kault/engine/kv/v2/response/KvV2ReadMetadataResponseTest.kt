@@ -4,12 +4,12 @@ import io.github.hansanto.kault.compose.JsonDecoderComposer
 import io.github.hansanto.kault.util.ComplexSerializableClass
 import io.github.hansanto.kault.util.randomBoolean
 import io.github.hansanto.kault.util.randomLong
-import io.kotest.core.spec.style.FunSpec
+import io.kotest.core.spec.style.ShouldSpec
 import kotlinx.datetime.Instant
 import kotlinx.serialization.json.JsonObject
 import kotlin.time.Duration
 
-class KvV2ReadMetadataResponseTest : FunSpec({
+class KvV2ReadMetadataResponseTest : ShouldSpec({
 
     JsonDecoderComposer.composeSerialFieldTest(this) {
         val response = createResponse(it)

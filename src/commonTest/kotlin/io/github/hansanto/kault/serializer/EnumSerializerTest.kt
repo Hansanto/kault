@@ -18,6 +18,7 @@ enum class TestEnum(val value: Int) {
     ONE(1), TWO(2), THREE(3)
 }
 
+// TODO
 class EnumSerializerTest : FunSpec({
 
     test("serialize with given way") {

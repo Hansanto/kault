@@ -1,11 +1,12 @@
 package io.github.hansanto.kault.response
 
-import io.kotest.core.spec.style.FunSpec
+import io.kotest.core.spec.style.ShouldSpec
+import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 
-class ResponseFieldsTest : FunSpec({
+class ResponseFieldsTest : ShouldSpec({
 
-    test("should have the correct fields") {
+    should("have fields matching the response structure") {
         ResponseFields.DATA shouldBe "data"
         ResponseFields.AUTH shouldBe "auth"
     }

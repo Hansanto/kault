@@ -1,11 +1,11 @@
 package io.github.hansanto.kault.extension
 
-import io.kotest.core.spec.style.FunSpec
+import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
 
-class HttpExtTest : FunSpec({
+class HttpExtTest : ShouldSpec({
 
-    test("url separator should be trailing slash") {
+    should("check that URL_PATH_SEPARATOR is /") {
         URL_PATH_SEPARATOR shouldBe "/"
     }
 })

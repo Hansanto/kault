@@ -1,6 +1,5 @@
 package io.github.hansanto.kault.auth.approle.payload
 
-import io.kotest.core.spec.style.FunSpec
 import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
 

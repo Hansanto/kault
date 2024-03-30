@@ -19,7 +19,6 @@ import io.github.hansanto.kault.util.randomString
 import io.github.hansanto.kault.util.readJson
 import io.kotest.assertions.throwables.shouldNotThrow
 import io.kotest.assertions.throwables.shouldThrow
-import io.kotest.core.spec.style.FunSpec
 import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
@@ -80,7 +79,7 @@ class VaultAuthAppRoleTest : ShouldSpec({
         }
     }
 
-    should("return created roles when listing roles") {
+    should("return created roles when listing") {
         val roles = List(10) { "test-$it" }
         roles.forEach { appRole.createOrUpdate(it) shouldBe true }
         appRole.list() shouldBe roles
@@ -122,7 +121,7 @@ class VaultAuthAppRoleTest : ShouldSpec({
         response shouldNotBe null
     }
 
-    should("throw exception when deleting non-existing role") {
+    should("do nothing when deleting non-existing role") {
         shouldThrow<VaultAPIException> { appRole.read(DEFAULT_ROLE_NAME) }
         appRole.delete(DEFAULT_ROLE_NAME) shouldBe true
         shouldThrow<VaultAPIException> { appRole.read(DEFAULT_ROLE_NAME) }

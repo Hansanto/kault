@@ -3,7 +3,7 @@ package io.github.hansanto.kault.system.auth.payload
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
-
+// TODO
 class EnableMethodPayloadTest : FunSpec({
 
     test("builder type must be set") {

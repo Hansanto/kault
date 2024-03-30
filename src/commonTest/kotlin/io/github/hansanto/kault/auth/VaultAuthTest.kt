@@ -9,10 +9,10 @@ import io.github.hansanto.kault.util.DEFAULT_ROLE_NAME
 import io.github.hansanto.kault.util.ROOT_TOKEN
 import io.github.hansanto.kault.util.createVaultClient
 import io.github.hansanto.kault.util.randomString
-import io.kotest.core.spec.style.FunSpec
+import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
 
-class VaultAuthTest : FunSpec({
+class VaultAuthTest : ShouldSpec({
 
     lateinit var client: VaultClient
     lateinit var auth: VaultAuth
@@ -41,7 +41,7 @@ class VaultAuthTest : FunSpec({
         }
     }
 
-    test("builder default variables should be set correctly") {
+    should("use default path if not set in builder") {
         VaultAuth.Default.PATH shouldBe "auth"
 
         val built = VaultAuth(client.client, null) {
@@ -51,7 +51,7 @@ class VaultAuthTest : FunSpec({
         (built.appRole as VaultAuthAppRoleImpl).path shouldBe "${VaultAuth.Default.PATH}/${VaultAuthAppRoleImpl.Default.PATH}"
     }
 
-    test("builder should set values correctly") {
+    should("use custom values in the builder") {
         val randomToken = randomString()
         val appRolePath = randomString()
         val builderPath = randomString()
@@ -69,12 +69,12 @@ class VaultAuthTest : FunSpec({
         (built.appRole as VaultAuthAppRoleImpl).path shouldBe "$parentPath/$builderPath/$appRolePath"
     }
 
-    test("login should set token if null") {
+    should("set token with null value") {
         auth.token = null
         loginShouldReplaceToken(auth)
     }
 
-    test("login should replace token if not null") {
+    should("set token with non null value") {
         auth.token = randomString()
         loginShouldReplaceToken(auth)
     }

@@ -1,6 +1,5 @@
 package io.github.hansanto.kault.auth.common.common
 
-import io.kotest.core.spec.style.FunSpec
 import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
 import kotlinx.serialization.json.Json
