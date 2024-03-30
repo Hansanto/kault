@@ -1,23 +1,24 @@
 package io.github.hansanto.kault.auth.approle.payload
 
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
 
-class AppRoleGenerateSecretIDPayloadTest : FunSpec({
+class AppRoleGenerateSecretIDPayloadTest : ShouldSpec({
 
-    test("metadata from empty map") {
+    should("transform metadata empty map to empty json") {
         val payload = AppRoleGenerateSecretIDPayload()
         payload.metadata(emptyMap())
         payload.metadata shouldBe "{}"
     }
 
-    test("metadata from map with one entry") {
+    should("transform metadata map with one entry to json") {
         val payload = AppRoleGenerateSecretIDPayload()
         payload.metadata(mapOf("key" to "value"))
         payload.metadata shouldBe "{\"key\":\"value\"}"
     }
 
-    test("metadata from map with multiple entries") {
+    should("transform metadata from map with multiple entries") {
         val payload = AppRoleGenerateSecretIDPayload()
         payload.metadata(mapOf("key1" to "value1", "key2" to "value2"))
         payload.metadata shouldBe "{\"key1\":\"value1\",\"key2\":\"value2\"}"
