@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.1.1](https://github.com/Hansanto/kault/compare/v1.1.0...v1.1.1) (2024-03-31)
+
+
+### Bug Fixes
+
+* Change scope methods and remove double error verification ([#36](https://github.com/Hansanto/kault/issues/36)) ([5d1b948](https://github.com/Hansanto/kault/commit/5d1b94832d8dedc0cd34e6d679e68b7eab22c384))
+* **deps:** update dependency org.jetbrains.kotlinx:kotlinx-coroutines-core to v1.8.0 ([#52](https://github.com/Hansanto/kault/issues/52)) ([995467c](https://github.com/Hansanto/kault/commit/995467c9d15883454491dff709c0c9ad3100b238))
+* **deps:** update dependency org.jetbrains.kotlinx:kotlinx-datetime to v0.5.0 ([#53](https://github.com/Hansanto/kault/issues/53)) ([4171d96](https://github.com/Hansanto/kault/commit/4171d96aa5ee69740a47543934be6ce0e1786b77))
+* **deps:** update dependency org.jetbrains.kotlinx:kotlinx-io-core to v0.3.2 ([#46](https://github.com/Hansanto/kault/issues/46)) ([6991afe](https://github.com/Hansanto/kault/commit/6991afe782ac7a42d9093305dc3004327907f6f5))
+* **deps:** update dependency org.jetbrains.kotlinx:kotlinx-serialization-json to v1.6.3 ([#47](https://github.com/Hansanto/kault/issues/47)) ([8562899](https://github.com/Hansanto/kault/commit/8562899ac3b2efd206dd52e9cafe49e03a7769f8))
+* **deps:** update dependency org.slf4j:slf4j-simple to v2.0.12 ([#48](https://github.com/Hansanto/kault/issues/48)) ([e0136e6](https://github.com/Hansanto/kault/commit/e0136e647cb021d1bfcaa97c770f469a4577da5d))
+* **deps:** update kotest to v5.8.1 ([#49](https://github.com/Hansanto/kault/issues/49)) ([2b12bf0](https://github.com/Hansanto/kault/commit/2b12bf090f4758cacf5470f3f6a692b420f51149))
+* **deps:** update resources to v0.4.1 ([#54](https://github.com/Hansanto/kault/issues/54)) ([050ed73](https://github.com/Hansanto/kault/commit/050ed73a899a6bb27d736945fe6a0db9a1330f56))
+* Handle empty string to nullable value ([#34](https://github.com/Hansanto/kault/issues/34)) ([c2253c3](https://github.com/Hansanto/kault/commit/c2253c3aee395d308f9b306fa1e6ec8e64cf0809))
+
 ## [1.1.0](https://github.com/Hansanto/kault/compare/v1.0.2...v1.1.0) (2024-03-21)
 
 
