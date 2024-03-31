@@ -51,6 +51,8 @@ class VaultAuthTest : ShouldSpec({
 
         built.token shouldBe null
         (built.appRole as VaultAuthAppRoleImpl).path shouldBe "${VaultAuth.Default.PATH}/${VaultAuthAppRoleImpl.Default.PATH}"
+        (built.kubernetes as VaultAuthKubernetesImpl).path shouldBe "${VaultAuth.Default.PATH}/${VaultAuthKubernetesImpl.Default.PATH}"
+        (built.userpass as VaultAuthUserpassImpl).path shouldBe "${VaultAuth.Default.PATH}/${VaultAuthUserpassImpl.Default.PATH}"
     }
 
     should("use custom values in the builder") {
@@ -85,16 +87,16 @@ class VaultAuthTest : ShouldSpec({
 
     should("set token with null value") {
         auth.token = null
-        loginShouldReplaceToken(auth)
+        assertLoginReplaceToken(auth)
     }
 
     should("set token with non-null value") {
         auth.token = randomString()
-        loginShouldReplaceToken(auth)
+        assertLoginReplaceToken(auth)
     }
 })
 
-private suspend fun loginShouldReplaceToken(auth: VaultAuth) {
+private suspend fun assertLoginReplaceToken(auth: VaultAuth) {
     val payload = createLoginPayload(auth)
 
     val loginResponse: LoginResponse

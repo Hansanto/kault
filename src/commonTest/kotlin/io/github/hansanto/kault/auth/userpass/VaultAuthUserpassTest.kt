@@ -79,6 +79,22 @@ class VaultAuthUserpassTest : ShouldSpec({
         )
     }
 
+    should("create a user using builder with default values") {
+        assertCreateOrUpdateWithBuilder(
+            userpass,
+            "cases/auth/userpass/create/without_options/given.json",
+            "cases/auth/userpass/create/without_options/expected.json"
+        )
+    }
+
+    should("create a user using builder with all defined values") {
+        assertCreateOrUpdateWithBuilder(
+            userpass,
+            "cases/auth/userpass/create/with_options/given.json",
+            "cases/auth/userpass/create/with_options/expected.json"
+        )
+    }
+
     should("do nothing when deleting non-existing role") {
         shouldThrow<VaultAPIException> { userpass.read(DEFAULT_ROLE_NAME) }
         userpass.delete(DEFAULT_ROLE_NAME) shouldBe true
@@ -185,8 +201,27 @@ private suspend fun assertCreateOrUpdate(
     val username = randomString()
     val given = readJson<UserpassWriteUserPayload>(givenPath)
     userpass.createOrUpdate(username, given) shouldBe true
+    userpass.read(username) shouldBe readJson<UserpassReadUserResponse>(expectedReadPath)
+}
 
-    val response = userpass.read(username)
-    val expected = readJson<UserpassReadUserResponse>(expectedReadPath)
-    response shouldBe expected
+private suspend fun assertCreateOrUpdateWithBuilder(
+    userpass: VaultAuthUserpass,
+    givenPath: String,
+    expectedReadPath: String
+) {
+    val username = randomString()
+    val given = readJson<UserpassWriteUserPayload>(givenPath)
+    userpass.createOrUpdate(username) {
+        password = given.password
+        tokenTTL = given.tokenTTL
+        tokenMaxTTL = given.tokenMaxTTL
+        tokenPolicies = given.tokenPolicies
+        tokenBoundCidrs = given.tokenBoundCidrs
+        tokenExplicitMaxTTL = given.tokenExplicitMaxTTL
+        tokenNoDefaultPolicy = given.tokenNoDefaultPolicy
+        tokenNumUses = given.tokenNumUses
+        tokenPeriod = given.tokenPeriod
+        tokenType = given.tokenType
+    } shouldBe true
+    userpass.read(username) shouldBe readJson<UserpassReadUserResponse>(expectedReadPath)
 }
