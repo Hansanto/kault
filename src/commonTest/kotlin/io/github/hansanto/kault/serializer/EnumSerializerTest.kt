@@ -2,7 +2,7 @@ package io.github.hansanto.kault.serializer
 
 import io.kotest.assertions.json.shouldEqualJson
 import io.kotest.assertions.throwables.shouldThrow
-import io.kotest.core.spec.style.FunSpec
+import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerializationException
@@ -18,10 +18,9 @@ enum class TestEnum(val value: Int) {
     ONE(1), TWO(2), THREE(3)
 }
 
-// TODO
-class EnumSerializerTest : FunSpec({
+class EnumSerializerTest : ShouldSpec({
 
-    test("serialize with given way") {
+    should("serialize with given way") {
         assertEnumSerialized(TestEnumSerializerWithValue, TestEnum.ONE, "1")
         assertEnumSerialized(TestEnumSerializerWithValue, TestEnum.TWO, "2")
         assertEnumSerialized(TestEnumSerializerWithValue, TestEnum.THREE, "3")
@@ -35,7 +34,7 @@ class EnumSerializerTest : FunSpec({
         assertEnumSerialized(TestEnumSerializerWithName, TestEnum.THREE, "three")
     }
 
-    test("deserialize with given way") {
+    should("deserialize with given way") {
         assertEnumDeserialized(TestEnumSerializerWithValue, "1", TestEnum.ONE)
         assertEnumDeserialized(TestEnumSerializerWithValue, "2", TestEnum.TWO)
         assertEnumDeserialized(TestEnumSerializerWithValue, "3", TestEnum.THREE)
@@ -49,7 +48,7 @@ class EnumSerializerTest : FunSpec({
         assertEnumDeserialized(TestEnumSerializerWithName, "three", TestEnum.THREE)
     }
 
-    test("deserialize throws error if value not recognized") {
+    should("deserialize throws error if value not recognized") {
         assertEnumDeserializedError(TestEnumSerializerWithValue, "4")
         assertEnumDeserializedError(TestEnumSerializerWithOrdinal, "3")
         assertEnumDeserializedError(TestEnumSerializerWithName, "four")

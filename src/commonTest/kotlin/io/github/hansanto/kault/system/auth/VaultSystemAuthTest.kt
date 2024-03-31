@@ -11,13 +11,13 @@ import io.github.hansanto.kault.util.randomString
 import io.github.hansanto.kault.util.readJson
 import io.kotest.assertions.throwables.shouldNotThrow
 import io.kotest.assertions.throwables.shouldThrow
-import io.kotest.core.spec.style.FunSpec
+import io.kotest.core.spec.style.ShouldSpec
+import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 
 private const val DEFAULT_METHOD = "approle"
 
-// TODO
-class VaultSystemAuthTest : FunSpec({
+class VaultSystemAuthTest : ShouldSpec({
 
     lateinit var client: VaultClient
     lateinit var auth: VaultSystemAuth
@@ -41,7 +41,7 @@ class VaultSystemAuthTest : FunSpec({
         client.close()
     }
 
-    test("builder default variables should be set correctly") {
+    should("use default path if not set in builder") {
         VaultSystemAuthImpl.Default.PATH shouldBe "auth"
 
         val built = VaultSystemAuthImpl(client.client, null) {
@@ -50,7 +50,7 @@ class VaultSystemAuthTest : FunSpec({
         built.path shouldBe VaultSystemAuthImpl.Default.PATH
     }
 
-    test("builder should set values correctly") {
+    should("use custom values in the builder") {
         val randomPath = randomString()
         val parentPath = randomString()
 
@@ -61,14 +61,14 @@ class VaultSystemAuthTest : FunSpec({
         built.path shouldBe "$parentPath/$randomPath"
     }
 
-    test("list with no additional auth methods") {
+    should("list with no additional auth methods") {
         val response = auth.list()
         val expected =
             readJson<Map<String, AuthReadConfigurationResponse>>("cases/sys/auth/list/without_additional/expected.json")
         response shouldBe replaceDynamicFields(response, expected)
     }
 
-    test("list with additional auth methods") {
+    should("list with additional auth methods") {
         val payload = readJson<EnableMethodPayload>("cases/sys/auth/list/with_additional/given.json")
         auth.enable(DEFAULT_METHOD, payload) shouldBe true
 
@@ -78,7 +78,7 @@ class VaultSystemAuthTest : FunSpec({
         response shouldBe replaceDynamicFields(response, expected)
     }
 
-    test("enable method & read configuration with empty payload") {
+    should("throw exception when enabling non-existing method with empty payload") {
         val exception = shouldThrow<Exception> {
             auth.enable(DEFAULT_METHOD) {}
         }
@@ -90,7 +90,7 @@ class VaultSystemAuthTest : FunSpec({
         }
     }
 
-    test("enable method & read configuration with minimal payload") {
+    should("enable method & read configuration with minimal payload") {
         auth.enable(DEFAULT_METHOD) {
             type = DEFAULT_METHOD
         } shouldBe true
@@ -100,7 +100,7 @@ class VaultSystemAuthTest : FunSpec({
         response shouldBe replaceDynamicFields(response, expected)
     }
 
-    test("enable method & read configuration with full payload") {
+    should("enable method & read configuration with full payload") {
         val payload = readJson<EnableMethodPayload>("cases/sys/auth/enable/with_options/given.json")
         auth.enable(DEFAULT_METHOD, payload) shouldBe true
 
@@ -109,20 +109,20 @@ class VaultSystemAuthTest : FunSpec({
         response shouldBe replaceDynamicFields(response, expected)
     }
 
-    test("disable token method") {
+    should("throw exception when disabling non-existing method") {
         shouldThrow<VaultAPIException> {
             auth.disable("token")
         }
     }
 
-    test("disable method with non-existing method") {
+    should("throw exception when reading configuration of non-existing method") {
         auth.disable(DEFAULT_METHOD) shouldBe true
         shouldThrow<VaultAPIException> {
             auth.readConfiguration(DEFAULT_METHOD)
         }
     }
 
-    test("disable method with existing method") {
+    should("disable method if enabled") {
         auth.enable(DEFAULT_METHOD) {
             type = DEFAULT_METHOD
         } shouldBe true
@@ -138,13 +138,13 @@ class VaultSystemAuthTest : FunSpec({
         }
     }
 
-    test("tune method with non-existing method") {
+    should("throw exception when tuning non-existing method") {
         shouldThrow<VaultAPIException> {
             auth.tune(DEFAULT_METHOD)
         }
     }
 
-    test("tune with empty payload") {
+    should("tune with default values") {
         assertTune(
             auth,
             null,
@@ -152,7 +152,7 @@ class VaultSystemAuthTest : FunSpec({
         )
     }
 
-    test("tune with full payload") {
+    should("tune with all defined values") {
         assertTune(
             auth,
             "cases/sys/auth/tune/with_options/given.json",

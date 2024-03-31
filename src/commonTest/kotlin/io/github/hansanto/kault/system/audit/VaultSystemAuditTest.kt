@@ -6,10 +6,10 @@ import io.github.hansanto.kault.system.audit.response.AuditingDeviceResponse
 import io.github.hansanto.kault.util.createVaultClient
 import io.github.hansanto.kault.util.randomString
 import io.github.hansanto.kault.util.readJson
-import io.kotest.core.spec.style.FunSpec
+import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
-// TODO
-class VaultSystemAuditTest : FunSpec({
+
+class VaultSystemAuditTest : ShouldSpec({
 
     lateinit var client: VaultClient
     lateinit var audit: VaultSystemAudit
@@ -27,7 +27,7 @@ class VaultSystemAuditTest : FunSpec({
         client.close()
     }
 
-    test("builder default variables should be set correctly") {
+    should("use default path if not set in builder") {
         VaultSystemAuditImpl.Default.PATH shouldBe "audit"
 
         val built = VaultSystemAuditImpl(client.client, null) {
@@ -36,7 +36,7 @@ class VaultSystemAuditTest : FunSpec({
         built.path shouldBe VaultSystemAuditImpl.Default.PATH
     }
 
-    test("builder should set values correctly") {
+    should("use custom values in the builder") {
         val randomPath = randomString()
         val parentPath = randomString()
 
@@ -47,12 +47,12 @@ class VaultSystemAuditTest : FunSpec({
         built.path shouldBe "$parentPath/$randomPath"
     }
 
-    test("list without audit enabled") {
+    should("list without audit enabled") {
         val response = audit.list()
         response.size shouldBe 0
     }
 
-    test("list with audit enabled without options") {
+    should("list with audit enabled with default values") {
         assertListWithEnabledAudit(
             audit,
             listOf(
@@ -62,7 +62,7 @@ class VaultSystemAuditTest : FunSpec({
         )
     }
 
-    test("list with audit enabled with options") {
+    should("list with audit enabled with all defined values") {
         assertListWithEnabledAudit(
             audit,
             listOf(
@@ -72,7 +72,7 @@ class VaultSystemAuditTest : FunSpec({
         )
     }
 
-    test("list with several audit enabled") {
+    should("list with several audit enabled") {
         assertListWithEnabledAudit(
             audit,
             listOf(
@@ -83,12 +83,12 @@ class VaultSystemAuditTest : FunSpec({
         )
     }
 
-    test("disable with non existing audit") {
+    should("disable with non existing audit") {
         val response = audit.disable("non-existing-audit")
         response shouldBe true
     }
 
-    test("disable with existing audit") {
+    should("disable with existing audit") {
         val given = readJson<AuditingEnableDevicePayload>("cases/sys/audit/without_options/given.json")
         val path = "role"
         audit.enable(path, given) shouldBe true

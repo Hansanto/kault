@@ -2,7 +2,7 @@ package io.github.hansanto.kault.serializer.optional
 
 import io.kotest.assertions.json.shouldEqualJson
 import io.kotest.assertions.throwables.shouldThrow
-import io.kotest.core.spec.style.FunSpec
+import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
 import kotlinx.datetime.Instant
 import kotlinx.serialization.Serializable
@@ -15,31 +15,30 @@ data class WrapperOptionalInstantValue(
     val value: Instant?
 )
 
-// TODO
-class OptionalInstantSerializerTest : FunSpec({
+class OptionalInstantSerializerTest : ShouldSpec({
 
-    test("serialize with null value") {
+    should("serialize with null value") {
         assertSerialized(null, null)
     }
 
-    test("serialize with value") {
+    should("serialize with value") {
         assertSerialized(Instant.parse("2030-12-20T14:42:52Z"), "2030-12-20T14:42:52Z")
         assertSerialized(Instant.fromEpochMilliseconds(0), "1970-01-01T00:00:00Z")
     }
 
-    test("deserialize with null value") {
+    should("deserialize with null value") {
         assertDeserialized(null, null)
     }
 
-    test("deserialize with empty string") {
+    should("deserialize with empty string") {
         assertDeserialized("", null)
     }
 
-    test("deserialize with wrong string") {
+    should("deserialize with wrong string") {
         assertInvalidFormat("wrong")
     }
 
-    test("deserialize with valid") {
+    should("deserialize with valid") {
         assertDeserialized("2030-12-20T14:42:52Z", Instant.parse("2030-12-20T14:42:52Z"))
         assertDeserialized("1970-01-01T00:00:00Z", Instant.fromEpochMilliseconds(0))
     }
