@@ -98,7 +98,6 @@ public data class KubernetesWriteAuthRolePayload(
      * Builder class to simplify the creation of [KubernetesWriteAuthRolePayload].
      */
     @KaultDsl
-    @Suppress("MemberVisibilityCanBePrivate")
     public class Builder {
 
         /**

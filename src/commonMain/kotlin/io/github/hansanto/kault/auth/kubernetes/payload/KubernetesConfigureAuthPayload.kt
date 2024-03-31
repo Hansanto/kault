@@ -45,7 +45,6 @@ public data class KubernetesConfigureAuthPayload(
      * Builder class to simplify the creation of [KubernetesConfigureAuthPayload].
      */
     @KaultDsl
-    @Suppress("MemberVisibilityCanBePrivate")
     public class Builder {
 
         /**

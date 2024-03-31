@@ -259,7 +259,6 @@ public class VaultAuthAppRoleImpl(
     /**
      * Builder class to simplify the creation of [VaultAuth].
      */
-    @Suppress("MemberVisibilityCanBePrivate")
     public class Builder : ServiceBuilder<VaultAuthAppRoleImpl>() {
 
         public override var path: String = Default.PATH

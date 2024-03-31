@@ -19,11 +19,11 @@ import io.github.hansanto.kault.util.randomString
 import io.github.hansanto.kault.util.readJson
 import io.kotest.assertions.throwables.shouldNotThrow
 import io.kotest.assertions.throwables.shouldThrow
-import io.kotest.core.spec.style.FunSpec
+import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 
-class VaultAuthAppRoleTest : FunSpec({
+class VaultAuthAppRoleTest : ShouldSpec({
 
     lateinit var client: VaultClient
     lateinit var appRole: VaultAuthAppRole
@@ -53,7 +53,7 @@ class VaultAuthAppRoleTest : FunSpec({
         shouldThrow<VaultAPIException> { appRole.read(DEFAULT_ROLE_NAME) }
     }
 
-    test("builder default variables should be set correctly") {
+    should("use default path if not set in builder") {
         VaultAuthAppRoleImpl.Default.PATH shouldBe "approle"
 
         val built = VaultAuthAppRoleImpl(client.client, null) {
@@ -62,7 +62,7 @@ class VaultAuthAppRoleTest : FunSpec({
         built.path shouldBe VaultAuthAppRoleImpl.Default.PATH
     }
 
-    test("builder should set values correctly") {
+    should("use custom path if set in builder") {
         val builderPath = randomString()
         val parentPath = randomString()
 
@@ -73,35 +73,51 @@ class VaultAuthAppRoleTest : FunSpec({
         built.path shouldBe "$parentPath/$builderPath"
     }
 
-    test("list with no roles") {
+    should("throw exception if no role was created when listing roles") {
         shouldThrow<VaultAPIException> {
             appRole.list()
         }
     }
 
-    test("list with roles") {
+    should("return created roles when listing") {
         val roles = List(10) { "test-$it" }
         roles.forEach { appRole.createOrUpdate(it) shouldBe true }
         appRole.list() shouldBe roles
     }
 
-    test("create without options") {
-        assertCreate(
+    should("create a role with default values") {
+        assertCreateRole(
             appRole,
             null,
             "cases/auth/approle/create/without_options/expected.json"
         )
     }
 
-    test("create with options") {
-        assertCreate(
+    should("create a role with all defined values") {
+        assertCreateRole(
             appRole,
             "cases/auth/approle/create/with_options/given.json",
             "cases/auth/approle/create/with_options/expected.json"
         )
     }
 
-    test("update approle") {
+    should("create a role using builder with default values") {
+        assertCreateRoleWithBuilder(
+            appRole,
+            null,
+            "cases/auth/approle/create/without_options/expected.json"
+        )
+    }
+
+    should("create a role using builder with all defined values") {
+        assertCreateRoleWithBuilder(
+            appRole,
+            "cases/auth/approle/create/with_options/given.json",
+            "cases/auth/approle/create/with_options/expected.json"
+        )
+    }
+
+    should("update a role if it exists") {
         appRole.createOrUpdate(DEFAULT_ROLE_NAME) shouldBe true
 
         val given = readJson<AppRoleCreateOrUpdatePayload>("cases/auth/approle/update/given.json")
@@ -111,44 +127,44 @@ class VaultAuthAppRoleTest : FunSpec({
         appRole.read(DEFAULT_ROLE_NAME) shouldBe expected
     }
 
-    test("read non-existing role") {
+    should("throw exception when reading non-existing role") {
         shouldThrow<VaultAPIException> { appRole.read(DEFAULT_ROLE_NAME) }
     }
 
-    test("read existing role") {
+    should("read existing role") {
         appRole.createOrUpdate(DEFAULT_ROLE_NAME) shouldBe true
         val response = appRole.read(DEFAULT_ROLE_NAME)
         response shouldNotBe null
     }
 
-    test("delete non-existing role") {
+    should("do nothing when deleting non-existing role") {
         shouldThrow<VaultAPIException> { appRole.read(DEFAULT_ROLE_NAME) }
         appRole.delete(DEFAULT_ROLE_NAME) shouldBe true
         shouldThrow<VaultAPIException> { appRole.read(DEFAULT_ROLE_NAME) }
     }
 
-    test("delete existing role") {
+    should("delete existing role") {
         appRole.createOrUpdate(DEFAULT_ROLE_NAME) shouldBe true
         shouldNotThrow<VaultAPIException> { appRole.read(DEFAULT_ROLE_NAME) }
         appRole.delete(DEFAULT_ROLE_NAME) shouldBe true
         shouldThrow<VaultAPIException> { appRole.read(DEFAULT_ROLE_NAME) }
     }
 
-    test("read non-existing roleId") {
+    should("throw exception when reading non-existing roleId") {
         shouldThrow<VaultAPIException> { appRole.readRoleID(DEFAULT_ROLE_NAME) }
     }
 
-    test("read existing roleId") {
+    should("read roleId with existing role") {
         appRole.createOrUpdate(DEFAULT_ROLE_NAME) shouldBe true
         val response = appRole.readRoleID(DEFAULT_ROLE_NAME)
         response.roleId.length shouldNotBe 0
     }
 
-    test("update roleId with non-existing role") {
+    should("throw exception when updating roleId with non-existing role") {
         shouldThrow<VaultAPIException> { appRole.updateRoleID(DEFAULT_ROLE_NAME, "test") }
     }
 
-    test("update roleId with existing role") {
+    should("update roleId with existing role") {
         appRole.createOrUpdate(DEFAULT_ROLE_NAME) shouldBe true
 
         val newRoleId = "test"
@@ -160,11 +176,11 @@ class VaultAuthAppRoleTest : FunSpec({
         appRole.readRoleID(DEFAULT_ROLE_NAME) shouldBe expectedResponse
     }
 
-    test("generate secret id with non-existing role") {
+    should("throw exception when generating secret id with non-existing role") {
         shouldThrow<VaultAPIException> { appRole.generateSecretID(DEFAULT_ROLE_NAME) }
     }
 
-    test("generate secret id with existing role without options") {
+    should("generate secret id with existing role with default values") {
         assertGenerateSecretID(
             appRole,
             null,
@@ -173,7 +189,16 @@ class VaultAuthAppRoleTest : FunSpec({
         )
     }
 
-    test("generate secret id with existing role with options and read it") {
+    should("generate secret id using builder with existing role with default values") {
+        assertGenerateSecretIDWithBuilder(
+            appRole,
+            null,
+            "cases/auth/approle/generate-secret-id/without_options/expected_write.json",
+            "cases/auth/approle/generate-secret-id/without_options/expected_read.json"
+        )
+    }
+
+    should("generate secret id with existing role with all defined values") {
         assertGenerateSecretID(
             appRole,
             "cases/auth/approle/generate-secret-id/with_options/given.json",
@@ -182,17 +207,26 @@ class VaultAuthAppRoleTest : FunSpec({
         )
     }
 
-    test("secret id accessors with non-existing role") {
+    should("generate secret id using builder with existing role with all defined values") {
+        assertGenerateSecretIDWithBuilder(
+            appRole,
+            "cases/auth/approle/generate-secret-id/with_options/given.json",
+            "cases/auth/approle/generate-secret-id/with_options/expected_write.json",
+            "cases/auth/approle/generate-secret-id/with_options/expected_read.json"
+        )
+    }
+
+    should("throw exception when get secret id accessors with non-existing role") {
         shouldThrow<VaultAPIException> { appRole.secretIdAccessors(DEFAULT_ROLE_NAME) }
     }
 
-    test("secret id accessors with existing role without secret id") {
+    should("throw exception when get secret id accessors with existing role without secret id") {
         appRole.createOrUpdate(DEFAULT_ROLE_NAME) shouldBe true
 
         shouldThrow<VaultAPIException> { appRole.secretIdAccessors(DEFAULT_ROLE_NAME) }
     }
 
-    test("secret id accessors with existing role") {
+    should("generate secret id accessors with existing role") {
         appRole.createOrUpdate(DEFAULT_ROLE_NAME) shouldBe true
 
         repeat(10) {
@@ -201,31 +235,31 @@ class VaultAuthAppRoleTest : FunSpec({
         }
     }
 
-    test("read secret id non-existing role") {
+    should("throw exception when read secret id with non-existing role") {
         shouldThrow<VaultAPIException> { appRole.readSecretID(DEFAULT_ROLE_NAME, "test") }
     }
 
-    test("read secret id existing role and non-existing secret id") {
+    should("return null when read secret id with existing role and non-existing secret id") {
         appRole.createOrUpdate(DEFAULT_ROLE_NAME) shouldBe true
         appRole.readSecretID(DEFAULT_ROLE_NAME, "test") shouldBe null
     }
 
-    test("read secret id existing role and existing secret id") {
+    should("read secret id with existing role and existing secret id") {
         appRole.createOrUpdate(DEFAULT_ROLE_NAME) shouldBe true
         val generateResponse = appRole.generateSecretID(DEFAULT_ROLE_NAME)
         appRole.readSecretID(DEFAULT_ROLE_NAME, generateResponse.secretId) shouldNotBe null
     }
 
-    test("destroy secret id with non-existing role") {
+    should("throw exception when destroy secret id with non-existing role") {
         shouldThrow<VaultAPIException> { appRole.destroySecretID(DEFAULT_ROLE_NAME, "test") }
     }
 
-    test("destroy secret id with existing role and non-existing secret id") {
+    should("destroy secret id with existing role and non-existing secret id") {
         appRole.createOrUpdate(DEFAULT_ROLE_NAME) shouldBe true
         appRole.destroySecretID(DEFAULT_ROLE_NAME, "test") shouldBe true
     }
 
-    test("destroy secret id with existing role and existing secret id") {
+    should("destroy secret id with existing role and existing secret id") {
         appRole.createOrUpdate(DEFAULT_ROLE_NAME) shouldBe true
         val secretId = appRole.generateSecretID(DEFAULT_ROLE_NAME).secretId
 
@@ -234,16 +268,16 @@ class VaultAuthAppRoleTest : FunSpec({
         appRole.readSecretID(DEFAULT_ROLE_NAME, secretId) shouldBe null
     }
 
-    test("read secret id accessor with non-existing role") {
+    should("throw exception when read secret id accessor with non-existing role") {
         shouldThrow<VaultAPIException> { appRole.readSecretIDAccessor(DEFAULT_ROLE_NAME, "test") }
     }
 
-    test("read secret id accessor with existing role and non-existing secret id") {
+    should("read secret id accessor with existing role and non-existing secret id") {
         appRole.createOrUpdate(DEFAULT_ROLE_NAME) shouldBe true
         shouldThrow<VaultAPIException> { appRole.readSecretIDAccessor(DEFAULT_ROLE_NAME, "test") }
     }
 
-    test("read secret id accessor without options & with existing role and existing secret id") {
+    should("read secret id accessor with existing role and existing secret id with default values") {
         assertReadSecretIdAccessor(
             appRole,
             null,
@@ -252,7 +286,7 @@ class VaultAuthAppRoleTest : FunSpec({
         )
     }
 
-    test("read secret id accessor with options & existing role and existing secret id") {
+    should("read secret id accessor with existing role and existing secret id with all defined values") {
         assertReadSecretIdAccessor(
             appRole,
             "cases/auth/approle/read-secret-id-accessor/with_options/given.json",
@@ -261,16 +295,16 @@ class VaultAuthAppRoleTest : FunSpec({
         )
     }
 
-    test("destroy secret id accessor with non-existing role") {
-        shouldThrow<VaultAPIException> { appRole.destroySecretID(DEFAULT_ROLE_NAME, "test") }
+    should("throw exception when destroy secret id accessor with non-existing role") {
+        shouldThrow<VaultAPIException> { appRole.destroySecretIDAccessor(DEFAULT_ROLE_NAME, "test") }
     }
 
-    test("destroy secret id accessor with existing role and non-existing secret id") {
+    should("throw exception when destroy secret id accessor with existing role and non-existing secret id") {
         appRole.createOrUpdate(DEFAULT_ROLE_NAME) shouldBe true
         shouldThrow<VaultAPIException> { appRole.destroySecretIDAccessor(DEFAULT_ROLE_NAME, "test") }
     }
 
-    test("destroy secret id accessor with existing role and existing secret id") {
+    should("destroy secret id accessor with existing role and existing secret id") {
         appRole.createOrUpdate(DEFAULT_ROLE_NAME) shouldBe true
         val secretIdAccessor = appRole.generateSecretID(DEFAULT_ROLE_NAME).secretIdAccessor
 
@@ -279,16 +313,16 @@ class VaultAuthAppRoleTest : FunSpec({
         shouldThrow<VaultAPIException> { appRole.readSecretIDAccessor(DEFAULT_ROLE_NAME, secretIdAccessor) }
     }
 
-    test("create custom secret id with non-existing role") {
+    should("throw exception when create custom secret id with non-existing role") {
         shouldThrow<VaultAPIException> {
             appRole.createCustomSecretID(
                 DEFAULT_ROLE_NAME,
-                AppRoleCreateCustomSecretIDPayload("")
+                AppRoleCreateCustomSecretIDPayload(randomString())
             )
         }
     }
 
-    test("create custom secret id with existing role without secret-id") {
+    should("create custom secret id with existing role with empty secret-id") {
         appRole.createOrUpdate(DEFAULT_ROLE_NAME) shouldBe true
         shouldThrow<VaultAPIException> {
             appRole.createCustomSecretID(
@@ -298,7 +332,7 @@ class VaultAuthAppRoleTest : FunSpec({
         }
     }
 
-    test("create custom secret id with existing role without options") {
+    should("create custom secret id with existing role with default values with default values") {
         assertCreateCustomSecretID(
             appRole,
             "cases/auth/approle/create-custom-secret-id/without_options/given.json",
@@ -307,7 +341,16 @@ class VaultAuthAppRoleTest : FunSpec({
         )
     }
 
-    test("create custom secret id with existing role with options and read it") {
+    should("create custom secret id using builder with existing role with default values with default values") {
+        assertCreateCustomSecretIDWithBuilder(
+            appRole,
+            "cases/auth/approle/create-custom-secret-id/without_options/given.json",
+            "cases/auth/approle/create-custom-secret-id/without_options/expected_write.json",
+            "cases/auth/approle/create-custom-secret-id/without_options/expected_read.json"
+        )
+    }
+
+    should("create custom secret id with existing role with all defined values") {
         assertCreateCustomSecretID(
             appRole,
             "cases/auth/approle/create-custom-secret-id/with_options/given.json",
@@ -316,34 +359,47 @@ class VaultAuthAppRoleTest : FunSpec({
         )
     }
 
-    test("login with non-existing role") {
-        shouldThrow<VaultAPIException> { appRole.login(AppRoleLoginPayload(DEFAULT_ROLE_NAME, "")) }
+    should("create custom secret id using builder with existing role with all defined values") {
+        assertCreateCustomSecretIDWithBuilder(
+            appRole,
+            "cases/auth/approle/create-custom-secret-id/with_options/given.json",
+            "cases/auth/approle/create-custom-secret-id/with_options/expected_write.json",
+            "cases/auth/approle/create-custom-secret-id/with_options/expected_read.json"
+        )
     }
 
-    test("login with existing role without secret-id") {
+    should("throw exception when login with non-existing role") {
+        shouldThrow<VaultAPIException> { appRole.login(AppRoleLoginPayload(DEFAULT_ROLE_NAME, randomString())) }
+    }
+
+    should("throw exception when login with existing role with empty secret-id") {
         appRole.createOrUpdate(DEFAULT_ROLE_NAME) shouldBe true
         val roleId = appRole.readRoleID(DEFAULT_ROLE_NAME).roleId
         shouldThrow<VaultAPIException> { appRole.login(AppRoleLoginPayload(roleId, "")) }
     }
 
-    test("login with existing role with secret-id") {
-        appRole.createOrUpdate(DEFAULT_ROLE_NAME) shouldBe true
-        val secretId = appRole.generateSecretID(DEFAULT_ROLE_NAME).secretId
-        val roleId = appRole.readRoleID(DEFAULT_ROLE_NAME).roleId
-
-        val response = appRole.login(AppRoleLoginPayload(roleId, secretId))
-        val expected = readJson<LoginResponse>("cases/auth/approle/login/expected.json")
-            .copy(
-                accessor = response.accessor,
-                clientToken = response.clientToken,
-                entityId = response.entityId,
-                leaseDuration = response.leaseDuration
-            )
-
-        response shouldBe expected
+    should("login with existing role with secret-id") {
+        assertLogin(
+            appRole,
+            "cases/auth/approle/login/expected.json"
+        ) { roleId, secretId ->
+            appRole.login(AppRoleLoginPayload(roleId, secretId))
+        }
     }
 
-    test("tidy tokens should start internal task") {
+    should("login using builder with existing role with secret-id") {
+        assertLogin(
+            appRole,
+            "cases/auth/approle/login/expected.json"
+        ) { roleId, secretId ->
+            appRole.login {
+                this.roleId = roleId
+                this.secretId = secretId
+            }
+        }
+    }
+
+    should("tidy tokens should start internal task") {
         val warnings = appRole.tidyTokens()
         warnings.size shouldNotBe 0
     }
@@ -370,6 +426,33 @@ private suspend fun assertGenerateSecretID(
     )
 }
 
+private suspend fun assertGenerateSecretIDWithBuilder(
+    appRole: VaultAuthAppRole,
+    givenPath: String?,
+    expectedWritePath: String,
+    expectedReadPath: String
+) {
+    assertCreateAndReadSecret(
+        appRole,
+        givenPath,
+        expectedWritePath,
+        expectedReadPath,
+        defaultPayload = { AppRoleGenerateSecretIDPayload() },
+        write = { role, payload ->
+            appRole.generateSecretID(role) {
+                this.metadata = payload.metadata
+                this.cidrList = payload.cidrList
+                this.tokenBoundCidrs = payload.tokenBoundCidrs
+                this.numUses = payload.numUses
+                this.ttl = payload.ttl
+            }
+        },
+        read = { role, response ->
+            appRole.readSecretID(role, response.secretId)!!
+        }
+    )
+}
+
 private suspend fun assertCreateCustomSecretID(
     appRole: VaultAuthAppRole,
     givenPath: String?,
@@ -384,6 +467,34 @@ private suspend fun assertCreateCustomSecretID(
         defaultPayload = { error("Should not be called") },
         write = { role, payload ->
             appRole.createCustomSecretID(role, payload)
+        },
+        read = { role, response ->
+            appRole.readSecretID(role, response.secretId)!!
+        }
+    )
+}
+
+private suspend fun assertCreateCustomSecretIDWithBuilder(
+    appRole: VaultAuthAppRole,
+    givenPath: String?,
+    expectedWritePath: String,
+    expectedReadPath: String
+) {
+    assertCreateAndReadSecret<AppRoleCreateCustomSecretIDPayload>(
+        appRole,
+        givenPath,
+        expectedWritePath,
+        expectedReadPath,
+        defaultPayload = { error("Should not be called") },
+        write = { role, payload ->
+            appRole.createCustomSecretID(role) {
+                this.secretId = payload.secretId
+                this.metadata = payload.metadata
+                this.cidrList = payload.cidrList
+                this.tokenBoundCidrs = payload.tokenBoundCidrs
+                this.numUses = payload.numUses
+                this.ttl = payload.ttl
+            }
         },
         read = { role, response ->
             appRole.readSecretID(role, response.secretId)!!
@@ -417,9 +528,9 @@ private suspend inline fun <reified P> assertCreateAndReadSecret(
     givenPath: String?,
     expectedWritePath: String,
     expectedReadPath: String,
-    crossinline defaultPayload: () -> P,
-    crossinline write: suspend (String, P) -> AppRoleWriteSecretIdResponse,
-    crossinline read: suspend (String, AppRoleWriteSecretIdResponse) -> AppRoleLookUpSecretIdResponse
+    defaultPayload: () -> P,
+    write: (String, P) -> AppRoleWriteSecretIdResponse,
+    read: (String, AppRoleWriteSecretIdResponse) -> AppRoleLookUpSecretIdResponse
 ) {
     appRole.createOrUpdate(DEFAULT_ROLE_NAME) shouldBe true
 
@@ -458,15 +569,78 @@ private suspend inline fun <reified P> assertCreateAndReadSecret(
     readResponse shouldBe expectedReadResponse
 }
 
-private suspend fun assertCreate(
+private suspend fun assertCreateRole(
     appRole: VaultAuthAppRole,
     givenPath: String?,
     expectedReadPath: String
 ) {
-    val given = givenPath?.let { readJson<AppRoleCreateOrUpdatePayload>(it) } ?: AppRoleCreateOrUpdatePayload()
-    appRole.createOrUpdate(DEFAULT_ROLE_NAME, given) shouldBe true
+    assertCreateRole(
+        appRole,
+        givenPath,
+        expectedReadPath
+    ) { role, payload ->
+        appRole.createOrUpdate(role, payload)
+    }
+}
 
-    val response = appRole.read(DEFAULT_ROLE_NAME)
-    val expected = readJson<AppRoleReadRoleResponse>(expectedReadPath)
-    response shouldBe expected
+private suspend fun assertCreateRoleWithBuilder(
+    appRole: VaultAuthAppRole,
+    givenPath: String?,
+    expectedReadPath: String
+) {
+    assertCreateRole(
+        appRole,
+        givenPath,
+        expectedReadPath
+    ) { role, payload ->
+        appRole.createOrUpdate(role) {
+            this.bindSecretId = payload.bindSecretId
+            this.secretIdBoundCidrs = payload.secretIdBoundCidrs
+            this.secretIdNumUses = payload.secretIdNumUses
+            this.secretIdTTL = payload.secretIdTTL
+            this.localSecretIds = payload.localSecretIds
+            this.tokenTTL = payload.tokenTTL
+            this.tokenMaxTTL = payload.tokenMaxTTL
+            this.tokenPolicies = payload.tokenPolicies
+            this.tokenBoundCidrs = payload.tokenBoundCidrs
+            this.tokenExplicitMaxTTL = payload.tokenExplicitMaxTTL
+            this.tokenNoDefaultPolicy = payload.tokenNoDefaultPolicy
+            this.tokenNumUses = payload.tokenNumUses
+            this.tokenPeriod = payload.tokenPeriod
+            this.tokenType = payload.tokenType
+        }
+    }
+}
+
+private suspend inline fun assertCreateRole(
+    appRole: VaultAuthAppRole,
+    givenPath: String?,
+    expectedReadPath: String,
+    createOrUpdate: (String, AppRoleCreateOrUpdatePayload) -> Boolean
+) {
+    val given = givenPath?.let { readJson<AppRoleCreateOrUpdatePayload>(it) } ?: AppRoleCreateOrUpdatePayload()
+    createOrUpdate(DEFAULT_ROLE_NAME, given) shouldBe true
+    appRole.read(DEFAULT_ROLE_NAME) shouldBe readJson<AppRoleReadRoleResponse>(expectedReadPath)
+}
+
+private suspend inline fun assertLogin(
+    appRole: VaultAuthAppRole,
+    expectedWritePath: String,
+    login: (String, String) -> LoginResponse
+) {
+    appRole.createOrUpdate(DEFAULT_ROLE_NAME) shouldBe true
+    val secretId = appRole.generateSecretID(DEFAULT_ROLE_NAME).secretId
+    val roleId = appRole.readRoleID(DEFAULT_ROLE_NAME).roleId
+
+    val loginResponse = login(roleId, secretId)
+    val expectedWriteResponse =
+        readJson<LoginResponse>(expectedWritePath)
+            .copy(
+                accessor = loginResponse.accessor,
+                clientToken = loginResponse.clientToken,
+                entityId = loginResponse.entityId,
+                leaseDuration = loginResponse.leaseDuration
+            )
+
+    loginResponse shouldBe expectedWriteResponse
 }

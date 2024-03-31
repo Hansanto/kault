@@ -4,12 +4,13 @@ import io.github.hansanto.kault.system.audit.common.AuditType
 import io.github.hansanto.kault.util.randomBoolean
 import io.github.hansanto.kault.util.randomString
 import io.kotest.assertions.throwables.shouldThrow
-import io.kotest.core.spec.style.FunSpec
+import io.kotest.core.spec.style.ShouldSpec
+import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 
-class AuditingEnableDevicePayloadTest : FunSpec({
+class AuditingEnableDevicePayloadTest : ShouldSpec({
 
-    test("should throw exception when type is not set") {
+    should("throw exception when build builder without 'type' field") {
         val builder = AuditingEnableDevicePayload.Builder().apply {
             description = "description"
             local = true
@@ -21,7 +22,20 @@ class AuditingEnableDevicePayloadTest : FunSpec({
         }
     }
 
-    test("should build with all fields set") {
+    should("build builder with only 'type' field") {
+        val randomType = AuditType.entries.random()
+
+        val payload = AuditingEnableDevicePayload.Builder().apply {
+            type = randomType
+        }.build()
+
+        payload.type shouldBe randomType
+        payload.description shouldBe null
+        payload.local shouldBe null
+        payload.options shouldBe null
+    }
+
+    should("build builder with all fields set") {
         val randomType = AuditType.entries.random()
         val randomDescription = randomString()
         val randomLocal = randomBoolean()
@@ -38,18 +52,5 @@ class AuditingEnableDevicePayloadTest : FunSpec({
         payload.description shouldBe randomDescription
         payload.local shouldBe randomLocal
         payload.options shouldBe randomOptions
-    }
-
-    test("should build with only type set") {
-        val randomType = AuditType.entries.random()
-
-        val payload = AuditingEnableDevicePayload.Builder().apply {
-            type = randomType
-        }.build()
-
-        payload.type shouldBe randomType
-        payload.description shouldBe null
-        payload.local shouldBe null
-        payload.options shouldBe null
     }
 })

@@ -25,7 +25,6 @@ public data class KubernetesLoginPayload(
      * Builder class to simplify the creation of [KubernetesLoginPayload].
      */
     @KaultDsl
-    @Suppress("MemberVisibilityCanBePrivate")
     public class Builder {
 
         /**

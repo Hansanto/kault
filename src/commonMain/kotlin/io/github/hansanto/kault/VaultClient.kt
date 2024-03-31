@@ -90,7 +90,6 @@ public class VaultClient(
      * Builder class to simplify the creation of [VaultClient].
      */
     @KaultDsl
-    @Suppress("MemberVisibilityCanBePrivate")
     public class Builder {
 
         /**

@@ -16,11 +16,12 @@ import io.github.hansanto.kault.util.createVaultClient
 import io.github.hansanto.kault.util.randomString
 import io.github.hansanto.kault.util.readJson
 import io.kotest.assertions.throwables.shouldThrow
-import io.kotest.core.spec.style.FunSpec
+import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
+import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 
-class VaultKV2EngineTest : FunSpec({
+class VaultKV2EngineTest : ShouldSpec({
 
     lateinit var client: VaultClient
     lateinit var kv2: VaultKV2Engine
@@ -47,7 +48,7 @@ class VaultKV2EngineTest : FunSpec({
         client.close()
     }
 
-    test("builder default variables should be set correctly") {
+    should("use default path if not set in builder") {
         VaultKV2EngineImpl.Default.PATH shouldBe "secret"
 
         val built = VaultKV2EngineImpl(client.client, null) {
@@ -56,7 +57,7 @@ class VaultKV2EngineTest : FunSpec({
         built.path shouldBe VaultKV2EngineImpl.Default.PATH
     }
 
-    test("builder should set values correctly") {
+    should("use custom path if set in builder") {
         val randomPath = randomString()
         val parentPath = randomString()
 
@@ -67,14 +68,14 @@ class VaultKV2EngineTest : FunSpec({
         built.path shouldBe "$parentPath/$randomPath"
     }
 
-    test("configure without options") {
+    should("set configuration with default values") {
         val currentConfiguration = kv2.readConfiguration()
         kv2.configure() shouldBe true
         val response = kv2.readConfiguration()
         response shouldBe currentConfiguration
     }
 
-    test("configure with options") {
+    should("set configuration with all defined values") {
         val given = readJson<KvV2ConfigureRequest>("cases/engine/kv/v2/configure/with_options/expected.json")
         kv2.configure(given) shouldBe true
         val response = kv2.readConfiguration()
@@ -83,7 +84,7 @@ class VaultKV2EngineTest : FunSpec({
         response shouldBe expected
     }
 
-    test("create or update secret from builder") {
+    should("create or update secret using builder") {
         val path = randomString()
         suspend fun createWithCas(data: Map<String, String>, cas: Int) = kv2.createOrUpdateSecret(path) {
             this.data(data)
@@ -107,13 +108,13 @@ class VaultKV2EngineTest : FunSpec({
         createAndRead(mapOf(randomString() to randomString()), 1)
     }
 
-    test("read secret when secret does not exist") {
+    should("throw exception when reading non-existing secret") {
         shouldThrow<VaultAPIException> {
             kv2.readSecret("test")
         }
     }
 
-    test("read a previous secret version") {
+    should("read a previous secret version") {
         val path = randomString()
 
         val data = mapOf(randomString() to randomString())
@@ -128,7 +129,7 @@ class VaultKV2EngineTest : FunSpec({
         version1Data shouldBe data
     }
 
-    test("read the latest secret version") {
+    should("read the latest secret version") {
         val path = randomString()
 
         kv2.createOrUpdateSecret(path, simpleWriteRequestBuilder())
@@ -145,7 +146,7 @@ class VaultKV2EngineTest : FunSpec({
         readTargetVersionResponse.data<Map<String, String>>() shouldBe updateData
     }
 
-    test("create new secret") {
+    should("create new secret") {
         val path = randomString()
         val createGiven = readJson<KvV2WriteRequest>("cases/engine/kv/v2/create_secret/given.json")
 
@@ -159,7 +160,7 @@ class VaultKV2EngineTest : FunSpec({
         readResponse shouldBe expected
     }
 
-    test("update existing secret") {
+    should("update existing secret") {
         createAndUpdate(
             kv2,
             "cases/engine/kv/v2/update_secret/given_create.json",
@@ -170,14 +171,14 @@ class VaultKV2EngineTest : FunSpec({
         )
     }
 
-    test("patch non-existing secret") {
+    should("throw exception when patching non-existing secret") {
         val path = randomString()
         shouldThrow<VaultAPIException> {
             kv2.patchSecret(path, simpleWriteRequestBuilder())
         }
     }
 
-    test("patch with added secret part") {
+    should("patch with added secret part") {
         createAndUpdate(
             kv2,
             "cases/engine/kv/v2/patch_secret/given_create.json",
@@ -188,7 +189,7 @@ class VaultKV2EngineTest : FunSpec({
         )
     }
 
-    test("patch secret from builder") {
+    should("patch secret using builder") {
         createAndUpdate(
             kv2,
             "cases/engine/kv/v2/patch_secret/given_create.json",
@@ -205,14 +206,14 @@ class VaultKV2EngineTest : FunSpec({
         }
     }
 
-    test("read sub keys with non existing secret") {
+    should("throw exception when reading sub keys of non-existing secret") {
         val path = randomString()
         shouldThrow<VaultAPIException> {
             kv2.readSecretSubKeys(path)
         }
     }
 
-    test("read sub keys with non existing version") {
+    should("throw exception when reading sub keys of secret non-existing version") {
         val path = randomString()
         kv2.createOrUpdateSecret(path, simpleWriteRequestBuilder())
 
@@ -223,7 +224,7 @@ class VaultKV2EngineTest : FunSpec({
         }
     }
 
-    test("read sub keys without options") {
+    should("read sub keys with default values") {
         val path = randomString()
 
         val writeGiven = readJson<KvV2WriteRequest>("cases/engine/kv/v2/read_sub_keys/without_options/given.json")
@@ -235,7 +236,7 @@ class VaultKV2EngineTest : FunSpec({
         readResponse shouldBe expected
     }
 
-    test("read sub keys with options") {
+    should("read sub keys with all defined values") {
         readSecretSubKeysWithOption(
             kv2,
             "cases/engine/kv/v2/read_sub_keys/with_options/given_1.json",
@@ -246,7 +247,7 @@ class VaultKV2EngineTest : FunSpec({
         )
     }
 
-    test("read secret sub keys from builder") {
+    should("read secret sub keys using builder") {
         readSecretSubKeysWithOption(
             kv2,
             "cases/engine/kv/v2/read_sub_keys/with_options/given_1.json",
@@ -261,19 +262,19 @@ class VaultKV2EngineTest : FunSpec({
         }
     }
 
-    test("delete latest version without secret") {
+    should("delete latest version without secret") {
         val path = randomString()
         kv2.deleteSecretLatestVersion(path) shouldBe true
     }
 
-    test("delete latest version with secret and unique version") {
+    should("delete latest version with secret and unique version") {
         val path = randomString()
         kv2.createOrUpdateSecret(path, simpleWriteRequestBuilder())
         kv2.deleteSecretLatestVersion(path)
         kv2.readSecret(path).isDeleted() shouldBe true
     }
 
-    test("delete latest version with secret and multiple versions") {
+    should("delete latest version with secret and multiple versions") {
         val path = randomString()
         val expected = mapOf("version" to "1")
         kv2.createOrUpdateSecret(path) {
@@ -289,19 +290,19 @@ class VaultKV2EngineTest : FunSpec({
         readResponse.data<Map<String, String>>() shouldBe expected
     }
 
-    test("delete secret with non existing secret") {
+    should("delete secret with non-existing secret") {
         val path = randomString()
         kv2.deleteSecretVersions(path, List(5) { it.toLong() }) shouldBe true
     }
 
-    test("delete secret with non existing version") {
+    should("delete secret with non-existing version") {
         val path = randomString()
         kv2.createOrUpdateSecret(path, simpleWriteRequestBuilder())
         kv2.deleteSecretVersions(path, listOf(10)) shouldBe true
         kv2.readSecret(path).isDeleted() shouldBe false
     }
 
-    test("delete secret with existing secret and version") {
+    should("delete secret with existing secret and version") {
         val path = randomString()
 
         val writeResponse1 = kv2.createOrUpdateSecret(path, simpleWriteRequestBuilder())
@@ -317,19 +318,19 @@ class VaultKV2EngineTest : FunSpec({
         readResponse2.isDeleted() shouldBe true
     }
 
-    test("undelete secret with non existing secret") {
+    should("undelete secret with non-existing secret") {
         val path = randomString()
         kv2.undeleteSecretVersions(path, listOf(1)) shouldBe true
     }
 
-    test("undelete secret with non existing version") {
+    should("undelete secret with non-existing version") {
         val path = randomString()
         kv2.createOrUpdateSecret(path, simpleWriteRequestBuilder())
         kv2.undeleteSecretVersions(path, listOf(10)) shouldBe true
         kv2.readSecret(path).isDeleted() shouldBe false
     }
 
-    test("undelete secret with existing secret and version") {
+    should("undelete secret with existing secret and version") {
         val path = randomString()
         val writeResponse1 = kv2.createOrUpdateSecret(path, simpleWriteRequestBuilder())
         val writeResponse2 = kv2.createOrUpdateSecret(path, simpleWriteRequestBuilder())
@@ -346,19 +347,19 @@ class VaultKV2EngineTest : FunSpec({
         kv2.readSecret(path, writeResponse3.version).isDeleted() shouldBe false
     }
 
-    test("destroy secret with non existing secret") {
+    should("destroy secret with non-existing secret") {
         val path = randomString()
         kv2.destroySecretVersions(path, listOf(1)) shouldBe true
     }
 
-    test("destroy secret with non existing version") {
+    should("destroy secret with non-existing version") {
         val path = randomString()
         kv2.createOrUpdateSecret(path, simpleWriteRequestBuilder())
         kv2.destroySecretVersions(path, listOf(10)) shouldBe true
         kv2.readSecret(path).isDestroyed() shouldBe false
     }
 
-    test("destroy secret with existing secret and version") {
+    should("destroy secret with existing secret and version") {
         val path = randomString()
         val writeResponse1 = kv2.createOrUpdateSecret(path, simpleWriteRequestBuilder())
         val writeResponse2 = kv2.createOrUpdateSecret(path, simpleWriteRequestBuilder())
@@ -372,14 +373,14 @@ class VaultKV2EngineTest : FunSpec({
         kv2.readSecret(path, writeResponse1.version).isDestroyed() shouldBe true
     }
 
-    test("list with non-existing folder") {
+    should("throw exception when listing secrets for a non-existing folder") {
         val path = randomString()
         shouldThrow<VaultAPIException> {
             kv2.listSecrets(path)
         }
     }
 
-    test("list with existing folder") {
+    should("list secrets for an existing folder") {
         val path = randomString()
         val key1 = randomString()
         val key2 = randomString()
@@ -391,14 +392,14 @@ class VaultKV2EngineTest : FunSpec({
         response shouldContainExactlyInAnyOrder listOf(key1, "$key2/")
     }
 
-    test("read secret metadata with non existing secret") {
+    should("throw exception when reading metadata of non-existing secret") {
         val path = randomString()
         shouldThrow<VaultAPIException> {
             kv2.readSecretMetadata(path)
         }
     }
 
-    test("read secret metadata with existing secret") {
+    should("read secret metadata with existing secret") {
         val path = randomString()
 
         val writeResponse1 = kv2.createOrUpdateSecret(path, simpleWriteRequestBuilder())
@@ -426,7 +427,7 @@ class VaultKV2EngineTest : FunSpec({
         response shouldBe expected
     }
 
-    test("create or update metadata with non existing secret") {
+    should("create or update metadata with non-existing secret") {
         val path = randomString()
         val writeGiven =
             readJson<KvV2WriteMetadataRequest>("cases/engine/kv/v2/update_metadata/without_secret/given.json")
@@ -441,16 +442,17 @@ class VaultKV2EngineTest : FunSpec({
         readResponse shouldBe expected
     }
 
-    test("create or update metadata with existing secret") {
+    should("create or update metadata with existing secret") {
         updateMetadataWithSecret(
             kv2,
             "cases/engine/kv/v2/update_metadata/with_secret/given.json",
-            "cases/engine/kv/v2/update_metadata/with_secret/expected.json",
-            kv2::createOrUpdateMetadata
-        )
+            "cases/engine/kv/v2/update_metadata/with_secret/expected.json"
+        ) { path, writeGiven ->
+            kv2.createOrUpdateMetadata(path, writeGiven)
+        }
     }
 
-    test("create or update metadata from builder") {
+    should("create or update metadata from builder") {
         updateMetadataWithSecret(
             kv2,
             "cases/engine/kv/v2/update_metadata/with_secret/given.json",
@@ -465,7 +467,7 @@ class VaultKV2EngineTest : FunSpec({
         }
     }
 
-    test("patch metadata with non existing secret") {
+    should("throw exception when patching metadata of non-existing secret") {
         val path = randomString()
         val writeGiven =
             readJson<KvV2WriteMetadataRequest>("cases/engine/kv/v2/update_metadata/without_secret/given.json")
@@ -476,16 +478,17 @@ class VaultKV2EngineTest : FunSpec({
         }
     }
 
-    test("patch metadata with existing secret") {
+    should("patch metadata with existing secret") {
         updateMetadataWithSecret(
             kv2,
             "cases/engine/kv/v2/update_metadata/with_secret/given.json",
-            "cases/engine/kv/v2/update_metadata/with_secret/expected.json",
-            kv2::patchMetadata
-        )
+            "cases/engine/kv/v2/update_metadata/with_secret/expected.json"
+        ) { path, writeGiven ->
+            kv2.patchMetadata(path, writeGiven)
+        }
     }
 
-    test("patch metadata from builder") {
+    should("patch metadata from builder") {
         updateMetadataWithSecret(
             kv2,
             "cases/engine/kv/v2/update_metadata/with_secret/given.json",
@@ -500,12 +503,12 @@ class VaultKV2EngineTest : FunSpec({
         }
     }
 
-    test("delete metadata and all versions with non existing secret") {
+    should("delete metadata and all versions with non-existing secret") {
         val path = randomString()
         kv2.deleteMetadataAndAllVersions(path) shouldBe true
     }
 
-    test("delete metadata and all versions with existing secret") {
+    should("delete metadata and all versions with existing secret") {
         val path = randomString()
         kv2.createOrUpdateSecret(path, simpleWriteRequestBuilder())
         kv2.createOrUpdateSecret(path, simpleWriteRequestBuilder())
@@ -519,11 +522,11 @@ class VaultKV2EngineTest : FunSpec({
     }
 })
 
-private suspend fun updateMetadataWithSecret(
+private suspend inline fun updateMetadataWithSecret(
     kv2: VaultKV2Engine,
     writeGivenPath: String,
     readExpectedPath: String,
-    updateMetadata: suspend (String, KvV2WriteMetadataRequest) -> Boolean
+    updateMetadata: (String, KvV2WriteMetadataRequest) -> Boolean
 ) {
     val path = randomString()
     val writeSecretResponse = kv2.createOrUpdateSecret(path, simpleWriteRequestBuilder())

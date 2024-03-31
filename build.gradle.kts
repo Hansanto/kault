@@ -65,6 +65,7 @@ koverReport {
     filters {
         excludes {
             packages("*.payload", "*.response", "*.common")
+            classes("*Exception")
         }
     }
 }

@@ -164,7 +164,6 @@ public class VaultAuthKubernetesImpl(
     /**
      * Builder class to simplify the creation of [VaultAuthKubernetesImpl].
      */
-    @Suppress("MemberVisibilityCanBePrivate")
     public class Builder : ServiceBuilder<VaultAuthKubernetesImpl>() {
 
         public override var path: String = Default.PATH

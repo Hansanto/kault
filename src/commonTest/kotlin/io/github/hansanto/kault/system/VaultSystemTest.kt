@@ -5,10 +5,10 @@ import io.github.hansanto.kault.system.audit.VaultSystemAuditImpl
 import io.github.hansanto.kault.system.auth.VaultSystemAuthImpl
 import io.github.hansanto.kault.util.createVaultClient
 import io.github.hansanto.kault.util.randomString
-import io.kotest.core.spec.style.FunSpec
+import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
 
-class VaultSystemTest : FunSpec({
+class VaultSystemTest : ShouldSpec({
 
     lateinit var client: VaultClient
 
@@ -20,7 +20,7 @@ class VaultSystemTest : FunSpec({
         client.close()
     }
 
-    test("builder default variables should be set correctly") {
+    should("use default path if not set in builder") {
         VaultSystem.Default.PATH shouldBe "sys"
         val built = VaultSystem(client.client, null) {
         }
@@ -29,7 +29,7 @@ class VaultSystemTest : FunSpec({
         (built.audit as VaultSystemAuditImpl).path shouldBe "${VaultSystem.Default.PATH}/${VaultSystemAuditImpl.Default.PATH}"
     }
 
-    test("builder should set values correctly") {
+    should("use custom path if set in builder") {
         val parentPath = randomString()
         val builderPath = randomString()
         val authPath = randomString()

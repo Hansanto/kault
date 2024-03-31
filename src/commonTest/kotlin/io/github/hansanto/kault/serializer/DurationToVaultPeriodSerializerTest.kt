@@ -88,6 +88,7 @@ class DurationToVaultPeriodSerializerTest : FunSpec({
         assertInvalidFormat("1x")
         assertInvalidFormat("1x2s")
         assertInvalidFormat("1s40m")
+        assertInvalidFormat("test")
     }
 })
 

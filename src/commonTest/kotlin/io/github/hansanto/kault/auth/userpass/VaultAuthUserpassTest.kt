@@ -11,11 +11,11 @@ import io.github.hansanto.kault.util.randomString
 import io.github.hansanto.kault.util.readJson
 import io.kotest.assertions.throwables.shouldNotThrow
 import io.kotest.assertions.throwables.shouldThrow
-import io.kotest.core.spec.style.FunSpec
+import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
 
-class VaultAuthUserpassTest : FunSpec({
+class VaultAuthUserpassTest : ShouldSpec({
 
     lateinit var client: VaultClient
     lateinit var userpass: VaultAuthUserpass
@@ -43,7 +43,7 @@ class VaultAuthUserpassTest : FunSpec({
         }
     }
 
-    test("builder default variables should be set correctly") {
+    should("use default path if not set in builder") {
         VaultAuthUserpassImpl.Default.PATH shouldBe "userpass"
 
         val built = VaultAuthUserpassImpl(client.client, null) {
@@ -52,7 +52,7 @@ class VaultAuthUserpassTest : FunSpec({
         built.path shouldBe VaultAuthUserpassImpl.Default.PATH
     }
 
-    test("builder should set values correctly") {
+    should("use custom path if set in builder") {
         val builderPath = randomString()
         val parentPath = randomString()
 
@@ -63,31 +63,45 @@ class VaultAuthUserpassTest : FunSpec({
         built.path shouldBe "$parentPath/$builderPath"
     }
 
-    test("create without options") {
-        assertCreate(
+    should("create a user with default values") {
+        assertCreateOrUpdate(
             userpass,
             "cases/auth/userpass/create/without_options/given.json",
             "cases/auth/userpass/create/without_options/expected.json"
         )
     }
 
-    test("create with options") {
-        assertCreate(
+    should("create a user with all defined values") {
+        assertCreateOrUpdate(
             userpass,
             "cases/auth/userpass/create/with_options/given.json",
             "cases/auth/userpass/create/with_options/expected.json"
         )
     }
 
-    test("delete with non existing user") {
-        userpass.delete(DEFAULT_ROLE_NAME) shouldBe true
-
-        shouldThrow<VaultAPIException> {
-            userpass.read(DEFAULT_ROLE_NAME)
-        }
+    should("create a user using builder with default values") {
+        assertCreateOrUpdateWithBuilder(
+            userpass,
+            "cases/auth/userpass/create/without_options/given.json",
+            "cases/auth/userpass/create/without_options/expected.json"
+        )
     }
 
-    test("delete with existing user") {
+    should("create a user using builder with all defined values") {
+        assertCreateOrUpdateWithBuilder(
+            userpass,
+            "cases/auth/userpass/create/with_options/given.json",
+            "cases/auth/userpass/create/with_options/expected.json"
+        )
+    }
+
+    should("do nothing when deleting non-existing role") {
+        shouldThrow<VaultAPIException> { userpass.read(DEFAULT_ROLE_NAME) }
+        userpass.delete(DEFAULT_ROLE_NAME) shouldBe true
+        shouldThrow<VaultAPIException> { userpass.read(DEFAULT_ROLE_NAME) }
+    }
+
+    should("delete existing user") {
         val username = DEFAULT_ROLE_NAME
         userpass.createOrUpdate(username) {
             password = randomString()
@@ -104,7 +118,7 @@ class VaultAuthUserpassTest : FunSpec({
         }
     }
 
-    test("update password with non existing user") {
+    should("throw exception when updating password with non-existing user") {
         val username = DEFAULT_ROLE_NAME
         val password = randomString()
         shouldThrow<VaultAPIException> {
@@ -112,7 +126,7 @@ class VaultAuthUserpassTest : FunSpec({
         }
     }
 
-    test("update password with existing user") {
+    should("update password with existing user") {
         val username = DEFAULT_ROLE_NAME
         val firstPassword = randomString()
         val secondPassword = randomString()
@@ -139,7 +153,7 @@ class VaultAuthUserpassTest : FunSpec({
         }
     }
 
-    test("update policies with non existing user") {
+    should("throw exception when updating policies with non-existing user") {
         val username = DEFAULT_ROLE_NAME
         val policies = listOf(randomString())
         shouldThrow<VaultAPIException> {
@@ -147,7 +161,7 @@ class VaultAuthUserpassTest : FunSpec({
         }
     }
 
-    test("update policies with existing user") {
+    should("update policies with existing user") {
         val username = DEFAULT_ROLE_NAME
         val initialPolicies = List(3) { "old-policy-$it" }
         val newPolicies = listOf("new-policy")
@@ -162,13 +176,13 @@ class VaultAuthUserpassTest : FunSpec({
         user.tokenPolicies shouldContainExactlyInAnyOrder newPolicies
     }
 
-    test("list with no users") {
+    should("throw exception if no role was created when listing users") {
         shouldThrow<VaultAPIException> {
             userpass.list()
         }
     }
 
-    test("list with users") {
+    should("return created users when listing") {
         val users = List(3) { "test-$it" }
         users.forEach {
             userpass.createOrUpdate(it) {
@@ -179,16 +193,45 @@ class VaultAuthUserpassTest : FunSpec({
     }
 })
 
-private suspend fun assertCreate(
+private suspend fun assertCreateOrUpdate(
     userpass: VaultAuthUserpass,
     givenPath: String,
     expectedReadPath: String
 ) {
+    assertCreateOrUpdate(userpass, givenPath, expectedReadPath) { username, given ->
+        userpass.createOrUpdate(username, given)
+    }
+}
+
+private suspend fun assertCreateOrUpdateWithBuilder(
+    userpass: VaultAuthUserpass,
+    givenPath: String,
+    expectedReadPath: String
+) {
+    assertCreateOrUpdate(userpass, givenPath, expectedReadPath) { username, given ->
+        userpass.createOrUpdate(username) {
+            password = given.password
+            tokenTTL = given.tokenTTL
+            tokenMaxTTL = given.tokenMaxTTL
+            tokenPolicies = given.tokenPolicies
+            tokenBoundCidrs = given.tokenBoundCidrs
+            tokenExplicitMaxTTL = given.tokenExplicitMaxTTL
+            tokenNoDefaultPolicy = given.tokenNoDefaultPolicy
+            tokenNumUses = given.tokenNumUses
+            tokenPeriod = given.tokenPeriod
+            tokenType = given.tokenType
+        }
+    }
+}
+
+private suspend inline fun assertCreateOrUpdate(
+    userpass: VaultAuthUserpass,
+    givenPath: String,
+    expectedReadPath: String,
+    createOrUpdate: (String, UserpassWriteUserPayload) -> Boolean
+) {
     val username = randomString()
     val given = readJson<UserpassWriteUserPayload>(givenPath)
-    userpass.createOrUpdate(username, given) shouldBe true
-
-    val response = userpass.read(username)
-    val expected = readJson<UserpassReadUserResponse>(expectedReadPath)
-    response shouldBe expected
+    createOrUpdate(username, given) shouldBe true
+    userpass.read(username) shouldBe readJson<UserpassReadUserResponse>(expectedReadPath)
 }
