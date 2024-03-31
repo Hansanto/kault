@@ -446,9 +446,10 @@ class VaultKV2EngineTest : ShouldSpec({
         updateMetadataWithSecret(
             kv2,
             "cases/engine/kv/v2/update_metadata/with_secret/given.json",
-            "cases/engine/kv/v2/update_metadata/with_secret/expected.json",
-            kv2::createOrUpdateMetadata
-        )
+            "cases/engine/kv/v2/update_metadata/with_secret/expected.json"
+        ) { path, writeGiven ->
+            kv2.createOrUpdateMetadata(path, writeGiven)
+        }
     }
 
     should("create or update metadata from builder") {
@@ -481,9 +482,10 @@ class VaultKV2EngineTest : ShouldSpec({
         updateMetadataWithSecret(
             kv2,
             "cases/engine/kv/v2/update_metadata/with_secret/given.json",
-            "cases/engine/kv/v2/update_metadata/with_secret/expected.json",
-            kv2::patchMetadata
-        )
+            "cases/engine/kv/v2/update_metadata/with_secret/expected.json"
+        ) { path, writeGiven ->
+            kv2.patchMetadata(path, writeGiven)
+        }
     }
 
     should("patch metadata from builder") {
@@ -520,11 +522,11 @@ class VaultKV2EngineTest : ShouldSpec({
     }
 })
 
-private suspend fun updateMetadataWithSecret(
+private suspend inline fun updateMetadataWithSecret(
     kv2: VaultKV2Engine,
     writeGivenPath: String,
     readExpectedPath: String,
-    updateMetadata: suspend (String, KvV2WriteMetadataRequest) -> Boolean
+    updateMetadata: (String, KvV2WriteMetadataRequest) -> Boolean
 ) {
     val path = randomString()
     val writeSecretResponse = kv2.createOrUpdateSecret(path, simpleWriteRequestBuilder())

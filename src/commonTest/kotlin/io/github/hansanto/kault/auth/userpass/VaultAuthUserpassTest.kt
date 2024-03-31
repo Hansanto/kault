@@ -198,10 +198,9 @@ private suspend fun assertCreateOrUpdate(
     givenPath: String,
     expectedReadPath: String
 ) {
-    val username = randomString()
-    val given = readJson<UserpassWriteUserPayload>(givenPath)
-    userpass.createOrUpdate(username, given) shouldBe true
-    userpass.read(username) shouldBe readJson<UserpassReadUserResponse>(expectedReadPath)
+    assertCreateOrUpdate(userpass, givenPath, expectedReadPath) { username, given ->
+        userpass.createOrUpdate(username, given)
+    }
 }
 
 private suspend fun assertCreateOrUpdateWithBuilder(
@@ -209,19 +208,30 @@ private suspend fun assertCreateOrUpdateWithBuilder(
     givenPath: String,
     expectedReadPath: String
 ) {
+    assertCreateOrUpdate(userpass, givenPath, expectedReadPath) { username, given ->
+        userpass.createOrUpdate(username) {
+            password = given.password
+            tokenTTL = given.tokenTTL
+            tokenMaxTTL = given.tokenMaxTTL
+            tokenPolicies = given.tokenPolicies
+            tokenBoundCidrs = given.tokenBoundCidrs
+            tokenExplicitMaxTTL = given.tokenExplicitMaxTTL
+            tokenNoDefaultPolicy = given.tokenNoDefaultPolicy
+            tokenNumUses = given.tokenNumUses
+            tokenPeriod = given.tokenPeriod
+            tokenType = given.tokenType
+        }
+    }
+}
+
+private suspend inline fun assertCreateOrUpdate(
+    userpass: VaultAuthUserpass,
+    givenPath: String,
+    expectedReadPath: String,
+    createOrUpdate: (String, UserpassWriteUserPayload) -> Boolean
+) {
     val username = randomString()
     val given = readJson<UserpassWriteUserPayload>(givenPath)
-    userpass.createOrUpdate(username) {
-        password = given.password
-        tokenTTL = given.tokenTTL
-        tokenMaxTTL = given.tokenMaxTTL
-        tokenPolicies = given.tokenPolicies
-        tokenBoundCidrs = given.tokenBoundCidrs
-        tokenExplicitMaxTTL = given.tokenExplicitMaxTTL
-        tokenNoDefaultPolicy = given.tokenNoDefaultPolicy
-        tokenNumUses = given.tokenNumUses
-        tokenPeriod = given.tokenPeriod
-        tokenType = given.tokenType
-    } shouldBe true
+    createOrUpdate(username, given) shouldBe true
     userpass.read(username) shouldBe readJson<UserpassReadUserResponse>(expectedReadPath)
 }

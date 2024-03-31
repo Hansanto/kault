@@ -528,9 +528,9 @@ private suspend inline fun <reified P> assertCreateAndReadSecret(
     givenPath: String?,
     expectedWritePath: String,
     expectedReadPath: String,
-    crossinline defaultPayload: () -> P,
-    crossinline write: suspend (String, P) -> AppRoleWriteSecretIdResponse,
-    crossinline read: suspend (String, AppRoleWriteSecretIdResponse) -> AppRoleLookUpSecretIdResponse
+    defaultPayload: () -> P,
+    write: (String, P) -> AppRoleWriteSecretIdResponse,
+    read: (String, AppRoleWriteSecretIdResponse) -> AppRoleLookUpSecretIdResponse
 ) {
     appRole.createOrUpdate(DEFAULT_ROLE_NAME) shouldBe true
 
@@ -574,16 +574,59 @@ private suspend fun assertCreateRole(
     givenPath: String?,
     expectedReadPath: String
 ) {
-    val given = givenPath?.let { readJson<AppRoleCreateOrUpdatePayload>(it) } ?: AppRoleCreateOrUpdatePayload()
-    appRole.createOrUpdate(DEFAULT_ROLE_NAME, given) shouldBe true
+    assertCreateRole(
+        appRole,
+        givenPath,
+        expectedReadPath
+    ) { role, payload ->
+        appRole.createOrUpdate(role, payload)
+    }
+}
 
+private suspend fun assertCreateRoleWithBuilder(
+    appRole: VaultAuthAppRole,
+    givenPath: String?,
+    expectedReadPath: String
+) {
+    assertCreateRole(
+        appRole,
+        givenPath,
+        expectedReadPath
+    ) { role, payload ->
+        appRole.createOrUpdate(role) {
+            this.bindSecretId = payload.bindSecretId
+            this.secretIdBoundCidrs = payload.secretIdBoundCidrs
+            this.secretIdNumUses = payload.secretIdNumUses
+            this.secretIdTTL = payload.secretIdTTL
+            this.localSecretIds = payload.localSecretIds
+            this.tokenTTL = payload.tokenTTL
+            this.tokenMaxTTL = payload.tokenMaxTTL
+            this.tokenPolicies = payload.tokenPolicies
+            this.tokenBoundCidrs = payload.tokenBoundCidrs
+            this.tokenExplicitMaxTTL = payload.tokenExplicitMaxTTL
+            this.tokenNoDefaultPolicy = payload.tokenNoDefaultPolicy
+            this.tokenNumUses = payload.tokenNumUses
+            this.tokenPeriod = payload.tokenPeriod
+            this.tokenType = payload.tokenType
+        }
+    }
+}
+
+private suspend inline fun assertCreateRole(
+    appRole: VaultAuthAppRole,
+    givenPath: String?,
+    expectedReadPath: String,
+    createOrUpdate: (String, AppRoleCreateOrUpdatePayload) -> Boolean
+) {
+    val given = givenPath?.let { readJson<AppRoleCreateOrUpdatePayload>(it) } ?: AppRoleCreateOrUpdatePayload()
+    createOrUpdate(DEFAULT_ROLE_NAME, given) shouldBe true
     appRole.read(DEFAULT_ROLE_NAME) shouldBe readJson<AppRoleReadRoleResponse>(expectedReadPath)
 }
 
 private suspend inline fun assertLogin(
     appRole: VaultAuthAppRole,
     expectedWritePath: String,
-    crossinline login: suspend (String, String) -> LoginResponse
+    login: (String, String) -> LoginResponse
 ) {
     appRole.createOrUpdate(DEFAULT_ROLE_NAME) shouldBe true
     val secretId = appRole.generateSecretID(DEFAULT_ROLE_NAME).secretId
@@ -600,30 +643,4 @@ private suspend inline fun assertLogin(
             )
 
     loginResponse shouldBe expectedWriteResponse
-}
-
-private suspend fun assertCreateRoleWithBuilder(
-    appRole: VaultAuthAppRole,
-    givenPath: String?,
-    expectedReadPath: String
-) {
-    val given = givenPath?.let { readJson<AppRoleCreateOrUpdatePayload>(it) } ?: AppRoleCreateOrUpdatePayload()
-    appRole.createOrUpdate(DEFAULT_ROLE_NAME) {
-        this.bindSecretId = given.bindSecretId
-        this.secretIdBoundCidrs = given.secretIdBoundCidrs
-        this.secretIdNumUses = given.secretIdNumUses
-        this.secretIdTTL = given.secretIdTTL
-        this.localSecretIds = given.localSecretIds
-        this.tokenTTL = given.tokenTTL
-        this.tokenMaxTTL = given.tokenMaxTTL
-        this.tokenPolicies = given.tokenPolicies
-        this.tokenBoundCidrs = given.tokenBoundCidrs
-        this.tokenExplicitMaxTTL = given.tokenExplicitMaxTTL
-        this.tokenNoDefaultPolicy = given.tokenNoDefaultPolicy
-        this.tokenNumUses = given.tokenNumUses
-        this.tokenPeriod = given.tokenPeriod
-        this.tokenType = given.tokenType
-    } shouldBe true
-
-    appRole.read(DEFAULT_ROLE_NAME) shouldBe readJson<AppRoleReadRoleResponse>(expectedReadPath)
 }

@@ -180,7 +180,7 @@ class VaultAuthKubernetesTest : ShouldSpec({
 private suspend inline fun assertLogin(
     kubernetes: VaultAuthKubernetes,
     expectedWritePath: String,
-    crossinline login: suspend (String, String) -> LoginResponse
+    login: (String, String) -> LoginResponse
 ) {
     createRole(kubernetes, DEFAULT_ROLE_NAME)
 
@@ -215,9 +215,9 @@ private suspend fun assertCreateOrUpdateRole(
     givenPath: String,
     expectedReadPath: String
 ) {
-    val given = readJson<KubernetesWriteAuthRolePayload>(givenPath)
-    kubernetes.createOrUpdateRole(DEFAULT_ROLE_NAME, given) shouldBe true
-    kubernetes.readRole(DEFAULT_ROLE_NAME) shouldBe readJson<KubernetesReadAuthRoleResponse>(expectedReadPath)
+    assertCreateOrUpdateRole(kubernetes, givenPath, expectedReadPath) { role, payload ->
+        kubernetes.createOrUpdateRole(role, payload)
+    }
 }
 
 private suspend fun assertCreateOrUpdateRoleWithBuilder(
@@ -225,22 +225,32 @@ private suspend fun assertCreateOrUpdateRoleWithBuilder(
     givenPath: String,
     expectedReadPath: String
 ) {
-    val given = readJson<KubernetesWriteAuthRolePayload>(givenPath)
-    kubernetes.createOrUpdateRole(DEFAULT_ROLE_NAME) {
-        this.boundServiceAccountNames = given.boundServiceAccountNames
-        this.boundServiceAccountNamespaces = given.boundServiceAccountNamespaces
-        this.audience = given.audience
-        this.aliasNameSource = given.aliasNameSource
-        this.tokenTTL = given.tokenTTL
-        this.tokenMaxTTL = given.tokenMaxTTL
-        this.tokenPolicies = given.tokenPolicies
-        this.tokenBoundCidrs = given.tokenBoundCidrs
-        this.tokenExplicitMaxTTL = given.tokenExplicitMaxTTL
-        this.tokenNoDefaultPolicy = given.tokenNoDefaultPolicy
-        this.tokenNumUses = given.tokenNumUses
-        this.tokenPeriod = given.tokenPeriod
-        this.tokenType = given.tokenType
-    } shouldBe true
+    assertCreateOrUpdateRole(kubernetes, givenPath, expectedReadPath) { role, payload ->
+        kubernetes.createOrUpdateRole(role) {
+            this.boundServiceAccountNames = payload.boundServiceAccountNames
+            this.boundServiceAccountNamespaces = payload.boundServiceAccountNamespaces
+            this.audience = payload.audience
+            this.aliasNameSource = payload.aliasNameSource
+            this.tokenTTL = payload.tokenTTL
+            this.tokenMaxTTL = payload.tokenMaxTTL
+            this.tokenPolicies = payload.tokenPolicies
+            this.tokenBoundCidrs = payload.tokenBoundCidrs
+            this.tokenExplicitMaxTTL = payload.tokenExplicitMaxTTL
+            this.tokenNoDefaultPolicy = payload.tokenNoDefaultPolicy
+            this.tokenNumUses = payload.tokenNumUses
+            this.tokenPeriod = payload.tokenPeriod
+            this.tokenType = payload.tokenType
+        }
+    }
+}
 
+private suspend inline fun assertCreateOrUpdateRole(
+    kubernetes: VaultAuthKubernetes,
+    givenPath: String,
+    expectedReadPath: String,
+    createOrUpdate: (String, KubernetesWriteAuthRolePayload) -> Boolean
+) {
+    val given = readJson<KubernetesWriteAuthRolePayload>(givenPath)
+    createOrUpdate(DEFAULT_ROLE_NAME, given) shouldBe true
     kubernetes.readRole(DEFAULT_ROLE_NAME) shouldBe readJson<KubernetesReadAuthRoleResponse>(expectedReadPath)
 }
