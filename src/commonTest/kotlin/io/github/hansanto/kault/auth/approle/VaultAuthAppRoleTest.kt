@@ -23,6 +23,7 @@ import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 
+// TODO request using builder
 class VaultAuthAppRoleTest : ShouldSpec({
 
     lateinit var client: VaultClient
@@ -86,7 +87,7 @@ class VaultAuthAppRoleTest : ShouldSpec({
     }
 
     should("create a role with default values") {
-        assertCreate(
+        assertCreateRole(
             appRole,
             null,
             "cases/auth/approle/create/without_options/expected.json"
@@ -94,7 +95,23 @@ class VaultAuthAppRoleTest : ShouldSpec({
     }
 
     should("create a role with all defined values") {
-        assertCreate(
+        assertCreateRole(
+            appRole,
+            "cases/auth/approle/create/with_options/given.json",
+            "cases/auth/approle/create/with_options/expected.json"
+        )
+    }
+
+    should("create a role using builder with default values") {
+        assertCreateRoleWithBuilder(
+            appRole,
+            null,
+            "cases/auth/approle/create/without_options/expected.json"
+        )
+    }
+
+    should("create a role using builder with all defined values") {
+        assertCreateRoleWithBuilder(
             appRole,
             "cases/auth/approle/create/with_options/given.json",
             "cases/auth/approle/create/with_options/expected.json"
@@ -458,7 +475,7 @@ private suspend inline fun <reified P> assertCreateAndReadSecret(
     readResponse shouldBe expectedReadResponse
 }
 
-private suspend fun assertCreate(
+private suspend fun assertCreateRole(
     appRole: VaultAuthAppRole,
     givenPath: String?,
     expectedReadPath: String
@@ -466,7 +483,31 @@ private suspend fun assertCreate(
     val given = givenPath?.let { readJson<AppRoleCreateOrUpdatePayload>(it) } ?: AppRoleCreateOrUpdatePayload()
     appRole.createOrUpdate(DEFAULT_ROLE_NAME, given) shouldBe true
 
-    val response = appRole.read(DEFAULT_ROLE_NAME)
-    val expected = readJson<AppRoleReadRoleResponse>(expectedReadPath)
-    response shouldBe expected
+    appRole.read(DEFAULT_ROLE_NAME) shouldBe readJson<AppRoleReadRoleResponse>(expectedReadPath)
+}
+
+private suspend fun assertCreateRoleWithBuilder(
+    appRole: VaultAuthAppRole,
+    givenPath: String?,
+    expectedReadPath: String
+) {
+    val given = givenPath?.let { readJson<AppRoleCreateOrUpdatePayload>(it) } ?: AppRoleCreateOrUpdatePayload()
+    appRole.createOrUpdate(DEFAULT_ROLE_NAME) {
+        this.bindSecretId = given.bindSecretId
+        this.secretIdBoundCidrs = given.secretIdBoundCidrs
+        this.secretIdNumUses = given.secretIdNumUses
+        this.secretIdTTL = given.secretIdTTL
+        this.localSecretIds = given.localSecretIds
+        this.tokenTTL = given.tokenTTL
+        this.tokenMaxTTL = given.tokenMaxTTL
+        this.tokenPolicies = given.tokenPolicies
+        this.tokenBoundCidrs = given.tokenBoundCidrs
+        this.tokenExplicitMaxTTL = given.tokenExplicitMaxTTL
+        this.tokenNoDefaultPolicy = given.tokenNoDefaultPolicy
+        this.tokenNumUses = given.tokenNumUses
+        this.tokenPeriod = given.tokenPeriod
+        this.tokenType = given.tokenType
+    } shouldBe true
+
+    appRole.read(DEFAULT_ROLE_NAME) shouldBe readJson<AppRoleReadRoleResponse>(expectedReadPath)
 }

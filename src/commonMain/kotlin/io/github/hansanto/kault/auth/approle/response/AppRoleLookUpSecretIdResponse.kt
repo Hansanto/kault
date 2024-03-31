@@ -33,6 +33,7 @@ public data class AppRoleLookUpSecretIdResponse(
 
     /**
      * Metadata of the secret ID.
+     * TODO Test with nested objects
      */
     @SerialName("metadata")
     public val metadata: Map<String, String>,

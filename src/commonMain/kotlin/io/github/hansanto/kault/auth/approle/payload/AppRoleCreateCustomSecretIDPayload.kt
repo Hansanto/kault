@@ -51,7 +51,6 @@ public data class AppRoleCreateCustomSecretIDPayload(
      * Builder class to simplify the creation of [AppRoleCreateCustomSecretIDPayload].
      */
     @KaultDsl
-    @Suppress("MemberVisibilityCanBePrivate")
     public class Builder {
 
         /**
