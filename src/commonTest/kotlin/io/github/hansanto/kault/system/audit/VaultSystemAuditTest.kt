@@ -83,6 +83,27 @@ class VaultSystemAuditTest : ShouldSpec({
         )
     }
 
+    should("list using builder with audit enabled with all defined values") {
+        assertListWithEnabledAuditWithBuilder(
+            audit,
+            listOf(
+                "cases/sys/audit/with_options/given.json"
+            ),
+            "cases/sys/audit/with_options/expected.json"
+        )
+    }
+
+    should("list using builder with several audit enabled") {
+        assertListWithEnabledAuditWithBuilder(
+            audit,
+            listOf(
+                "cases/sys/audit/several_audit/given1.json",
+                "cases/sys/audit/several_audit/given2.json"
+            ),
+            "cases/sys/audit/several_audit/expected.json"
+        )
+    }
+
     should("disable with non-existing audit") {
         val response = audit.disable("non-existing-audit")
         response shouldBe true
@@ -101,14 +122,40 @@ class VaultSystemAuditTest : ShouldSpec({
     }
 })
 
-private suspend fun assertListWithEnabledAudit(
+private suspend inline fun assertListWithEnabledAudit(
     audit: VaultSystemAudit,
     givenPaths: List<String>,
     expectedPath: String
 ) {
+    assertListWithEnabledAudit(audit, givenPaths, expectedPath) { path, payload ->
+        audit.enable(path, payload)
+    }
+}
+
+private suspend inline fun assertListWithEnabledAuditWithBuilder(
+    audit: VaultSystemAudit,
+    givenPaths: List<String>,
+    expectedPath: String
+) {
+    assertListWithEnabledAudit(audit, givenPaths, expectedPath) { path, payload ->
+        audit.enable(path) {
+            type = payload.type
+            description = payload.description
+            local = payload.local
+            options = payload.options
+        }
+    }
+}
+
+private suspend inline fun assertListWithEnabledAudit(
+    audit: VaultSystemAudit,
+    givenPaths: List<String>,
+    expectedPath: String,
+    enableAudit: (String, AuditingEnableDevicePayload) -> Boolean
+) {
     givenPaths.forEachIndexed { index, value ->
         val given = readJson<AuditingEnableDevicePayload>(value)
-        audit.enable("role-test$index", given) shouldBe true
+        enableAudit("role-test$index", given) shouldBe true
     }
 
     val response = audit.list()

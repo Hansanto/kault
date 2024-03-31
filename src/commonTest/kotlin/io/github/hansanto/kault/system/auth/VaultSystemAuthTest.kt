@@ -159,6 +159,22 @@ class VaultSystemAuthTest : ShouldSpec({
             "cases/sys/auth/tune/with_options/expected.json"
         )
     }
+
+    should("tune using builder with default values") {
+        assertTuneWithBuilder(
+            auth,
+            null,
+            "cases/sys/auth/tune/without_options/expected.json"
+        )
+    }
+
+    should("tune using builder with all defined values") {
+        assertTuneWithBuilder(
+            auth,
+            "cases/sys/auth/tune/with_options/given.json",
+            "cases/sys/auth/tune/with_options/expected.json"
+        )
+    }
 })
 
 private suspend fun assertTune(
@@ -166,17 +182,40 @@ private suspend fun assertTune(
     givenPath: String?,
     expectedPath: String
 ) {
-    auth.enable(DEFAULT_METHOD) {
-        type = DEFAULT_METHOD
-    } shouldBe true
+    auth.enable(DEFAULT_METHOD) { type = DEFAULT_METHOD } shouldBe true
 
     val payload = givenPath?.let { readJson<AuthTuneConfigurationParametersPayload>(it) }
         ?: AuthTuneConfigurationParametersPayload()
-    auth.tune(DEFAULT_METHOD, payload) shouldBe true
 
-    val tuneInfo = auth.readTuning(DEFAULT_METHOD)
-    val expected = readJson<AuthReadTuningInformationResponse>(expectedPath)
-    tuneInfo shouldBe expected
+    auth.tune(DEFAULT_METHOD, payload) shouldBe true
+    auth.readTuning(DEFAULT_METHOD) shouldBe readJson<AuthReadTuningInformationResponse>(expectedPath)
+}
+
+private suspend fun assertTuneWithBuilder(
+    auth: VaultSystemAuth,
+    givenPath: String?,
+    expectedPath: String
+) {
+    auth.enable(DEFAULT_METHOD) { type = DEFAULT_METHOD } shouldBe true
+
+    val payload = givenPath?.let { readJson<AuthTuneConfigurationParametersPayload>(it) }
+        ?: AuthTuneConfigurationParametersPayload()
+
+    auth.tune(DEFAULT_METHOD) {
+        auditNonHmacRequestKeys = payload.auditNonHmacRequestKeys
+        auditNonHmacResponseKeys = payload.auditNonHmacResponseKeys
+        allowedResponseHeaders = payload.allowedResponseHeaders
+        passthroughRequestHeaders = payload.passthroughRequestHeaders
+        defaultLeaseTTL = payload.defaultLeaseTTL
+        description = payload.description
+        listingVisibility = payload.listingVisibility
+        maxLeaseTTL = payload.maxLeaseTTL
+        pluginVersion = payload.pluginVersion
+        options = payload.options
+        tokenType = payload.tokenType
+        userLockoutConfig = payload.userLockoutConfig
+    } shouldBe true
+    auth.readTuning(DEFAULT_METHOD) shouldBe readJson<AuthReadTuningInformationResponse>(expectedPath)
 }
 
 private fun replaceDynamicFields(
