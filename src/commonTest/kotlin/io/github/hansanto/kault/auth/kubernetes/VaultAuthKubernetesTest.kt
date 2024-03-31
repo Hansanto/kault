@@ -100,6 +100,22 @@ class VaultAuthKubernetesTest : ShouldSpec({
         )
     }
 
+    should("create a role using builder with default values") {
+        assertCreateOrUpdateRoleWithBuilder(
+            kubernetes,
+            "cases/auth/kubernetes/create/without_options/given.json",
+            "cases/auth/kubernetes/create/without_options/expected.json"
+        )
+    }
+
+    should("create a role using builder with all defined values") {
+        assertCreateOrUpdateRoleWithBuilder(
+            kubernetes,
+            "cases/auth/kubernetes/create/with_options/given.json",
+            "cases/auth/kubernetes/create/with_options/expected.json"
+        )
+    }
+
     should("throw exception if no role was created when listing roles") {
         shouldThrow<VaultAPIException> {
             kubernetes.list()
@@ -142,24 +158,47 @@ class VaultAuthKubernetesTest : ShouldSpec({
     }
 
     should("login with valid token") {
-        createRole(kubernetes, DEFAULT_ROLE_NAME)
+        assertLogin(
+            kubernetes,
+            "cases/auth/kubernetes/login/expected.json"
+        ) { role, token -> kubernetes.login(KubernetesLoginPayload(role, token)) }
+    }
 
-        val response = kubernetes.login(KubernetesLoginPayload(DEFAULT_ROLE_NAME, KubernetesUtil.token))
-        val expected = readJson<LoginResponse>("cases/auth/kubernetes/login/expected.json").run {
-            copy(
-                clientToken = response.clientToken,
-                accessor = response.accessor,
-                entityId = response.entityId,
-                leaseDuration = response.leaseDuration,
-                metadata = metadata.toMutableMap().apply {
-                    put("service_account_uid", response.metadata["service_account_uid"]!!)
-                }
-            )
+    should("login using builder with valid token") {
+        assertLogin(
+            kubernetes,
+            "cases/auth/kubernetes/login/expected.json"
+        ) { role, token ->
+            kubernetes.login {
+                this.role = role
+                this.jwt = token
+            }
         }
-
-        response shouldBe expected
     }
 })
+
+private suspend inline fun assertLogin(
+    kubernetes: VaultAuthKubernetes,
+    expectedWritePath: String,
+    crossinline login: suspend (String, String) -> LoginResponse
+) {
+    createRole(kubernetes, DEFAULT_ROLE_NAME)
+
+    val response = login(DEFAULT_ROLE_NAME, KubernetesUtil.token)
+    val expected = readJson<LoginResponse>(expectedWritePath).run {
+        copy(
+            clientToken = response.clientToken,
+            accessor = response.accessor,
+            entityId = response.entityId,
+            leaseDuration = response.leaseDuration,
+            metadata = metadata.toMutableMap().apply {
+                put("service_account_uid", response.metadata["service_account_uid"]!!)
+            }
+        )
+    }
+
+    response shouldBe expected
+}
 
 private suspend fun createRole(
     kubernetes: VaultAuthKubernetes,
@@ -178,8 +217,30 @@ private suspend fun assertCreateOrUpdateRole(
 ) {
     val given = readJson<KubernetesWriteAuthRolePayload>(givenPath)
     kubernetes.createOrUpdateRole(DEFAULT_ROLE_NAME, given) shouldBe true
+    kubernetes.readRole(DEFAULT_ROLE_NAME) shouldBe readJson<KubernetesReadAuthRoleResponse>(expectedReadPath)
+}
 
-    val response = kubernetes.readRole(DEFAULT_ROLE_NAME)
-    val expected = readJson<KubernetesReadAuthRoleResponse>(expectedReadPath)
-    response shouldBe expected
+private suspend fun assertCreateOrUpdateRoleWithBuilder(
+    kubernetes: VaultAuthKubernetes,
+    givenPath: String,
+    expectedReadPath: String
+) {
+    val given = readJson<KubernetesWriteAuthRolePayload>(givenPath)
+    kubernetes.createOrUpdateRole(DEFAULT_ROLE_NAME) {
+        this.boundServiceAccountNames = given.boundServiceAccountNames
+        this.boundServiceAccountNamespaces = given.boundServiceAccountNamespaces
+        this.audience = given.audience
+        this.aliasNameSource = given.aliasNameSource
+        this.tokenTTL = given.tokenTTL
+        this.tokenMaxTTL = given.tokenMaxTTL
+        this.tokenPolicies = given.tokenPolicies
+        this.tokenBoundCidrs = given.tokenBoundCidrs
+        this.tokenExplicitMaxTTL = given.tokenExplicitMaxTTL
+        this.tokenNoDefaultPolicy = given.tokenNoDefaultPolicy
+        this.tokenNumUses = given.tokenNumUses
+        this.tokenPeriod = given.tokenPeriod
+        this.tokenType = given.tokenType
+    } shouldBe true
+
+    kubernetes.readRole(DEFAULT_ROLE_NAME) shouldBe readJson<KubernetesReadAuthRoleResponse>(expectedReadPath)
 }
