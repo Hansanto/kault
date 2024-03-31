@@ -119,7 +119,6 @@ public data class EnableMethodPayload(
      * Builder class to simplify the creation of [EnableMethodPayload].
      */
     @KaultDsl
-    @Suppress("MemberVisibilityCanBePrivate")
     public class Builder {
 
         /**

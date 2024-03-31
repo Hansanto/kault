@@ -36,7 +36,6 @@ public data class AuditingEnableDevicePayload(
      * Builder class to simplify the creation of [AuditingEnableDevicePayload].
      */
     @KaultDsl
-    @Suppress("MemberVisibilityCanBePrivate")
     public class Builder {
 
         /**

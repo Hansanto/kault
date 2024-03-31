@@ -73,7 +73,6 @@ public data class UserpassWriteUserPayload(
      * Builder class to simplify the creation of [UserpassWriteUserPayload].
      */
     @KaultDsl
-    @Suppress("MemberVisibilityCanBePrivate")
     public class Builder {
 
         /**

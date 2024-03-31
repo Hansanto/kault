@@ -25,7 +25,6 @@ public data class AppRoleLoginPayload(
      * Builder class to simplify the creation of [AppRoleLoginPayload].
      */
     @KaultDsl
-    @Suppress("MemberVisibilityCanBePrivate")
     public class Builder {
 
         /**

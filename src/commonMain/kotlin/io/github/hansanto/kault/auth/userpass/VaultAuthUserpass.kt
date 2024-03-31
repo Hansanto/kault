@@ -140,7 +140,6 @@ public class VaultAuthUserpassImpl(
     /**
      * Builder class to simplify the creation of [VaultAuth].
      */
-    @Suppress("MemberVisibilityCanBePrivate")
     public class Builder : ServiceBuilder<VaultAuthUserpassImpl>() {
 
         public override var path: String = Default.PATH
