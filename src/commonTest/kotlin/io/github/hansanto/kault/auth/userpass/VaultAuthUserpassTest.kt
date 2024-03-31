@@ -102,7 +102,7 @@ class VaultAuthUserpassTest : ShouldSpec({
         }
     }
 
-    should("throw exception when updating password with non existing user") {
+    should("throw exception when updating password with non-existing user") {
         val username = DEFAULT_ROLE_NAME
         val password = randomString()
         shouldThrow<VaultAPIException> {
@@ -137,7 +137,7 @@ class VaultAuthUserpassTest : ShouldSpec({
         }
     }
 
-    should("throw exception when updating policies with non existing user") {
+    should("throw exception when updating policies with non-existing user") {
         val username = DEFAULT_ROLE_NAME
         val policies = listOf(randomString())
         shouldThrow<VaultAPIException> {

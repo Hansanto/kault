@@ -88,7 +88,7 @@ class VaultAuthTest : ShouldSpec({
         loginShouldReplaceToken(auth)
     }
 
-    should("set token with non null value") {
+    should("set token with non-null value") {
         auth.token = randomString()
         loginShouldReplaceToken(auth)
     }

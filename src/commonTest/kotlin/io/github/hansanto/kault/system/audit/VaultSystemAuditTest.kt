@@ -83,7 +83,7 @@ class VaultSystemAuditTest : ShouldSpec({
         )
     }
 
-    should("disable with non existing audit") {
+    should("disable with non-existing audit") {
         val response = audit.disable("non-existing-audit")
         response shouldBe true
     }

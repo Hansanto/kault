@@ -26,7 +26,7 @@ object JsonDecoderComposer {
             createAndRetrieve(null) shouldBe null
         }
 
-        scope.should("ignore non registered fields") {
+        scope.should("ignore non-registered fields") {
             val value = createSerializableObject()
             val dataMap = Json.encodeToJsonElement(value).jsonObject + ("extra" to Json.encodeToJsonElement("extra"))
             val data = JsonObject(dataMap)
