@@ -5,14 +5,18 @@ import io.github.hansanto.kault.KaultDsl
 import io.github.hansanto.kault.ServiceBuilder
 import io.github.hansanto.kault.auth.approle.VaultAuthAppRole
 import io.github.hansanto.kault.auth.approle.VaultAuthAppRoleImpl
+import io.github.hansanto.kault.auth.common.common.TokenInfo
 import io.github.hansanto.kault.auth.common.response.LoginResponse
 import io.github.hansanto.kault.auth.kubernetes.VaultAuthKubernetes
 import io.github.hansanto.kault.auth.kubernetes.VaultAuthKubernetesImpl
+import io.github.hansanto.kault.auth.token.VaultAuthToken
+import io.github.hansanto.kault.auth.token.VaultAuthTokenImpl
 import io.github.hansanto.kault.auth.userpass.VaultAuthUserpass
 import io.github.hansanto.kault.auth.userpass.VaultAuthUserpassImpl
 import io.ktor.client.HttpClient
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
+import kotlinx.datetime.Clock
 
 /**
  * Service to interact with Vault auth API.
@@ -20,8 +24,9 @@ import kotlin.contracts.contract
 public class VaultAuth(
     /**
      * Token used to interact with API.
+     * TODO: Add information about the token.
      */
-    public var token: String? = null,
+    public var tokenInfo: TokenInfo? = null,
 
     /**
      * Authentication appRole service.
@@ -36,7 +41,12 @@ public class VaultAuth(
     /**
      * Authentication kubernetes service.
      */
-    public val kubernetes: VaultAuthKubernetes
+    public val kubernetes: VaultAuthKubernetes,
+
+    /**
+     * Authentication token service.
+     */
+    public val token: VaultAuthToken
 ) {
 
     public companion object {
@@ -72,7 +82,7 @@ public class VaultAuth(
     public class Builder : ServiceBuilder<VaultAuth>() {
 
         /**
-         * @see [VaultAuth.token]
+         * @see [VaultAuth.tokenInfo]
          */
         public var token: String? = null
 
@@ -93,12 +103,18 @@ public class VaultAuth(
          */
         private var kubernetesBuilder: BuilderDsl<VaultAuthKubernetesImpl.Builder> = {}
 
+        /**
+         * Builder to define authentication token service.
+         */
+        private var tokenBuilder: BuilderDsl<VaultAuthTokenImpl.Builder> = {}
+
         override fun buildWithCompletePath(client: HttpClient, completePath: String): VaultAuth {
             return VaultAuth(
-                token = token,
+                tokenInfo = token,
                 appRole = VaultAuthAppRoleImpl.Builder().apply(appRoleBuilder).build(client, completePath),
                 userpass = VaultAuthUserpassImpl.Builder().apply(userpassBuilder).build(client, completePath),
-                kubernetes = VaultAuthKubernetesImpl.Builder().apply(kubernetesBuilder).build(client, completePath)
+                kubernetes = VaultAuthKubernetesImpl.Builder().apply(kubernetesBuilder).build(client, completePath),
+                token = VaultAuthTokenImpl.Builder().apply(tokenBuilder).build(client, completePath)
             )
         }
 
@@ -128,10 +144,19 @@ public class VaultAuth(
         public fun kubernetes(builder: BuilderDsl<VaultAuthKubernetesImpl.Builder>) {
             kubernetesBuilder = builder
         }
+
+        /**
+         * Sets the authentication token service builder.
+         *
+         * @param builder Builder to create [VaultAuthTokenImpl] instance.
+         */
+        public fun token(builder: BuilderDsl<VaultAuthTokenImpl.Builder>) {
+            tokenBuilder = builder
+        }
     }
 
     /**
-     * Process the login request using [VaultAuth]'s service and set the [token][VaultAuth.token] from the response.
+     * Process the login request using [VaultAuth]'s service and set the [token][VaultAuth.tokenInfo] from the response.
      *
      * Example of usage:
      * ```kotlin
@@ -143,6 +168,18 @@ public class VaultAuth(
         contract {
             callsInPlace(loginRequest, InvocationKind.EXACTLY_ONCE)
         }
-        token = loginRequest(this).clientToken
+        val loginResponse = loginRequest(this)
+        tokenInfo = TokenInfo(
+            token = loginResponse.clientToken,
+            accessor = loginResponse.accessor,
+            tokenPolicies = loginResponse.tokenPolicies,
+            metadata = loginResponse.metadata,
+            expirationDate = Clock.System.now().plus(loginResponse.leaseDuration),
+            renewable = loginResponse.renewable,
+            entityId = loginResponse.entityId,
+            tokenType = loginResponse.tokenType,
+            orphan = loginResponse.orphan,
+            numUses = loginResponse.numUses
+        )
     }
 }

@@ -49,7 +49,7 @@ class VaultAuthTest : ShouldSpec({
         val built = VaultAuth(client.client, null) {
         }
 
-        built.token shouldBe null
+        built.tokenInfo shouldBe null
         (built.appRole as VaultAuthAppRoleImpl).path shouldBe "${VaultAuth.Default.PATH}/${VaultAuthAppRoleImpl.Default.PATH}"
         (built.kubernetes as VaultAuthKubernetesImpl).path shouldBe "${VaultAuth.Default.PATH}/${VaultAuthKubernetesImpl.Default.PATH}"
         (built.userpass as VaultAuthUserpassImpl).path shouldBe "${VaultAuth.Default.PATH}/${VaultAuthUserpassImpl.Default.PATH}"
@@ -79,19 +79,19 @@ class VaultAuthTest : ShouldSpec({
             }
         }
 
-        built.token shouldBe randomToken
+        built.tokenInfo shouldBe randomToken
         (built.appRole as VaultAuthAppRoleImpl).path shouldBe "$parentPath/$builderPath/$appRolePath"
         (built.kubernetes as VaultAuthKubernetesImpl).path shouldBe "$parentPath/$builderPath/$kubernetesPath"
         (built.userpass as VaultAuthUserpassImpl).path shouldBe "$parentPath/$builderPath/$userpassPath"
     }
 
     should("set token with null value") {
-        auth.token = null
+        auth.tokenInfo = null
         assertLoginReplaceToken(auth)
     }
 
     should("set token with non-null value") {
-        auth.token = randomString()
+        auth.tokenInfo = randomString()
         assertLoginReplaceToken(auth)
     }
 })
@@ -106,20 +106,20 @@ private suspend fun assertLoginReplaceToken(auth: VaultAuth) {
         }
     }
 
-    auth.token shouldBe loginResponse.clientToken
+    auth.tokenInfo shouldBe loginResponse.clientToken
 }
 
 private suspend fun createLoginPayload(auth: VaultAuth): AppRoleLoginPayload {
     val appRole = auth.appRole
 
-    val oldToken = auth.token
+    val oldToken = auth.tokenInfo
 
-    auth.token = ROOT_TOKEN // to create role and generate secret id
+    auth.tokenInfo = ROOT_TOKEN // to create role and generate secret id
     appRole.createOrUpdate(DEFAULT_ROLE_NAME) shouldBe true
     val secretId = appRole.generateSecretID(DEFAULT_ROLE_NAME).secretId
     val roleId = appRole.readRoleID(DEFAULT_ROLE_NAME).roleId
 
-    auth.token = oldToken
+    auth.tokenInfo = oldToken
 
     return AppRoleLoginPayload(roleId, secretId)
 }
