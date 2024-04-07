@@ -35,7 +35,6 @@ public interface VaultAuthToken {
      * @return Any
      */
     public suspend fun lookupSelfToken(): Any
-
 }
 
 /**
@@ -88,4 +87,19 @@ public class VaultAuthTokenImpl(
         }
     }
 
+    override suspend fun listAccessors(): List<String> {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun createToken(payload: Any): Any {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun lookupToken(token: String): Any {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun lookupSelfToken(): Any {
+        TODO("Not yet implemented")
+    }
 }

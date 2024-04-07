@@ -3,6 +3,7 @@ package io.github.hansanto.kault.auth
 import io.github.hansanto.kault.VaultClient
 import io.github.hansanto.kault.auth.approle.VaultAuthAppRoleImpl
 import io.github.hansanto.kault.auth.approle.payload.AppRoleLoginPayload
+import io.github.hansanto.kault.auth.common.common.TokenInfo
 import io.github.hansanto.kault.auth.common.response.LoginResponse
 import io.github.hansanto.kault.auth.kubernetes.VaultAuthKubernetesImpl
 import io.github.hansanto.kault.auth.userpass.VaultAuthUserpassImpl
@@ -67,7 +68,7 @@ class VaultAuthTest : ShouldSpec({
 
         val built = VaultAuth(client.client, parentPath) {
             path = builderPath
-            token = randomToken
+            authToken = randomToken
             appRole {
                 path = appRolePath
             }
@@ -91,7 +92,7 @@ class VaultAuthTest : ShouldSpec({
     }
 
     should("set token with non-null value") {
-        auth.tokenInfo = randomString()
+        auth.tokenInfo = TokenInfo(randomString())
         assertLoginReplaceToken(auth)
     }
 })
@@ -114,7 +115,7 @@ private suspend fun createLoginPayload(auth: VaultAuth): AppRoleLoginPayload {
 
     val oldToken = auth.tokenInfo
 
-    auth.tokenInfo = ROOT_TOKEN // to create role and generate secret id
+    auth.tokenInfo = TokenInfo(ROOT_TOKEN) // to create role and generate secret id
     appRole.createOrUpdate(DEFAULT_ROLE_NAME) shouldBe true
     val secretId = appRole.generateSecretID(DEFAULT_ROLE_NAME).secretId
     val roleId = appRole.readRoleID(DEFAULT_ROLE_NAME).roleId
