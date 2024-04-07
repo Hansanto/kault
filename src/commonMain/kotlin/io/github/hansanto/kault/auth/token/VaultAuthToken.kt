@@ -3,8 +3,22 @@ package io.github.hansanto.kault.auth.token
 import io.github.hansanto.kault.BuilderDsl
 import io.github.hansanto.kault.ServiceBuilder
 import io.github.hansanto.kault.auth.VaultAuth
+import io.github.hansanto.kault.auth.token.payload.TokenCreatePayload
 import io.github.hansanto.kault.serializer.VaultDuration
 import io.ktor.client.HttpClient
+import kotlin.contracts.InvocationKind
+import kotlin.contracts.contract
+
+/**
+ * @see VaultAuthToken.createToken(payload)
+ */
+public suspend inline fun VaultAuthToken.createOrUpdate(
+    payloadBuilder: BuilderDsl<TokenCreatePayload>
+): Any {
+    contract { callsInPlace(payloadBuilder, InvocationKind.EXACTLY_ONCE) }
+    val payload = TokenCreatePayload().apply(payloadBuilder)
+    return createToken(payload)
+}
 
 public interface VaultAuthToken {
 
@@ -20,7 +34,7 @@ public interface VaultAuthToken {
      * [Documentation](https://developer.hashicorp.com/vault/api-docs/auth/token#create-token)
      * @return Any
      */
-    public suspend fun createToken(payload: Any): Any
+    public suspend fun createToken(payload: TokenCreatePayload): Any
 
     /**
      * Returns information about the client token.
