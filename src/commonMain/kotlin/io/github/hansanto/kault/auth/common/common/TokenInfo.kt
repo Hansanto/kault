@@ -1,5 +1,6 @@
 package io.github.hansanto.kault.auth.common.common
 
+import io.github.hansanto.kault.KaultDsl
 import kotlinx.datetime.Instant
 
 public data class TokenInfo(
@@ -56,4 +57,79 @@ public data class TokenInfo(
      * The value of 0 has no limit to the number of uses.
      */
     public val numUses: Long = 0
-)
+) {
+
+    /**
+     * Builder class to simplify the creation of [TokenInfo].
+     */
+    @KaultDsl
+    public class Builder {
+
+        /**
+         * @see [TokenInfo.token]
+         */
+        public lateinit var token: String
+
+        /**
+         * @see [TokenInfo.accessor]
+         */
+        public var accessor: String? = null
+
+        /**
+         * @see [TokenInfo.tokenPolicies]
+         */
+        public var tokenPolicies: List<String> = emptyList()
+
+        /**
+         * @see [TokenInfo.metadata]
+         */
+        public var metadata: Map<String, String> = emptyMap()
+
+        /**
+         * @see [TokenInfo.expirationDate]
+         */
+        public var expirationDate: Instant? = null
+
+        /**
+         * @see [TokenInfo.renewable]
+         */
+        public var renewable: Boolean = false
+
+        /**
+         * @see [TokenInfo.entityId]
+         */
+        public var entityId: String = ""
+
+        /**
+         * @see [TokenInfo.tokenType]
+         */
+        public var tokenType: TokenType = TokenType.DEFAULT
+
+        /**
+         * @see [TokenInfo.orphan]
+         */
+        public var orphan: Boolean = true
+
+        /**
+         * @see [TokenInfo.numUses]
+         */
+        public var numUses: Long = 0
+
+        /**
+         * Build the instance of [TokenInfo] with the values defined in builder.
+         * @return A new instance.
+         */
+        public fun build(): TokenInfo = TokenInfo(
+            token = token,
+            accessor = accessor,
+            tokenPolicies = tokenPolicies,
+            metadata = metadata,
+            expirationDate = expirationDate,
+            renewable = renewable,
+            entityId = entityId,
+            tokenType = tokenType,
+            orphan = orphan,
+            numUses = numUses
+        )
+    }
+}

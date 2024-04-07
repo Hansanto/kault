@@ -6,6 +6,7 @@ import io.github.hansanto.kault.auth.approle.payload.AppRoleLoginPayload
 import io.github.hansanto.kault.auth.common.common.TokenInfo
 import io.github.hansanto.kault.auth.common.response.LoginResponse
 import io.github.hansanto.kault.auth.kubernetes.VaultAuthKubernetesImpl
+import io.github.hansanto.kault.auth.token.VaultAuthTokenImpl
 import io.github.hansanto.kault.auth.userpass.VaultAuthUserpassImpl
 import io.github.hansanto.kault.system.auth.enable
 import io.github.hansanto.kault.util.DEFAULT_ROLE_NAME
@@ -54,6 +55,7 @@ class VaultAuthTest : ShouldSpec({
         (built.appRole as VaultAuthAppRoleImpl).path shouldBe "${VaultAuth.Default.PATH}/${VaultAuthAppRoleImpl.Default.PATH}"
         (built.kubernetes as VaultAuthKubernetesImpl).path shouldBe "${VaultAuth.Default.PATH}/${VaultAuthKubernetesImpl.Default.PATH}"
         (built.userpass as VaultAuthUserpassImpl).path shouldBe "${VaultAuth.Default.PATH}/${VaultAuthUserpassImpl.Default.PATH}"
+        (built.token as VaultAuthTokenImpl).path shouldBe "${VaultAuth.Default.PATH}/${VaultAuthTokenImpl.Default.PATH}"
     }
 
     should("use custom values in the builder") {
@@ -65,10 +67,11 @@ class VaultAuthTest : ShouldSpec({
         val appRolePath = randomString()
         val kubernetesPath = randomString()
         val userpassPath = randomString()
+        val tokenPath = randomString()
 
         val built = VaultAuth(client.client, parentPath) {
             path = builderPath
-            authToken = randomToken
+            tokenInfo(randomToken)
             appRole {
                 path = appRolePath
             }
@@ -78,12 +81,16 @@ class VaultAuthTest : ShouldSpec({
             userpass {
                 path = userpassPath
             }
+            token {
+                path = tokenPath
+            }
         }
 
-        built.tokenInfo shouldBe randomToken
+        built.tokenInfo?.token shouldBe randomToken
         (built.appRole as VaultAuthAppRoleImpl).path shouldBe "$parentPath/$builderPath/$appRolePath"
         (built.kubernetes as VaultAuthKubernetesImpl).path shouldBe "$parentPath/$builderPath/$kubernetesPath"
         (built.userpass as VaultAuthUserpassImpl).path shouldBe "$parentPath/$builderPath/$userpassPath"
+        (built.token as VaultAuthTokenImpl).path shouldBe "$parentPath/$builderPath/$tokenPath"
     }
 
     should("set token with null value") {
@@ -107,7 +114,7 @@ private suspend fun assertLoginReplaceToken(auth: VaultAuth) {
         }
     }
 
-    auth.tokenInfo shouldBe loginResponse.clientToken
+    auth.tokenInfo?.token shouldBe loginResponse.clientToken
 }
 
 private suspend fun createLoginPayload(auth: VaultAuth): AppRoleLoginPayload {

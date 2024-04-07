@@ -12,7 +12,7 @@ const val ROOT_TOKEN = "root"
 fun createVaultClient(): VaultClient = VaultClient {
     url = "http://localhost:8200"
     auth {
-        authToken = ROOT_TOKEN
+        tokenInfo(ROOT_TOKEN)
     }
     httpClient { headerBuilder ->
         HttpClient {

@@ -83,11 +83,9 @@ public class VaultAuth(
         public override var path: String = Default.PATH
 
         /**
-         * Token used to interact with API.
-         * The value will be used to create a [TokenInfo] instance.
-         * @see [VaultAuth.tokenInfo]
+         * Builder to define token information.
          */
-        public var authToken: String? = null
+        public var tokenInfoBuilder: BuilderDsl<TokenInfo.Builder>? = null
 
         /**
          * Builder to define authentication appRole service.
@@ -111,12 +109,32 @@ public class VaultAuth(
 
         override fun buildWithCompletePath(client: HttpClient, completePath: String): VaultAuth {
             return VaultAuth(
-                tokenInfo = authToken?.let { TokenInfo(token = it) },
+                tokenInfo = tokenInfoBuilder?.let { TokenInfo.Builder().apply(it).build() },
                 appRole = VaultAuthAppRoleImpl.Builder().apply(appRoleBuilder).build(client, completePath),
                 userpass = VaultAuthUserpassImpl.Builder().apply(userpassBuilder).build(client, completePath),
                 kubernetes = VaultAuthKubernetesImpl.Builder().apply(kubernetesBuilder).build(client, completePath),
                 token = VaultAuthTokenImpl.Builder().apply(tokenBuilder).build(client, completePath)
             )
+        }
+
+        /**
+         * Sets the token information builder.
+         *
+         * @param builder Builder to create [TokenInfo] instance.
+         */
+        public fun tokenInfo(builder: BuilderDsl<TokenInfo.Builder>) {
+            tokenInfoBuilder = builder
+        }
+
+        /**
+         * Sets the token information using only the token.
+         *
+         * @param token The token to use.
+         */
+        public fun tokenInfo(token: String) {
+            tokenInfoBuilder = {
+                this.token = token
+            }
         }
 
         /**
