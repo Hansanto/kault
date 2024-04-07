@@ -132,7 +132,7 @@ public class VaultAuth(
          * @param token The token to use.
          */
         public fun tokenInfo(token: String) {
-            tokenInfoBuilder = {
+            tokenInfo {
                 this.token = token
             }
         }
