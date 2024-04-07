@@ -30,7 +30,6 @@ public data class TokenCreatePayload(
 
     /**
      * A map of string to string valued metadata. This is passed through to the audit devices.
-     * TODO: Check we nested object
      */
     @SerialName("meta")
     public var metadata: Map<String, String>? = null,
@@ -93,5 +92,5 @@ public data class TokenCreatePayload(
      * Name of the entity alias to associate with during token creation. Only works in combination with role_name argument and used entity alias must be listed in allowed_entity_aliases. If this has been specified, the entity will not be inherited from the parent.
      */
     @SerialName("entity_alias")
-    public var entityAlias: String? = null,
+    public var entityAlias: String? = null
 )

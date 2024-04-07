@@ -44,7 +44,7 @@ public data class TokenInfo(
      * The type of token that should be generated. Can be service, batch, or default to use the mount's tuned default (which unless changed will be service tokens).
      * For token store roles, there are two additional possibilities: default-service and default-batch which specify the type to return unless the client requests a different type at generation time.
      */
-    public val tokenType: TokenType = TokenType.DEFAULT,
+    public val tokenType: TokenType = TokenType.SERVICE,
 
     /**
      * If true, tokens created against this policy will be orphan tokens (they will have no parent).
@@ -103,7 +103,7 @@ public data class TokenInfo(
         /**
          * @see [TokenInfo.tokenType]
          */
-        public var tokenType: TokenType = TokenType.DEFAULT
+        public var tokenType: TokenType = TokenType.SERVICE
 
         /**
          * @see [TokenInfo.orphan]
