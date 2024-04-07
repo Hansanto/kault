@@ -3,9 +3,29 @@ package io.github.hansanto.kault.auth.token
 import io.github.hansanto.kault.BuilderDsl
 import io.github.hansanto.kault.ServiceBuilder
 import io.github.hansanto.kault.auth.VaultAuth
+import io.github.hansanto.kault.auth.common.response.LoginResponse
+import io.github.hansanto.kault.auth.token.payload.TokenAccessorPayload
 import io.github.hansanto.kault.auth.token.payload.TokenCreatePayload
+import io.github.hansanto.kault.auth.token.payload.TokenPayload
+import io.github.hansanto.kault.auth.token.payload.TokenRenewPayload
+import io.github.hansanto.kault.auth.token.payload.TokenRenewSelfPayload
+import io.github.hansanto.kault.auth.token.response.TokenCreateResponse
+import io.github.hansanto.kault.extension.decodeBodyJsonAuthFieldObject
+import io.github.hansanto.kault.extension.decodeBodyJsonDataFieldObject
+import io.github.hansanto.kault.extension.decodeBodyJsonWarningFieldArray
+import io.github.hansanto.kault.extension.list
+import io.github.hansanto.kault.response.StandardListResponse
 import io.github.hansanto.kault.serializer.VaultDuration
 import io.ktor.client.HttpClient
+import io.ktor.client.request.delete
+import io.ktor.client.request.get
+import io.ktor.client.request.post
+import io.ktor.client.request.setBody
+import io.ktor.client.statement.bodyAsText
+import io.ktor.http.ContentType
+import io.ktor.http.appendPathSegments
+import io.ktor.http.contentType
+import io.ktor.http.isSuccess
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
 
@@ -14,7 +34,7 @@ import kotlin.contracts.contract
  */
 public suspend inline fun VaultAuthToken.createOrUpdate(
     payloadBuilder: BuilderDsl<TokenCreatePayload>
-): Any {
+): TokenCreateResponse {
     contract { callsInPlace(payloadBuilder, InvocationKind.EXACTLY_ONCE) }
     val payload = TokenCreatePayload().apply(payloadBuilder)
     return createToken(payload)
@@ -34,7 +54,7 @@ public interface VaultAuthToken {
      * [Documentation](https://developer.hashicorp.com/vault/api-docs/auth/token#create-token)
      * @return Any
      */
-    public suspend fun createToken(payload: TokenCreatePayload): Any
+    public suspend fun createToken(payload: TokenCreatePayload = TokenCreatePayload()): TokenCreateResponse
 
     /**
      * Returns information about the client token.
@@ -67,7 +87,7 @@ public interface VaultAuthToken {
      * @param payload Any
      * @return Any
      */
-    public suspend fun renewToken(payload: Any): Any
+    public suspend fun renewToken(payload: TokenRenewPayload): LoginResponse
 
     /**
      * Renews a lease associated with the calling token.
@@ -79,17 +99,17 @@ public interface VaultAuthToken {
      * If not supplied, Vault will use the default TTL.
      * @return Any
      */
-    public suspend fun renewSelfToken(increment: VaultDuration): Any
+    public suspend fun renewSelfToken(increment: VaultDuration? = null): Any
 
     /**
      * Renews a lease associated with a token using its accessor.
      * This is used to prevent the expiration of a token, and the automatic revocation of it.
      * Token renewal is possible only if there is a lease associated with it.
      * [Documentation](https://developer.hashicorp.com/vault/api-docs/auth/token#renew-a-token-accessor)
-     * @param payload Any
+     * @param accessor Accessor of the token.
      * @return Any
      */
-    public suspend fun renewAccessorToken(payload: Any): Any
+    public suspend fun renewAccessorToken(accessor: String): Any
 
     /**
      * Revokes a token and all child tokens.
@@ -142,7 +162,7 @@ public interface VaultAuthToken {
      * [Documentation](https://developer.hashicorp.com/vault/api-docs/auth/token#list-token-roles)
      * @return Any
      */
-    public suspend fun listTokenRoles(): Any
+    public suspend fun listTokenRoles(): List<String>
 
     /**
      * Creates (or replaces) the named role.
@@ -172,7 +192,7 @@ public interface VaultAuthToken {
      * [Documentation](https://developer.hashicorp.com/vault/api-docs/auth/token#tidy-tokens)
      * @return Any
      */
-    public suspend fun tidyTokens(): Any
+    public suspend fun tidyTokens(): List<String>
 }
 
 /**
@@ -225,4 +245,176 @@ public class VaultAuthTokenImpl(
         }
     }
 
+    override suspend fun listAccessors(): List<String> {
+        val response = client.list {
+            url {
+                appendPathSegments(path, "accessors")
+            }
+        }
+        return response.decodeBodyJsonDataFieldObject<StandardListResponse>().keys
+    }
+
+    override suspend fun createToken(payload: TokenCreatePayload): TokenCreateResponse {
+        val response = client.post {
+            url {
+                appendPathSegments(path, "create")
+            }
+            contentType(ContentType.Application.Json)
+            setBody(payload)
+        }
+        return response.decodeBodyJsonAuthFieldObject()
+    }
+
+    override suspend fun lookupToken(token: String): Any {
+        val response = client.post {
+            url {
+                appendPathSegments(path, "lookup")
+            }
+            contentType(ContentType.Application.Json)
+            setBody(TokenPayload(token))
+        }
+        return response.decodeBodyJsonDataFieldObject()
+    }
+
+    override suspend fun lookupSelfToken(): Any {
+        val response = client.get {
+            url {
+                appendPathSegments(path, "lookup-self")
+            }
+        }
+        return response.decodeBodyJsonDataFieldObject()
+    }
+
+    override suspend fun lookupAccessorToken(accessor: String): Any {
+        val response = client.post {
+            url {
+                appendPathSegments(path, "lookup-accessor")
+            }
+            contentType(ContentType.Application.Json)
+            setBody(TokenAccessorPayload(accessor))
+        }
+        return response.decodeBodyJsonDataFieldObject()
+    }
+
+    override suspend fun renewToken(payload: TokenRenewPayload): LoginResponse {
+        val response = client.post {
+            url {
+                appendPathSegments(path, "renew")
+            }
+            contentType(ContentType.Application.Json)
+            setBody(payload)
+        }
+        return response.decodeBodyJsonAuthFieldObject()
+    }
+
+    override suspend fun renewSelfToken(increment: VaultDuration?): Any {
+        val response = client.post {
+            url {
+                appendPathSegments(path, "renew-self")
+            }
+            contentType(ContentType.Application.Json)
+            setBody(TokenRenewSelfPayload(increment))
+        }
+        return response.decodeBodyJsonAuthFieldObject()
+    }
+
+    override suspend fun renewAccessorToken(accessor: String): Any {
+        val response = client.post {
+            url {
+                appendPathSegments(path, "revoke-accessor")
+            }
+            contentType(ContentType.Application.Json)
+            setBody(TokenAccessorPayload(accessor))
+        }
+        return response.decodeBodyJsonAuthFieldObject()
+    }
+
+    override suspend fun revokeToken(token: String): Any {
+        val response = client.post {
+            url {
+                appendPathSegments(path, "revoke")
+            }
+            contentType(ContentType.Application.Json)
+            setBody(TokenPayload(token))
+        }
+        return response.status.isSuccess()
+    }
+
+    override suspend fun revokeSelfToken(): Any {
+        val response = client.post {
+            url {
+                appendPathSegments(path, "revoke-self")
+            }
+        }
+        return response.status.isSuccess()
+    }
+
+    override suspend fun revokeAccessorToken(accessor: String): Any {
+        val response = client.post {
+            url {
+                appendPathSegments(path, "revoke-accessor")
+            }
+            contentType(ContentType.Application.Json)
+            setBody(TokenAccessorPayload(accessor))
+        }
+        return response.status.isSuccess()
+    }
+
+    override suspend fun revokeTokenAndOrphan(token: String): Any {
+        val response = client.post {
+            url {
+                appendPathSegments(path, "revoke-orphan")
+            }
+            contentType(ContentType.Application.Json)
+            setBody(TokenPayload(token))
+        }
+        return response.status.isSuccess()
+    }
+
+    override suspend fun readTokenRole(roleName: String): Any {
+        val response = client.get {
+            url {
+                appendPathSegments(path, "roles", roleName)
+            }
+        }
+        return response.bodyAsText()
+    }
+
+    override suspend fun listTokenRoles(): List<String> {
+        val response = client.list {
+            url {
+                appendPathSegments(path, "roles")
+            }
+        }
+        return response.decodeBodyJsonDataFieldObject<StandardListResponse>().keys
+    }
+
+    override suspend fun createOrUpdateTokenRole(roleName: String, payload: Any): Any {
+        val response = client.post {
+            url {
+                appendPathSegments(path, "roles", roleName)
+            }
+            contentType(ContentType.Application.Json)
+            setBody(payload)
+        }
+        return response.bodyAsText()
+    }
+
+    override suspend fun deleteTokenRole(roleName: String): Any {
+        val response = client.delete {
+            url {
+                appendPathSegments(path, "roles", roleName)
+            }
+        }
+        return response.status.isSuccess()
+    }
+
+    override suspend fun tidyTokens(): List<String> {
+        val response = client.post {
+            url {
+                appendPathSegments(path, "tidy")
+            }
+        }
+        return response.decodeBodyJsonWarningFieldArray()
+    }
 }
