@@ -9,10 +9,10 @@ import io.github.hansanto.kault.system.auth.response.AuthReadTuningInformationRe
 import io.github.hansanto.kault.util.createVaultClient
 import io.github.hansanto.kault.util.randomString
 import io.github.hansanto.kault.util.readJson
+import io.github.hansanto.kault.util.replaceTemplateString
 import io.kotest.assertions.throwables.shouldNotThrow
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.ShouldSpec
-import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 
 private const val DEFAULT_METHOD = "approle"
@@ -63,9 +63,8 @@ class VaultSystemAuthTest : ShouldSpec({
 
     should("list with no additional auth methods") {
         val response = auth.list()
-        val expected =
-            readJson<Map<String, AuthReadConfigurationResponse>>("cases/sys/auth/list/without_additional/expected.json")
-        response shouldBe replaceDynamicFields(response, expected)
+        val expected = readJson<Map<String, AuthReadConfigurationResponse>>("cases/sys/auth/list/without_additional/expected.json")
+        response shouldBe replaceTemplateString(response, expected)
     }
 
     should("list with additional auth methods") {
@@ -73,9 +72,8 @@ class VaultSystemAuthTest : ShouldSpec({
         auth.enable(DEFAULT_METHOD, payload) shouldBe true
 
         val response = auth.list()
-        val expected =
-            readJson<Map<String, AuthReadConfigurationResponse>>("cases/sys/auth/list/with_additional/expected.json")
-        response shouldBe replaceDynamicFields(response, expected)
+        val expected = readJson<Map<String, AuthReadConfigurationResponse>>("cases/sys/auth/list/with_additional/expected.json")
+        response shouldBe replaceTemplateString(response, expected)
     }
 
     should("throw exception when enabling non-existing method with empty payload") {
@@ -97,7 +95,7 @@ class VaultSystemAuthTest : ShouldSpec({
 
         val response = auth.readConfiguration(DEFAULT_METHOD)
         val expected = readJson<AuthReadConfigurationResponse>("cases/sys/auth/enable/without_options/expected.json")
-        response shouldBe replaceDynamicFields(response, expected)
+        response shouldBe replaceTemplateString(response, expected)
     }
 
     should("enable method & read configuration with full payload") {
@@ -106,7 +104,7 @@ class VaultSystemAuthTest : ShouldSpec({
 
         val response = auth.readConfiguration(DEFAULT_METHOD)
         val expected = readJson<AuthReadConfigurationResponse>("cases/sys/auth/enable/with_options/expected.json")
-        response shouldBe replaceDynamicFields(response, expected)
+        response shouldBe replaceTemplateString(response, expected)
     }
 
     should("throw exception when disabling non-existing method") {
@@ -217,20 +215,3 @@ private suspend fun assertTuneWithBuilder(
     } shouldBe true
     auth.readTuning(DEFAULT_METHOD) shouldBe readJson<AuthReadTuningInformationResponse>(expectedPath)
 }
-
-private fun replaceDynamicFields(
-    response: Map<String, AuthReadConfigurationResponse>,
-    expected: Map<String, AuthReadConfigurationResponse>
-) = expected.mapValues {
-    val responseConfig = response[it.key] ?: error("Missing key ${it.key} in response")
-    replaceDynamicFields(responseConfig, it.value)
-}
-
-private fun replaceDynamicFields(
-    response: AuthReadConfigurationResponse,
-    expected: AuthReadConfigurationResponse
-) = expected.copy(
-    accessor = response.accessor,
-    runningPluginVersion = response.runningPluginVersion,
-    uuid = response.uuid
-)

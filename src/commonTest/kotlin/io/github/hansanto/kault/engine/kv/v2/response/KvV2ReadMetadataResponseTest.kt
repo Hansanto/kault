@@ -5,9 +5,9 @@ import io.github.hansanto.kault.util.ComplexSerializableClass
 import io.github.hansanto.kault.util.randomBoolean
 import io.github.hansanto.kault.util.randomLong
 import io.kotest.core.spec.style.ShouldSpec
+import kotlin.time.Duration
 import kotlinx.datetime.Instant
 import kotlinx.serialization.json.JsonObject
-import kotlin.time.Duration
 
 class KvV2ReadMetadataResponseTest : ShouldSpec({
 

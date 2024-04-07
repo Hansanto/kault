@@ -15,10 +15,10 @@ import io.github.hansanto.kault.exception.VaultAPIException
 import io.github.hansanto.kault.util.createVaultClient
 import io.github.hansanto.kault.util.randomString
 import io.github.hansanto.kault.util.readJson
+import io.github.hansanto.kault.util.replaceTemplateString
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
-import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 
 class VaultKV2EngineTest : ShouldSpec({
@@ -151,9 +151,8 @@ class VaultKV2EngineTest : ShouldSpec({
         val createGiven = readJson<KvV2WriteRequest>("cases/engine/kv/v2/create_secret/given.json")
 
         val writeResponse = kv2.createOrUpdateSecret(path, createGiven)
-        val createExpectedResponse =
-            readWriteResponse("cases/engine/kv/v2/create_secret/expected_write.json", writeResponse)
-        writeResponse shouldBe createExpectedResponse
+        val createExpectedResponse = readJson<KvV2WriteResponse>("cases/engine/kv/v2/create_secret/expected_write.json")
+        writeResponse shouldBe replaceTemplateString(createExpectedResponse, writeResponse)
 
         val readResponse = kv2.readSecret(path)
         val expected = readSecretResponse("cases/engine/kv/v2/create_secret/expected_read.json", writeResponse)
@@ -435,11 +434,8 @@ class VaultKV2EngineTest : ShouldSpec({
 
         val readResponse = kv2.readSecretMetadata(path)
         val expected =
-            readJson<KvV2ReadMetadataResponse>("cases/engine/kv/v2/update_metadata/without_secret/expected.json").copy(
-                createdTime = readResponse.createdTime,
-                updatedTime = readResponse.updatedTime
-            )
-        readResponse shouldBe expected
+            readJson<KvV2ReadMetadataResponse>("cases/engine/kv/v2/update_metadata/without_secret/expected.json")
+        readResponse shouldBe replaceTemplateString(expected, readResponse)
     }
 
     should("create or update metadata with existing secret") {
@@ -588,8 +584,8 @@ private suspend fun createAndUpdate(
     val patchGiven = readJson<KvV2WriteRequest>(writeUpdateGivenPath)
     val writeResponse = update(path, patchGiven)
 
-    val writeExpectedResponse = readWriteResponse(writeExpectedResponsePath, writeResponse)
-    writeResponse shouldBe writeExpectedResponse
+    val writeExpectedResponse = readJson<KvV2WriteResponse>(writeExpectedResponsePath)
+    writeResponse shouldBe replaceTemplateString(writeExpectedResponse, writeResponse)
 
     val readResponse = kv2.readSecret(path)
     val expected = readSecretResponse(readExpectedResponsePath, writeResponse)
@@ -619,14 +615,6 @@ private fun readSecretResponse(
         )
     )
 }
-
-private fun readWriteResponse(
-    path: String,
-    writeResponse: KvV2WriteResponse
-) = readJson<KvV2WriteResponse>(path).copy(
-    createdTime = writeResponse.createdTime,
-    deletionTime = writeResponse.deletionTime
-)
 
 fun simpleWriteRequestBuilder(): BuilderDsl<KvV2WriteRequest.Builder> = {
     data(

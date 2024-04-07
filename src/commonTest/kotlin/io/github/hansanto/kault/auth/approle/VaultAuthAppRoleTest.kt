@@ -13,10 +13,10 @@ import io.github.hansanto.kault.auth.common.response.LoginResponse
 import io.github.hansanto.kault.exception.VaultAPIException
 import io.github.hansanto.kault.system.auth.enable
 import io.github.hansanto.kault.util.DEFAULT_ROLE_NAME
-import io.github.hansanto.kault.util.STRING_REPLACE
 import io.github.hansanto.kault.util.createVaultClient
 import io.github.hansanto.kault.util.randomString
 import io.github.hansanto.kault.util.readJson
+import io.github.hansanto.kault.util.replaceTemplateString
 import io.kotest.assertions.throwables.shouldNotThrow
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.ShouldSpec
@@ -538,35 +538,12 @@ private suspend inline fun <reified P> assertCreateAndReadSecret(
     val given = givenPath?.let { readJson<P>(it) } ?: defaultPayload()
 
     val writeResponse = write(DEFAULT_ROLE_NAME, given)
-
-    // Read the expected response from the expected path and copy the secretId and secretIdAccessor from the
-    // response because they are randomly generated
-    val expectedWriteResponse =
-        readJson<AppRoleWriteSecretIdResponse>(expectedWritePath)
-            .copy(secretIdAccessor = writeResponse.secretIdAccessor)
-            .run {
-                // When we know the secretId is randomly generated, we replace it with the one from the response
-                if (secretId == STRING_REPLACE) {
-                    copy(secretId = writeResponse.secretId)
-                } else {
-                    this
-                }
-            }
-
-    writeResponse shouldBe expectedWriteResponse
+    val expectedWriteResponse = readJson<AppRoleWriteSecretIdResponse>(expectedWritePath)
+    writeResponse shouldBe replaceTemplateString(expectedWriteResponse, writeResponse)
 
     val readResponse = read(DEFAULT_ROLE_NAME, writeResponse)
-
-    // Read the expected response from the expected path and copy the secretIdAccessor & dates from the response
-    // because it is randomly generated
-    val expectedReadResponse =
-        readJson<AppRoleLookUpSecretIdResponse>(expectedReadPath).copy(
-            secretIdAccessor = writeResponse.secretIdAccessor,
-            creationTime = readResponse.creationTime,
-            expirationTime = readResponse.expirationTime,
-            lastUpdatedTime = readResponse.lastUpdatedTime
-        )
-    readResponse shouldBe expectedReadResponse
+    val expectedReadResponse = readJson<AppRoleLookUpSecretIdResponse>(expectedReadPath)
+    readResponse shouldBe replaceTemplateString(expectedReadResponse, readResponse)
 }
 
 private suspend fun assertCreateRole(
@@ -633,14 +610,7 @@ private suspend inline fun assertLogin(
     val roleId = appRole.readRoleID(DEFAULT_ROLE_NAME).roleId
 
     val loginResponse = login(roleId, secretId)
-    val expectedWriteResponse =
-        readJson<LoginResponse>(expectedWritePath)
-            .copy(
-                accessor = loginResponse.accessor,
-                clientToken = loginResponse.clientToken,
-                entityId = loginResponse.entityId,
-                leaseDuration = loginResponse.leaseDuration
-            )
+    val expectedWriteResponse = readJson<LoginResponse>(expectedWritePath)
 
-    loginResponse shouldBe expectedWriteResponse
+    loginResponse shouldBe replaceTemplateString(expectedWriteResponse, loginResponse)
 }

@@ -3,6 +3,7 @@ package io.github.hansanto.kault.auth.token
 import io.github.hansanto.kault.VaultClient
 import io.github.hansanto.kault.auth.token.payload.TokenCreatePayload
 import io.github.hansanto.kault.auth.token.response.TokenCreateResponse
+import io.github.hansanto.kault.util.ROOT_TOKEN
 import io.github.hansanto.kault.util.createVaultClient
 import io.github.hansanto.kault.util.randomString
 import io.github.hansanto.kault.util.readJson
@@ -21,7 +22,7 @@ class VaultAuthTokenTest : ShouldSpec({
     beforeSpec {
         client = createVaultClient()
         token = client.auth.token
-        rootAccessor = token.listAccessors().first()
+        rootAccessor = token.lookupToken(ROOT_TOKEN).accessor
     }
 
     afterSpec {
@@ -83,7 +84,6 @@ class VaultAuthTokenTest : ShouldSpec({
             "cases/auth/token/create/with_options/expected.json"
         )
     }
-
 })
 
 private suspend fun assertCreateToken(
