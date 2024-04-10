@@ -1,5 +1,6 @@
 package io.github.hansanto.kault.util
 
+import io.kotest.matchers.ints.shouldBeExactly
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
@@ -12,9 +13,10 @@ import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 
-private const val TEMPLATE_STRING = "REPLACED_DYNAMICALLY"
+private const val TEMPLATE_STRING = "REPLACE"
 private const val TEMPLATE_DATE = "1970-01-01T00:00:00Z"
-private const val TEMPLATE_DURATION = "999d"
+private const val TEMPLATE_DURATION = "9999999999s"
+private const val TEMPLATE_NUMBER = "9999999999"
 
 inline fun <reified T> replaceTemplateString(expected: T, response: T): T {
     val expectedJson = Json.encodeToJsonElement(expected)
@@ -52,6 +54,7 @@ fun replaceTemplateString(
     expectedJson: JsonArray,
     responseJson: JsonArray
 ): JsonArray {
+    responseJson.size shouldBeExactly expectedJson.size
     val replacedExpectedJsonArray = expectedJson.mapIndexed { index, value ->
         replaceTemplateString(value, responseJson[index])
     }
@@ -66,7 +69,8 @@ fun replaceTemplateString(
     return if (
         expectedValue == TEMPLATE_STRING ||
         expectedValue == TEMPLATE_DATE ||
-        expectedValue == TEMPLATE_DURATION
+        expectedValue == TEMPLATE_DURATION ||
+        expectedValue == TEMPLATE_NUMBER
     ) {
         response
     } else {

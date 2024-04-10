@@ -1,0 +1,18 @@
+{
+  "id": "lookup-self-id",
+  "role_name": "lookup-self-role_name",
+  "policies": ["root"],
+  "meta": {
+    "user": "lookup-self-user",
+    "org": "lookup-self-org"
+  },
+  "no_parent": true,
+  "no_default_policy": true,
+  "renewable": true,
+  "ttl": "1h",
+  "type": "service",
+  "explicit_max_ttl": "5h",
+  "display_name": "lookup-self-display_name",
+  "num_uses": 42,
+  "period": "3h"
+}

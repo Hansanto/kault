@@ -1,6 +1,6 @@
 {
   "client_token": "test",
-  "accessor": "REPLACED_DYNAMICALLY",
+  "accessor": "REPLACE",
   "policies": [
     "stage",
     "web"

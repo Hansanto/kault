@@ -31,6 +31,7 @@ class VaultAuthTokenTest : ShouldSpec({
     }
 
     beforeTest {
+        client.auth.setToken(ROOT_TOKEN)
         token.listAccessors()
             .asSequence()
             .filter {
@@ -120,17 +121,17 @@ class VaultAuthTokenTest : ShouldSpec({
 
     should("lookup the self token with default values") {
         assertLookupSelfToken(
-            token,
+            client,
             null,
-            "cases/auth/token/lookup/without_options/expected.json"
+            "cases/auth/token/lookup-self/without_options/expected.json"
         )
     }
 
     should("lookup the self token with all defined values") {
         assertLookupSelfToken(
-            token,
-            "cases/auth/token/lookup/with_options/given.json",
-            "cases/auth/token/lookup/with_options/expected.json"
+            client,
+            "cases/auth/token/lookup-self/with_options/given.json",
+            "cases/auth/token/lookup-self/with_options/expected.json"
         )
     }
 })
@@ -145,6 +146,24 @@ private suspend fun assertLookupToken(
     }
 
     val lookupResponse = token.lookupToken(response.clientToken)
+    val expected = readJson<TokenLookupResponse>(expectedReadPath)
+    lookupResponse shouldBe replaceTemplateString(expected, lookupResponse)
+}
+
+private suspend fun assertLookupSelfToken(
+    client: VaultClient,
+    givenPath: String?,
+    expectedReadPath: String
+) {
+    val token = client.auth.token
+    val response = createToken(givenPath) { payload ->
+        token.createToken(payload)
+    }
+    println(response)
+
+    client.auth.setToken(response.clientToken)
+
+    val lookupResponse = token.lookupSelfToken()
     val expected = readJson<TokenLookupResponse>(expectedReadPath)
     lookupResponse shouldBe replaceTemplateString(expected, lookupResponse)
 }
@@ -206,5 +225,7 @@ private inline fun createToken(
     createOrUpdate: (TokenCreatePayload) -> TokenCreateResponse
 ): TokenCreateResponse {
     val given = givenPath?.let { readJson<TokenCreatePayload>(it) } ?: TokenCreatePayload()
-    return createOrUpdate(given)
+    return createOrUpdate(given).apply {
+        println(this)
+    }
 }

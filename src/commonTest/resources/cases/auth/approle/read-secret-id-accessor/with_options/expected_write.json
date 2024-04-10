@@ -1,6 +1,6 @@
 {
-  "secret_id": "REPLACED_DYNAMICALLY",
-  "secret_id_accessor": "REPLACED_DYNAMICALLY",
+  "secret_id": "REPLACE",
+  "secret_id_accessor": "REPLACE",
   "secret_id_num_uses": 123,
   "secret_id_ttl": 7200
 }

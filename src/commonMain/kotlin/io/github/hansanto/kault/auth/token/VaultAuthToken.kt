@@ -71,7 +71,7 @@ public interface VaultAuthToken {
      * [Documentation](https://developer.hashicorp.com/vault/api-docs/auth/token#lookup-a-token-self)
      * @return Any
      */
-    public suspend fun lookupSelfToken(): Any
+    public suspend fun lookupSelfToken(): TokenLookupResponse
 
     /**
      * Returns information about the client token from the accessor.
@@ -275,11 +275,10 @@ public class VaultAuthTokenImpl(
             contentType(ContentType.Application.Json)
             setBody(TokenPayload(token))
         }
-        // TODO Verify response structure with tests
         return response.decodeBodyJsonDataFieldObject()
     }
 
-    override suspend fun lookupSelfToken(): Any {
+    override suspend fun lookupSelfToken(): TokenLookupResponse {
         val response = client.get {
             url {
                 appendPathSegments(path, "lookup-self")

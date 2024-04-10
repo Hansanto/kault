@@ -14,9 +14,9 @@ import io.github.hansanto.kault.auth.token.VaultAuthTokenImpl
 import io.github.hansanto.kault.auth.userpass.VaultAuthUserpass
 import io.github.hansanto.kault.auth.userpass.VaultAuthUserpassImpl
 import io.ktor.client.HttpClient
-import kotlinx.datetime.Clock
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
+import kotlinx.datetime.Clock
 
 /**
  * Service to interact with Vault auth API.
@@ -127,13 +127,14 @@ public class VaultAuth(
         }
 
         /**
-         * Sets the token information using only the token.
-         *
-         * @param token The token to use.
+         * Set the [tokenInfo] builder from the provided token.
+         * If the token is null, the builder will be null.
+         * Otherwise, the builder will create a new instance of [TokenInfo] with the provided token only.
+         * @param token Token to use for the next requests.
          */
-        public fun tokenInfo(token: String) {
-            tokenInfo {
-                this.token = token
+        public fun setToken(token: String?) {
+            tokenInfoBuilder = token?.let {
+                { this.token = it }
             }
         }
 
@@ -200,5 +201,24 @@ public class VaultAuth(
             orphan = loginResponse.orphan,
             numUses = loginResponse.numUses
         )
+    }
+
+    /**
+     * Set the [tokenInfo] from the provided token.
+     * If the token is null, the [tokenInfo] will be null.
+     * Otherwise, the [tokenInfo] will be a new instance of [TokenInfo] with the provided token only.
+     * @param token Token to use for the next requests.
+     */
+    public fun setToken(token: String?) {
+        tokenInfo = token?.let { TokenInfo(it) }
+    }
+
+    /**
+     * Get the token from the [tokenInfo].
+     * If the [tokenInfo] is null, the token will be null.
+     * @return The token used to interact with the API.
+     */
+    public fun getToken(): String? {
+        return tokenInfo?.token
     }
 }
