@@ -3,6 +3,7 @@ package io.github.hansanto.kault.auth.token
 import io.github.hansanto.kault.VaultClient
 import io.github.hansanto.kault.auth.token.payload.TokenCreatePayload
 import io.github.hansanto.kault.auth.token.response.TokenCreateResponse
+import io.github.hansanto.kault.auth.token.response.TokenLookupResponse
 import io.github.hansanto.kault.util.ROOT_TOKEN
 import io.github.hansanto.kault.util.createVaultClient
 import io.github.hansanto.kault.util.randomString
@@ -84,7 +85,69 @@ class VaultAuthTokenTest : ShouldSpec({
             "cases/auth/token/create/with_options/expected.json"
         )
     }
+
+    should("create a token using builder with default values") {
+        assertCreateTokenWithBuilder(
+            token,
+            null,
+            "cases/auth/token/create/without_options/expected.json"
+        )
+    }
+
+    should("create a role using builder with all defined values") {
+        assertCreateTokenWithBuilder(
+            token,
+            "cases/auth/token/create/with_options/given.json",
+            "cases/auth/token/create/with_options/expected.json"
+        )
+    }
+
+    should("lookup a created token with default values") {
+        assertLookupToken(
+            token,
+            null,
+            "cases/auth/token/lookup/without_options/expected.json"
+        )
+    }
+
+    should("lookup a created token with all defined values") {
+        assertLookupToken(
+            token,
+            "cases/auth/token/lookup/with_options/given.json",
+            "cases/auth/token/lookup/with_options/expected.json"
+        )
+    }
+
+    should("lookup the self token with default values") {
+        assertLookupSelfToken(
+            token,
+            null,
+            "cases/auth/token/lookup/without_options/expected.json"
+        )
+    }
+
+    should("lookup the self token with all defined values") {
+        assertLookupSelfToken(
+            token,
+            "cases/auth/token/lookup/with_options/given.json",
+            "cases/auth/token/lookup/with_options/expected.json"
+        )
+    }
 })
+
+private suspend fun assertLookupToken(
+    token: VaultAuthToken,
+    givenPath: String?,
+    expectedReadPath: String
+) {
+    val response = createToken(givenPath) { payload ->
+        token.createToken(payload)
+    }
+
+    val lookupResponse = token.lookupToken(response.clientToken)
+    val expected = readJson<TokenLookupResponse>(expectedReadPath)
+    lookupResponse shouldBe replaceTemplateString(expected, lookupResponse)
+}
 
 private suspend fun assertCreateToken(
     token: VaultAuthToken,
@@ -132,9 +195,16 @@ private inline fun assertCreateToken(
     expectedReadPath: String,
     createOrUpdate: (TokenCreatePayload) -> TokenCreateResponse
 ) {
-    val given = givenPath?.let { readJson<TokenCreatePayload>(it) } ?: TokenCreatePayload()
-    val expected = readJson<TokenCreateResponse>(expectedReadPath)
-    val response = createOrUpdate(given)
+    val response = createToken(givenPath, createOrUpdate)
 
+    val expected = readJson<TokenCreateResponse>(expectedReadPath)
     response shouldBe replaceTemplateString(expected, response)
+}
+
+private inline fun createToken(
+    givenPath: String?,
+    createOrUpdate: (TokenCreatePayload) -> TokenCreateResponse
+): TokenCreateResponse {
+    val given = givenPath?.let { readJson<TokenCreatePayload>(it) } ?: TokenCreatePayload()
+    return createOrUpdate(given)
 }

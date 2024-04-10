@@ -10,6 +10,7 @@ import io.github.hansanto.kault.auth.token.payload.TokenPayload
 import io.github.hansanto.kault.auth.token.payload.TokenRenewPayload
 import io.github.hansanto.kault.auth.token.payload.TokenRenewSelfPayload
 import io.github.hansanto.kault.auth.token.response.TokenCreateResponse
+import io.github.hansanto.kault.auth.token.response.TokenLookupResponse
 import io.github.hansanto.kault.extension.decodeBodyJsonAuthFieldObject
 import io.github.hansanto.kault.extension.decodeBodyJsonDataFieldObject
 import io.github.hansanto.kault.extension.decodeBodyJsonWarningFieldArray
@@ -53,6 +54,7 @@ public interface VaultAuthToken {
      * Creates a new token.
      * [Documentation](https://developer.hashicorp.com/vault/api-docs/auth/token#create-token)
      * @return Any
+     * TODO Orphaned tokens
      */
     public suspend fun createToken(payload: TokenCreatePayload = TokenCreatePayload()): TokenCreateResponse
 
@@ -62,7 +64,7 @@ public interface VaultAuthToken {
      * @param token The token to lookup.
      * @return Any
      */
-    public suspend fun lookupToken(token: String): Any
+    public suspend fun lookupToken(token: String): TokenLookupResponse
 
     /**
      * Returns information about the current client token.
@@ -265,7 +267,7 @@ public class VaultAuthTokenImpl(
         return response.decodeBodyJsonAuthFieldObject()
     }
 
-    override suspend fun lookupToken(token: String): Any {
+    override suspend fun lookupToken(token: String): TokenLookupResponse {
         val response = client.post {
             url {
                 appendPathSegments(path, "lookup")
@@ -273,6 +275,7 @@ public class VaultAuthTokenImpl(
             contentType(ContentType.Application.Json)
             setBody(TokenPayload(token))
         }
+        // TODO Verify response structure with tests
         return response.decodeBodyJsonDataFieldObject()
     }
 

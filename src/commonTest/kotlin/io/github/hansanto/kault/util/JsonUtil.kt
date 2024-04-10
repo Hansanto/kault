@@ -14,7 +14,7 @@ import kotlinx.serialization.json.jsonPrimitive
 
 private const val TEMPLATE_STRING = "REPLACED_DYNAMICALLY"
 private const val TEMPLATE_DATE = "1970-01-01T00:00:00Z"
-private const val TEMPLATE_DURATION = "0s"
+private const val TEMPLATE_DURATION = "999d"
 
 inline fun <reified T> replaceTemplateString(expected: T, response: T): T {
     val expectedJson = Json.encodeToJsonElement(expected)
