@@ -7,10 +7,12 @@ import io.github.hansanto.kault.auth.common.response.LoginResponse
 import io.github.hansanto.kault.auth.token.payload.TokenAccessorPayload
 import io.github.hansanto.kault.auth.token.payload.TokenCreatePayload
 import io.github.hansanto.kault.auth.token.payload.TokenPayload
+import io.github.hansanto.kault.auth.token.payload.TokenRenewAccessorPayload
 import io.github.hansanto.kault.auth.token.payload.TokenRenewPayload
 import io.github.hansanto.kault.auth.token.payload.TokenRenewSelfPayload
 import io.github.hansanto.kault.auth.token.response.TokenCreateResponse
 import io.github.hansanto.kault.auth.token.response.TokenLookupResponse
+import io.github.hansanto.kault.auth.token.response.TokenRenewResponse
 import io.github.hansanto.kault.extension.decodeBodyJsonAuthFieldObject
 import io.github.hansanto.kault.extension.decodeBodyJsonDataFieldObject
 import io.github.hansanto.kault.extension.decodeBodyJsonWarningFieldArray
@@ -33,12 +35,34 @@ import kotlin.contracts.contract
 /**
  * @see VaultAuthToken.createToken(payload)
  */
-public suspend inline fun VaultAuthToken.createOrUpdate(
+public suspend inline fun VaultAuthToken.createToken(
     payloadBuilder: BuilderDsl<TokenCreatePayload>
 ): TokenCreateResponse {
     contract { callsInPlace(payloadBuilder, InvocationKind.EXACTLY_ONCE) }
     val payload = TokenCreatePayload().apply(payloadBuilder)
     return createToken(payload)
+}
+
+/**
+ * @see VaultAuthToken.renewToken(payload)
+ */
+public suspend inline fun VaultAuthToken.renewToken(
+    payloadBuilder: BuilderDsl<TokenRenewPayload.Builder>
+): TokenRenewResponse {
+    contract { callsInPlace(payloadBuilder, InvocationKind.EXACTLY_ONCE) }
+    val payload = TokenRenewPayload.Builder().apply(payloadBuilder).build()
+    return renewToken(payload)
+}
+
+/**
+ * @see VaultAuthToken.renewAccessorToken(payload)
+ */
+public suspend inline fun VaultAuthToken.renewAccessorToken(
+    payloadBuilder: BuilderDsl<TokenRenewAccessorPayload.Builder>
+): TokenRenewResponse {
+    contract { callsInPlace(payloadBuilder, InvocationKind.EXACTLY_ONCE) }
+    val payload = TokenRenewAccessorPayload.Builder().apply(payloadBuilder).build()
+    return renewAccessorToken(payload)
 }
 
 public interface VaultAuthToken {
@@ -79,7 +103,7 @@ public interface VaultAuthToken {
      * @param accessor Token accessor to lookup.
      * @return Any
      */
-    public suspend fun lookupAccessorToken(accessor: String): Any
+    public suspend fun lookupAccessorToken(accessor: String): TokenLookupResponse
 
     /**
      * Renews a lease associated with a token.
@@ -89,7 +113,7 @@ public interface VaultAuthToken {
      * @param payload Any
      * @return Any
      */
-    public suspend fun renewToken(payload: TokenRenewPayload): LoginResponse
+    public suspend fun renewToken(payload: TokenRenewPayload): TokenRenewResponse
 
     /**
      * Renews a lease associated with the calling token.
@@ -101,17 +125,17 @@ public interface VaultAuthToken {
      * If not supplied, Vault will use the default TTL.
      * @return Any
      */
-    public suspend fun renewSelfToken(increment: VaultDuration? = null): Any
+    public suspend fun renewSelfToken(increment: VaultDuration? = null): TokenRenewResponse
 
     /**
      * Renews a lease associated with a token using its accessor.
      * This is used to prevent the expiration of a token, and the automatic revocation of it.
      * Token renewal is possible only if there is a lease associated with it.
      * [Documentation](https://developer.hashicorp.com/vault/api-docs/auth/token#renew-a-token-accessor)
-     * @param accessor Accessor of the token.
+     * @param payload Any
      * @return Any
      */
-    public suspend fun renewAccessorToken(accessor: String): Any
+    public suspend fun renewAccessorToken(payload: TokenRenewAccessorPayload): TokenRenewResponse
 
     /**
      * Revokes a token and all child tokens.
@@ -287,7 +311,7 @@ public class VaultAuthTokenImpl(
         return response.decodeBodyJsonDataFieldObject()
     }
 
-    override suspend fun lookupAccessorToken(accessor: String): Any {
+    override suspend fun lookupAccessorToken(accessor: String): TokenLookupResponse {
         val response = client.post {
             url {
                 appendPathSegments(path, "lookup-accessor")
@@ -298,7 +322,7 @@ public class VaultAuthTokenImpl(
         return response.decodeBodyJsonDataFieldObject()
     }
 
-    override suspend fun renewToken(payload: TokenRenewPayload): LoginResponse {
+    override suspend fun renewToken(payload: TokenRenewPayload): TokenRenewResponse {
         val response = client.post {
             url {
                 appendPathSegments(path, "renew")
@@ -309,7 +333,7 @@ public class VaultAuthTokenImpl(
         return response.decodeBodyJsonAuthFieldObject()
     }
 
-    override suspend fun renewSelfToken(increment: VaultDuration?): Any {
+    override suspend fun renewSelfToken(increment: VaultDuration?): TokenRenewResponse {
         val response = client.post {
             url {
                 appendPathSegments(path, "renew-self")
@@ -320,13 +344,13 @@ public class VaultAuthTokenImpl(
         return response.decodeBodyJsonAuthFieldObject()
     }
 
-    override suspend fun renewAccessorToken(accessor: String): Any {
+    override suspend fun renewAccessorToken(payload: TokenRenewAccessorPayload): TokenRenewResponse {
         val response = client.post {
             url {
-                appendPathSegments(path, "revoke-accessor")
+                appendPathSegments(path, "renew-accessor")
             }
             contentType(ContentType.Application.Json)
-            setBody(TokenAccessorPayload(accessor))
+            setBody(payload)
         }
         return response.decodeBodyJsonAuthFieldObject()
     }

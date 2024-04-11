@@ -1,0 +1,18 @@
+{
+  "id": "lookup-id",
+  "role_name": "lookup-role_name",
+  "policies": ["root"],
+  "meta": {
+    "par": "lookup-par",
+    "local": "lookup-local"
+  },
+  "no_parent": true,
+  "no_default_policy": true,
+  "renewable": true,
+  "ttl": "1h",
+  "type": "service",
+  "explicit_max_ttl": "5h",
+  "display_name": "lookup-display-name",
+  "num_uses": 42,
+  "period": "3h"
+}

@@ -1,0 +1,23 @@
+{
+  "accessor": "REPLACE",
+  "creation_time": 9999999999,
+  "creation_ttl": "3h",
+  "display_name": "token-lookup-display-name",
+  "entity_id": "",
+  "expire_time": "1970-01-01T00:00:00Z",
+  "explicit_max_ttl": 18000,
+  "id": "",
+  "issue_time": "1970-01-01T00:00:00Z",
+  "meta": {
+    "par": "lookup-par",
+    "local": "lookup-local"
+  },
+  "num_uses": 42,
+  "orphan": true,
+  "path": "auth/token/create",
+  "period": 10800,
+  "policies": ["root"],
+  "renewable": true,
+  "ttl": "9999999999s",
+  "type": "service"
+}

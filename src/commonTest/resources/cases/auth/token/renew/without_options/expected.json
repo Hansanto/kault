@@ -1,0 +1,18 @@
+{
+  "client_token": "REPLACE",
+  "accessor": "REPLACE",
+  "policies": [
+    "root"
+  ],
+  "token_policies": [
+    "root"
+  ],
+  "metadata": null,
+  "lease_duration": "1h",
+  "renewable": true,
+  "entity_id": "",
+  "token_type": "service",
+  "orphan": false,
+  "mfa_requirement": null,
+  "num_uses": 0
+}

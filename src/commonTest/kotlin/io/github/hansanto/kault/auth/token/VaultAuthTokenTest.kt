@@ -2,17 +2,24 @@ package io.github.hansanto.kault.auth.token
 
 import io.github.hansanto.kault.VaultClient
 import io.github.hansanto.kault.auth.token.payload.TokenCreatePayload
+import io.github.hansanto.kault.auth.token.payload.TokenRenewPayload
 import io.github.hansanto.kault.auth.token.response.TokenCreateResponse
 import io.github.hansanto.kault.auth.token.response.TokenLookupResponse
+import io.github.hansanto.kault.auth.token.response.TokenRenewResponse
+import io.github.hansanto.kault.exception.VaultAPIException
+import io.github.hansanto.kault.serializer.VaultDuration
 import io.github.hansanto.kault.util.ROOT_TOKEN
 import io.github.hansanto.kault.util.createVaultClient
 import io.github.hansanto.kault.util.randomString
 import io.github.hansanto.kault.util.readJson
 import io.github.hansanto.kault.util.replaceTemplateString
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
+import kotlin.time.Duration.Companion.days
+import kotlin.time.Duration.Companion.hours
 
 class VaultAuthTokenTest : ShouldSpec({
 
@@ -103,6 +110,12 @@ class VaultAuthTokenTest : ShouldSpec({
         )
     }
 
+    should("throw exception if lookup token with invalid token") {
+        shouldThrow<VaultAPIException> {
+            token.lookupToken("invalid-token")
+        }
+    }
+
     should("lookup a created token with default values") {
         assertLookupToken(
             token,
@@ -134,20 +147,155 @@ class VaultAuthTokenTest : ShouldSpec({
             "cases/auth/token/lookup-self/with_options/expected.json"
         )
     }
+
+    should("throw exception if lookup token with invalid accessor") {
+        shouldThrow<VaultAPIException> {
+            token.lookupAccessorToken("invalid-token")
+        }
+    }
+
+    should("lookup token from accessor with default values") {
+        assertLookupTokenFromAccessor(
+            token,
+            null,
+            "cases/auth/token/lookup-accessor/without_options/expected.json"
+        )
+    }
+
+    should("lookup token from accessor with all defined values") {
+        assertLookupTokenFromAccessor(
+            token,
+            "cases/auth/token/lookup-accessor/with_options/given.json",
+            "cases/auth/token/lookup-accessor/with_options/expected.json"
+        )
+    }
+
+    should("throw exception if renew token with invalid token") {
+        shouldThrow<VaultAPIException> {
+            token.renewToken(TokenRenewPayload("invalid-token"))
+        }
+    }
+
+    should("renew token with no increment") {
+        assertRenewToken(
+            token,
+            null,
+            "cases/auth/token/renew/without_options/expected.json"
+        )
+    }
+
+    should("renew token with increment") {
+        assertRenewToken(
+            token,
+            10.days,
+            "cases/auth/token/renew/with_options/expected.json"
+        )
+    }
+
+    should("renew self token with no increment") {
+        assertRenewSelfToken(
+            client,
+            null,
+            "cases/auth/token/renew/without_options/expected.json"
+        )
+    }
+
+    should("renew self token with increment") {
+        assertRenewSelfToken(
+            client,
+            10.days,
+            "cases/auth/token/renew/with_options/expected.json"
+        )
+    }
+
+    should("renew token from accessor with no increment") {
+        assertRenewTokenFromAccessor(
+            token,
+            null,
+            "cases/auth/token/renew/without_options/expected.json"
+        )
+    }
+
+    should("renew token from accessor with increment") {
+        assertRenewTokenFromAccessor(
+            token,
+            10.days,
+            "cases/auth/token/renew/with_options/expected.json"
+        )
+    }
 })
+
+private suspend fun assertRenewToken(
+    token: VaultAuthToken,
+    increment: VaultDuration?,
+    expectedReadPath: String
+) {
+    assertRenewToken(token, increment, expectedReadPath) { _, tokenRenew ->
+        token.renewToken(tokenRenew)
+    }
+}
+
+private suspend fun assertRenewSelfToken(
+    client: VaultClient,
+    increment: VaultDuration?,
+    expectedReadPath: String
+) {
+    val token = client.auth.token
+    assertRenewToken(token, increment, expectedReadPath) { tokenCreate, tokenRenew ->
+        client.auth.setToken(tokenCreate.clientToken)
+        token.renewSelfToken(tokenRenew.increment)
+    }
+}
+
+private suspend fun assertRenewTokenFromAccessor(
+    token: VaultAuthToken,
+    increment: VaultDuration?,
+    expectedReadPath: String
+) {
+    assertRenewToken(token, increment, expectedReadPath) { tokenCreate, _ ->
+        token.renewAccessorToken {
+            this.accessor = tokenCreate.accessor
+            this.increment = increment
+        }
+    }
+}
+
+private suspend inline fun assertRenewToken(
+    token: VaultAuthToken,
+    increment: VaultDuration?,
+    expectedReadPath: String,
+    renewToken: (TokenCreateResponse, TokenRenewPayload) -> TokenRenewResponse
+) {
+    val tokenCreateResponse = token.createToken {
+        renewable = true
+        ttl = 1.hours
+    }
+
+    val given = TokenRenewPayload(tokenCreateResponse.clientToken, increment)
+
+    val renewTokenResponse = renewToken(tokenCreateResponse, given)
+    val expected = readJson<TokenRenewResponse>(expectedReadPath)
+    renewTokenResponse shouldBe replaceTemplateString(expected, renewTokenResponse)
+}
 
 private suspend fun assertLookupToken(
     token: VaultAuthToken,
     givenPath: String?,
     expectedReadPath: String
 ) {
-    val response = createToken(givenPath) { payload ->
-        token.createToken(payload)
+    assertLookupToken(token, givenPath, expectedReadPath) {
+        token.lookupToken(it.clientToken)
     }
+}
 
-    val lookupResponse = token.lookupToken(response.clientToken)
-    val expected = readJson<TokenLookupResponse>(expectedReadPath)
-    lookupResponse shouldBe replaceTemplateString(expected, lookupResponse)
+private suspend fun assertLookupTokenFromAccessor(
+    token: VaultAuthToken,
+    givenPath: String?,
+    expectedReadPath: String
+) {
+    assertLookupToken(token, givenPath, expectedReadPath) {
+        token.lookupAccessorToken(it.accessor)
+    }
 }
 
 private suspend fun assertLookupSelfToken(
@@ -156,14 +304,23 @@ private suspend fun assertLookupSelfToken(
     expectedReadPath: String
 ) {
     val token = client.auth.token
+    assertLookupToken(token, givenPath, expectedReadPath) {
+        client.auth.setToken(it.clientToken)
+        token.lookupSelfToken()
+    }
+}
+
+private suspend inline fun assertLookupToken(
+    token: VaultAuthToken,
+    givenPath: String?,
+    expectedReadPath: String,
+    lookupToken: (TokenCreateResponse) -> TokenLookupResponse
+) {
     val response = createToken(givenPath) { payload ->
         token.createToken(payload)
     }
-    println(response)
 
-    client.auth.setToken(response.clientToken)
-
-    val lookupResponse = token.lookupSelfToken()
+    val lookupResponse = lookupToken(response)
     val expected = readJson<TokenLookupResponse>(expectedReadPath)
     lookupResponse shouldBe replaceTemplateString(expected, lookupResponse)
 }
@@ -190,7 +347,7 @@ private suspend fun assertCreateTokenWithBuilder(
         givenPath,
         expectedReadPath
     ) { payload ->
-        token.createOrUpdate {
+        token.createToken {
             this.id = payload.id
             this.roleName = payload.roleName
             this.policies = payload.policies
@@ -225,7 +382,5 @@ private inline fun createToken(
     createOrUpdate: (TokenCreatePayload) -> TokenCreateResponse
 ): TokenCreateResponse {
     val given = givenPath?.let { readJson<TokenCreatePayload>(it) } ?: TokenCreatePayload()
-    return createOrUpdate(given).apply {
-        println(this)
-    }
+    return createOrUpdate(given)
 }
