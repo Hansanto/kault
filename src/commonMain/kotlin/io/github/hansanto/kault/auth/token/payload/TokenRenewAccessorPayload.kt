@@ -1,7 +1,6 @@
 package io.github.hansanto.kault.auth.token.payload
 
 import io.github.hansanto.kault.KaultDsl
-import io.github.hansanto.kault.auth.approle.payload.AppRoleLoginPayload
 import io.github.hansanto.kault.serializer.VaultDuration
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

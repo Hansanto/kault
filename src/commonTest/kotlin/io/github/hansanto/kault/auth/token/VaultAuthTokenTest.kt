@@ -223,7 +223,116 @@ class VaultAuthTokenTest : ShouldSpec({
             "cases/auth/token/renew/with_options/expected.json"
         )
     }
+
+    should("do nothing if revoke token with invalid token") {
+        val tokenValue = "invalid-token"
+        shouldThrow<VaultAPIException> {
+            token.lookupToken(tokenValue)
+        }
+        token.revokeToken(tokenValue) shouldBe true
+        shouldThrow<VaultAPIException> {
+            token.lookupToken(tokenValue)
+        }
+    }
+
+    should("revoke existing token") {
+        val response = token.createToken()
+        token.revokeToken(response.clientToken) shouldBe true
+        shouldThrow<VaultAPIException> {
+            token.lookupToken(response.clientToken)
+        }
+    }
+
+    should("revoke token and all children") {
+        assertRevokeToken(client, false) {
+            token.revokeToken(it.clientToken)
+        }
+    }
+
+    should("revoke self token") {
+        val response = token.createToken()
+        client.auth.setToken(response.clientToken)
+        token.revokeSelfToken() shouldBe true
+        shouldThrow<VaultAPIException> {
+            token.lookupToken(response.clientToken)
+        }
+    }
+
+    should("revoke self token and all children") {
+        assertRevokeToken(client, false) {
+            token.revokeSelfToken()
+        }
+    }
+
+    should("do nothing if revoke token with invalid accessor") {
+        token.revokeAccessorToken("invalid-token") shouldBe true
+    }
+
+    should("revoke token from accessor") {
+        val response = token.createToken()
+        val accessor = response.accessor
+        token.revokeAccessorToken(accessor) shouldBe true
+        shouldThrow<VaultAPIException> {
+            token.lookupToken(response.clientToken)
+        }
+    }
+
+    should("revoke token from accessor and all children") {
+        assertRevokeToken(client, false) {
+            token.revokeAccessorToken(it.accessor)
+        }
+    }
+
+    should("throw exception if revoke token and orphan children with invalid token") {
+        shouldThrow<VaultAPIException> {
+            token.revokeTokenAndOrphanChildren("invalid-token")
+        }
+    }
+
+    should("revoke token and orphan children") {
+        assertRevokeToken(client, true) {
+            token.revokeTokenAndOrphanChildren(it.clientToken)
+        }
+    }
 })
+
+private suspend inline fun assertRevokeToken(
+    client: VaultClient,
+    childrenAreOrphan: Boolean,
+    revoke: (TokenCreateResponse) -> Boolean
+) {
+    val token = client.auth.token
+
+    val parentToken = token.createToken()
+    client.auth.setToken(parentToken.clientToken)
+
+    val orphans = List(5) {
+        token.createToken {
+            noParent = false
+        }
+    }
+
+    orphans.forEach {
+        it.orphan shouldBe false
+    }
+
+    revoke(parentToken) shouldBe true
+
+    client.auth.setToken(ROOT_TOKEN)
+    shouldThrow<VaultAPIException> {
+        token.lookupToken(parentToken.clientToken)
+    }
+
+    orphans.forEach {
+        if (childrenAreOrphan) {
+            token.lookupToken(it.clientToken).orphan shouldBe true
+        } else {
+            shouldThrow<VaultAPIException> {
+                token.lookupToken(it.clientToken)
+            }
+        }
+    }
+}
 
 private suspend fun assertRenewToken(
     token: VaultAuthToken,

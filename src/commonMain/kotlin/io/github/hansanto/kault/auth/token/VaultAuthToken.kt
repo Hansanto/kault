@@ -3,7 +3,6 @@ package io.github.hansanto.kault.auth.token
 import io.github.hansanto.kault.BuilderDsl
 import io.github.hansanto.kault.ServiceBuilder
 import io.github.hansanto.kault.auth.VaultAuth
-import io.github.hansanto.kault.auth.common.response.LoginResponse
 import io.github.hansanto.kault.auth.token.payload.TokenAccessorPayload
 import io.github.hansanto.kault.auth.token.payload.TokenCreatePayload
 import io.github.hansanto.kault.auth.token.payload.TokenPayload
@@ -144,7 +143,7 @@ public interface VaultAuthToken {
      * @param token Token to revoke.
      * @return Any
      */
-    public suspend fun revokeToken(token: String): Any
+    public suspend fun revokeToken(token: String): Boolean
 
     /**
      * Revokes the token used to call it and all child tokens.
@@ -152,7 +151,7 @@ public interface VaultAuthToken {
      * [Documentation](https://developer.hashicorp.com/vault/api-docs/auth/token#revoke-a-token-self)
      * @return Any
      */
-    public suspend fun revokeSelfToken(): Any
+    public suspend fun revokeSelfToken(): Boolean
 
     /**
      * Revoke the token associated with the accessor and all the child tokens.
@@ -162,7 +161,7 @@ public interface VaultAuthToken {
      * @param accessor Accessor of the token.
      * @return Any
      */
-    public suspend fun revokeAccessorToken(accessor: String): Any
+    public suspend fun revokeAccessorToken(accessor: String): Boolean
 
     /**
      * Revokes a token but not its child tokens.
@@ -173,7 +172,7 @@ public interface VaultAuthToken {
      * @param token Token to revoke. This can be part of the URL or the body.
      * @return Any
      */
-    public suspend fun revokeTokenAndOrphan(token: String): Any
+    public suspend fun revokeTokenAndOrphanChildren(token: String): Boolean
 
     /**
      * Fetches the named role configuration.
@@ -355,7 +354,7 @@ public class VaultAuthTokenImpl(
         return response.decodeBodyJsonAuthFieldObject()
     }
 
-    override suspend fun revokeToken(token: String): Any {
+    override suspend fun revokeToken(token: String): Boolean {
         val response = client.post {
             url {
                 appendPathSegments(path, "revoke")
@@ -366,7 +365,7 @@ public class VaultAuthTokenImpl(
         return response.status.isSuccess()
     }
 
-    override suspend fun revokeSelfToken(): Any {
+    override suspend fun revokeSelfToken(): Boolean {
         val response = client.post {
             url {
                 appendPathSegments(path, "revoke-self")
@@ -375,7 +374,7 @@ public class VaultAuthTokenImpl(
         return response.status.isSuccess()
     }
 
-    override suspend fun revokeAccessorToken(accessor: String): Any {
+    override suspend fun revokeAccessorToken(accessor: String): Boolean {
         val response = client.post {
             url {
                 appendPathSegments(path, "revoke-accessor")
@@ -386,7 +385,7 @@ public class VaultAuthTokenImpl(
         return response.status.isSuccess()
     }
 
-    override suspend fun revokeTokenAndOrphan(token: String): Any {
+    override suspend fun revokeTokenAndOrphanChildren(token: String): Boolean {
         val response = client.post {
             url {
                 appendPathSegments(path, "revoke-orphan")
