@@ -2,6 +2,7 @@ package io.github.hansanto.kault.auth.token
 
 import io.github.hansanto.kault.VaultClient
 import io.github.hansanto.kault.auth.token.payload.TokenCreatePayload
+import io.github.hansanto.kault.auth.token.payload.TokenRenewAccessorPayload
 import io.github.hansanto.kault.auth.token.payload.TokenRenewPayload
 import io.github.hansanto.kault.auth.token.response.TokenCreateResponse
 import io.github.hansanto.kault.auth.token.response.TokenLookupResponse
@@ -201,11 +202,19 @@ class VaultAuthTokenTest : ShouldSpec({
     }
 
     should("renew token using builder with no increment") {
-        TODO()
+        assertRenewTokenWithBuilder(
+            token,
+            null,
+            "cases/auth/token/renew/without_options/expected.json"
+        )
     }
 
     should("renew token using builder with increment") {
-        TODO()
+        assertRenewTokenWithBuilder(
+            token,
+            10.days,
+            "cases/auth/token/renew/with_options/expected.json"
+        )
     }
 
     should("renew self token with no increment") {
@@ -222,14 +231,6 @@ class VaultAuthTokenTest : ShouldSpec({
             10.days,
             "cases/auth/token/renew/with_options/expected.json"
         )
-    }
-
-    should("renew self token using builder with no increment") {
-        TODO()
-    }
-
-    should("renew self token using builder with increment") {
-        TODO()
     }
 
     should("renew token from accessor with no increment") {
@@ -249,11 +250,19 @@ class VaultAuthTokenTest : ShouldSpec({
     }
 
     should("renew token from accessor using builder with no increment") {
-        TODO()
+        assertRenewTokenFromAccessorWithBuilder(
+            token,
+            null,
+            "cases/auth/token/renew/without_options/expected.json"
+        )
     }
 
     should("renew token from accessor using builder with increment") {
-        TODO()
+        assertRenewTokenFromAccessorWithBuilder(
+            token,
+            10.days,
+            "cases/auth/token/renew/with_options/expected.json"
+        )
     }
 
     should("do nothing if revoke token with invalid token") {
@@ -357,35 +366,67 @@ class VaultAuthTokenTest : ShouldSpec({
     }
 
     should("create a token role with default values") {
-        TODO()
+        assertCreateTokenRole(
+            token,
+            null,
+            "cases/auth/token/create_role/without_options/expected.json"
+        )
     }
 
     should("create a token role with all defined values") {
-        TODO()
+        assertCreateTokenRole(
+            token,
+            "cases/auth/token/create_role/with_options/given.json",
+            "cases/auth/token/create_role/with_options/expected.json"
+        )
     }
 
     should("create a token role using builder with default values") {
-        TODO()
+        assertCreateTokenRoleWithBuilder(
+            token,
+            null,
+            "cases/auth/token/create_role/without_options/expected.json"
+        )
     }
 
     should("create a token role using builder with all defined values") {
-        TODO()
+        assertCreateTokenRoleWithBuilder(
+            token,
+            "cases/auth/token/create_role/with_options/given.json",
+            "cases/auth/token/create_role/with_options/expected.json"
+        )
     }
 
     should("update a token role with default values") {
-        TODO()
+        assertUpdateTokenRole(
+            token,
+            null,
+            "cases/auth/token/update_role/without_options/expected.json"
+        )
     }
 
     should("update a token role with all defined values") {
-        TODO()
+        assertUpdateTokenRole(
+            token,
+            "cases/auth/token/update_role/with_options/given.json",
+            "cases/auth/token/update_role/with_options/expected.json"
+        )
     }
 
     should("update a token role using builder with default values") {
-        TODO()
+        assertUpdateTokenRoleWithBuilder(
+            token,
+            null,
+            "cases/auth/token/update_role/without_options/expected.json"
+        )
     }
 
     should("update a token role using builder with all defined values") {
-        TODO()
+        assertUpdateTokenRoleWithBuilder(
+            token,
+            "cases/auth/token/update_role/with_options/given.json",
+            "cases/auth/token/update_role/with_options/expected.json"
+        )
     }
 
     should("do nothing if delete token role with invalid role") {
@@ -461,6 +502,19 @@ private suspend fun assertRenewToken(
     }
 }
 
+private suspend fun assertRenewTokenWithBuilder(
+    token: VaultAuthToken,
+    increment: VaultDuration?,
+    expectedReadPath: String
+) {
+    assertRenewToken(token, increment, expectedReadPath) { _, tokenRenew ->
+        token.renewToken {
+            this.token = tokenRenew.token
+            this.increment = tokenRenew.increment
+        }
+    }
+}
+
 private suspend fun assertRenewSelfToken(
     client: VaultClient,
     increment: VaultDuration?,
@@ -474,6 +528,16 @@ private suspend fun assertRenewSelfToken(
 }
 
 private suspend fun assertRenewTokenFromAccessor(
+    token: VaultAuthToken,
+    increment: VaultDuration?,
+    expectedReadPath: String
+) {
+    assertRenewToken(token, increment, expectedReadPath) { tokenCreate, renew ->
+        token.renewAccessorToken(TokenRenewAccessorPayload(tokenCreate.accessor, renew.increment))
+    }
+}
+
+private suspend fun assertRenewTokenFromAccessorWithBuilder(
     token: VaultAuthToken,
     increment: VaultDuration?,
     expectedReadPath: String
