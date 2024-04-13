@@ -18,6 +18,7 @@ import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.hours
 
@@ -46,6 +47,13 @@ class VaultAuthTokenTest : ShouldSpec({
             }
             .forEach {
                 token.revokeAccessorToken(it)
+            }
+
+        runCatching { token.listTokenRoles() }
+            .onSuccess { roles ->
+                roles.forEach { role ->
+                    token.deleteTokenRole(role)
+                }
             }
     }
 
@@ -86,7 +94,7 @@ class VaultAuthTokenTest : ShouldSpec({
         )
     }
 
-    should("create a role with all defined values") {
+    should("create a token with all defined values") {
         assertCreateToken(
             token,
             "cases/auth/token/create/with_options/given.json",
@@ -102,7 +110,7 @@ class VaultAuthTokenTest : ShouldSpec({
         )
     }
 
-    should("create a role using builder with all defined values") {
+    should("create a token using builder with all defined values") {
         assertCreateTokenWithBuilder(
             token,
             "cases/auth/token/create/with_options/given.json",
@@ -192,6 +200,14 @@ class VaultAuthTokenTest : ShouldSpec({
         )
     }
 
+    should("renew token using builder with no increment") {
+        TODO()
+    }
+
+    should("renew token using builder with increment") {
+        TODO()
+    }
+
     should("renew self token with no increment") {
         assertRenewSelfToken(
             client,
@@ -208,6 +224,14 @@ class VaultAuthTokenTest : ShouldSpec({
         )
     }
 
+    should("renew self token using builder with no increment") {
+        TODO()
+    }
+
+    should("renew self token using builder with increment") {
+        TODO()
+    }
+
     should("renew token from accessor with no increment") {
         assertRenewTokenFromAccessor(
             token,
@@ -222,6 +246,14 @@ class VaultAuthTokenTest : ShouldSpec({
             10.days,
             "cases/auth/token/renew/with_options/expected.json"
         )
+    }
+
+    should("renew token from accessor using builder with no increment") {
+        TODO()
+    }
+
+    should("renew token from accessor using builder with increment") {
+        TODO()
     }
 
     should("do nothing if revoke token with invalid token") {
@@ -293,6 +325,91 @@ class VaultAuthTokenTest : ShouldSpec({
         assertRevokeToken(client, true) {
             token.revokeTokenAndOrphanChildren(it.clientToken)
         }
+    }
+
+    should("throw exception if read token role with invalid token") {
+        shouldThrow<VaultAPIException> {
+            token.readTokenRole("invalid-token")
+        }
+    }
+
+    should("read token role created with default values") {
+        TODO()
+    }
+
+    should("read token role created with all defined values") {
+        TODO()
+    }
+
+    should("throw exception when list token roles with no roles") {
+        shouldThrow<VaultAPIException> {
+            token.listTokenRoles()
+        }
+    }
+
+    should("list token roles") {
+        val roles = List(5) { "role-${it + 1}" }
+        roles.forEach {
+            token.createOrUpdateTokenRole(it)
+        }
+        val response = token.listTokenRoles()
+        response shouldContainExactly roles
+    }
+
+    should("create a token role with default values") {
+        TODO()
+    }
+
+    should("create a token role with all defined values") {
+        TODO()
+    }
+
+    should("create a token role using builder with default values") {
+        TODO()
+    }
+
+    should("create a token role using builder with all defined values") {
+        TODO()
+    }
+
+    should("update a token role with default values") {
+        TODO()
+    }
+
+    should("update a token role with all defined values") {
+        TODO()
+    }
+
+    should("update a token role using builder with default values") {
+        TODO()
+    }
+
+    should("update a token role using builder with all defined values") {
+        TODO()
+    }
+
+    should("do nothing if delete token role with invalid role") {
+        val role = randomString()
+        token.deleteTokenRole(role) shouldBe true
+        shouldThrow<VaultAPIException> {
+            token.readTokenRole(role)
+        }
+    }
+
+    should("delete token role") {
+        val role = randomString()
+        token.createOrUpdateTokenRole(role)
+
+        token.deleteTokenRole(role) shouldBe true
+
+        shouldThrow<VaultAPIException> {
+            token.readTokenRole(role)
+        }
+    }
+
+    should("tidy tokens should start internal task") {
+        val warnings = token.tidyTokens()
+        warnings.size shouldNotBe 0
     }
 })
 
@@ -458,7 +575,6 @@ private suspend fun assertCreateTokenWithBuilder(
     ) { payload ->
         token.createToken {
             this.id = payload.id
-            this.roleName = payload.roleName
             this.policies = payload.policies
             this.metadata = payload.metadata
             this.noParent = payload.noParent
