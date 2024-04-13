@@ -12,6 +12,7 @@ import io.github.hansanto.kault.auth.token.payload.TokenRenewSelfPayload
 import io.github.hansanto.kault.auth.token.payload.TokenWriteRolePayload
 import io.github.hansanto.kault.auth.token.response.TokenCreateResponse
 import io.github.hansanto.kault.auth.token.response.TokenLookupResponse
+import io.github.hansanto.kault.auth.token.response.TokenReadRoleResponse
 import io.github.hansanto.kault.auth.token.response.TokenRenewResponse
 import io.github.hansanto.kault.extension.decodeBodyJsonAuthFieldObject
 import io.github.hansanto.kault.extension.decodeBodyJsonDataFieldObject
@@ -24,7 +25,6 @@ import io.ktor.client.request.delete
 import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
-import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.appendPathSegments
 import io.ktor.http.contentType
@@ -53,6 +53,18 @@ public suspend inline fun VaultAuthToken.createToken(
     contract { callsInPlace(payloadBuilder, InvocationKind.EXACTLY_ONCE) }
     val payload = TokenCreatePayload().apply(payloadBuilder)
     return createToken(roleName, payload)
+}
+
+/**
+ * @see VaultAuthToken.createOrUpdateTokenRole(roleName, payload)
+ */
+public suspend inline fun VaultAuthToken.createOrUpdateTokenRole(
+    roleName: String,
+    payloadBuilder: BuilderDsl<TokenWriteRolePayload>
+): Boolean {
+    contract { callsInPlace(payloadBuilder, InvocationKind.EXACTLY_ONCE) }
+    val payload = TokenWriteRolePayload().apply(payloadBuilder)
+    return createOrUpdateTokenRole(roleName, payload)
 }
 
 /**
@@ -199,7 +211,7 @@ public interface VaultAuthToken {
      * @param roleName The name of the token role.
      * @return Any
      */
-    public suspend fun readTokenRole(roleName: String): Any
+    public suspend fun readTokenRole(roleName: String): TokenReadRoleResponse
 
     /**
      * List available token roles.
@@ -221,7 +233,7 @@ public interface VaultAuthToken {
      * @param payload Any
      * @return Any
      */
-    public suspend fun createOrUpdateTokenRole(roleName: String, payload: TokenWriteRolePayload = TokenWriteRolePayload()): Any
+    public suspend fun createOrUpdateTokenRole(roleName: String, payload: TokenWriteRolePayload = TokenWriteRolePayload()): Boolean
 
     /**
      * This endpoint deletes the named token role.
@@ -426,13 +438,13 @@ public class VaultAuthTokenImpl(
         return response.status.isSuccess()
     }
 
-    override suspend fun readTokenRole(roleName: String): Any {
+    override suspend fun readTokenRole(roleName: String): TokenReadRoleResponse {
         val response = client.get {
             url {
                 appendPathSegments(path, "roles", roleName)
             }
         }
-        return response.bodyAsText()
+        return response.decodeBodyJsonDataFieldObject()
     }
 
     override suspend fun listTokenRoles(): List<String> {
@@ -444,7 +456,7 @@ public class VaultAuthTokenImpl(
         return response.decodeBodyJsonDataFieldObject<StandardListResponse>().keys
     }
 
-    override suspend fun createOrUpdateTokenRole(roleName: String, payload: TokenWriteRolePayload): Any {
+    override suspend fun createOrUpdateTokenRole(roleName: String, payload: TokenWriteRolePayload): Boolean {
         val response = client.post {
             url {
                 appendPathSegments(path, "roles", roleName)
@@ -452,7 +464,7 @@ public class VaultAuthTokenImpl(
             contentType(ContentType.Application.Json)
             setBody(payload)
         }
-        return response.bodyAsText()
+        return response.status.isSuccess()
     }
 
     override suspend fun deleteTokenRole(roleName: String): Any {
