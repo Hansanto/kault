@@ -14,9 +14,9 @@ import io.github.hansanto.kault.auth.token.VaultAuthTokenImpl
 import io.github.hansanto.kault.auth.userpass.VaultAuthUserpass
 import io.github.hansanto.kault.auth.userpass.VaultAuthUserpassImpl
 import io.ktor.client.HttpClient
+import kotlinx.datetime.Clock
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
-import kotlinx.datetime.Clock
 
 /**
  * Service to interact with Vault auth API.

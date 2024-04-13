@@ -9,6 +9,7 @@ import io.github.hansanto.kault.auth.token.payload.TokenPayload
 import io.github.hansanto.kault.auth.token.payload.TokenRenewAccessorPayload
 import io.github.hansanto.kault.auth.token.payload.TokenRenewPayload
 import io.github.hansanto.kault.auth.token.payload.TokenRenewSelfPayload
+import io.github.hansanto.kault.auth.token.payload.TokenWriteRolePayload
 import io.github.hansanto.kault.auth.token.response.TokenCreateResponse
 import io.github.hansanto.kault.auth.token.response.TokenLookupResponse
 import io.github.hansanto.kault.auth.token.response.TokenRenewResponse
@@ -40,6 +41,18 @@ public suspend inline fun VaultAuthToken.createToken(
     contract { callsInPlace(payloadBuilder, InvocationKind.EXACTLY_ONCE) }
     val payload = TokenCreatePayload().apply(payloadBuilder)
     return createToken(payload)
+}
+
+/**
+ * @see VaultAuthToken.createToken(roleName, payload)
+ */
+public suspend inline fun VaultAuthToken.createToken(
+    roleName: String,
+    payloadBuilder: BuilderDsl<TokenCreatePayload>
+): TokenCreateResponse {
+    contract { callsInPlace(payloadBuilder, InvocationKind.EXACTLY_ONCE) }
+    val payload = TokenCreatePayload().apply(payloadBuilder)
+    return createToken(roleName, payload)
 }
 
 /**
@@ -77,9 +90,15 @@ public interface VaultAuthToken {
      * Creates a new token.
      * [Documentation](https://developer.hashicorp.com/vault/api-docs/auth/token#create-token)
      * @return Any
-     * TODO Orphaned tokens
      */
     public suspend fun createToken(payload: TokenCreatePayload = TokenCreatePayload()): TokenCreateResponse
+
+    /**
+     * Creates a new token with the specified role name.
+     * [Documentation](https://developer.hashicorp.com/vault/api-docs/auth/token#create-token)
+     * @return Any
+     */
+    public suspend fun createToken(roleName: String, payload: TokenCreatePayload = TokenCreatePayload()): TokenCreateResponse
 
     /**
      * Returns information about the client token.
@@ -202,7 +221,7 @@ public interface VaultAuthToken {
      * @param payload Any
      * @return Any
      */
-    public suspend fun createOrUpdateTokenRole(roleName: String, payload: Any): Any
+    public suspend fun createOrUpdateTokenRole(roleName: String, payload: TokenWriteRolePayload = TokenWriteRolePayload()): Any
 
     /**
      * This endpoint deletes the named token role.
@@ -283,6 +302,17 @@ public class VaultAuthTokenImpl(
         val response = client.post {
             url {
                 appendPathSegments(path, "create")
+            }
+            contentType(ContentType.Application.Json)
+            setBody(payload)
+        }
+        return response.decodeBodyJsonAuthFieldObject()
+    }
+
+    override suspend fun createToken(roleName: String, payload: TokenCreatePayload): TokenCreateResponse {
+        val response = client.post {
+            url {
+                appendPathSegments(path, "create", roleName)
             }
             contentType(ContentType.Application.Json)
             setBody(payload)
@@ -414,7 +444,7 @@ public class VaultAuthTokenImpl(
         return response.decodeBodyJsonDataFieldObject<StandardListResponse>().keys
     }
 
-    override suspend fun createOrUpdateTokenRole(roleName: String, payload: Any): Any {
+    override suspend fun createOrUpdateTokenRole(roleName: String, payload: TokenWriteRolePayload): Any {
         val response = client.post {
             url {
                 appendPathSegments(path, "roles", roleName)

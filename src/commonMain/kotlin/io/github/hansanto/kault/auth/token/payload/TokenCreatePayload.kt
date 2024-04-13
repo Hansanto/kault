@@ -17,12 +17,6 @@ public data class TokenCreatePayload(
     public var id: String? = null,
 
     /**
-     * The name of the token role.
-     */
-    @SerialName("role_name")
-    public var roleName: String? = null,
-
-    /**
      * A list of policies for the token. This must be a subset of the policies belonging to the token making the request, unless the calling token is root or contains sudo capabilities to auth/token/create. If not specified, defaults to all the policies of the calling token.
      */
     @SerialName("policies")
