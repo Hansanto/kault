@@ -11,7 +11,7 @@
     "service_account_secret_name": "",
     "service_account_uid": "REPLACE"
   },
-  "lease_duration": "0",
+  "lease_duration": "9999999999s",
   "renewable": true,
   "entity_id": "REPLACE",
   "token_type": "service",
