@@ -101,14 +101,17 @@ public interface VaultAuthToken {
     /**
      * Creates a new token.
      * [Documentation](https://developer.hashicorp.com/vault/api-docs/auth/token#create-token)
-     * @return Any
+     * @param payload Token configuration.
+     * @return Response.
      */
     public suspend fun createToken(payload: TokenCreatePayload = TokenCreatePayload()): TokenCreateResponse
 
     /**
      * Creates a new token with the specified role name.
      * [Documentation](https://developer.hashicorp.com/vault/api-docs/auth/token#create-token)
-     * @return Any
+     * @param roleName The role name to associate with the token.
+     * @param payload Token configuration.
+     * @return Response.
      */
     public suspend fun createToken(roleName: String, payload: TokenCreatePayload = TokenCreatePayload()): TokenCreateResponse
 
@@ -116,14 +119,14 @@ public interface VaultAuthToken {
      * Returns information about the client token.
      * [Documentation](https://developer.hashicorp.com/vault/api-docs/auth/token#lookup-a-token)
      * @param token The token to lookup.
-     * @return Any
+     * @return Response.
      */
     public suspend fun lookupToken(token: String): TokenLookupResponse
 
     /**
      * Returns information about the current client token.
      * [Documentation](https://developer.hashicorp.com/vault/api-docs/auth/token#lookup-a-token-self)
-     * @return Any
+     * @return Response.
      */
     public suspend fun lookupSelfToken(): TokenLookupResponse
 
@@ -131,7 +134,7 @@ public interface VaultAuthToken {
      * Returns information about the client token from the accessor.
      * [Documentation](https://developer.hashicorp.com/vault/api-docs/auth/token#lookup-a-token-accessor)
      * @param accessor Token accessor to lookup.
-     * @return Any
+     * @return Response.
      */
     public suspend fun lookupAccessorToken(accessor: String): TokenLookupResponse
 
@@ -140,8 +143,8 @@ public interface VaultAuthToken {
      * This is used to prevent the expiration of a token, and the automatic revocation of it.
      * Token renewal is possible only if there is a lease associated with it.
      * [Documentation](https://developer.hashicorp.com/vault/api-docs/auth/token#renew-a-token)
-     * @param payload Any
-     * @return Any
+     * @param payload Token renewal configuration.
+     * @return Response.
      */
     public suspend fun renewToken(payload: TokenRenewPayload): TokenRenewResponse
 
@@ -153,7 +156,7 @@ public interface VaultAuthToken {
      * @param increment An optional requested increment duration can be provided.
      * This increment may not be honored, for instance in the case of periodic tokens.
      * If not supplied, Vault will use the default TTL.
-     * @return Any
+     * @return Response.
      */
     public suspend fun renewSelfToken(increment: VaultDuration? = null): TokenRenewResponse
 
@@ -162,8 +165,8 @@ public interface VaultAuthToken {
      * This is used to prevent the expiration of a token, and the automatic revocation of it.
      * Token renewal is possible only if there is a lease associated with it.
      * [Documentation](https://developer.hashicorp.com/vault/api-docs/auth/token#renew-a-token-accessor)
-     * @param payload Any
-     * @return Any
+     * @param payload Token renewal configuration.
+     * @return Response.
      */
     public suspend fun renewAccessorToken(payload: TokenRenewAccessorPayload): TokenRenewResponse
 
@@ -172,7 +175,7 @@ public interface VaultAuthToken {
      * When the token is revoked, all dynamic secrets generated with it are also revoked.
      * [Documentation](https://developer.hashicorp.com/vault/api-docs/auth/token#revoke-a-token)
      * @param token Token to revoke.
-     * @return Any
+     * @return `true` if the token was revoked successfully, `false` otherwise.
      */
     public suspend fun revokeToken(token: String): Boolean
 
@@ -180,7 +183,7 @@ public interface VaultAuthToken {
      * Revokes the token used to call it and all child tokens.
      * When the token is revoked, all dynamic secrets generated with it are also revoked.
      * [Documentation](https://developer.hashicorp.com/vault/api-docs/auth/token#revoke-a-token-self)
-     * @return Any
+     * @return `true` if the token was revoked successfully, `false` otherwise.
      */
     public suspend fun revokeSelfToken(): Boolean
 
@@ -190,7 +193,7 @@ public interface VaultAuthToken {
      * but there is need to revoke a token and its children.
      * [Documentation](https://developer.hashicorp.com/vault/api-docs/auth/token#revoke-a-token-accessor)
      * @param accessor Accessor of the token.
-     * @return Any
+     * @return `true` if the token was revoked successfully, `false` otherwise.
      */
     public suspend fun revokeAccessorToken(accessor: String): Boolean
 
@@ -201,7 +204,7 @@ public interface VaultAuthToken {
      * This is a root-protected endpoint.
      * [Documentation](https://developer.hashicorp.com/vault/api-docs/auth/token#revoke-token-and-orphan-children)
      * @param token Token to revoke. This can be part of the URL or the body.
-     * @return Any
+     * @return `true` if the token was revoked successfully, `false` otherwise.
      */
     public suspend fun revokeTokenAndOrphanChildren(token: String): Boolean
 
@@ -209,14 +212,14 @@ public interface VaultAuthToken {
      * Fetches the named role configuration.
      * [Documentation](https://developer.hashicorp.com/vault/api-docs/auth/token#read-token-role)
      * @param roleName The name of the token role.
-     * @return Any
+     * @return Response.
      */
     public suspend fun readTokenRole(roleName: String): TokenReadRoleResponse
 
     /**
      * List available token roles.
      * [Documentation](https://developer.hashicorp.com/vault/api-docs/auth/token#list-token-roles)
-     * @return Any
+     * @return List of token roles.
      */
     public suspend fun listTokenRoles(): List<String>
 
@@ -230,8 +233,8 @@ public interface VaultAuthToken {
      * allowing all tokens created against a role to be revoked using the /sys/leases/revoke-prefix endpoint.
      * [Documentation](https://developer.hashicorp.com/vault/api-docs/auth/token#create-update-token-role)
      * @param roleName The name of the token role.
-     * @param payload Any
-     * @return Any
+     * @param payload Token role configuration.
+     * @return `true` if the role was created or updated successfully, `false` otherwise.
      */
     public suspend fun createOrUpdateTokenRole(roleName: String, payload: TokenWriteRolePayload = TokenWriteRolePayload()): Boolean
 
@@ -239,14 +242,14 @@ public interface VaultAuthToken {
      * This endpoint deletes the named token role.
      * [Documentation](https://developer.hashicorp.com/vault/api-docs/auth/token#delete-token-role)
      * @param roleName The name of the token role.
-     * @return Any
+     * @return `true` if the role was deleted successfully, `false` otherwise.
      */
-    public suspend fun deleteTokenRole(roleName: String): Any
+    public suspend fun deleteTokenRole(roleName: String): Boolean
 
     /**
      * Performs some maintenance tasks to clean up invalid entries that may remain in the token store. On Enterprise, Tidy will only impact the tokens in the specified namespace, or the root namespace if unspecified.
      * [Documentation](https://developer.hashicorp.com/vault/api-docs/auth/token#tidy-tokens)
-     * @return Any
+     * @return List of messages due to the tidy operation.
      */
     public suspend fun tidyTokens(): List<String>
 }
@@ -467,7 +470,7 @@ public class VaultAuthTokenImpl(
         return response.status.isSuccess()
     }
 
-    override suspend fun deleteTokenRole(roleName: String): Any {
+    override suspend fun deleteTokenRole(roleName: String): Boolean {
         val response = client.delete {
             url {
                 appendPathSegments(path, "roles", roleName)
