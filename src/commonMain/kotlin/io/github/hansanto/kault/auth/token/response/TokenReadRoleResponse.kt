@@ -40,11 +40,17 @@ public data class TokenReadRoleResponse(
     @SerialName("renewable")
     public val renewable: Boolean,
 
+    @SerialName("token_bound_cidrs")
+    public val tokenBoundCidrs: List<String>?,
+
     @SerialName("token_explicit_max_ttl")
     public val tokenExplicitMaxTTL: VaultDuration,
 
     @SerialName("token_no_default_policy")
     public val tokenNoDefaultPolicy: Boolean,
+
+    @SerialName("token_num_uses")
+    public val tokenNumUses: Int?,
 
     @SerialName("token_period")
     public val tokenPeriod: VaultDuration,

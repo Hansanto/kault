@@ -123,6 +123,38 @@ class VaultAuthTokenTest : ShouldSpec({
         )
     }
 
+    should("create a token role name with default values") {
+        assertCreateTokenRoleName(
+            token,
+            null,
+            "cases/auth/token/create-with-rolename/without_options/expected.json"
+        )
+    }
+
+    should("create a token role name with all defined values") {
+        assertCreateTokenRoleName(
+            token,
+            "cases/auth/token/create-with-rolename/with_options/given.json",
+            "cases/auth/token/create-with-rolename/with_options/expected.json"
+        )
+    }
+
+    should("create a token role name using builder with default values") {
+        assertCreateTokenRoleNameWithBuilder(
+            token,
+            null,
+            "cases/auth/token/create-with-rolename/without_options/expected.json"
+        )
+    }
+
+    should("create a token with role name using builder with all defined values") {
+        assertCreateTokenRoleNameWithBuilder(
+            token,
+            "cases/auth/token/create-with-rolename/with_options/given.json",
+            "cases/auth/token/create-with-rolename/with_options/expected.json"
+        )
+    }
+
     should("throw exception if lookup token with invalid token") {
         shouldThrow<VaultAPIException> {
             token.lookupToken("invalid-token")
@@ -346,14 +378,6 @@ class VaultAuthTokenTest : ShouldSpec({
         }
     }
 
-    should("read token role created with default values") {
-        TODO()
-    }
-
-    should("read token role created with all defined values") {
-        TODO()
-    }
-
     should("throw exception when list token roles with no roles") {
         shouldThrow<VaultAPIException> {
             token.listTokenRoles()
@@ -369,7 +393,7 @@ class VaultAuthTokenTest : ShouldSpec({
         response shouldContainExactly roles
     }
 
-    should("create a token role with default values") {
+    should("create and read a token role with default values") {
         assertCreateTokenRole(
             token,
             TOKEN_ROLE_NAME,
@@ -378,7 +402,7 @@ class VaultAuthTokenTest : ShouldSpec({
         )
     }
 
-    should("create a token role with all defined values") {
+    should("create and read a token role with all defined values") {
         assertCreateTokenRole(
             token,
             TOKEN_ROLE_NAME,
@@ -387,7 +411,7 @@ class VaultAuthTokenTest : ShouldSpec({
         )
     }
 
-    should("create a token role using builder with default values") {
+    should("create and read a token role using builder with default values") {
         assertCreateTokenRoleWithBuilder(
             token,
             TOKEN_ROLE_NAME,
@@ -396,7 +420,7 @@ class VaultAuthTokenTest : ShouldSpec({
         )
     }
 
-    should("create a token role using builder with all defined values") {
+    should("create and read a token role using builder with all defined values") {
         assertCreateTokenRoleWithBuilder(
             token,
             TOKEN_ROLE_NAME,
@@ -405,40 +429,40 @@ class VaultAuthTokenTest : ShouldSpec({
         )
     }
 
-    should("update a token role with default values") {
-//        assertUpdateTokenRole(
-//            token,
-//            null,
-//            "cases/auth/token/update_role/without_options/expected.json"
-//        )
-        TODO()
+    should("update and read a token role with default values") {
+        assertUpdateTokenRole(
+            token,
+            TOKEN_ROLE_NAME,
+            null,
+            "cases/auth/token/create-role/without_options/expected.json"
+        )
     }
 
-    should("update a token role with all defined values") {
-//        assertUpdateTokenRole(
-//            token,
-//            "cases/auth/token/update_role/with_options/given.json",
-//            "cases/auth/token/update_role/with_options/expected.json"
-//        )
-        TODO()
+    should("update and read a token role with all defined values") {
+        assertUpdateTokenRole(
+            token,
+            TOKEN_ROLE_NAME,
+            "cases/auth/token/create-role/with_options/given.json",
+            "cases/auth/token/create-role/with_options/expected.json"
+        )
     }
 
-    should("update a token role using builder with default values") {
-//        assertUpdateTokenRoleWithBuilder(
-//            token,
-//            null,
-//            "cases/auth/token/update_role/without_options/expected.json"
-//        )
-        TODO()
+    should("update and read a token role using builder with default values") {
+        assertUpdateTokenRoleWithBuilder(
+            token,
+            TOKEN_ROLE_NAME,
+            null,
+            "cases/auth/token/create-role/without_options/expected.json"
+        )
     }
 
-    should("update a token role using builder with all defined values") {
-//        assertUpdateTokenRoleWithBuilder(
-//            token,
-//            "cases/auth/token/update_role/with_options/given.json",
-//            "cases/auth/token/update_role/with_options/expected.json"
-//        )
-        TODO()
+    should("update and read a token role using builder with all defined values") {
+        assertUpdateTokenRoleWithBuilder(
+            token,
+            TOKEN_ROLE_NAME,
+            "cases/auth/token/create-role/with_options/given.json",
+            "cases/auth/token/create-role/with_options/expected.json"
+        )
     }
 
     should("do nothing if delete token role with invalid role") {
@@ -730,9 +754,79 @@ private suspend inline fun assertCreateTokenRole(
     roleName: String,
     givenPath: String?,
     expectedReadPath: String,
-    createOrUpdate: (TokenWriteRolePayload) -> Boolean
+    create: (TokenWriteRolePayload) -> Boolean
 ) {
-    createTokenRole(givenPath, createOrUpdate) shouldBe true
+    shouldThrow<VaultAPIException> {
+        token.readTokenRole(roleName)
+    }
+
+    createTokenRole(givenPath, create) shouldBe true
+    val roleConfiguration = token.readTokenRole(roleName)
+    val expected = readJson<TokenReadRoleResponse>(expectedReadPath)
+    roleConfiguration shouldBe replaceTemplateString(expected, roleConfiguration)
+}
+
+private suspend fun assertUpdateTokenRole(
+    token: VaultAuthToken,
+    roleName: String,
+    givenPath: String?,
+    expectedReadPath: String
+) {
+    assertUpdateTokenRole(
+        token,
+        roleName,
+        givenPath,
+        expectedReadPath
+    ) { payload ->
+        token.createOrUpdateTokenRole(roleName, payload)
+    }
+}
+
+private suspend fun assertUpdateTokenRoleWithBuilder(
+    token: VaultAuthToken,
+    roleName: String,
+    givenPath: String?,
+    expectedReadPath: String
+) {
+    assertUpdateTokenRole(
+        token,
+        roleName,
+        givenPath,
+        expectedReadPath
+    ) { payload ->
+        token.createOrUpdateTokenRole(roleName) {
+            this.allowedPolicies = payload.allowedPolicies
+            this.disallowedPolicies = payload.disallowedPolicies
+            this.allowedPoliciesGlob = payload.allowedPoliciesGlob
+            this.disallowedPoliciesGlob = payload.disallowedPoliciesGlob
+            this.orphan = payload.orphan
+            this.renewable = payload.renewable
+            this.pathSuffix = payload.pathSuffix
+            this.allowedEntityAliases = payload.allowedEntityAliases
+            this.tokenBoundCidrs = payload.tokenBoundCidrs
+            this.tokenExplicitMaxTTL = payload.tokenExplicitMaxTTL
+            this.tokenNoDefaultPolicy = payload.tokenNoDefaultPolicy
+            this.tokenNumUses = payload.tokenNumUses
+            this.tokenPeriod = payload.tokenPeriod
+            this.tokenType = payload.tokenType
+        }
+    }
+}
+
+private suspend inline fun assertUpdateTokenRole(
+    token: VaultAuthToken,
+    roleName: String,
+    givenPath: String?,
+    expectedReadPath: String,
+    update: (TokenWriteRolePayload) -> Boolean
+) {
+    shouldThrow<VaultAPIException> {
+        token.readTokenRole(roleName)
+    }
+
+    token.createOrUpdateTokenRole(roleName) shouldBe true
+    createTokenRole(givenPath, update) shouldBe true
+
     val roleConfiguration = token.readTokenRole(roleName)
     val expected = readJson<TokenReadRoleResponse>(expectedReadPath)
     roleConfiguration shouldBe replaceTemplateString(expected, roleConfiguration)
