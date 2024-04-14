@@ -89,7 +89,7 @@ class VaultAuthTest : ShouldSpec({
             }
         }
 
-        built.tokenInfo?.token shouldBe randomToken
+        built.tokenInfo shouldBe defaultTokenInfo(randomToken)
         (built.appRole as VaultAuthAppRoleImpl).path shouldBe "$parentPath/$builderPath/$appRolePath"
         (built.kubernetes as VaultAuthKubernetesImpl).path shouldBe "$parentPath/$builderPath/$kubernetesPath"
         (built.userpass as VaultAuthUserpassImpl).path shouldBe "$parentPath/$builderPath/$userpassPath"
@@ -128,18 +128,7 @@ class VaultAuthTest : ShouldSpec({
 
         val token = randomString()
         auth.setToken(token)
-        auth.tokenInfo shouldBe TokenInfo(
-            token,
-            null,
-            emptyList(),
-            emptyMap(),
-            null,
-            false,
-            "",
-            TokenType.SERVICE,
-            true,
-            0
-        )
+        auth.tokenInfo shouldBe defaultTokenInfo(token)
     }
 
     should("get token will return token if token info is not null") {
@@ -153,6 +142,19 @@ class VaultAuthTest : ShouldSpec({
         auth.getToken() shouldBe null
     }
 })
+
+private fun defaultTokenInfo(token: String) = TokenInfo(
+    token,
+    null,
+    emptyList(),
+    emptyMap(),
+    null,
+    false,
+    "",
+    TokenType.SERVICE,
+    true,
+    0
+)
 
 private suspend fun assertLoginReplaceToken(auth: VaultAuth) {
     val payload = createLoginPayload(auth)
