@@ -664,7 +664,7 @@ private suspend fun assertCreateToken(
         givenPath,
         expectedReadPath
     ) { payload ->
-        if(givenPath != null) {
+        if (givenPath != null) {
             token.createToken(payload)
         } else {
             token.createToken()
@@ -722,7 +722,7 @@ private suspend fun assertCreateTokenRole(
         givenPath,
         expectedReadPath
     ) { payload ->
-        if(givenPath != null) {
+        if (givenPath != null) {
             token.createOrUpdateTokenRole(roleName, payload)
         } else {
             token.createOrUpdateTokenRole(roleName)
@@ -790,7 +790,7 @@ private suspend fun assertUpdateTokenRole(
         givenPath,
         expectedReadPath
     ) { payload ->
-        if(givenPath != null) {
+        if (givenPath != null) {
             token.createOrUpdateTokenRole(roleName, payload)
         } else {
             token.createOrUpdateTokenRole(roleName)
@@ -860,7 +860,7 @@ private suspend fun assertCreateTokenRoleName(
         givenPath,
         expectedReadPath
     ) { payload ->
-        if(givenPath != null) {
+        if (givenPath != null) {
             token.createToken(roleName, payload)
         } else {
             token.createToken(roleName)
