@@ -4,6 +4,7 @@ import io.github.hansanto.kault.VaultClient
 import io.github.hansanto.kault.auth.approle.VaultAuthAppRoleImpl
 import io.github.hansanto.kault.auth.approle.payload.AppRoleLoginPayload
 import io.github.hansanto.kault.auth.common.common.TokenInfo
+import io.github.hansanto.kault.auth.common.common.TokenType
 import io.github.hansanto.kault.auth.common.response.LoginResponse
 import io.github.hansanto.kault.auth.kubernetes.VaultAuthKubernetesImpl
 import io.github.hansanto.kault.auth.token.VaultAuthTokenImpl
@@ -12,9 +13,11 @@ import io.github.hansanto.kault.system.auth.enable
 import io.github.hansanto.kault.util.DEFAULT_ROLE_NAME
 import io.github.hansanto.kault.util.ROOT_TOKEN
 import io.github.hansanto.kault.util.createVaultClient
+import io.github.hansanto.kault.util.randomLong
 import io.github.hansanto.kault.util.randomString
 import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
+import kotlinx.datetime.Instant
 
 class VaultAuthTest : ShouldSpec({
 
@@ -93,14 +96,61 @@ class VaultAuthTest : ShouldSpec({
         (built.token as VaultAuthTokenImpl).path shouldBe "$parentPath/$builderPath/$tokenPath"
     }
 
-    should("set token with null value") {
+    should("set token info with null value") {
         auth.tokenInfo = null
         assertLoginReplaceToken(auth)
     }
 
-    should("set token with non-null value") {
+    should("set token info with non-null value") {
         auth.tokenInfo = TokenInfo(randomString())
         assertLoginReplaceToken(auth)
+    }
+
+    should("set token with null value") {
+        auth.tokenInfo = TokenInfo(randomString())
+        auth.setToken(null)
+        auth.tokenInfo shouldBe null
+    }
+
+    should("set token with non-null value") {
+        auth.tokenInfo = TokenInfo(
+            randomString(),
+            randomString(),
+            listOf(randomString()),
+            mapOf(randomString() to randomString()),
+            Instant.DISTANT_FUTURE,
+            true,
+            randomString(),
+            TokenType.entries.random(),
+            true,
+            randomLong()
+        )
+
+        val token = randomString()
+        auth.setToken(token)
+        auth.tokenInfo shouldBe TokenInfo(
+            token,
+            null,
+            emptyList(),
+            emptyMap(),
+            null,
+            false,
+            "",
+            TokenType.SERVICE,
+            true,
+            0
+        )
+    }
+
+    should("get token will return token if token info is not null") {
+        val token = randomString()
+        auth.tokenInfo = TokenInfo(token)
+        auth.getToken() shouldBe token
+    }
+
+    should("get token will return null if token info is null") {
+        auth.tokenInfo = null
+        auth.getToken() shouldBe null
     }
 })
 
