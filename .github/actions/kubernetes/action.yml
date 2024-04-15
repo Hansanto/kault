@@ -17,7 +17,7 @@ runs:
   steps:
     - name: Start minikube
       id: minikube
-      uses: medyagh/setup-minikube@v0.0.15
+      uses: medyagh/setup-minikube@v0.0.16
       with:
           driver: docker
 
