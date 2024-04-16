@@ -334,7 +334,7 @@ public class VaultAuth(
      */
     private fun createRenewTokenJob(): Job = renewCoroutineScope.launch {
         while (this.isActive) {
-            val tokenInformation = tokenInfo
+            val tokenInformation = getTokenInfo()
             if (tokenInformation == null) {
                 cancel("Token information is undefined")
                 return@launch
