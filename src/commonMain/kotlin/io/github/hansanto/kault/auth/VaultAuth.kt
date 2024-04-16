@@ -300,22 +300,26 @@ public class VaultAuth(
      * Enable the auto-renewal token feature.
      * If it is already enabled, nothing will happen.
      * Otherwise, a job will be started to renew the token when it is about to expire.
+     * @return True if the feature was enabled, if it was already enabled, false.
      */
-    public fun enableAutoRenewToken() {
-        if (autoRenewToken) return
+    public fun enableAutoRenewToken(): Boolean {
+        if (autoRenewToken) return false
         autoRenewToken = true
         renewTokenJob = createRenewTokenJob()
+        return true
     }
 
     /**
      * Disable the auto-renewal token feature.
      * If it is already disabled, nothing will happen.
      * Otherwise, the job to renew the token will be canceled.
+     * @return True if the feature was disabled, if it was already disabled, false.
      */
-    public fun disableAutoRenewToken() {
-        if (!autoRenewToken) return
+    public fun disableAutoRenewToken(): Boolean {
+        if (!autoRenewToken) return false
         autoRenewToken = false
         renewTokenJob?.cancel("Auto-renew token feature is disabled")
+        return true
     }
 
     /**
@@ -348,12 +352,12 @@ public class VaultAuth(
             val expirationDate = tokenInformation.expirationDate ?: return@launch
 
             val now = Clock.System.now()
-            if (expirationDate >= now) {
+            if (now >= expirationDate) {
                 cancel("Token is already expired")
                 return@launch
             }
 
-            val durationBeforeNow = now - expirationDate
+            val durationBeforeNow = expirationDate - now
             val timeToSleep = durationBeforeNow - renewBeforeExpiration
             delay(timeToSleep)
 
