@@ -81,7 +81,7 @@ public class VaultClient(
          * Default headers builder.
          */
         public val headers: BuilderDslWithArg<MutableMap<String, String?>, VaultClient> = { client ->
-            put("X-Vault-Token", client.auth.tokenInfo?.token)
+            put("X-Vault-Token", client.auth.getToken())
             put("X-Vault-Namespace", client.namespace)
         }
     }
