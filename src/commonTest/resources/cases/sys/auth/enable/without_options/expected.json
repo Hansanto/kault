@@ -1,5 +1,5 @@
 {
-  "accessor": "REPLACED_DYNAMICALLY",
+  "accessor": "REPLACE",
   "config": {
     "default_lease_ttl": 0,
     "force_no_cache": false,
@@ -12,9 +12,9 @@
   "local": false,
   "options": {},
   "plugin_version": "",
-  "running_plugin_version": "REPLACED_DYNAMICALLY",
+  "running_plugin_version": "REPLACE",
   "running_sha256": "",
   "seal_wrap": false,
   "type": "approle",
-  "uuid": "REPLACED_DYNAMICALLY"
+  "uuid": "REPLACE"
 }

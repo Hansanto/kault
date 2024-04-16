@@ -10,7 +10,7 @@
   "metadata": {
     "my_meta": "first_value"
   },
-  "secret_id_accessor": "REPLACED_DYNAMICALLY",
+  "secret_id_accessor": "REPLACE",
   "secret_id_num_uses": 66,
   "secret_id_ttl": 3600,
   "token_bound_cidrs": [

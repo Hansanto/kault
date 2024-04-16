@@ -13,6 +13,7 @@ import io.github.hansanto.kault.util.KubernetesUtil
 import io.github.hansanto.kault.util.createVaultClient
 import io.github.hansanto.kault.util.randomString
 import io.github.hansanto.kault.util.readJson
+import io.github.hansanto.kault.util.replaceTemplateString
 import io.kotest.assertions.throwables.shouldNotThrow
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.ShouldSpec
@@ -185,19 +186,8 @@ private suspend inline fun assertLogin(
     createRole(kubernetes, DEFAULT_ROLE_NAME)
 
     val response = login(DEFAULT_ROLE_NAME, KubernetesUtil.token)
-    val expected = readJson<LoginResponse>(expectedWritePath).run {
-        copy(
-            clientToken = response.clientToken,
-            accessor = response.accessor,
-            entityId = response.entityId,
-            leaseDuration = response.leaseDuration,
-            metadata = metadata.toMutableMap().apply {
-                put("service_account_uid", response.metadata["service_account_uid"]!!)
-            }
-        )
-    }
-
-    response shouldBe expected
+    val expected = readJson<LoginResponse>(expectedWritePath)
+    response shouldBe replaceTemplateString(expected, response)
 }
 
 private suspend fun createRole(

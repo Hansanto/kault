@@ -1,0 +1,33 @@
+{
+  "allowed_policies": [
+    "default",
+    "policy1",
+    "policy2"
+  ],
+  "disallowed_policies": [
+    "policy3"
+  ],
+  "allowed_policies_glob": [
+    "policy4",
+    "policy5"
+  ],
+  "disallowed_policies_glob": [
+    "policy6"
+  ],
+  "orphan": true,
+  "renewable": true,
+  "path_suffix": "path",
+  "allowed_entity_aliases": [
+    "alias1",
+    "alias2"
+  ],
+  "token_bound_cidrs": [
+    "22.222.2.2/28",
+    "15.33.3.3/28"
+  ],
+  "token_explicit_max_ttl": "1h",
+  "token_no_default_policy": true,
+  "token_num_uses": 5,
+  "token_period": "1h",
+  "token_type": "service"
+}

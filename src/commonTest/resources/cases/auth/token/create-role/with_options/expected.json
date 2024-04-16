@@ -1,0 +1,36 @@
+{
+  "allowed_entity_aliases": [
+    "alias1",
+    "alias2"
+  ],
+  "allowed_policies": [
+    "default",
+    "policy1",
+    "policy2"
+  ],
+  "allowed_policies_glob": [
+    "policy4",
+    "policy5"
+  ],
+  "disallowed_policies": [
+    "policy3"
+  ],
+  "disallowed_policies_glob": [
+    "policy6"
+  ],
+  "explicit_max_ttl": 0,
+  "name": "test-role",
+  "orphan": true,
+  "path_suffix": "path",
+  "period": 0,
+  "renewable": true,
+  "token_bound_cidrs": [
+    "22.222.2.2/28",
+    "15.33.3.3/28"
+  ],
+  "token_explicit_max_ttl": "1h",
+  "token_no_default_policy": true,
+  "token_num_uses": 5,
+  "token_period": "1h",
+  "token_type": "service"
+}

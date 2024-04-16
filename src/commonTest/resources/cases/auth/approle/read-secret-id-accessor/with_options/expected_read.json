@@ -7,7 +7,7 @@
   "expiration_time": "1970-01-01T00:00:00Z",
   "last_updated_time": "1970-01-01T00:00:00Z",
   "metadata": {},
-  "secret_id_accessor": "REPLACED_DYNAMICALLY",
+  "secret_id_accessor": "REPLACE",
   "secret_id_num_uses": 123,
   "secret_id_ttl": 7200,
   "token_bound_cidrs": [

@@ -1,7 +1,6 @@
 package io.github.hansanto.kault.response
 
 import io.kotest.core.spec.style.ShouldSpec
-import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 
 class ResponseFieldsTest : ShouldSpec({

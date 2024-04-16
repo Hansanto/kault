@@ -5,12 +5,16 @@ import io.github.hansanto.kault.KaultDsl
 import io.github.hansanto.kault.ServiceBuilder
 import io.github.hansanto.kault.auth.approle.VaultAuthAppRole
 import io.github.hansanto.kault.auth.approle.VaultAuthAppRoleImpl
+import io.github.hansanto.kault.auth.common.common.TokenInfo
 import io.github.hansanto.kault.auth.common.response.LoginResponse
 import io.github.hansanto.kault.auth.kubernetes.VaultAuthKubernetes
 import io.github.hansanto.kault.auth.kubernetes.VaultAuthKubernetesImpl
+import io.github.hansanto.kault.auth.token.VaultAuthToken
+import io.github.hansanto.kault.auth.token.VaultAuthTokenImpl
 import io.github.hansanto.kault.auth.userpass.VaultAuthUserpass
 import io.github.hansanto.kault.auth.userpass.VaultAuthUserpassImpl
 import io.ktor.client.HttpClient
+import kotlinx.datetime.Clock
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
 
@@ -19,9 +23,9 @@ import kotlin.contracts.contract
  */
 public class VaultAuth(
     /**
-     * Token used to interact with API.
+     * Contains information about the token used to interact with the API.
      */
-    public var token: String? = null,
+    public var tokenInfo: TokenInfo? = null,
 
     /**
      * Authentication appRole service.
@@ -36,7 +40,12 @@ public class VaultAuth(
     /**
      * Authentication kubernetes service.
      */
-    public val kubernetes: VaultAuthKubernetes
+    public val kubernetes: VaultAuthKubernetes,
+
+    /**
+     * Authentication token service.
+     */
+    public val token: VaultAuthToken
 ) {
 
     public companion object {
@@ -71,12 +80,12 @@ public class VaultAuth(
      */
     public class Builder : ServiceBuilder<VaultAuth>() {
 
-        /**
-         * @see [VaultAuth.token]
-         */
-        public var token: String? = null
-
         public override var path: String = Default.PATH
+
+        /**
+         * Builder to define token information.
+         */
+        public var tokenInfoBuilder: BuilderDsl<TokenInfo.Builder>? = null
 
         /**
          * Builder to define authentication appRole service.
@@ -93,13 +102,40 @@ public class VaultAuth(
          */
         private var kubernetesBuilder: BuilderDsl<VaultAuthKubernetesImpl.Builder> = {}
 
+        /**
+         * Builder to define authentication token service.
+         */
+        private var tokenBuilder: BuilderDsl<VaultAuthTokenImpl.Builder> = {}
+
         override fun buildWithCompletePath(client: HttpClient, completePath: String): VaultAuth {
             return VaultAuth(
-                token = token,
+                tokenInfo = tokenInfoBuilder?.let { TokenInfo.Builder().apply(it).build() },
                 appRole = VaultAuthAppRoleImpl.Builder().apply(appRoleBuilder).build(client, completePath),
                 userpass = VaultAuthUserpassImpl.Builder().apply(userpassBuilder).build(client, completePath),
-                kubernetes = VaultAuthKubernetesImpl.Builder().apply(kubernetesBuilder).build(client, completePath)
+                kubernetes = VaultAuthKubernetesImpl.Builder().apply(kubernetesBuilder).build(client, completePath),
+                token = VaultAuthTokenImpl.Builder().apply(tokenBuilder).build(client, completePath)
             )
+        }
+
+        /**
+         * Sets the token information builder.
+         *
+         * @param builder Builder to create [TokenInfo] instance.
+         */
+        public fun tokenInfo(builder: BuilderDsl<TokenInfo.Builder>) {
+            tokenInfoBuilder = builder
+        }
+
+        /**
+         * Set the [tokenInfo] builder from the provided token.
+         * If the token is null, the builder will be null.
+         * Otherwise, the builder will create a new instance of [TokenInfo] with the provided token only.
+         * @param token Token to use for the next requests.
+         */
+        public fun setToken(token: String?) {
+            tokenInfoBuilder = token?.let {
+                { this.token = it }
+            }
         }
 
         /**
@@ -128,10 +164,19 @@ public class VaultAuth(
         public fun kubernetes(builder: BuilderDsl<VaultAuthKubernetesImpl.Builder>) {
             kubernetesBuilder = builder
         }
+
+        /**
+         * Sets the authentication token service builder.
+         *
+         * @param builder Builder to create [VaultAuthTokenImpl] instance.
+         */
+        public fun token(builder: BuilderDsl<VaultAuthTokenImpl.Builder>) {
+            tokenBuilder = builder
+        }
     }
 
     /**
-     * Process the login request using [VaultAuth]'s service and set the [token][VaultAuth.token] from the response.
+     * Process the login request using [VaultAuth]'s service and set the [token][VaultAuth.tokenInfo] from the response.
      *
      * Example of usage:
      * ```kotlin
@@ -143,6 +188,37 @@ public class VaultAuth(
         contract {
             callsInPlace(loginRequest, InvocationKind.EXACTLY_ONCE)
         }
-        token = loginRequest(this).clientToken
+        val loginResponse = loginRequest(this)
+        tokenInfo = TokenInfo(
+            token = loginResponse.clientToken,
+            accessor = loginResponse.accessor,
+            tokenPolicies = loginResponse.tokenPolicies,
+            metadata = loginResponse.metadata,
+            expirationDate = Clock.System.now().plus(loginResponse.leaseDuration),
+            renewable = loginResponse.renewable,
+            entityId = loginResponse.entityId,
+            tokenType = loginResponse.tokenType,
+            orphan = loginResponse.orphan,
+            numUses = loginResponse.numUses
+        )
+    }
+
+    /**
+     * Set the [tokenInfo] from the provided token.
+     * If the token is null, the [tokenInfo] will be null.
+     * Otherwise, the [tokenInfo] will be a new instance of [TokenInfo] with the provided token only.
+     * @param token Token to use for the next requests.
+     */
+    public fun setToken(token: String?) {
+        tokenInfo = token?.let { TokenInfo(it) }
+    }
+
+    /**
+     * Get the token from the [tokenInfo].
+     * If the [tokenInfo] is null, the token will be null.
+     * @return The token used to interact with the API.
+     */
+    public fun getToken(): String? {
+        return tokenInfo?.token
     }
 }

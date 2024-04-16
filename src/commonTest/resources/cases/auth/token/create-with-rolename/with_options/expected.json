@@ -1,0 +1,21 @@
+{
+  "client_token": "test",
+  "accessor": "REPLACE",
+  "policies": [
+    "stage",
+    "web"
+  ],
+  "token_policies": [
+    "stage",
+    "web"
+  ],
+  "metadata": {
+    "user": "test-user"
+  },
+  "lease_duration": 10800,
+  "renewable": true,
+  "entity_id": "",
+  "token_type": "service",
+  "orphan": false,
+  "num_uses": 42
+}

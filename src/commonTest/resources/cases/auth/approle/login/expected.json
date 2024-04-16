@@ -1,15 +1,15 @@
 {
-  "client_token": "REPLACED_DYNAMICALLY",
-  "accessor": "REPLACED_DYNAMICALLY",
+  "client_token": "REPLACE",
+  "accessor": "REPLACE",
   "token_policies": [
     "default"
   ],
   "metadata": {
     "role_name": "test"
   },
-  "lease_duration": 0,
+  "lease_duration": "9999999999s",
   "renewable": true,
-  "entity_id": "REPLACED_DYNAMICALLY",
+  "entity_id": "REPLACE",
   "token_type": "service",
   "orphan": true,
   "mfa_requirement": null,

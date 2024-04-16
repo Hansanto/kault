@@ -1,0 +1,21 @@
+{
+  "accessor": "REPLACE",
+  "creation_time": 9999999999,
+  "creation_ttl": 0,
+  "display_name": "token",
+  "entity_id": "",
+  "expire_time": null,
+  "explicit_max_ttl": 0,
+  "id": "REPLACE",
+  "issue_time": "1970-01-01T00:00:00Z",
+  "meta": null,
+  "num_uses": 0,
+  "orphan": false,
+  "path": "auth/token/create",
+  "policies": [
+    "root"
+  ],
+  "renewable": false,
+  "ttl": 0,
+  "type": "service"
+}

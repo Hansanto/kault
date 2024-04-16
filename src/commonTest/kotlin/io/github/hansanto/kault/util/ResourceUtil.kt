@@ -4,11 +4,6 @@ import com.goncalossilva.resources.Resource
 import io.github.hansanto.kault.VaultClient
 
 /**
- * Value present in JSON files that should be replaced dynamically.
- */
-const val STRING_REPLACE = "REPLACED_DYNAMICALLY"
-
-/**
  * Allows searching for a file in the resources test folder.
  * @receiver Path of the file that should be present in the resource folder.
  * @return Resource object to read the file content.
