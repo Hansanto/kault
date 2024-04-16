@@ -30,7 +30,7 @@ class LoginResponseTest : ShouldSpec({
             token = response.clientToken,
             accessor = response.accessor,
             tokenPolicies = response.tokenPolicies,
-            metadata = response.metadata!!,
+            metadata = response.metadata,
             expirationDate = toTokenInfo.expirationDate,
             renewable = response.renewable,
             entityId = response.entityId,
