@@ -10,8 +10,8 @@ import io.ktor.client.plugins.logging.Logging
 
 const val ROOT_TOKEN = "root"
 
-fun createVaultClient(
-    authBuilder: VaultAuth.Builder.() -> Unit = {}
+inline fun createVaultClient(
+    crossinline authBuilder: VaultAuth.Builder.() -> Unit = {}
 ): VaultClient = VaultClient {
     url = "http://localhost:8200"
     auth {
