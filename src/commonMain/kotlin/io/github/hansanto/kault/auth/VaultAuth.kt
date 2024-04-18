@@ -361,7 +361,12 @@ public class VaultAuth(
             val timeToSleep = durationBeforeNow - renewBeforeExpiration
             delay(timeToSleep)
 
-            renewToken(tokenInformation.token)
+            try {
+                renewToken(tokenInformation.token)
+            } catch (e: Exception) {
+                // If the token cannot be renewed, the job is canceled
+                cancel("Token cannot be renewed", e)
+            }
         }
     }
 
