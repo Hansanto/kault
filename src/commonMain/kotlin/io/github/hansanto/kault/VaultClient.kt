@@ -255,6 +255,6 @@ public class VaultClient(
 
     override fun close() {
         client.close()
-        client.cancel()
+        cancel()
     }
 }
