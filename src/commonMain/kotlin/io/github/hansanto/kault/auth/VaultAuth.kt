@@ -181,14 +181,10 @@ public class VaultAuth(
 
         /**
          * Set the [tokenInfo] builder from the provided token.
-         * If the token is null, the builder will be null.
-         * Otherwise, the builder will create a new instance of [TokenInfo] with the provided token only.
          * @param token Token to use for the next requests.
          */
-        public fun setToken(token: String?) {
-            tokenInfoBuilder = token?.let {
-                { this.token = it }
-            }
+        public fun setToken(token: String) {
+            tokenInfo { this.token = token }
         }
 
         /**
