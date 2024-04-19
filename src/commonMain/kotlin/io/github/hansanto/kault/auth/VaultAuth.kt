@@ -18,6 +18,7 @@ import io.github.hansanto.kault.auth.userpass.VaultAuthUserpass
 import io.github.hansanto.kault.auth.userpass.VaultAuthUserpassImpl
 import io.ktor.client.HttpClient
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
@@ -158,7 +159,7 @@ public class VaultAuth(
 
         override fun buildWithCompletePath(client: HttpClient, completePath: String): VaultAuth {
             return VaultAuth(
-                renewCoroutineScope = CoroutineScope(SupervisorJob(client.coroutineContext.job)),
+                renewCoroutineScope = CoroutineScope(SupervisorJob(client.coroutineContext.job) + Dispatchers.Default),
                 autoRenewToken = autoRenewToken,
                 renewBeforeExpiration = renewBeforeExpiration,
                 tokenInfo = tokenInfoBuilder?.let { TokenInfo.Builder().apply(it).build() },
@@ -265,8 +266,8 @@ public class VaultAuth(
      * @param tokenInfo Token information to use for the next requests.
      */
     public fun setTokenInfo(tokenInfo: TokenInfo?) {
-        this.tokenInfo = tokenInfo
         restartRenewTokenJob()
+        this.tokenInfo = tokenInfo
     }
 
     /**
