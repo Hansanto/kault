@@ -262,8 +262,8 @@ public class VaultAuth(
      * @param tokenInfo Token information to use for the next requests.
      */
     public fun setTokenInfo(tokenInfo: TokenInfo?) {
-        restartRenewTokenJob()
         this.tokenInfo = tokenInfo
+        restartRenewTokenJob()
     }
 
     /**
@@ -324,7 +324,7 @@ public class VaultAuth(
      */
     private fun restartRenewTokenJob() {
         if (autoRenewToken) {
-            renewTokenJob?.cancel("Token information has changed")
+            renewTokenJob?.cancel("Token has changed")
             renewTokenJob = createRenewTokenJob()
         }
     }
@@ -337,7 +337,7 @@ public class VaultAuth(
         while (this.isActive) {
             val tokenInformation = getTokenInfo()
             if (tokenInformation == null) {
-                cancel("Token information is undefined")
+                cancel("Token is undefined")
                 return@launch
             }
 
