@@ -63,7 +63,7 @@ suspend fun revokeAllKubernetesData(client: VaultClient) {
         }
 }
 
-suspend fun revokeAllAppRolesData(client: VaultClient) {
+suspend fun revokeAllAppRoleData(client: VaultClient) {
     client.auth.setToken(ROOT_TOKEN)
     val appRoleService = client.auth.appRole
 
@@ -75,7 +75,7 @@ suspend fun revokeAllAppRolesData(client: VaultClient) {
         }
 }
 
-suspend fun revokeAllTokensData(client: VaultClient) {
+suspend fun revokeAllTokenData(client: VaultClient) {
     client.auth.setToken(ROOT_TOKEN)
     val tokenService = client.auth.token
     val rootAccessor = tokenService.lookupSelfToken().accessor
@@ -111,7 +111,7 @@ suspend fun disableAllAudit(client: VaultClient) {
         }
 }
 
-suspend fun disableAllAuthMethods(client: VaultClient) {
+suspend fun disableAllAuth(client: VaultClient) {
     client.auth.setToken(ROOT_TOKEN)
     val authService = client.system.auth
 

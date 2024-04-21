@@ -15,7 +15,7 @@ import io.github.hansanto.kault.util.createVaultClient
 import io.github.hansanto.kault.util.randomString
 import io.github.hansanto.kault.util.readJson
 import io.github.hansanto.kault.util.replaceTemplateString
-import io.github.hansanto.kault.util.revokeAllTokensData
+import io.github.hansanto.kault.util.revokeAllTokenData
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.collections.shouldContainExactly
@@ -37,7 +37,7 @@ class VaultAuthTokenTest : ShouldSpec({
         client = createVaultClient()
         token = client.auth.token
         rootAccessor = token.lookupToken(ROOT_TOKEN).accessor
-        revokeAllTokensData(client)
+        revokeAllTokenData(client)
     }
 
     afterTest {

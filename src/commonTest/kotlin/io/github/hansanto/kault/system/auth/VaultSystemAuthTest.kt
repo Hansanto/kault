@@ -7,7 +7,7 @@ import io.github.hansanto.kault.system.auth.payload.EnableMethodPayload
 import io.github.hansanto.kault.system.auth.response.AuthReadConfigurationResponse
 import io.github.hansanto.kault.system.auth.response.AuthReadTuningInformationResponse
 import io.github.hansanto.kault.util.createVaultClient
-import io.github.hansanto.kault.util.disableAllAuthMethods
+import io.github.hansanto.kault.util.disableAllAuth
 import io.github.hansanto.kault.util.randomString
 import io.github.hansanto.kault.util.readJson
 import io.github.hansanto.kault.util.replaceTemplateString
@@ -27,7 +27,7 @@ class VaultSystemAuthTest : ShouldSpec({
         client = createVaultClient()
         auth = client.system.auth
 
-        disableAllAuthMethods(client)
+        disableAllAuth(client)
     }
 
     afterTest {

@@ -17,7 +17,7 @@ import io.github.hansanto.kault.util.enableAuthMethod
 import io.github.hansanto.kault.util.randomString
 import io.github.hansanto.kault.util.readJson
 import io.github.hansanto.kault.util.replaceTemplateString
-import io.github.hansanto.kault.util.revokeAllAppRolesData
+import io.github.hansanto.kault.util.revokeAllAppRoleData
 import io.kotest.assertions.throwables.shouldNotThrow
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.ShouldSpec
@@ -34,7 +34,7 @@ class VaultAuthAppRoleTest : ShouldSpec({
         appRole = client.auth.appRole
 
         enableAuthMethod(client, "approle")
-        revokeAllAppRolesData(client)
+        revokeAllAppRoleData(client)
         shouldThrow<VaultAPIException> { appRole.read(DEFAULT_ROLE_NAME) }
     }
 
