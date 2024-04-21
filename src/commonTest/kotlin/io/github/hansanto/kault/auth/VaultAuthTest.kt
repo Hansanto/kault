@@ -19,6 +19,7 @@ import io.github.hansanto.kault.util.createVaultClient
 import io.github.hansanto.kault.util.enableAuthMethod
 import io.github.hansanto.kault.util.randomLong
 import io.github.hansanto.kault.util.randomString
+import io.github.hansanto.kault.util.revokeAllAppRolesData
 import io.kotest.assertions.throwables.shouldNotThrow
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.ShouldSpec
@@ -42,6 +43,7 @@ class VaultAuthTest : ShouldSpec({
         auth = client.auth
 
         enableAuthMethod(client, "approle")
+        revokeAllAppRolesData(client)
     }
 
     afterTest {
