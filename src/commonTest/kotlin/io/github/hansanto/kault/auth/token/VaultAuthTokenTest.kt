@@ -8,7 +8,6 @@ import io.github.hansanto.kault.auth.token.payload.TokenWriteRolePayload
 import io.github.hansanto.kault.auth.token.response.TokenCreateResponse
 import io.github.hansanto.kault.auth.token.response.TokenLookupResponse
 import io.github.hansanto.kault.auth.token.response.TokenReadRoleResponse
-import io.github.hansanto.kault.auth.token.response.TokenRenewResponse
 import io.github.hansanto.kault.exception.VaultAPIException
 import io.github.hansanto.kault.serializer.VaultDuration
 import io.github.hansanto.kault.util.ROOT_TOKEN
@@ -594,7 +593,7 @@ private suspend inline fun assertRenewToken(
     token: VaultAuthToken,
     increment: VaultDuration?,
     expectedReadPath: String,
-    renewToken: (TokenCreateResponse, TokenRenewPayload) -> TokenRenewResponse
+    renewToken: (TokenCreateResponse, TokenRenewPayload) -> TokenCreateResponse
 ) {
     val tokenCreateResponse = token.createToken {
         renewable = true
@@ -604,7 +603,7 @@ private suspend inline fun assertRenewToken(
     val given = TokenRenewPayload(tokenCreateResponse.clientToken, increment)
 
     val renewTokenResponse = renewToken(tokenCreateResponse, given)
-    val expected = readJson<TokenRenewResponse>(expectedReadPath)
+    val expected = readJson<TokenCreateResponse>(expectedReadPath)
     renewTokenResponse shouldBe replaceTemplateString(expected, renewTokenResponse)
 }
 
