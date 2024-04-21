@@ -350,7 +350,11 @@ public class VaultAuth(
                 return@launch
             }
 
-            val expirationDate = tokenInformation.expirationDate ?: return@launch
+            val expirationDate = tokenInformation.expirationDate
+            if (expirationDate == null) {
+                cancel("Token expiration date is undefined")
+                return@launch
+            }
 
             val now = Clock.System.now()
             if (now >= expirationDate) {
