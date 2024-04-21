@@ -237,6 +237,10 @@ public class VaultAuth(
 
     init {
         require(renewBeforeExpiration > Duration.ZERO) { "The renew before expiration must be greater than 0" }
+
+        if (autoRenewToken) {
+            renewTokenJob = createRenewTokenJob()
+        }
     }
 
     /**

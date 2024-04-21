@@ -19,24 +19,25 @@ import io.github.hansanto.kault.util.ROOT_TOKEN
 import io.github.hansanto.kault.util.createVaultClient
 import io.github.hansanto.kault.util.randomLong
 import io.github.hansanto.kault.util.randomString
+import io.kotest.assertions.throwables.shouldNotThrow
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
 import io.ktor.utils.io.core.use
+import kotlinx.coroutines.delay
+import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
-import kotlinx.coroutines.delay
-import kotlinx.datetime.Clock
-import kotlinx.datetime.Instant
 
 class VaultAuthTest : ShouldSpec({
 
     lateinit var client: VaultClient
     lateinit var auth: VaultAuth
 
-    beforeSpec {
+    beforeTest {
         client = createVaultClient { renewBeforeExpiration = 1.5.seconds }
         auth = client.auth
 
@@ -47,21 +48,8 @@ class VaultAuthTest : ShouldSpec({
         }
     }
 
-    afterSpec {
+    afterTest {
         client.close()
-    }
-
-    beforeTest {
-        auth.disableAutoRenewToken()
-
-        val appRole = auth.appRole
-        runCatching {
-            appRole.list().forEach {
-                appRole.delete(it) shouldBe true
-            }
-        }
-
-        auth.setToken(ROOT_TOKEN)
     }
 
     should("throw exception if renew before duration is under or equal to 0") {
@@ -80,8 +68,10 @@ class VaultAuthTest : ShouldSpec({
 
     should("not throw exception if renew before duration is above 0") {
         fun checkNotThrowConstructor(duration: Duration) {
-            VaultAuth(client.client, null) {
-                renewBeforeExpiration = duration
+            shouldNotThrow<Exception> {
+                VaultAuth(client.client, null) {
+                    renewBeforeExpiration = duration
+                }
             }
         }
         checkNotThrowConstructor(1.milliseconds)
@@ -139,6 +129,33 @@ class VaultAuthTest : ShouldSpec({
         (built.kubernetes as VaultAuthKubernetesImpl).path shouldBe "$parentPath/$builderPath/$kubernetesPath"
         (built.userpass as VaultAuthUserpassImpl).path shouldBe "$parentPath/$builderPath/$userpassPath"
         (built.token as VaultAuthTokenImpl).path shouldBe "$parentPath/$builderPath/$tokenPath"
+    }
+
+    should("start auto renew job when creating a new instance") {
+        val newToken = client.auth.token.createToken {
+            renewable = true
+            ttl = 1.days
+        }
+        val newTokenInfo = newToken.toTokenInfo()
+
+        val auth = VaultAuth(client.client, null) {
+            autoRenewToken = true
+            renewBeforeExpiration = 10.days
+            tokenInfo {
+                this.token = newTokenInfo.token
+                this.renewable = newTokenInfo.renewable
+                this.expirationDate = newTokenInfo.expirationDate
+            }
+        }
+
+        delay(1.seconds)
+        val newTokenInfoAfterDelay = auth.getTokenInfo()!!
+        val newExpirationDate = newTokenInfoAfterDelay.expirationDate!!
+        (newExpirationDate > Clock.System.now() && newTokenInfo.expirationDate!! < newExpirationDate) shouldBe true
+
+        newTokenInfoAfterDelay shouldBe newTokenInfo.copy(
+            expirationDate = newExpirationDate
+        )
     }
 
     should("set token info with null value") {
@@ -221,8 +238,8 @@ class VaultAuthTest : ShouldSpec({
             val authTokenInfoAfterDelay = tmpAuth.getTokenInfo()!!
             val newExpirationDate = authTokenInfoAfterDelay.expirationDate!!
             (newExpirationDate > oldExpirationDate + 1.seconds) &&
-                    (newExpirationDate <= oldExpirationDate + 1.2.seconds) &&
-                    (newExpirationDate > Clock.System.now()) shouldBe true
+                (newExpirationDate <= oldExpirationDate + 1.2.seconds) &&
+                (newExpirationDate > Clock.System.now()) shouldBe true
 
             authTokenInfoAfterDelay shouldBe tmpTokenInfo.copy(
                 expirationDate = newExpirationDate
@@ -248,8 +265,8 @@ class VaultAuthTest : ShouldSpec({
             val authTokenInfoAfterDelay = tmpAuth.getTokenInfo()!!
             val newExpirationDate = authTokenInfoAfterDelay.expirationDate!!
             (newExpirationDate > oldExpirationDate + 1.seconds) &&
-                    (newExpirationDate <= oldExpirationDate + 1.2.seconds) &&
-                    (newExpirationDate > Clock.System.now()) shouldBe true
+                (newExpirationDate <= oldExpirationDate + 1.2.seconds) &&
+                (newExpirationDate > Clock.System.now()) shouldBe true
 
             authTokenInfoAfterDelay shouldBe tmpTokenInfo.copy(
                 expirationDate = newExpirationDate
@@ -381,7 +398,7 @@ private suspend fun createLoginPayload(auth: VaultAuth): AppRoleLoginPayload {
 
     val oldToken = auth.getTokenInfo()
 
-    auth.setTokenInfo(TokenInfo(ROOT_TOKEN)) // to create role and generate secret id
+    auth.setToken(ROOT_TOKEN) // to create role and generate secret id
     appRole.createOrUpdate(DEFAULT_ROLE_NAME) shouldBe true
     val secretId = appRole.generateSecretID(DEFAULT_ROLE_NAME).secretId
     val roleId = appRole.readRoleID(DEFAULT_ROLE_NAME).roleId
