@@ -138,7 +138,7 @@ class VaultAuthTest : ShouldSpec({
         }
         val newTokenInfo = newToken.toTokenInfo()
 
-        val auth = VaultAuth(client.client, null) {
+        val customAuth = VaultAuth(client.client, null) {
             autoRenewToken = true
             renewBeforeExpiration = 10.days
             tokenInfo {
@@ -149,7 +149,7 @@ class VaultAuthTest : ShouldSpec({
         }
 
         delay(1.seconds)
-        val newTokenInfoAfterDelay = auth.getTokenInfo()!!
+        val newTokenInfoAfterDelay = customAuth.getTokenInfo()!!
         val newExpirationDate = newTokenInfoAfterDelay.expirationDate!!
         (newExpirationDate > Clock.System.now() && newTokenInfo.expirationDate!! < newExpirationDate) shouldBe true
 
