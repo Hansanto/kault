@@ -39,7 +39,7 @@ class VaultAuthTest : ShouldSpec({
     lateinit var auth: VaultAuth
 
     beforeTest {
-        client = createVaultClient { renewBeforeExpiration = 1.5.seconds }
+        client = createVaultClient()
         auth = client.auth
 
         enableAuthMethod(client, "approle")
@@ -127,6 +127,38 @@ class VaultAuthTest : ShouldSpec({
         (built.kubernetes as VaultAuthKubernetesImpl).path shouldBe "$parentPath/$builderPath/$kubernetesPath"
         (built.userpass as VaultAuthUserpassImpl).path shouldBe "$parentPath/$builderPath/$userpassPath"
         (built.token as VaultAuthTokenImpl).path shouldBe "$parentPath/$builderPath/$tokenPath"
+
+        val tokenInfo = TokenInfo(
+            randomString(),
+            randomString(),
+            listOf(randomString()),
+            mapOf(randomString() to randomString()),
+            Instant.DISTANT_FUTURE,
+            true,
+            randomString(),
+            TokenType.entries.random(),
+            true,
+            randomLong()
+        )
+
+        VaultAuth(client.client, null) {
+            tokenInfo {
+                this.token = tokenInfo.token
+                this.accessor = tokenInfo.accessor
+                this.tokenPolicies = tokenInfo.tokenPolicies
+                this.metadata = tokenInfo.metadata
+                this.expirationDate = tokenInfo.expirationDate
+                this.renewable = tokenInfo.renewable
+                this.entityId = tokenInfo.entityId
+                this.tokenType = tokenInfo.tokenType
+                this.orphan = tokenInfo.orphan
+                this.numUses = tokenInfo.numUses
+            }
+        }.getTokenInfo() shouldBe tokenInfo
+
+        VaultAuth(client.client, null) {
+            tokenInfo(tokenInfo)
+        }.getTokenInfo() shouldBe tokenInfo
     }
 
     should("start auto renew job when creating a new instance") {
@@ -139,11 +171,7 @@ class VaultAuthTest : ShouldSpec({
         val customAuth = VaultAuth(client.client, null) {
             autoRenewToken = true
             renewBeforeExpiration = 10.days
-            tokenInfo {
-                this.token = newTokenInfo.token
-                this.renewable = newTokenInfo.renewable
-                this.expirationDate = newTokenInfo.expirationDate
-            }
+            tokenInfo(newTokenInfo)
         }
 
         delay(1.seconds)

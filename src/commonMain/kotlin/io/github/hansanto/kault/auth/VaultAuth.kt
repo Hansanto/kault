@@ -133,9 +133,9 @@ public class VaultAuth(
         public var autoRenewToken: Boolean = Default.AUTO_RENEW_TOKEN
 
         /**
-         * Builder to define token information.
+         * [VaultAuth.tokenInfo]
          */
-        public var tokenInfoBuilder: BuilderDsl<TokenInfo.Builder>? = null
+        public var tokenInfo: TokenInfo? = null
 
         /**
          * Builder to define authentication appRole service.
@@ -162,7 +162,7 @@ public class VaultAuth(
                 renewCoroutineScope = CoroutineScope(SupervisorJob(client.coroutineContext.job) + Dispatchers.Default),
                 autoRenewToken = autoRenewToken,
                 renewBeforeExpiration = renewBeforeExpiration,
-                tokenInfo = tokenInfoBuilder?.let { TokenInfo.Builder().apply(it).build() },
+                tokenInfo = tokenInfo,
                 appRole = VaultAuthAppRoleImpl.Builder().apply(appRoleBuilder).build(client, completePath),
                 userpass = VaultAuthUserpassImpl.Builder().apply(userpassBuilder).build(client, completePath),
                 kubernetes = VaultAuthKubernetesImpl.Builder().apply(kubernetesBuilder).build(client, completePath),
@@ -176,7 +176,16 @@ public class VaultAuth(
          * @param builder Builder to create [TokenInfo] instance.
          */
         public fun tokenInfo(builder: BuilderDsl<TokenInfo.Builder>) {
-            tokenInfoBuilder = builder
+            tokenInfo(TokenInfo.Builder().apply(builder).build())
+        }
+
+        /**
+         * Sets the token information.
+         *
+         * @param tokenInfo Token information to use for the next requests.
+         */
+        public fun tokenInfo(tokenInfo: TokenInfo) {
+            this.tokenInfo = tokenInfo
         }
 
         /**
@@ -184,7 +193,7 @@ public class VaultAuth(
          * @param token Token to use for the next requests.
          */
         public fun setToken(token: String) {
-            tokenInfo { this.token = token }
+            tokenInfo(TokenInfo(token))
         }
 
         /**
