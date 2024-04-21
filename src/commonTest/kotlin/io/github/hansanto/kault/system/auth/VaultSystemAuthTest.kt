@@ -7,6 +7,7 @@ import io.github.hansanto.kault.system.auth.payload.EnableMethodPayload
 import io.github.hansanto.kault.system.auth.response.AuthReadConfigurationResponse
 import io.github.hansanto.kault.system.auth.response.AuthReadTuningInformationResponse
 import io.github.hansanto.kault.util.createVaultClient
+import io.github.hansanto.kault.util.disableAllAuth
 import io.github.hansanto.kault.util.randomString
 import io.github.hansanto.kault.util.readJson
 import io.github.hansanto.kault.util.replaceTemplateString
@@ -22,22 +23,14 @@ class VaultSystemAuthTest : ShouldSpec({
     lateinit var client: VaultClient
     lateinit var auth: VaultSystemAuth
 
-    beforeSpec {
+    beforeTest {
         client = createVaultClient()
         auth = client.system.auth
+
+        disableAllAuth(client)
     }
 
-    beforeTest {
-        auth.list()
-            .filterKeys { !it.contains("token") } // Cannot disable token auth
-            .keys
-            .forEach {
-                auth.disable(it)
-            }
-        auth.list().size shouldBe 1
-    }
-
-    afterSpec {
+    afterTest {
         client.close()
     }
 

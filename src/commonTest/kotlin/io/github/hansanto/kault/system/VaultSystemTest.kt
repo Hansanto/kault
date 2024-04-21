@@ -12,11 +12,11 @@ class VaultSystemTest : ShouldSpec({
 
     lateinit var client: VaultClient
 
-    beforeSpec {
+    beforeTest {
         client = createVaultClient()
     }
 
-    afterSpec {
+    afterTest {
         client.close()
     }
 

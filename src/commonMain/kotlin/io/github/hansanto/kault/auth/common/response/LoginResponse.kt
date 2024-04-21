@@ -1,9 +1,29 @@
 package io.github.hansanto.kault.auth.common.response
 
+import io.github.hansanto.kault.auth.common.common.TokenInfo
 import io.github.hansanto.kault.auth.common.common.TokenType
 import io.github.hansanto.kault.serializer.VaultDuration
+import kotlinx.datetime.Clock
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+
+/**
+ * Build an instance of [TokenInfo] from the [LoginResponse].
+ * @receiver The response from the login request.
+ * @return All information about the new token.
+ */
+public fun LoginResponse.toTokenInfo(): TokenInfo = TokenInfo(
+    token = clientToken,
+    accessor = accessor,
+    tokenPolicies = tokenPolicies,
+    metadata = metadata,
+    expirationDate = Clock.System.now().plus(leaseDuration),
+    renewable = renewable,
+    entityId = entityId,
+    tokenType = tokenType,
+    orphan = orphan,
+    numUses = numUses
+)
 
 @Serializable
 public data class LoginResponse(

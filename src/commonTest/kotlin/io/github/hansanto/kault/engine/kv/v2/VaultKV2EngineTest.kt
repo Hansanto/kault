@@ -20,6 +20,7 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
+import io.ktor.utils.io.core.use
 
 class VaultKV2EngineTest : ShouldSpec({
 
@@ -28,12 +29,14 @@ class VaultKV2EngineTest : ShouldSpec({
     lateinit var initialKv2Configuration: KvV2ReadConfigurationResponse
 
     beforeSpec {
-        client = createVaultClient()
-        kv2 = client.secret.kv2
-        initialKv2Configuration = kv2.readConfiguration()
+        initialKv2Configuration = createVaultClient().use {
+            it.secret.kv2.readConfiguration()
+        }
     }
 
     beforeTest {
+        client = createVaultClient()
+        kv2 = client.secret.kv2
         // Reset the configuration to have the same starting point for each test
         kv2.configure(
             KvV2ConfigureRequest(
@@ -44,7 +47,7 @@ class VaultKV2EngineTest : ShouldSpec({
         )
     }
 
-    afterSpec {
+    afterTest {
         client.close()
     }
 

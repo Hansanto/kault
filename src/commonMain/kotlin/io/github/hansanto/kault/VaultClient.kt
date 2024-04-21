@@ -18,6 +18,7 @@ import io.ktor.http.isSuccess
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.utils.io.core.Closeable
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.cancel
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 
@@ -39,7 +40,7 @@ public class VaultClient(
     public val auth: VaultAuth,
     public val system: VaultSystem,
     public val secret: VaultSecretEngine
-) : CoroutineScope by client, Closeable by client {
+) : CoroutineScope by client, Closeable {
 
     public companion object {
 
@@ -81,7 +82,7 @@ public class VaultClient(
          * Default headers builder.
          */
         public val headers: BuilderDslWithArg<MutableMap<String, String?>, VaultClient> = { client ->
-            put("X-Vault-Token", client.auth.tokenInfo?.token)
+            put("X-Vault-Token", client.auth.getToken())
             put("X-Vault-Namespace", client.namespace)
         }
     }
@@ -250,5 +251,10 @@ public class VaultClient(
                 }
             }
         }
+    }
+
+    override fun close() {
+        client.close()
+        cancel()
     }
 }

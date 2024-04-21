@@ -4,11 +4,12 @@ import io.github.hansanto.kault.VaultClient
 import io.github.hansanto.kault.auth.userpass.payload.UserpassWriteUserPayload
 import io.github.hansanto.kault.auth.userpass.response.UserpassReadUserResponse
 import io.github.hansanto.kault.exception.VaultAPIException
-import io.github.hansanto.kault.system.auth.enable
 import io.github.hansanto.kault.util.DEFAULT_ROLE_NAME
 import io.github.hansanto.kault.util.createVaultClient
+import io.github.hansanto.kault.util.enableAuthMethod
 import io.github.hansanto.kault.util.randomString
 import io.github.hansanto.kault.util.readJson
+import io.github.hansanto.kault.util.revokeAllUserpassData
 import io.kotest.assertions.throwables.shouldNotThrow
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.ShouldSpec
@@ -20,27 +21,16 @@ class VaultAuthUserpassTest : ShouldSpec({
     lateinit var client: VaultClient
     lateinit var userpass: VaultAuthUserpass
 
-    beforeSpec {
+    beforeTest {
         client = createVaultClient()
         userpass = client.auth.userpass
 
-        runCatching {
-            client.system.auth.enable("userpass") {
-                type = "userpass"
-            }
-        }
+        enableAuthMethod(client, "userpass")
+        revokeAllUserpassData(client)
     }
 
-    afterSpec {
+    afterTest {
         client.close()
-    }
-
-    beforeTest {
-        runCatching {
-            userpass.list()
-        }.getOrNull()?.forEach {
-            userpass.delete(it)
-        }
     }
 
     should("use default path if not set in builder") {
