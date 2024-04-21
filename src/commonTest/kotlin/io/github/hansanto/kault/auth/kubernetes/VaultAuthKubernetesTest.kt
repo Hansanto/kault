@@ -7,13 +7,14 @@ import io.github.hansanto.kault.auth.kubernetes.payload.KubernetesWriteAuthRoleP
 import io.github.hansanto.kault.auth.kubernetes.response.KubernetesConfigureAuthResponse
 import io.github.hansanto.kault.auth.kubernetes.response.KubernetesReadAuthRoleResponse
 import io.github.hansanto.kault.exception.VaultAPIException
-import io.github.hansanto.kault.system.auth.enable
 import io.github.hansanto.kault.util.DEFAULT_ROLE_NAME
 import io.github.hansanto.kault.util.KubernetesUtil
 import io.github.hansanto.kault.util.createVaultClient
+import io.github.hansanto.kault.util.enableAuthMethod
 import io.github.hansanto.kault.util.randomString
 import io.github.hansanto.kault.util.readJson
 import io.github.hansanto.kault.util.replaceTemplateString
+import io.github.hansanto.kault.util.revokeAllKubernetesData
 import io.kotest.assertions.throwables.shouldNotThrow
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.ShouldSpec
@@ -25,35 +26,25 @@ class VaultAuthKubernetesTest : ShouldSpec({
     lateinit var client: VaultClient
     lateinit var kubernetes: VaultAuthKubernetes
 
-    beforeSpec {
+    beforeTest {
         client = createVaultClient()
         kubernetes = client.auth.kubernetes
 
-        runCatching {
-            client.system.auth.enable("kubernetes") {
-                type = "kubernetes"
-            }
-        }
-    }
+        enableAuthMethod(client, "kubernetes")
 
-    afterSpec {
-        client.close()
-    }
-
-    beforeTest {
         kubernetes.configure {
             kubernetesHost = KubernetesUtil.host
             kubernetesCaCert = KubernetesUtil.caCert
             tokenReviewerJwt = KubernetesUtil.token
         }
 
-        runCatching {
-            kubernetes.list().forEach {
-                kubernetes.deleteRole(it) shouldBe true
-            }
-        }
+        revokeAllKubernetesData(client)
 
         shouldThrow<VaultAPIException> { kubernetes.readRole(DEFAULT_ROLE_NAME) }
+    }
+
+    afterTest {
+        client.close()
     }
 
     should("use default path if not set in builder") {

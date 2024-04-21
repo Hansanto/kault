@@ -4,6 +4,7 @@ import io.github.hansanto.kault.VaultClient
 import io.github.hansanto.kault.system.audit.payload.AuditingEnableDevicePayload
 import io.github.hansanto.kault.system.audit.response.AuditingDeviceResponse
 import io.github.hansanto.kault.util.createVaultClient
+import io.github.hansanto.kault.util.disableAllAudit
 import io.github.hansanto.kault.util.randomString
 import io.github.hansanto.kault.util.readJson
 import io.kotest.core.spec.style.ShouldSpec
@@ -14,16 +15,13 @@ class VaultSystemAuditTest : ShouldSpec({
     lateinit var client: VaultClient
     lateinit var audit: VaultSystemAudit
 
-    beforeSpec {
+    beforeTest {
         client = createVaultClient()
         audit = client.system.audit
+        disableAllAudit(client)
     }
 
-    beforeTest {
-        audit.list().forEach { audit.disable(it.key) }
-    }
-
-    afterSpec {
+    afterTest {
         client.close()
     }
 

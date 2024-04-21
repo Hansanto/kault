@@ -11,12 +11,13 @@ import io.github.hansanto.kault.auth.approle.response.AppRoleReadRoleResponse
 import io.github.hansanto.kault.auth.approle.response.AppRoleWriteSecretIdResponse
 import io.github.hansanto.kault.auth.common.response.LoginResponse
 import io.github.hansanto.kault.exception.VaultAPIException
-import io.github.hansanto.kault.system.auth.enable
 import io.github.hansanto.kault.util.DEFAULT_ROLE_NAME
 import io.github.hansanto.kault.util.createVaultClient
+import io.github.hansanto.kault.util.enableAuthMethod
 import io.github.hansanto.kault.util.randomString
 import io.github.hansanto.kault.util.readJson
 import io.github.hansanto.kault.util.replaceTemplateString
+import io.github.hansanto.kault.util.revokeAllAppRolesData
 import io.kotest.assertions.throwables.shouldNotThrow
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.ShouldSpec
@@ -28,29 +29,17 @@ class VaultAuthAppRoleTest : ShouldSpec({
     lateinit var client: VaultClient
     lateinit var appRole: VaultAuthAppRole
 
-    beforeSpec {
+    beforeTest {
         client = createVaultClient()
         appRole = client.auth.appRole
 
-        runCatching {
-            client.system.auth.enable("approle") {
-                type = "approle"
-            }
-        }
-    }
-
-    afterSpec {
-        client.close()
-    }
-
-    beforeTest {
-        runCatching {
-            appRole.list().forEach {
-                appRole.delete(it) shouldBe true
-            }
-        }
-
+        enableAuthMethod(client, "approle")
+        revokeAllAppRolesData(client)
         shouldThrow<VaultAPIException> { appRole.read(DEFAULT_ROLE_NAME) }
+    }
+
+    afterTest {
+        client.close()
     }
 
     should("use default path if not set in builder") {

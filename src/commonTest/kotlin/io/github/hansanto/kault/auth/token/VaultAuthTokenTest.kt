@@ -15,6 +15,7 @@ import io.github.hansanto.kault.util.createVaultClient
 import io.github.hansanto.kault.util.randomString
 import io.github.hansanto.kault.util.readJson
 import io.github.hansanto.kault.util.replaceTemplateString
+import io.github.hansanto.kault.util.revokeAllTokensData
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.collections.shouldContainExactly
@@ -32,33 +33,15 @@ class VaultAuthTokenTest : ShouldSpec({
     lateinit var token: VaultAuthToken
     lateinit var rootAccessor: String
 
-    beforeSpec {
+    beforeTest {
         client = createVaultClient()
         token = client.auth.token
         rootAccessor = token.lookupToken(ROOT_TOKEN).accessor
+        revokeAllTokensData(client)
     }
 
-    afterSpec {
+    afterTest {
         client.close()
-    }
-
-    beforeTest {
-        client.auth.setToken(ROOT_TOKEN)
-        token.listAccessors()
-            .asSequence()
-            .filter {
-                it != rootAccessor
-            }
-            .forEach {
-                token.revokeAccessorToken(it)
-            }
-
-        runCatching { token.listTokenRoles() }
-            .onSuccess { roles ->
-                roles.forEach { role ->
-                    token.deleteTokenRole(role)
-                }
-            }
     }
 
     should("use default path if not set in builder") {

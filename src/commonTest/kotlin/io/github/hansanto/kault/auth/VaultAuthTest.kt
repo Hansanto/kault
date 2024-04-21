@@ -13,10 +13,10 @@ import io.github.hansanto.kault.auth.token.response.TokenCreateResponse
 import io.github.hansanto.kault.auth.token.response.toTokenInfo
 import io.github.hansanto.kault.auth.userpass.VaultAuthUserpassImpl
 import io.github.hansanto.kault.serializer.VaultDuration
-import io.github.hansanto.kault.system.auth.enable
 import io.github.hansanto.kault.util.DEFAULT_ROLE_NAME
 import io.github.hansanto.kault.util.ROOT_TOKEN
 import io.github.hansanto.kault.util.createVaultClient
+import io.github.hansanto.kault.util.enableAuthMethod
 import io.github.hansanto.kault.util.randomLong
 import io.github.hansanto.kault.util.randomString
 import io.kotest.assertions.throwables.shouldNotThrow
@@ -41,11 +41,7 @@ class VaultAuthTest : ShouldSpec({
         client = createVaultClient { renewBeforeExpiration = 1.5.seconds }
         auth = client.auth
 
-        runCatching {
-            client.system.auth.enable("approle") {
-                type = "approle"
-            }
-        }
+        enableAuthMethod(client, "approle")
     }
 
     afterTest {
