@@ -255,6 +255,7 @@ class VaultAuthTest : ShouldSpec({
     should("renew token once if the renewal is enabled after setting new token") {
         createVaultClient {
             renewBeforeExpiration = 1.seconds
+            autoRenewToken = false
         }.use {
             val tmpAuth = it.auth
 
@@ -282,6 +283,7 @@ class VaultAuthTest : ShouldSpec({
     should("renew token once if the renewal is enabled before setting new token") {
         createVaultClient {
             renewBeforeExpiration = 1.seconds
+            autoRenewToken = false
         }.use {
             val tmpAuth = it.auth
             tmpAuth.enableAutoRenewToken()
@@ -309,6 +311,7 @@ class VaultAuthTest : ShouldSpec({
     should("renew token several times if the renewal is enabled") {
         createVaultClient {
             renewBeforeExpiration = 5.seconds
+            autoRenewToken = false
         }.use {
             val tmpAuth = it.auth
 
@@ -367,6 +370,7 @@ class VaultAuthTest : ShouldSpec({
     should("not renew token if auto-renew is disabled before expiration of the new token") {
         createVaultClient {
             renewBeforeExpiration = 1.seconds
+            autoRenewToken = false
         }.use {
             val tmpAuth = it.auth
             tmpAuth.enableAutoRenewToken()
