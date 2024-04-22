@@ -174,20 +174,20 @@ class VaultAuthTest : ShouldSpec({
         }
         val newTokenInfo = newToken.toTokenInfo()
 
-        val customAuth = VaultAuth(client.client, null) {
-            autoRenewToken = true
+        createVaultClient {
             renewBeforeExpiration = 10.days
+            autoRenewToken = true
             tokenInfo(newTokenInfo)
+        }.use {
+            delay(1.seconds)
+            val newTokenInfoAfterDelay = it.auth.getTokenInfo()!!
+            val newExpirationDate = newTokenInfoAfterDelay.expirationDate!!
+            (newExpirationDate > Clock.System.now() && newTokenInfo.expirationDate!! < newExpirationDate) shouldBe true
+
+            newTokenInfoAfterDelay shouldBe newTokenInfo.copy(
+                expirationDate = newExpirationDate
+            )
         }
-
-        delay(1.seconds)
-        val newTokenInfoAfterDelay = customAuth.getTokenInfo()!!
-        val newExpirationDate = newTokenInfoAfterDelay.expirationDate!!
-        (newExpirationDate > Clock.System.now() && newTokenInfo.expirationDate!! < newExpirationDate) shouldBe true
-
-        newTokenInfoAfterDelay shouldBe newTokenInfo.copy(
-            expirationDate = newExpirationDate
-        )
     }
 
     should("set token info with null value") {

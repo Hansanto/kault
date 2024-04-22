@@ -12,7 +12,6 @@ import io.github.hansanto.kault.auth.kubernetes.VaultAuthKubernetes
 import io.github.hansanto.kault.auth.kubernetes.VaultAuthKubernetesImpl
 import io.github.hansanto.kault.auth.token.VaultAuthToken
 import io.github.hansanto.kault.auth.token.VaultAuthTokenImpl
-import io.github.hansanto.kault.auth.token.renewToken
 import io.github.hansanto.kault.auth.token.response.toTokenInfo
 import io.github.hansanto.kault.auth.userpass.VaultAuthUserpass
 import io.github.hansanto.kault.auth.userpass.VaultAuthUserpassImpl
@@ -376,7 +375,7 @@ public class VaultAuth(
             delay(timeToSleep)
 
             try {
-                renewToken(tokenInformation.token)
+                renewToken()
             } catch (e: Exception) {
                 // If the token cannot be renewed, the job is canceled
                 cancel("Token cannot be renewed", e)
@@ -386,14 +385,9 @@ public class VaultAuth(
 
     /**
      * Renew the token using the [token] service.
-     * The operation is thread-safe and will be executed only once at a time.
-     * @param token Token to renew.
      */
-    private suspend fun renewToken(token: String) {
-        val renewResponse = this.token.renewToken {
-            this.token = token
-        }
+    private suspend fun renewToken() {
         // By setting the value directly to the property, the renew job is not restarted
-        tokenInfo = renewResponse.toTokenInfo()
+        tokenInfo = this.token.renewSelfToken().toTokenInfo()
     }
 }
