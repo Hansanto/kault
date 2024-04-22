@@ -168,23 +168,27 @@ class VaultAuthTest : ShouldSpec({
     }
 
     should("start auto renew job when creating a new instance") {
-        val newToken = client.auth.token.createToken {
+        val tokenCreated = client.auth.token.createToken {
             renewable = true
             ttl = 1.days
         }
-        val newTokenInfo = newToken.toTokenInfo()
+        val tokenCreatedInfo = tokenCreated.toTokenInfo()
+        println("Token created: $tokenCreatedInfo")
+        val tokenExpirationDate = tokenCreatedInfo.expirationDate!!
 
         createVaultClient {
             renewBeforeExpiration = 10.days
             autoRenewToken = true
-            tokenInfo(newTokenInfo)
+            tokenInfo(tokenCreatedInfo)
         }.use {
             delay(1.seconds)
             val newTokenInfoAfterDelay = it.auth.getTokenInfo()!!
+            println("Token created after delay: $newTokenInfoAfterDelay")
             val newExpirationDate = newTokenInfoAfterDelay.expirationDate!!
-            (newExpirationDate > Clock.System.now() && newTokenInfo.expirationDate!! < newExpirationDate) shouldBe true
 
-            newTokenInfoAfterDelay shouldBe newTokenInfo.copy(
+            (newExpirationDate > Clock.System.now()) shouldBe true
+            (tokenExpirationDate < newExpirationDate) shouldBe true
+            newTokenInfoAfterDelay shouldBe tokenCreatedInfo.copy(
                 expirationDate = newExpirationDate
             )
         }
