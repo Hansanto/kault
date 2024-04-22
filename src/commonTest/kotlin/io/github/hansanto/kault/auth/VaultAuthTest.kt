@@ -17,6 +17,7 @@ import io.github.hansanto.kault.util.DEFAULT_ROLE_NAME
 import io.github.hansanto.kault.util.ROOT_TOKEN
 import io.github.hansanto.kault.util.createVaultClient
 import io.github.hansanto.kault.util.enableAuthMethod
+import io.github.hansanto.kault.util.randomBoolean
 import io.github.hansanto.kault.util.randomLong
 import io.github.hansanto.kault.util.randomString
 import io.github.hansanto.kault.util.revokeAllAppRoleData
@@ -31,6 +32,7 @@ import kotlinx.datetime.Instant
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 
 class VaultAuthTest : ShouldSpec({
@@ -77,13 +79,15 @@ class VaultAuthTest : ShouldSpec({
         checkNotThrowConstructor(1.days)
     }
 
-    should("use default path if not set in builder") {
+    should("use default values if not set in builder") {
         VaultAuth.Default.PATH shouldBe "auth"
 
         val built = VaultAuth(client.client, null) {
         }
 
         built.getTokenInfo() shouldBe null
+        built.autoRenewToken shouldBe true
+        built.renewBeforeExpiration shouldBe 10.minutes
         (built.appRole as VaultAuthAppRoleImpl).path shouldBe "${VaultAuth.Default.PATH}/${VaultAuthAppRoleImpl.Default.PATH}"
         (built.kubernetes as VaultAuthKubernetesImpl).path shouldBe "${VaultAuth.Default.PATH}/${VaultAuthKubernetesImpl.Default.PATH}"
         (built.userpass as VaultAuthUserpassImpl).path shouldBe "${VaultAuth.Default.PATH}/${VaultAuthUserpassImpl.Default.PATH}"
@@ -100,6 +104,8 @@ class VaultAuthTest : ShouldSpec({
         val kubernetesPath = randomString()
         val userpassPath = randomString()
         val tokenPath = randomString()
+        val autoRenewToken = randomBoolean()
+        val renewBeforeExpiration = randomLong(1L..1000L).seconds
 
         val built = VaultAuth(client.client, parentPath) {
             path = builderPath
@@ -116,13 +122,13 @@ class VaultAuthTest : ShouldSpec({
             token {
                 path = tokenPath
             }
-            autoRenewToken = true
-            renewBeforeExpiration = 1.seconds
+            this.autoRenewToken = autoRenewToken
+            this.renewBeforeExpiration = renewBeforeExpiration
         }
 
         built.getTokenInfo() shouldBe defaultTokenInfo(randomToken)
-        built.autoRenewToken shouldBe true
-        built.renewBeforeExpiration shouldBe 1.seconds
+        built.autoRenewToken shouldBe autoRenewToken
+        built.renewBeforeExpiration shouldBe renewBeforeExpiration
         (built.appRole as VaultAuthAppRoleImpl).path shouldBe "$parentPath/$builderPath/$appRolePath"
         (built.kubernetes as VaultAuthKubernetesImpl).path shouldBe "$parentPath/$builderPath/$kubernetesPath"
         (built.userpass as VaultAuthUserpassImpl).path shouldBe "$parentPath/$builderPath/$userpassPath"

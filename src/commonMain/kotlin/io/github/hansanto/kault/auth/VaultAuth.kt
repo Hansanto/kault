@@ -112,7 +112,7 @@ public class VaultAuth(
         /**
          * Default flag to check if the auto-renewal token feature is enabled.
          */
-        public const val AUTO_RENEW_TOKEN: Boolean = false
+        public const val AUTO_RENEW_TOKEN: Boolean = true
     }
 
     /**
