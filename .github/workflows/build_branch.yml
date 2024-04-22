@@ -70,7 +70,7 @@ jobs:
           KUBERNETES_TOKEN: ${{ steps.kubernetes.outputs.token }}
 
       - name: Upload test report
-        if: always()
+        if: always() && steps.build.outcome == 'failure'
         uses: actions/upload-artifact@v4
         with:
           name: test-report
