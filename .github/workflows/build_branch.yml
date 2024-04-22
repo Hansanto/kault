@@ -60,6 +60,7 @@ jobs:
         run: docker-compose up -d
 
       - name: Build
+        id: build
         uses: gradle/gradle-build-action@v3
         with:
           arguments: build
@@ -67,3 +68,11 @@ jobs:
           KUBERNETES_IP: ${{ steps.kubernetes.outputs.ip }}
           KUBERNETES_PORT: ${{ steps.kubernetes.outputs.port }}
           KUBERNETES_TOKEN: ${{ steps.kubernetes.outputs.token }}
+
+      - name: Upload test report
+        if: steps.build.outcome == 'failure'
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-report
+          path: build/reports/tests
+          retention-days: 1
