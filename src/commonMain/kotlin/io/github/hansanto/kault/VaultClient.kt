@@ -133,7 +133,6 @@ public class VaultClient(
 
         /**
          * Builder to custom the HTTP client.
-         * The token resolver is passed as parameter and must not be used before the client is built.
          * [Documentation](https://ktor.io/docs/clients-index.html)
          */
         private var httpClientBuilder: ((() -> Headers) -> HttpClient)? = null

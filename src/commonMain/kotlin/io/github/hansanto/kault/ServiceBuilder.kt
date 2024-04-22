@@ -6,7 +6,7 @@ import io.ktor.client.HttpClient
 /**
  * Marks the annotated class as a DSL marker.
  * Avoid access to the parent builder class from the DSL.
- * * ```kotlin
+ * ```kotlin
  * VaultClient { // annotated with @KaultDsl
  *    subBuilder { // annotated with @KaultDsl
  *      subBuilder2 { // possible because it's a method of subBuilder
