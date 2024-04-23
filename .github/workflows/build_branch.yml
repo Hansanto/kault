@@ -4,9 +4,15 @@ on:
   push:
     branches-ignore:
       - "v*" # Skip tags
+  workflow_dispatch:
+    inputs:
+      upload-report:
+        description: 'Upload the test report'
+        required: false
+        default: 'false'
 
 concurrency:
-  group: build-${{ github.ref }}
+  group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -70,7 +76,7 @@ jobs:
           KUBERNETES_TOKEN: ${{ steps.kubernetes.outputs.token }}
 
       - name: Upload test report
-        if: always() && steps.build.outcome == 'failure'
+        if: ${{ github.event.inputs.upload-report == 'true' }}
         uses: actions/upload-artifact@v4
         with:
           name: test-report
