@@ -282,7 +282,7 @@ public class VaultKV2EngineImpl(
     /**
      * Builder class to simplify the creation of [VaultKV2EngineImpl].
      */
-    public class Builder : ServiceBuilder<VaultKV2EngineImpl>() {
+    public open class Builder : ServiceBuilder<VaultKV2EngineImpl>() {
 
         public override var path: String = Default.PATH
 

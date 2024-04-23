@@ -104,7 +104,7 @@ public class VaultSystemAuditImpl(
     /**
      * Builder class to simplify the creation of [VaultSystemAuditImpl].
      */
-    public class Builder : ServiceBuilder<VaultSystemAuditImpl>() {
+    public open class Builder : ServiceBuilder<VaultSystemAuditImpl>() {
 
         public override var path: String = Default.PATH
 

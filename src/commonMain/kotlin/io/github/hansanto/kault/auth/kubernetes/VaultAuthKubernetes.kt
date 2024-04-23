@@ -164,7 +164,7 @@ public class VaultAuthKubernetesImpl(
     /**
      * Builder class to simplify the creation of [VaultAuthKubernetesImpl].
      */
-    public class Builder : ServiceBuilder<VaultAuthKubernetesImpl>() {
+    public open class Builder : ServiceBuilder<VaultAuthKubernetesImpl>() {
 
         public override var path: String = Default.PATH
 

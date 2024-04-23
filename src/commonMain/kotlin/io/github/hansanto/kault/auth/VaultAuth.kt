@@ -12,7 +12,6 @@ import io.github.hansanto.kault.auth.kubernetes.VaultAuthKubernetes
 import io.github.hansanto.kault.auth.kubernetes.VaultAuthKubernetesImpl
 import io.github.hansanto.kault.auth.token.VaultAuthToken
 import io.github.hansanto.kault.auth.token.VaultAuthTokenImpl
-import io.github.hansanto.kault.auth.token.renewToken
 import io.github.hansanto.kault.auth.token.response.toTokenInfo
 import io.github.hansanto.kault.auth.userpass.VaultAuthUserpass
 import io.github.hansanto.kault.auth.userpass.VaultAuthUserpassImpl
@@ -68,11 +67,6 @@ public class VaultAuth(
     private val renewCoroutineScope: CoroutineScope,
 
     /**
-     * [VaultAuth.autoRenewToken]
-     */
-    autoRenewToken: Boolean = Default.AUTO_RENEW_TOKEN,
-
-    /**
      * Duration before the token expiration to renew it.
      */
     public val renewBeforeExpiration: Duration = Default.RENEW_BEFORE_EXPIRATION
@@ -108,17 +102,12 @@ public class VaultAuth(
          * Default duration before the token expiration to renew it.
          */
         public val RENEW_BEFORE_EXPIRATION: Duration = 10.minutes
-
-        /**
-         * Default flag to check if the auto-renewal token feature is enabled.
-         */
-        public const val AUTO_RENEW_TOKEN: Boolean = true
     }
 
     /**
      * Builder class to simplify the creation of [VaultAuth].
      */
-    public class Builder : ServiceBuilder<VaultAuth>() {
+    public open class Builder : ServiceBuilder<VaultAuth>() {
 
         public override var path: String = Default.PATH
 
@@ -126,11 +115,6 @@ public class VaultAuth(
          * [VaultAuth.renewBeforeExpiration]
          */
         public var renewBeforeExpiration: Duration = Default.RENEW_BEFORE_EXPIRATION
-
-        /**
-         * [VaultAuth.autoRenewToken]
-         */
-        public var autoRenewToken: Boolean = Default.AUTO_RENEW_TOKEN
 
         /**
          * [VaultAuth.tokenInfo]
@@ -160,7 +144,6 @@ public class VaultAuth(
         override fun buildWithCompletePath(client: HttpClient, completePath: String): VaultAuth {
             return VaultAuth(
                 renewCoroutineScope = CoroutineScope(SupervisorJob(client.coroutineContext.job) + Dispatchers.Default),
-                autoRenewToken = autoRenewToken,
                 renewBeforeExpiration = renewBeforeExpiration,
                 tokenInfo = tokenInfo,
                 appRole = VaultAuthAppRoleImpl.Builder().apply(appRoleBuilder).build(client, completePath),
@@ -236,20 +219,20 @@ public class VaultAuth(
     /**
      * Flag to check if the auto-renewal token feature is enabled.
      */
-    public var autoRenewToken: Boolean = autoRenewToken
+    public var autoRenewToken: Boolean = false
         private set
 
     /**
      * Job to renew the token when it is about to expire.
      */
+    // We don't want to start the job at the initialization.
+    // It must be created by using the [enableAutoRenewToken] method.
+    // This avoids a potential error where the VaultClient is not initialized yet
+    // and the token is renewed at the same time because it's about to expire
     private var renewTokenJob: Job? = null
 
     init {
         require(renewBeforeExpiration > Duration.ZERO) { "The renew before expiration must be greater than 0" }
-
-        if (autoRenewToken) {
-            renewTokenJob = createRenewTokenJob()
-        }
     }
 
     /**
@@ -376,7 +359,7 @@ public class VaultAuth(
             delay(timeToSleep)
 
             try {
-                renewToken(tokenInformation.token)
+                renewToken()
             } catch (e: Exception) {
                 // If the token cannot be renewed, the job is canceled
                 cancel("Token cannot be renewed", e)
@@ -386,14 +369,9 @@ public class VaultAuth(
 
     /**
      * Renew the token using the [token] service.
-     * The operation is thread-safe and will be executed only once at a time.
-     * @param token Token to renew.
      */
-    private suspend fun renewToken(token: String) {
-        val renewResponse = this.token.renewToken {
-            this.token = token
-        }
+    private suspend fun renewToken() {
         // By setting the value directly to the property, the renew job is not restarted
-        tokenInfo = renewResponse.toTokenInfo()
+        tokenInfo = this.token.renewSelfToken().toTokenInfo()
     }
 }

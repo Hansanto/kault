@@ -91,7 +91,18 @@ public class VaultClient(
      * Builder class to simplify the creation of [VaultClient].
      */
     @KaultDsl
-    public class Builder {
+    public open class Builder {
+
+        /**
+         * Builder class to extend the [VaultAuth.Builder] to add new features.
+         */
+        public class AuthBuilder : VaultAuth.Builder() {
+
+            /**
+             * If true, the method [VaultAuth.enableAutoRenewToken] will be called after build.
+             */
+            public var autoRenewToken: Boolean = true
+        }
 
         /**
          * URL of the Vault server.
@@ -119,7 +130,7 @@ public class VaultClient(
         /**
          * Builder to define authentication service.
          */
-        private var authBuilder: BuilderDsl<VaultAuth.Builder> = {}
+        private var authBuilder: BuilderDsl<AuthBuilder> = {}
 
         /**
          * Builder to define system service.
@@ -148,13 +159,20 @@ public class VaultClient(
             }
             val client = httpClientBuilder?.invoke(headerBuilder) ?: createHttpClient(headerBuilder)
 
+            val authBuilderComplete = AuthBuilder().apply(authBuilder)
+
             return VaultClient(
                 client = client,
                 namespace = this.namespace,
-                auth = VaultAuth(client, null, this.authBuilder),
+                auth = authBuilderComplete.build(client, null),
                 system = VaultSystem(client, null, this.sysBuilder),
                 secret = VaultSecretEngine(client, null, this.secretBuilder)
-            ).also { vaultClient = it }
+            ).also { vaultClientBuilt ->
+                vaultClient = vaultClientBuilt
+                if (authBuilderComplete.autoRenewToken) {
+                    vaultClientBuilt.auth.enableAutoRenewToken()
+                }
+            }
         }
 
         /**
@@ -171,7 +189,7 @@ public class VaultClient(
          *
          * @param builder Builder to create [VaultAuth] instance.
          */
-        public fun auth(builder: BuilderDsl<VaultAuth.Builder>) {
+        public fun auth(builder: BuilderDsl<AuthBuilder>) {
             authBuilder = builder
         }
 
