@@ -93,10 +93,12 @@ public class VaultClient(
     @KaultDsl
     public open class Builder {
 
-        public class Auth : VaultAuth.Builder() {
+        /**
+         * Builder class to extend the [VaultAuth.Builder] to add new features.
+         */
+        public class AuthBuilder : VaultAuth.Builder() {
 
             /**
-             * [VaultAuth.autoRenewToken]
              * If true, the method [VaultAuth.enableAutoRenewToken] will be called after build.
              */
             public var autoRenewToken: Boolean = true
@@ -128,7 +130,7 @@ public class VaultClient(
         /**
          * Builder to define authentication service.
          */
-        private var authBuilder: BuilderDsl<Auth> = {}
+        private var authBuilder: BuilderDsl<AuthBuilder> = {}
 
         /**
          * Builder to define system service.
@@ -157,7 +159,7 @@ public class VaultClient(
             }
             val client = httpClientBuilder?.invoke(headerBuilder) ?: createHttpClient(headerBuilder)
 
-            val authBuilderFill = Auth().apply(authBuilder)
+            val authBuilderFill = AuthBuilder().apply(authBuilder)
 
             return VaultClient(
                 client = client,
@@ -187,7 +189,7 @@ public class VaultClient(
          *
          * @param builder Builder to create [VaultAuth] instance.
          */
-        public fun auth(builder: BuilderDsl<Auth>) {
+        public fun auth(builder: BuilderDsl<AuthBuilder>) {
             authBuilder = builder
         }
 

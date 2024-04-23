@@ -11,7 +11,7 @@ import io.ktor.client.plugins.logging.Logging
 const val ROOT_TOKEN = "root"
 
 inline fun createVaultClient(
-    crossinline authBuilder: VaultClient.Builder.Auth.() -> Unit = {
+    crossinline authBuilder: VaultClient.Builder.AuthBuilder.() -> Unit = {
         autoRenewToken = false
     }
 ): VaultClient = VaultClient {

@@ -124,7 +124,6 @@ class VaultAuthTest : ShouldSpec({
         }
 
         built.getTokenInfo() shouldBe defaultTokenInfo(randomToken)
-        // Because the builder field is not set and should be use once the builder is created
         built.autoRenewToken shouldBe false
         built.renewBeforeExpiration shouldBe renewBeforeExpiration
         (built.appRole as VaultAuthAppRoleImpl).path shouldBe "$parentPath/$builderPath/$appRolePath"
