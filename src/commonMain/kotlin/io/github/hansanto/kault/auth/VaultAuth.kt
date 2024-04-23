@@ -67,11 +67,6 @@ public class VaultAuth(
     private val renewCoroutineScope: CoroutineScope,
 
     /**
-     * [VaultAuth.autoRenewToken]
-     */
-    autoRenewToken: Boolean = Default.AUTO_RENEW_TOKEN,
-
-    /**
      * Duration before the token expiration to renew it.
      */
     public val renewBeforeExpiration: Duration = Default.RENEW_BEFORE_EXPIRATION
@@ -128,6 +123,8 @@ public class VaultAuth(
 
         /**
          * [VaultAuth.autoRenewToken]
+         * This information is not used when the [VaultAuth] is built.
+         * Should be used outside the builder to enable the auto-renewal token feature.
          */
         public var autoRenewToken: Boolean = Default.AUTO_RENEW_TOKEN
 
@@ -159,7 +156,6 @@ public class VaultAuth(
         override fun buildWithCompletePath(client: HttpClient, completePath: String): VaultAuth {
             return VaultAuth(
                 renewCoroutineScope = CoroutineScope(SupervisorJob(client.coroutineContext.job) + Dispatchers.Default),
-                autoRenewToken = autoRenewToken,
                 renewBeforeExpiration = renewBeforeExpiration,
                 tokenInfo = tokenInfo,
                 appRole = VaultAuthAppRoleImpl.Builder().apply(appRoleBuilder).build(client, completePath),
@@ -235,20 +231,20 @@ public class VaultAuth(
     /**
      * Flag to check if the auto-renewal token feature is enabled.
      */
-    public var autoRenewToken: Boolean = autoRenewToken
+    public var autoRenewToken: Boolean = false
         private set
 
     /**
      * Job to renew the token when it is about to expire.
      */
+    // We don't want to start the job at the initialization.
+    // It must be created by using the [enableAutoRenewToken] method.
+    // This avoids a potential error where the VaultClient is not initialized yet
+    // and the token is renewed at the same time because it's about to expire
     private var renewTokenJob: Job? = null
 
     init {
         require(renewBeforeExpiration > Duration.ZERO) { "The renew before expiration must be greater than 0" }
-
-        if (autoRenewToken) {
-            renewTokenJob = createRenewTokenJob()
-        }
     }
 
     /**
@@ -348,7 +344,6 @@ public class VaultAuth(
     private fun createRenewTokenJob(): Job = renewCoroutineScope.launch {
         while (this.isActive) {
             val tokenInformation = getTokenInfo()
-            println("Token that will be renewed: $tokenInformation")
             if (tokenInformation == null) {
                 cancel("Token is undefined")
                 return@launch
@@ -378,15 +373,9 @@ public class VaultAuth(
             try {
                 renewToken()
             } catch (e: Exception) {
-                println("Error renewing token: $e")
                 // If the token cannot be renewed, the job is canceled
                 cancel("Token cannot be renewed", e)
             }
-        }
-    }.apply {
-        println("Renew token job started")
-        invokeOnCompletion {
-            println("Renew token job completed with $it")
         }
     }
 
