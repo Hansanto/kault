@@ -381,6 +381,11 @@ public class VaultAuth(
                 cancel("Token cannot be renewed", e)
             }
         }
+    }.apply {
+        println("Renew token job started")
+        invokeOnCompletion {
+            println("Renew token job completed with $it")
+        }
     }
 
     /**
