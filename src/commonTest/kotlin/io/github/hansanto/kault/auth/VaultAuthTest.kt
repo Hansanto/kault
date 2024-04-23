@@ -173,7 +173,6 @@ class VaultAuthTest : ShouldSpec({
             ttl = 1.days
         }
         val tokenCreatedInfo = tokenCreated.toTokenInfo()
-        println("Token created: $tokenCreatedInfo")
         val tokenExpirationDate = tokenCreatedInfo.expirationDate!!
 
         createVaultClient {
@@ -183,7 +182,6 @@ class VaultAuthTest : ShouldSpec({
         }.use {
             delay(100.milliseconds)
             val newTokenInfoAfterDelay = it.auth.getTokenInfo()!!
-            println("Token created after delay: $newTokenInfoAfterDelay")
             val newExpirationDate = newTokenInfoAfterDelay.expirationDate!!
 
             (newExpirationDate > Clock.System.now()) shouldBe true
