@@ -378,6 +378,7 @@ public class VaultAuth(
             try {
                 renewToken()
             } catch (e: Exception) {
+                println("Error renewing token: $e")
                 // If the token cannot be renewed, the job is canceled
                 cancel("Token cannot be renewed", e)
             }
