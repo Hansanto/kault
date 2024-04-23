@@ -86,7 +86,7 @@ class VaultAuthTest : ShouldSpec({
         }
 
         built.getTokenInfo() shouldBe null
-        built.autoRenewToken shouldBe true
+        built.autoRenewToken shouldBe false
         built.renewBeforeExpiration shouldBe 10.minutes
         (built.appRole as VaultAuthAppRoleImpl).path shouldBe "${VaultAuth.Default.PATH}/${VaultAuthAppRoleImpl.Default.PATH}"
         (built.kubernetes as VaultAuthKubernetesImpl).path shouldBe "${VaultAuth.Default.PATH}/${VaultAuthKubernetesImpl.Default.PATH}"
@@ -127,7 +127,8 @@ class VaultAuthTest : ShouldSpec({
         }
 
         built.getTokenInfo() shouldBe defaultTokenInfo(randomToken)
-        built.autoRenewToken shouldBe autoRenewToken
+        // Because the builder field is not set and should be use once the builder is created
+        built.autoRenewToken shouldBe false
         built.renewBeforeExpiration shouldBe renewBeforeExpiration
         (built.appRole as VaultAuthAppRoleImpl).path shouldBe "$parentPath/$builderPath/$appRolePath"
         (built.kubernetes as VaultAuthKubernetesImpl).path shouldBe "$parentPath/$builderPath/$kubernetesPath"
