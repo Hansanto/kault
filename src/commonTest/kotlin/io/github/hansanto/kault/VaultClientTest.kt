@@ -2,6 +2,7 @@ package io.github.hansanto.kault
 
 import io.github.hansanto.kault.util.createVaultClient
 import io.github.hansanto.kault.util.randomBoolean
+import io.github.hansanto.kault.util.randomString
 import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
 import io.ktor.utils.io.core.use
@@ -17,10 +18,13 @@ class VaultClientTest : ShouldSpec({
     }
 
     should("use custom values in the builder") {
+        val url = randomString()
+        val namespace = randomString()
         val autoRenewToken = randomBoolean()
 
         val built = VaultClient {
-            url = "http://localhost:8200"
+            this.url = url
+            this.namespace = namespace
             auth {
                 this.autoRenewToken = autoRenewToken
             }
