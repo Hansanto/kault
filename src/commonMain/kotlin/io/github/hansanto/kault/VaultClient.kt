@@ -159,18 +159,18 @@ public class VaultClient(
             }
             val client = httpClientBuilder?.invoke(headerBuilder) ?: createHttpClient(headerBuilder)
 
-            val authBuilderFill = AuthBuilder().apply(authBuilder)
+            val authBuilderComplete = AuthBuilder().apply(authBuilder)
 
             return VaultClient(
                 client = client,
                 namespace = this.namespace,
-                auth = authBuilderFill.build(client, null),
+                auth = authBuilderComplete.build(client, null),
                 system = VaultSystem(client, null, this.sysBuilder),
                 secret = VaultSecretEngine(client, null, this.secretBuilder)
-            ).also {
-                vaultClient = it
-                if (authBuilderFill.autoRenewToken) {
-                    it.auth.enableAutoRenewToken()
+            ).also { vaultClientBuilt ->
+                vaultClient = vaultClientBuilt
+                if (authBuilderComplete.autoRenewToken) {
+                    vaultClientBuilt.auth.enableAutoRenewToken()
                 }
             }
         }
