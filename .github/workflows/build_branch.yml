@@ -7,9 +7,10 @@ on:
   workflow_dispatch:
     inputs:
       upload-report:
+        type: boolean
         description: 'Upload the test report'
         required: false
-        default: 'false'
+        default: false
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
