@@ -1,7 +1,6 @@
 package io.github.hansanto.kault.engine
 
 import io.github.hansanto.kault.BuilderDsl
-import io.github.hansanto.kault.KaultDsl
 import io.github.hansanto.kault.ServiceBuilder
 import io.github.hansanto.kault.engine.kv.v2.VaultKV2Engine
 import io.github.hansanto.kault.engine.kv.v2.VaultKV2EngineImpl
@@ -32,8 +31,7 @@ public class VaultSecretEngine(
     /**
      * Builder class to simplify the creation of [VaultSecretEngine].
      */
-    @KaultDsl
-    public class Builder : ServiceBuilder<VaultSecretEngine>() {
+    public open class Builder : ServiceBuilder<VaultSecretEngine>() {
 
         override var path: String = ""
 

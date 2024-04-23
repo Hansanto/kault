@@ -54,7 +54,7 @@ public class VaultSystem(
     /**
      * Builder class to simplify the creation of [VaultAuth].
      */
-    public class Builder : ServiceBuilder<VaultSystem>() {
+    public open class Builder : ServiceBuilder<VaultSystem>() {
 
         public override var path: String = Default.PATH
 

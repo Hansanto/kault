@@ -102,17 +102,12 @@ public class VaultAuth(
          * Default duration before the token expiration to renew it.
          */
         public val RENEW_BEFORE_EXPIRATION: Duration = 10.minutes
-
-        /**
-         * Default flag to check if the auto-renewal token feature is enabled.
-         */
-        public const val AUTO_RENEW_TOKEN: Boolean = true
     }
 
     /**
      * Builder class to simplify the creation of [VaultAuth].
      */
-    public class Builder : ServiceBuilder<VaultAuth>() {
+    public open class Builder : ServiceBuilder<VaultAuth>() {
 
         public override var path: String = Default.PATH
 
@@ -120,13 +115,6 @@ public class VaultAuth(
          * [VaultAuth.renewBeforeExpiration]
          */
         public var renewBeforeExpiration: Duration = Default.RENEW_BEFORE_EXPIRATION
-
-        /**
-         * [VaultAuth.autoRenewToken]
-         * This information is not used when the [VaultAuth] is built.
-         * Should be used outside the builder to enable the auto-renewal token feature.
-         */
-        public var autoRenewToken: Boolean = Default.AUTO_RENEW_TOKEN
 
         /**
          * [VaultAuth.tokenInfo]

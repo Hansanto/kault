@@ -17,7 +17,6 @@ import io.github.hansanto.kault.util.DEFAULT_ROLE_NAME
 import io.github.hansanto.kault.util.ROOT_TOKEN
 import io.github.hansanto.kault.util.createVaultClient
 import io.github.hansanto.kault.util.enableAuthMethod
-import io.github.hansanto.kault.util.randomBoolean
 import io.github.hansanto.kault.util.randomLong
 import io.github.hansanto.kault.util.randomString
 import io.github.hansanto.kault.util.revokeAllAppRoleData
@@ -104,7 +103,6 @@ class VaultAuthTest : ShouldSpec({
         val kubernetesPath = randomString()
         val userpassPath = randomString()
         val tokenPath = randomString()
-        val autoRenewToken = randomBoolean()
         val renewBeforeExpiration = randomLong(1L..1000L).seconds
 
         val built = VaultAuth(client.client, parentPath) {
@@ -122,7 +120,6 @@ class VaultAuthTest : ShouldSpec({
             token {
                 path = tokenPath
             }
-            this.autoRenewToken = autoRenewToken
             this.renewBeforeExpiration = renewBeforeExpiration
         }
 

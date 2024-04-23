@@ -145,7 +145,7 @@ public class VaultSystemAuthImpl(
     /**
      * Builder class to simplify the creation of [VaultSystemAuthImpl].
      */
-    public class Builder : ServiceBuilder<VaultSystemAuthImpl>() {
+    public open class Builder : ServiceBuilder<VaultSystemAuthImpl>() {
 
         public override var path: String = Default.PATH
 

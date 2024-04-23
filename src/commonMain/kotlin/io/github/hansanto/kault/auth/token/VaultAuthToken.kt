@@ -291,7 +291,7 @@ public class VaultAuthTokenImpl(
     /**
      * Builder class to simplify the creation of [VaultAuth].
      */
-    public class Builder : ServiceBuilder<VaultAuthTokenImpl>() {
+    public open class Builder : ServiceBuilder<VaultAuthTokenImpl>() {
 
         public override var path: String = Default.PATH
 

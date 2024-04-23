@@ -140,7 +140,7 @@ public class VaultAuthUserpassImpl(
     /**
      * Builder class to simplify the creation of [VaultAuth].
      */
-    public class Builder : ServiceBuilder<VaultAuthUserpassImpl>() {
+    public open class Builder : ServiceBuilder<VaultAuthUserpassImpl>() {
 
         public override var path: String = Default.PATH
 
