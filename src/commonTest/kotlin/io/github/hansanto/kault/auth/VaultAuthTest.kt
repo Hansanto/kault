@@ -175,13 +175,19 @@ class VaultAuthTest : ShouldSpec({
         val tokenCreatedInfo = tokenCreated.toTokenInfo()
         val tokenExpirationDate = tokenCreatedInfo.expirationDate!!
 
+        println("Token created: $tokenCreatedInfo")
         createVaultClient {
             renewBeforeExpiration = 10.days
             autoRenewToken = true
             tokenInfo(tokenCreatedInfo)
         }.use {
+            println("Waiting for token renewal")
             delay(100.milliseconds)
+            it.auth.disableAutoRenewToken()
+            println("Token renewal finished")
+
             val newTokenInfoAfterDelay = it.auth.getTokenInfo()!!
+            println("Token after renewal: $newTokenInfoAfterDelay")
             val newExpirationDate = newTokenInfoAfterDelay.expirationDate!!
 
             (newExpirationDate > Clock.System.now()) shouldBe true
