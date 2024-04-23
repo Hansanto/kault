@@ -57,7 +57,7 @@ jobs:
         id: init
         uses: ./.github/actions/init
         with:
-          jdk: 8
+          jdk: 21
 
       - name: Setup Kubernetes
         id: kubernetes

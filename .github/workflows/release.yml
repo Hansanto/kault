@@ -32,7 +32,7 @@ jobs:
       - name: Initialization
         uses: ./.github/actions/init
         with:
-          jdk: 8
+          jdk: 21
 
       - name: Build
         uses: gradle/gradle-build-action@v3
