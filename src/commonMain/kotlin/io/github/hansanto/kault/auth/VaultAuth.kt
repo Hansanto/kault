@@ -276,7 +276,7 @@ public class VaultAuth(
      * Otherwise, the [tokenInfo] will be a new instance of [TokenInfo] with the provided token only.
      * @param token Token to use for the next requests.
      */
-    public fun setToken(token: String?) {
+    public fun setTokenString(token: String?) {
         setTokenInfo(token?.let { TokenInfo(it) })
     }
 
@@ -285,7 +285,7 @@ public class VaultAuth(
      * If the [tokenInfo] is null, the token will be null.
      * @return The token used to interact with the API.
      */
-    public fun getToken(): String? {
+    public fun getTokenString(): String? {
         return getTokenInfo()?.token
     }
 

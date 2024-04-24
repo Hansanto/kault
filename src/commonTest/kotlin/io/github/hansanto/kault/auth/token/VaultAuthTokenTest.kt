@@ -314,7 +314,7 @@ class VaultAuthTokenTest : ShouldSpec({
 
     should("revoke self token") {
         val response = token.createToken()
-        client.auth.setToken(response.clientToken)
+        client.auth.setTokenString(response.clientToken)
         token.revokeSelfToken() shouldBe true
         shouldThrow<VaultAPIException> {
             token.lookupToken(response.clientToken)
@@ -484,7 +484,7 @@ private suspend inline fun assertRevokeToken(
     val token = client.auth.token
 
     val parentToken = token.createToken()
-    client.auth.setToken(parentToken.clientToken)
+    client.auth.setTokenString(parentToken.clientToken)
 
     val orphans = List(5) {
         token.createToken {
@@ -498,7 +498,7 @@ private suspend inline fun assertRevokeToken(
 
     revoke(parentToken) shouldBe true
 
-    client.auth.setToken(ROOT_TOKEN)
+    client.auth.setTokenString(ROOT_TOKEN)
     shouldThrow<VaultAPIException> {
         token.lookupToken(parentToken.clientToken)
     }
@@ -544,7 +544,7 @@ private suspend fun assertRenewSelfToken(
 ) {
     val token = client.auth.token
     assertRenewToken(token, increment, expectedReadPath) { tokenCreate, tokenRenew ->
-        client.auth.setToken(tokenCreate.clientToken)
+        client.auth.setTokenString(tokenCreate.clientToken)
         token.renewSelfToken(tokenRenew.increment)
     }
 }
@@ -617,7 +617,7 @@ private suspend fun assertLookupSelfToken(
 ) {
     val token = client.auth.token
     assertLookupToken(token, givenPath, expectedReadPath) {
-        client.auth.setToken(it.clientToken)
+        client.auth.setTokenString(it.clientToken)
         token.lookupSelfToken()
     }
 }
