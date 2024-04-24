@@ -29,16 +29,31 @@ public typealias Headers = Map<String, String?>
 
 /**
  * Client to interact with a Vault server.
- * @property client Http client to interact through REST API.
- * @property namespace Namespace to use.
- * @property auth Authentication service.
- * @property system System service.
  */
 public class VaultClient(
+    /**
+     * Http client to interact through REST API.
+     */
     public val client: HttpClient,
+
+    /**
+     * Namespace to use.
+     */
     public var namespace: String? = null,
+
+    /**
+     * Authentication service.
+     */
     public val auth: VaultAuth,
+
+    /**
+     * System service.
+     */
     public val system: VaultSystem,
+
+    /**
+     * Secrets service.
+     */
     public val secret: VaultSecretEngine
 ) : CoroutineScope by client, Closeable {
 
