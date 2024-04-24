@@ -32,7 +32,7 @@ inline fun createVaultClient(
 }
 
 suspend fun enableAuthMethod(client: VaultClient, authMethod: String) {
-    client.auth.setToken(ROOT_TOKEN)
+    client.auth.setTokenString(ROOT_TOKEN)
     runCatching {
         client.system.auth.enable(authMethod) {
             type = authMethod
@@ -41,7 +41,7 @@ suspend fun enableAuthMethod(client: VaultClient, authMethod: String) {
 }
 
 suspend fun revokeAllUserpassData(client: VaultClient) {
-    client.auth.setToken(ROOT_TOKEN)
+    client.auth.setTokenString(ROOT_TOKEN)
     val userpassService = client.auth.userpass
 
     runCatching { userpassService.list() }
@@ -53,7 +53,7 @@ suspend fun revokeAllUserpassData(client: VaultClient) {
 }
 
 suspend fun revokeAllKubernetesData(client: VaultClient) {
-    client.auth.setToken(ROOT_TOKEN)
+    client.auth.setTokenString(ROOT_TOKEN)
     val kubernetesService = client.auth.kubernetes
 
     runCatching { kubernetesService.list() }
@@ -65,7 +65,7 @@ suspend fun revokeAllKubernetesData(client: VaultClient) {
 }
 
 suspend fun revokeAllAppRoleData(client: VaultClient) {
-    client.auth.setToken(ROOT_TOKEN)
+    client.auth.setTokenString(ROOT_TOKEN)
     val appRoleService = client.auth.appRole
 
     runCatching { appRoleService.list() }
@@ -77,7 +77,7 @@ suspend fun revokeAllAppRoleData(client: VaultClient) {
 }
 
 suspend fun revokeAllTokenData(client: VaultClient) {
-    client.auth.setToken(ROOT_TOKEN)
+    client.auth.setTokenString(ROOT_TOKEN)
     val tokenService = client.auth.token
     val rootAccessor = tokenService.lookupSelfToken().accessor
 
@@ -101,7 +101,7 @@ suspend fun revokeAllTokenData(client: VaultClient) {
 }
 
 suspend fun disableAllAudit(client: VaultClient) {
-    client.auth.setToken(ROOT_TOKEN)
+    client.auth.setTokenString(ROOT_TOKEN)
     val auditService = client.system.audit
 
     runCatching { auditService.list() }
@@ -113,7 +113,7 @@ suspend fun disableAllAudit(client: VaultClient) {
 }
 
 suspend fun disableAllAuth(client: VaultClient) {
-    client.auth.setToken(ROOT_TOKEN)
+    client.auth.setTokenString(ROOT_TOKEN)
     val authService = client.system.auth
 
     runCatching { authService.list() }

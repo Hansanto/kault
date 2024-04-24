@@ -203,7 +203,7 @@ class VaultAuthTest : ShouldSpec({
 
     should("set token with null value") {
         auth.setTokenInfo(TokenInfo(randomString()))
-        auth.setToken(null)
+        auth.setTokenString(null)
         auth.getTokenInfo() shouldBe null
     }
 
@@ -224,19 +224,19 @@ class VaultAuthTest : ShouldSpec({
         )
 
         val token = randomString()
-        auth.setToken(token)
+        auth.setTokenString(token)
         auth.getTokenInfo() shouldBe defaultTokenInfo(token)
     }
 
     should("get token will return token if token info is not null") {
         val token = randomString()
         auth.setTokenInfo(TokenInfo(token))
-        auth.getToken() shouldBe token
+        auth.getTokenString() shouldBe token
     }
 
     should("get token will return null if token info is null") {
         auth.setTokenInfo(null)
-        auth.getToken() shouldBe null
+        auth.getTokenString() shouldBe null
     }
 
     should("enable auto-renew token will change the state") {
@@ -427,7 +427,7 @@ private suspend fun assertLoginReplaceToken(auth: VaultAuth) {
         }
     }
 
-    auth.getToken() shouldBe loginResponse.clientToken
+    auth.getTokenString() shouldBe loginResponse.clientToken
 }
 
 private suspend fun createLoginPayload(auth: VaultAuth): AppRoleLoginPayload {
@@ -435,7 +435,7 @@ private suspend fun createLoginPayload(auth: VaultAuth): AppRoleLoginPayload {
 
     val oldToken = auth.getTokenInfo()
 
-    auth.setToken(ROOT_TOKEN) // to create role and generate secret id
+    auth.setTokenString(ROOT_TOKEN) // to create role and generate secret id
     appRole.createOrUpdate(DEFAULT_ROLE_NAME) shouldBe true
     val secretId = appRole.generateSecretID(DEFAULT_ROLE_NAME).secretId
     val roleId = appRole.readRoleID(DEFAULT_ROLE_NAME).roleId
