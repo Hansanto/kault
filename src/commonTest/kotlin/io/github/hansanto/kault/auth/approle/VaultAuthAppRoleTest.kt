@@ -173,8 +173,8 @@ class VaultAuthAppRoleTest : ShouldSpec({
         assertGenerateSecretID(
             appRole,
             null,
-            "cases/auth/approle/generate-secret-id/without_options/expected_write.json",
-            "cases/auth/approle/generate-secret-id/without_options/expected_read.json"
+            "cases/auth/approle/generate_secret_id/without_options/expected_write.json",
+            "cases/auth/approle/generate_secret_id/without_options/expected_read.json"
         )
     }
 
@@ -182,26 +182,26 @@ class VaultAuthAppRoleTest : ShouldSpec({
         assertGenerateSecretIDWithBuilder(
             appRole,
             null,
-            "cases/auth/approle/generate-secret-id/without_options/expected_write.json",
-            "cases/auth/approle/generate-secret-id/without_options/expected_read.json"
+            "cases/auth/approle/generate_secret_id/without_options/expected_write.json",
+            "cases/auth/approle/generate_secret_id/without_options/expected_read.json"
         )
     }
 
     should("generate secret id with existing role with all defined values") {
         assertGenerateSecretID(
             appRole,
-            "cases/auth/approle/generate-secret-id/with_options/given.json",
-            "cases/auth/approle/generate-secret-id/with_options/expected_write.json",
-            "cases/auth/approle/generate-secret-id/with_options/expected_read.json"
+            "cases/auth/approle/generate_secret_id/with_options/given.json",
+            "cases/auth/approle/generate_secret_id/with_options/expected_write.json",
+            "cases/auth/approle/generate_secret_id/with_options/expected_read.json"
         )
     }
 
     should("generate secret id using builder with existing role with all defined values") {
         assertGenerateSecretIDWithBuilder(
             appRole,
-            "cases/auth/approle/generate-secret-id/with_options/given.json",
-            "cases/auth/approle/generate-secret-id/with_options/expected_write.json",
-            "cases/auth/approle/generate-secret-id/with_options/expected_read.json"
+            "cases/auth/approle/generate_secret_id/with_options/given.json",
+            "cases/auth/approle/generate_secret_id/with_options/expected_write.json",
+            "cases/auth/approle/generate_secret_id/with_options/expected_read.json"
         )
     }
 
@@ -270,17 +270,17 @@ class VaultAuthAppRoleTest : ShouldSpec({
         assertReadSecretIdAccessor(
             appRole,
             null,
-            "cases/auth/approle/read-secret-id-accessor/without_options/expected_write.json",
-            "cases/auth/approle/read-secret-id-accessor/without_options/expected_read.json"
+            "cases/auth/approle/read_secret_id_accessor/without_options/expected_write.json",
+            "cases/auth/approle/read_secret_id_accessor/without_options/expected_read.json"
         )
     }
 
     should("read secret id accessor with existing role and existing secret id with all defined values") {
         assertReadSecretIdAccessor(
             appRole,
-            "cases/auth/approle/read-secret-id-accessor/with_options/given.json",
-            "cases/auth/approle/read-secret-id-accessor/with_options/expected_write.json",
-            "cases/auth/approle/read-secret-id-accessor/with_options/expected_read.json"
+            "cases/auth/approle/read_secret_id_accessor/with_options/given.json",
+            "cases/auth/approle/read_secret_id_accessor/with_options/expected_write.json",
+            "cases/auth/approle/read_secret_id_accessor/with_options/expected_read.json"
         )
     }
 
@@ -324,36 +324,36 @@ class VaultAuthAppRoleTest : ShouldSpec({
     should("create custom secret id with existing role with default values with default values") {
         assertCreateCustomSecretID(
             appRole,
-            "cases/auth/approle/create-custom-secret-id/without_options/given.json",
-            "cases/auth/approle/create-custom-secret-id/without_options/expected_write.json",
-            "cases/auth/approle/create-custom-secret-id/without_options/expected_read.json"
+            "cases/auth/approle/create_custom_secret_id/without_options/given.json",
+            "cases/auth/approle/create_custom_secret_id/without_options/expected_write.json",
+            "cases/auth/approle/create_custom_secret_id/without_options/expected_read.json"
         )
     }
 
     should("create custom secret id using builder with existing role with default values with default values") {
         assertCreateCustomSecretIDWithBuilder(
             appRole,
-            "cases/auth/approle/create-custom-secret-id/without_options/given.json",
-            "cases/auth/approle/create-custom-secret-id/without_options/expected_write.json",
-            "cases/auth/approle/create-custom-secret-id/without_options/expected_read.json"
+            "cases/auth/approle/create_custom_secret_id/without_options/given.json",
+            "cases/auth/approle/create_custom_secret_id/without_options/expected_write.json",
+            "cases/auth/approle/create_custom_secret_id/without_options/expected_read.json"
         )
     }
 
     should("create custom secret id with existing role with all defined values") {
         assertCreateCustomSecretID(
             appRole,
-            "cases/auth/approle/create-custom-secret-id/with_options/given.json",
-            "cases/auth/approle/create-custom-secret-id/with_options/expected_write.json",
-            "cases/auth/approle/create-custom-secret-id/with_options/expected_read.json"
+            "cases/auth/approle/create_custom_secret_id/with_options/given.json",
+            "cases/auth/approle/create_custom_secret_id/with_options/expected_write.json",
+            "cases/auth/approle/create_custom_secret_id/with_options/expected_read.json"
         )
     }
 
     should("create custom secret id using builder with existing role with all defined values") {
         assertCreateCustomSecretIDWithBuilder(
             appRole,
-            "cases/auth/approle/create-custom-secret-id/with_options/given.json",
-            "cases/auth/approle/create-custom-secret-id/with_options/expected_write.json",
-            "cases/auth/approle/create-custom-secret-id/with_options/expected_read.json"
+            "cases/auth/approle/create_custom_secret_id/with_options/given.json",
+            "cases/auth/approle/create_custom_secret_id/with_options/expected_write.json",
+            "cases/auth/approle/create_custom_secret_id/with_options/expected_read.json"
         )
     }
 
