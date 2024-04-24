@@ -21,4 +21,8 @@ public enum class ListingVisibility(public val value: String) {
  * Serializer for [ListingVisibility].
  * Use the name of the enum as the serialized value after converting it to lowercase.
  */
-public object ListingVisibilitySerializer : EnumSerializer<ListingVisibility>("listingVisibility", ListingVisibility.entries, { it.value })
+public object ListingVisibilitySerializer : EnumSerializer<ListingVisibility>(
+    "listingVisibility",
+    ListingVisibility.entries,
+    { it.value }
+)

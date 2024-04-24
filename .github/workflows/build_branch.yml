@@ -40,6 +40,11 @@ jobs:
         with:
           arguments: ktlintCheck
 
+      - name: Check code style
+        uses: gradle/gradle-build-action@v3
+        with:
+          arguments: detektAll
+
   build:
     needs: [ validation, format ]
     name: Build on ${{ matrix.os }}

@@ -10,6 +10,9 @@ import io.ktor.client.HttpClient
  * Service to interact with Vault Secret Engine API.
  */
 public class VaultSecretEngine(
+    /**
+     * Key-Value version 2 service.
+     */
     public val kv2: VaultKV2Engine
 ) {
 
