@@ -110,7 +110,7 @@ class VaultAuthTokenTest : ShouldSpec({
             token,
             TOKEN_ROLE_NAME,
             null,
-            "cases/auth/token/create-with-rolename/without_options/expected.json"
+            "cases/auth/token/create_with_rolename/without_options/expected.json"
         )
     }
 
@@ -118,8 +118,8 @@ class VaultAuthTokenTest : ShouldSpec({
         assertCreateTokenRoleName(
             token,
             TOKEN_ROLE_NAME,
-            "cases/auth/token/create-with-rolename/with_options/given.json",
-            "cases/auth/token/create-with-rolename/with_options/expected.json"
+            "cases/auth/token/create_with_rolename/with_options/given.json",
+            "cases/auth/token/create_with_rolename/with_options/expected.json"
         )
     }
 
@@ -128,7 +128,7 @@ class VaultAuthTokenTest : ShouldSpec({
             token,
             TOKEN_ROLE_NAME,
             null,
-            "cases/auth/token/create-with-rolename/without_options/expected.json"
+            "cases/auth/token/create_with_rolename/without_options/expected.json"
         )
     }
 
@@ -136,8 +136,8 @@ class VaultAuthTokenTest : ShouldSpec({
         assertCreateTokenRoleNameWithBuilder(
             token,
             TOKEN_ROLE_NAME,
-            "cases/auth/token/create-with-rolename/with_options/given.json",
-            "cases/auth/token/create-with-rolename/with_options/expected.json"
+            "cases/auth/token/create_with_rolename/with_options/given.json",
+            "cases/auth/token/create_with_rolename/with_options/expected.json"
         )
     }
 
@@ -167,15 +167,15 @@ class VaultAuthTokenTest : ShouldSpec({
         assertLookupSelfToken(
             client,
             null,
-            "cases/auth/token/lookup-self/without_options/expected.json"
+            "cases/auth/token/lookup_self/without_options/expected.json"
         )
     }
 
     should("lookup the self token with all defined values") {
         assertLookupSelfToken(
             client,
-            "cases/auth/token/lookup-self/with_options/given.json",
-            "cases/auth/token/lookup-self/with_options/expected.json"
+            "cases/auth/token/lookup_self/with_options/given.json",
+            "cases/auth/token/lookup_self/with_options/expected.json"
         )
     }
 
@@ -189,15 +189,15 @@ class VaultAuthTokenTest : ShouldSpec({
         assertLookupTokenFromAccessor(
             token,
             null,
-            "cases/auth/token/lookup-accessor/without_options/expected.json"
+            "cases/auth/token/lookup_accessor/without_options/expected.json"
         )
     }
 
     should("lookup token from accessor with all defined values") {
         assertLookupTokenFromAccessor(
             token,
-            "cases/auth/token/lookup-accessor/with_options/given.json",
-            "cases/auth/token/lookup-accessor/with_options/expected.json"
+            "cases/auth/token/lookup_accessor/with_options/given.json",
+            "cases/auth/token/lookup_accessor/with_options/expected.json"
         )
     }
 
@@ -384,7 +384,7 @@ class VaultAuthTokenTest : ShouldSpec({
             token,
             TOKEN_ROLE_NAME,
             null,
-            "cases/auth/token/create-role/without_options/expected.json"
+            "cases/auth/token/create_role/without_options/expected.json"
         )
     }
 
@@ -392,8 +392,8 @@ class VaultAuthTokenTest : ShouldSpec({
         assertCreateTokenRole(
             token,
             TOKEN_ROLE_NAME,
-            "cases/auth/token/create-role/with_options/given.json",
-            "cases/auth/token/create-role/with_options/expected.json"
+            "cases/auth/token/create_role/with_options/given.json",
+            "cases/auth/token/create_role/with_options/expected.json"
         )
     }
 
@@ -402,7 +402,7 @@ class VaultAuthTokenTest : ShouldSpec({
             token,
             TOKEN_ROLE_NAME,
             null,
-            "cases/auth/token/create-role/without_options/expected.json"
+            "cases/auth/token/create_role/without_options/expected.json"
         )
     }
 
@@ -410,8 +410,8 @@ class VaultAuthTokenTest : ShouldSpec({
         assertCreateTokenRoleWithBuilder(
             token,
             TOKEN_ROLE_NAME,
-            "cases/auth/token/create-role/with_options/given.json",
-            "cases/auth/token/create-role/with_options/expected.json"
+            "cases/auth/token/create_role/with_options/given.json",
+            "cases/auth/token/create_role/with_options/expected.json"
         )
     }
 
@@ -420,7 +420,7 @@ class VaultAuthTokenTest : ShouldSpec({
             token,
             TOKEN_ROLE_NAME,
             null,
-            "cases/auth/token/create-role/without_options/expected.json"
+            "cases/auth/token/create_role/without_options/expected.json"
         )
     }
 
@@ -428,8 +428,8 @@ class VaultAuthTokenTest : ShouldSpec({
         assertUpdateTokenRole(
             token,
             TOKEN_ROLE_NAME,
-            "cases/auth/token/create-role/with_options/given.json",
-            "cases/auth/token/create-role/with_options/expected.json"
+            "cases/auth/token/create_role/with_options/given.json",
+            "cases/auth/token/create_role/with_options/expected.json"
         )
     }
 
@@ -438,7 +438,7 @@ class VaultAuthTokenTest : ShouldSpec({
             token,
             TOKEN_ROLE_NAME,
             null,
-            "cases/auth/token/create-role/without_options/expected.json"
+            "cases/auth/token/create_role/without_options/expected.json"
         )
     }
 
@@ -446,8 +446,8 @@ class VaultAuthTokenTest : ShouldSpec({
         assertUpdateTokenRoleWithBuilder(
             token,
             TOKEN_ROLE_NAME,
-            "cases/auth/token/create-role/with_options/given.json",
-            "cases/auth/token/create-role/with_options/expected.json"
+            "cases/auth/token/create_role/with_options/given.json",
+            "cases/auth/token/create_role/with_options/expected.json"
         )
     }
 
