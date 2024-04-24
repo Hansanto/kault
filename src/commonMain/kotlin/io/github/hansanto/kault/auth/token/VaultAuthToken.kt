@@ -112,7 +112,10 @@ public interface VaultAuthToken {
      * @param payload Token configuration.
      * @return Response.
      */
-    public suspend fun createToken(roleName: String, payload: TokenCreatePayload = TokenCreatePayload()): TokenCreateResponse
+    public suspend fun createToken(
+        roleName: String,
+        payload: TokenCreatePayload = TokenCreatePayload()
+    ): TokenCreateResponse
 
     /**
      * Returns information about the client token.
@@ -235,7 +238,10 @@ public interface VaultAuthToken {
      * @param payload Token role configuration.
      * @return `true` if the role was created or updated successfully, `false` otherwise.
      */
-    public suspend fun createOrUpdateTokenRole(roleName: String, payload: TokenWriteRolePayload = TokenWriteRolePayload()): Boolean
+    public suspend fun createOrUpdateTokenRole(
+        roleName: String,
+        payload: TokenWriteRolePayload = TokenWriteRolePayload()
+    ): Boolean
 
     /**
      * This endpoint deletes the named token role.

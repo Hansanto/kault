@@ -212,6 +212,13 @@ tasks {
         jvmTarget = "1.8"
     }
 
+    register("detektAll") {
+        group = JavaBasePlugin.VERIFICATION_GROUP
+        allprojects {
+            this@register.dependsOn(tasks.withType<Detekt>())
+        }
+    }
+
     clean {
         delete(dokkaOutputDir)
     }
