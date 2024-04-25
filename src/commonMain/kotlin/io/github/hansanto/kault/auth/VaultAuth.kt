@@ -175,7 +175,7 @@ public class VaultAuth(
          * Set the [tokenInfo] builder from the provided token.
          * @param token Token to use for the next requests.
          */
-        public fun setToken(token: String) {
+        public fun setTokenString(token: String) {
             tokenInfo(TokenInfo(token))
         }
 

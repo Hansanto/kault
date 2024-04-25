@@ -17,7 +17,7 @@ inline fun createVaultClient(
 ): VaultClient = VaultClient {
     url = "http://localhost:8200"
     auth {
-        setToken(ROOT_TOKEN)
+        setTokenString(ROOT_TOKEN)
         authBuilder()
     }
     httpClient { headerBuilder ->
