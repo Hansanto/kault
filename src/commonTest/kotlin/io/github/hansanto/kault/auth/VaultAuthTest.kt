@@ -107,7 +107,7 @@ class VaultAuthTest : ShouldSpec({
 
         val built = VaultAuth(client.client, parentPath) {
             path = builderPath
-            setToken(randomToken)
+            setTokenString(randomToken)
             appRole {
                 path = appRolePath
             }
