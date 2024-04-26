@@ -1,6 +1,8 @@
 package io.github.hansanto.kault
 
 import io.github.hansanto.kault.auth.VaultAuth
+import io.github.hansanto.kault.auth.token.VaultAuthToken
+import io.github.hansanto.kault.auth.token.response.toTokenInfo
 import io.github.hansanto.kault.engine.VaultSecretEngine
 import io.github.hansanto.kault.exception.VaultAPIException
 import io.github.hansanto.kault.extension.URL_PATH_SEPARATOR
@@ -79,7 +81,7 @@ public class VaultClient(
          * @param builder Builder to create the instance.
          * @return Instance of [VaultClient].
          */
-        public inline operator fun invoke(builder: BuilderDsl<Builder>): VaultClient =
+        public suspend inline operator fun invoke(builder: BuilderDsl<Builder>): VaultClient =
             Builder().apply(builder).build()
     }
 
@@ -117,6 +119,15 @@ public class VaultClient(
              * If true, the method [VaultAuth.enableAutoRenewToken] will be called after build.
              */
             public var autoRenewToken: Boolean = true
+
+            /**
+             * If true, the method [VaultAuthToken.lookupSelfToken] will be called after build
+             * to retrieve the token information and set it as the current token.
+             *
+             * Requires setting the token through [setTokenString][VaultAuth.Builder.setTokenString]
+             * or [tokenInfo][VaultAuth.Builder.tokenInfo].
+             */
+            public var lookupToken: Boolean = false
         }
 
         /**
@@ -167,7 +178,7 @@ public class VaultClient(
          * Build the instance of [VaultClient] with the values defined in builder.
          * @return A new instance.
          */
-        public fun build(): VaultClient {
+        public suspend fun build(): VaultClient {
             lateinit var vaultClient: VaultClient
             val headerBuilder: () -> Headers = {
                 buildMap { headerBuilder(vaultClient) }
@@ -184,9 +195,38 @@ public class VaultClient(
                 secret = VaultSecretEngine(client, null, this.secretBuilder)
             ).also { vaultClientBuilt ->
                 vaultClient = vaultClientBuilt
-                if (authBuilderComplete.autoRenewToken) {
-                    vaultClientBuilt.auth.enableAutoRenewToken()
+                initClient(vaultClientBuilt, authBuilderComplete)
+            }
+        }
+
+        /**
+         * Initialize the client with the builder configurations.
+         * If any error occurs, the client will be closed and the exception will be thrown.
+         * @param vaultClient Vault client built.
+         * @param authBuilder Authentication builder.
+         */
+        private suspend fun initClient(
+            vaultClient: VaultClient,
+            authBuilder: AuthBuilder
+        ) {
+            runCatching {
+                val auth = vaultClient.auth
+                if (authBuilder.lookupToken) {
+                    val token = requireNotNull(auth.getTokenString()) {
+                        "When lookupToken is true, the token must be set"
+                    }
+
+                    val lookupResponse = auth.token.lookupSelfToken()
+                    println(lookupResponse)
+                    auth.setTokenInfo(lookupResponse.toTokenInfo(token))
                 }
+
+                if (authBuilder.autoRenewToken) {
+                    auth.enableAutoRenewToken()
+                }
+            }.onFailure {
+                vaultClient.close()
+                throw it
             }
         }
 

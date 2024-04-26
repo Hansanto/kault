@@ -17,12 +17,14 @@ import io.github.hansanto.kault.util.DEFAULT_ROLE_NAME
 import io.github.hansanto.kault.util.ROOT_TOKEN
 import io.github.hansanto.kault.util.createVaultClient
 import io.github.hansanto.kault.util.enableAuthMethod
+import io.github.hansanto.kault.util.matcher.shouldBeBetween
 import io.github.hansanto.kault.util.randomLong
 import io.github.hansanto.kault.util.randomString
 import io.github.hansanto.kault.util.revokeAllAppRoleData
 import io.kotest.assertions.throwables.shouldNotThrow
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.ShouldSpec
+import io.kotest.matchers.comparables.shouldBeGreaterThan
 import io.kotest.matchers.shouldBe
 import io.ktor.utils.io.core.use
 import kotlinx.coroutines.delay
@@ -260,20 +262,19 @@ class VaultAuthTest : ShouldSpec({
         }.use {
             val tmpAuth = it.auth
 
-            val tmpToken = createRenewToken(tmpAuth, 3.seconds)
+            val tmpToken = createRenewToken(tmpAuth, 2.seconds)
             val tmpTokenInfo = tmpToken.toTokenInfo()
             val oldExpirationDate = tmpTokenInfo.expirationDate!!
             tmpAuth.setTokenInfo(tmpTokenInfo)
 
             tmpAuth.enableAutoRenewToken()
-            delay(2.5.seconds)
+            delay(1.2.seconds)
             tmpAuth.disableAutoRenewToken()
 
             val authTokenInfoAfterDelay = tmpAuth.getTokenInfo()!!
             val newExpirationDate = authTokenInfoAfterDelay.expirationDate!!
-            (newExpirationDate > oldExpirationDate + 1.seconds) &&
-                (newExpirationDate <= oldExpirationDate + 1.2.seconds) &&
-                (newExpirationDate > Clock.System.now()) shouldBe true
+            newExpirationDate shouldBeBetween (oldExpirationDate + 1.seconds)..(oldExpirationDate + 1.2.seconds)
+            newExpirationDate shouldBeGreaterThan Clock.System.now()
 
             authTokenInfoAfterDelay shouldBe tmpTokenInfo.copy(
                 expirationDate = newExpirationDate
@@ -289,19 +290,18 @@ class VaultAuthTest : ShouldSpec({
             val tmpAuth = it.auth
             tmpAuth.enableAutoRenewToken()
 
-            val tmpToken = createRenewToken(tmpAuth, 3.seconds)
+            val tmpToken = createRenewToken(tmpAuth, 2.seconds)
             val tmpTokenInfo = tmpToken.toTokenInfo()
             val oldExpirationDate = tmpTokenInfo.expirationDate!!
             tmpAuth.setTokenInfo(tmpTokenInfo)
 
-            delay(2.5.seconds)
+            delay(1.2.seconds)
             tmpAuth.disableAutoRenewToken()
 
             val authTokenInfoAfterDelay = tmpAuth.getTokenInfo()!!
             val newExpirationDate = authTokenInfoAfterDelay.expirationDate!!
-            (newExpirationDate > oldExpirationDate + 1.seconds) &&
-                (newExpirationDate <= oldExpirationDate + 1.2.seconds) &&
-                (newExpirationDate > Clock.System.now()) shouldBe true
+            newExpirationDate shouldBeBetween (oldExpirationDate + 1.seconds)..(oldExpirationDate + 1.2.seconds)
+            newExpirationDate shouldBeGreaterThan Clock.System.now()
 
             authTokenInfoAfterDelay shouldBe tmpTokenInfo.copy(
                 expirationDate = newExpirationDate
