@@ -217,7 +217,6 @@ public class VaultClient(
                     }
 
                     val lookupResponse = auth.token.lookupSelfToken()
-                    println(lookupResponse)
                     auth.setTokenInfo(lookupResponse.toTokenInfo(token))
                 }
 
