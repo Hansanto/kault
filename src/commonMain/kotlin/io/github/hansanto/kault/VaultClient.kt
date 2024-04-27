@@ -1,8 +1,6 @@
 package io.github.hansanto.kault
 
 import io.github.hansanto.kault.auth.VaultAuth
-import io.github.hansanto.kault.auth.token.VaultAuthToken
-import io.github.hansanto.kault.auth.token.response.toTokenInfo
 import io.github.hansanto.kault.engine.VaultSecretEngine
 import io.github.hansanto.kault.exception.VaultAPIException
 import io.github.hansanto.kault.extension.URL_PATH_SEPARATOR
@@ -119,15 +117,6 @@ public class VaultClient(
              * If true, the method [VaultAuth.enableAutoRenewToken] will be called after build.
              */
             public var autoRenewToken: Boolean = true
-
-            /**
-             * If true, the method [VaultAuthToken.lookupSelfToken] will be called after build
-             * to retrieve the token information and set it as the current token.
-             *
-             * Requires setting the token through [setTokenString][VaultAuth.Builder.setTokenString]
-             * or [tokenInfo][VaultAuth.Builder.tokenInfo].
-             */
-            public var lookupToken: Boolean = false
         }
 
         /**
@@ -178,7 +167,7 @@ public class VaultClient(
          * Build the instance of [VaultClient] with the values defined in builder.
          * @return A new instance.
          */
-        public suspend fun build(): VaultClient {
+        public fun build(): VaultClient {
             lateinit var vaultClient: VaultClient
             val headerBuilder: () -> Headers = {
                 buildMap { headerBuilder(vaultClient) }
@@ -210,20 +199,11 @@ public class VaultClient(
          * @param vaultClient Vault client built.
          * @param authBuilder Authentication builder.
          */
-        private suspend fun initClient(
+        private fun initClient(
             vaultClient: VaultClient,
             authBuilder: AuthBuilder
         ) {
             val auth = vaultClient.auth
-            if (authBuilder.lookupToken) {
-                val token = requireNotNull(auth.getTokenString()) {
-                    "When lookupToken is true, the token must be set"
-                }
-
-                val lookupResponse = auth.token.lookupSelfToken()
-                auth.setTokenInfo(lookupResponse.toTokenInfo(token))
-            }
-
             if (authBuilder.autoRenewToken) {
                 auth.enableAutoRenewToken()
             }

@@ -271,6 +271,22 @@ public class VaultAuth(
     }
 
     /**
+     * Retrieve the token information of the current token [tokenInfo]
+     * using the [VaultAuth.token.lookupSelfToken][VaultAuthToken.lookupSelfToken] method.
+     * If the result is different from [tokenInfo], the value is updated.
+     * @return True if the token information was updated, false otherwise.
+     */
+    public suspend fun refreshTokenInfo(): Boolean {
+        val token = getTokenString() ?: return false
+        val tokenInfo = this.token.lookupSelfToken().toTokenInfo(token)
+        if (tokenInfo != this.tokenInfo) {
+            setTokenInfo(tokenInfo)
+            return true
+        }
+        return false
+    }
+
+    /**
      * Set the [tokenInfo] from the provided token.
      * If the token is null, the [tokenInfo] will be null.
      * Otherwise, the [tokenInfo] will be a new instance of [TokenInfo] with the provided token only.

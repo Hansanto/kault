@@ -13,7 +13,37 @@ import kotlin.time.Duration.Companion.milliseconds
 
 class TokenCreateResponseTest : ShouldSpec({
 
-    should("transform TokenCreateResponse to TokenInfo") {
+    should("transform to TokenInfo and set to null expiration if leaseDuration is zero") {
+        val response = TokenCreateResponse(
+            clientToken = randomString(),
+            accessor = randomString(),
+            policies = List(5) { randomString() },
+            tokenPolicies = List(5) { randomString() },
+            metadata = mapOf(randomString() to randomString()),
+            leaseDuration = 0L.milliseconds,
+            renewable = randomBoolean(),
+            entityId = randomString(),
+            tokenType = TokenType.entries.random(),
+            orphan = randomBoolean(),
+            numUses = randomLong()
+        )
+
+        val toTokenInfo = response.toTokenInfo()
+        toTokenInfo shouldBe TokenInfo(
+            token = response.clientToken,
+            accessor = response.accessor,
+            tokenPolicies = response.tokenPolicies,
+            metadata = response.metadata!!,
+            expirationDate = null,
+            renewable = response.renewable,
+            entityId = response.entityId,
+            tokenType = response.tokenType,
+            orphan = response.orphan,
+            numUses = response.numUses
+        )
+    }
+
+    should("transform to TokenInfo") {
         val response = TokenCreateResponse(
             clientToken = randomString(),
             accessor = randomString(),
