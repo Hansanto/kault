@@ -195,13 +195,18 @@ public class VaultClient(
                 secret = VaultSecretEngine(client, null, this.secretBuilder)
             ).also { vaultClientBuilt ->
                 vaultClient = vaultClientBuilt
-                initClient(vaultClientBuilt, authBuilderComplete)
+
+                runCatching {
+                    initClient(vaultClientBuilt, authBuilderComplete)
+                }.onFailure { ex ->
+                    vaultClientBuilt.close()
+                    throw ex
+                }
             }
         }
 
         /**
          * Initialize the client with the builder configurations.
-         * If any error occurs, the client will be closed and the exception will be thrown.
          * @param vaultClient Vault client built.
          * @param authBuilder Authentication builder.
          */
@@ -209,23 +214,18 @@ public class VaultClient(
             vaultClient: VaultClient,
             authBuilder: AuthBuilder
         ) {
-            runCatching {
-                val auth = vaultClient.auth
-                if (authBuilder.lookupToken) {
-                    val token = requireNotNull(auth.getTokenString()) {
-                        "When lookupToken is true, the token must be set"
-                    }
-
-                    val lookupResponse = auth.token.lookupSelfToken()
-                    auth.setTokenInfo(lookupResponse.toTokenInfo(token))
+            val auth = vaultClient.auth
+            if (authBuilder.lookupToken) {
+                val token = requireNotNull(auth.getTokenString()) {
+                    "When lookupToken is true, the token must be set"
                 }
 
-                if (authBuilder.autoRenewToken) {
-                    auth.enableAutoRenewToken()
-                }
-            }.onFailure {
-                vaultClient.close()
-                throw it
+                val lookupResponse = auth.token.lookupSelfToken()
+                auth.setTokenInfo(lookupResponse.toTokenInfo(token))
+            }
+
+            if (authBuilder.autoRenewToken) {
+                auth.enableAutoRenewToken()
             }
         }
 
