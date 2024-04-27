@@ -79,7 +79,7 @@ public class VaultClient(
          * @param builder Builder to create the instance.
          * @return Instance of [VaultClient].
          */
-        public suspend inline operator fun invoke(builder: BuilderDsl<Builder>): VaultClient =
+        public inline operator fun invoke(builder: BuilderDsl<Builder>): VaultClient =
             Builder().apply(builder).build()
     }
 
