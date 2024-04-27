@@ -1,5 +1,24 @@
 # Changelog
 
+## [1.2.0](https://github.com/Hansanto/kault/compare/v1.1.1...v1.2.0) (2024-04-27)
+
+
+### Features
+
+* Add refresh token info ([#74](https://github.com/Hansanto/kault/issues/74)) ([9db61b5](https://github.com/Hansanto/kault/commit/9db61b52f6d257e8a56eba146d64dc407088aeab))
+* Auto renew token ([#61](https://github.com/Hansanto/kault/issues/61)) ([22ca9c6](https://github.com/Hansanto/kault/commit/22ca9c6de99ef3260f351c16739330054b4ff4c7))
+* Implement token auth service ([#58](https://github.com/Hansanto/kault/issues/58)) ([4cd1b7e](https://github.com/Hansanto/kault/commit/4cd1b7ecd82042a08606ce0c2cf5c0c6eb98115b))
+
+
+### Bug Fixes
+
+* Auto renew by default ([#62](https://github.com/Hansanto/kault/issues/62)) ([6a15121](https://github.com/Hansanto/kault/commit/6a15121cb56ec1f6e9abe8407fda7738eedb9462))
+* **deps:** update dependency org.jetbrains.kotlinx:kotlinx-io-core to v0.3.3 ([#63](https://github.com/Hansanto/kault/issues/63)) ([0d94139](https://github.com/Hansanto/kault/commit/0d941397e84c8ac2d9fb46dd6f655c083e332761))
+* **deps:** update dependency org.slf4j:slf4j-simple to v2.0.13 ([#59](https://github.com/Hansanto/kault/issues/59)) ([d36f7c4](https://github.com/Hansanto/kault/commit/d36f7c46f55b18b954d720b759d87a23b3a5f7b5))
+* Rename function to avoid conflict ([#71](https://github.com/Hansanto/kault/issues/71)) ([7039dea](https://github.com/Hansanto/kault/commit/7039dea5c34de74918e185e3b88579acaab311d4))
+* Set token string from builder ([#73](https://github.com/Hansanto/kault/issues/73)) ([06503d7](https://github.com/Hansanto/kault/commit/06503d726e67deaef767892f76eef157a6ab5bad))
+* Use self renew token ([#64](https://github.com/Hansanto/kault/issues/64)) ([dddc4b3](https://github.com/Hansanto/kault/commit/dddc4b37ec13fb0ae8264400dfee229d9c2ccf3a))
+
 ## [1.1.1](https://github.com/Hansanto/kault/compare/v1.1.0...v1.1.1) (2024-03-31)
 
 
