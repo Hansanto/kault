@@ -184,9 +184,28 @@ public class VaultClient(
                 secret = VaultSecretEngine(client, null, this.secretBuilder)
             ).also { vaultClientBuilt ->
                 vaultClient = vaultClientBuilt
-                if (authBuilderComplete.autoRenewToken) {
-                    vaultClientBuilt.auth.enableAutoRenewToken()
+
+                runCatching {
+                    initClient(vaultClientBuilt, authBuilderComplete)
+                }.onFailure { ex ->
+                    vaultClientBuilt.close()
+                    throw ex
                 }
+            }
+        }
+
+        /**
+         * Initialize the client with the builder configurations.
+         * @param vaultClient Vault client built.
+         * @param authBuilder Authentication builder.
+         */
+        private fun initClient(
+            vaultClient: VaultClient,
+            authBuilder: AuthBuilder
+        ) {
+            val auth = vaultClient.auth
+            if (authBuilder.autoRenewToken) {
+                auth.enableAutoRenewToken()
             }
         }
 

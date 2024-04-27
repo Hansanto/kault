@@ -17,7 +17,7 @@ public fun TokenCreateResponse.toTokenInfo(): TokenInfo = TokenInfo(
     accessor = accessor,
     tokenPolicies = tokenPolicies,
     metadata = metadata ?: emptyMap(),
-    expirationDate = Clock.System.now().plus(leaseDuration),
+    expirationDate = if (leaseDuration == VaultDuration.ZERO) null else Clock.System.now().plus(leaseDuration),
     renewable = renewable,
     entityId = entityId,
     tokenType = tokenType,

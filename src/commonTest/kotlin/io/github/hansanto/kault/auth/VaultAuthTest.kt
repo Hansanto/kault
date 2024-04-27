@@ -17,12 +17,17 @@ import io.github.hansanto.kault.util.DEFAULT_ROLE_NAME
 import io.github.hansanto.kault.util.ROOT_TOKEN
 import io.github.hansanto.kault.util.createVaultClient
 import io.github.hansanto.kault.util.enableAuthMethod
+import io.github.hansanto.kault.util.matcher.shouldBeBetween
 import io.github.hansanto.kault.util.randomLong
 import io.github.hansanto.kault.util.randomString
 import io.github.hansanto.kault.util.revokeAllAppRoleData
+import io.github.hansanto.kault.util.revokeAllTokenData
 import io.kotest.assertions.throwables.shouldNotThrow
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.ShouldSpec
+import io.kotest.matchers.comparables.shouldBeGreaterThan
+import io.kotest.matchers.comparables.shouldBeLessThan
+import io.kotest.matchers.comparables.shouldBeLessThanOrEqualTo
 import io.kotest.matchers.shouldBe
 import io.ktor.utils.io.core.use
 import kotlinx.coroutines.delay
@@ -45,6 +50,7 @@ class VaultAuthTest : ShouldSpec({
 
         enableAuthMethod(client, "approle")
         revokeAllAppRoleData(client)
+        revokeAllTokenData(client)
     }
 
     afterTest {
@@ -164,6 +170,27 @@ class VaultAuthTest : ShouldSpec({
         }.getTokenInfo() shouldBe tokenInfo
     }
 
+    should("do nothing when refresh token info with null token") {
+        auth.setTokenInfo(null)
+        auth.refreshTokenInfo() shouldBe false
+        auth.getTokenInfo() shouldBe null
+    }
+
+    should("do nothing when refresh token info is equals to the current token") {
+        val newToken = auth.token.createToken()
+        val tokenInfo = newToken.toTokenInfo()
+        auth.setTokenInfo(tokenInfo)
+        auth.refreshTokenInfo() shouldBe false
+        auth.getTokenInfo() shouldBe tokenInfo
+    }
+
+    should("refresh token info if only the token string is set") {
+        val newToken = auth.token.createToken()
+        auth.setTokenString(newToken.clientToken)
+        auth.refreshTokenInfo() shouldBe true
+        auth.getTokenInfo() shouldBe newToken.toTokenInfo()
+    }
+
     should("start auto renew job when creating a new instance") {
         val tokenCreated = client.auth.token.createToken {
             renewable = true
@@ -183,8 +210,8 @@ class VaultAuthTest : ShouldSpec({
             val newTokenInfoAfterDelay = it.auth.getTokenInfo()!!
             val newExpirationDate = newTokenInfoAfterDelay.expirationDate!!
 
-            (newExpirationDate > Clock.System.now()) shouldBe true
-            (tokenExpirationDate < newExpirationDate) shouldBe true
+            newExpirationDate shouldBeGreaterThan Clock.System.now()
+            tokenExpirationDate shouldBeLessThan newExpirationDate
             newTokenInfoAfterDelay shouldBe tokenCreatedInfo.copy(
                 expirationDate = newExpirationDate
             )
@@ -260,20 +287,19 @@ class VaultAuthTest : ShouldSpec({
         }.use {
             val tmpAuth = it.auth
 
-            val tmpToken = createRenewToken(tmpAuth, 3.seconds)
+            val tmpToken = createRenewToken(tmpAuth, 2.seconds)
             val tmpTokenInfo = tmpToken.toTokenInfo()
             val oldExpirationDate = tmpTokenInfo.expirationDate!!
             tmpAuth.setTokenInfo(tmpTokenInfo)
 
             tmpAuth.enableAutoRenewToken()
-            delay(2.5.seconds)
+            delay(1.2.seconds)
             tmpAuth.disableAutoRenewToken()
 
             val authTokenInfoAfterDelay = tmpAuth.getTokenInfo()!!
             val newExpirationDate = authTokenInfoAfterDelay.expirationDate!!
-            (newExpirationDate > oldExpirationDate + 1.seconds) &&
-                (newExpirationDate <= oldExpirationDate + 1.2.seconds) &&
-                (newExpirationDate > Clock.System.now()) shouldBe true
+            newExpirationDate shouldBeBetween (oldExpirationDate + 1.seconds)..(oldExpirationDate + 1.2.seconds)
+            newExpirationDate shouldBeGreaterThan Clock.System.now()
 
             authTokenInfoAfterDelay shouldBe tmpTokenInfo.copy(
                 expirationDate = newExpirationDate
@@ -289,19 +315,18 @@ class VaultAuthTest : ShouldSpec({
             val tmpAuth = it.auth
             tmpAuth.enableAutoRenewToken()
 
-            val tmpToken = createRenewToken(tmpAuth, 3.seconds)
+            val tmpToken = createRenewToken(tmpAuth, 2.seconds)
             val tmpTokenInfo = tmpToken.toTokenInfo()
             val oldExpirationDate = tmpTokenInfo.expirationDate!!
             tmpAuth.setTokenInfo(tmpTokenInfo)
 
-            delay(2.5.seconds)
+            delay(1.2.seconds)
             tmpAuth.disableAutoRenewToken()
 
             val authTokenInfoAfterDelay = tmpAuth.getTokenInfo()!!
             val newExpirationDate = authTokenInfoAfterDelay.expirationDate!!
-            (newExpirationDate > oldExpirationDate + 1.seconds) &&
-                (newExpirationDate <= oldExpirationDate + 1.2.seconds) &&
-                (newExpirationDate > Clock.System.now()) shouldBe true
+            newExpirationDate shouldBeBetween (oldExpirationDate + 1.seconds)..(oldExpirationDate + 1.2.seconds)
+            newExpirationDate shouldBeGreaterThan Clock.System.now()
 
             authTokenInfoAfterDelay shouldBe tmpTokenInfo.copy(
                 expirationDate = newExpirationDate
@@ -324,7 +349,8 @@ class VaultAuthTest : ShouldSpec({
             fun verifyNewTokenInfo() {
                 val authTokenInfoAfterDelay = tmpAuth.getTokenInfo()!!
                 val newExpirationDate = authTokenInfoAfterDelay.expirationDate!!
-                (newExpirationDate > previousExpirationDate) && (newExpirationDate > Clock.System.now()) shouldBe true
+                newExpirationDate shouldBeGreaterThan previousExpirationDate
+                newExpirationDate shouldBeGreaterThan Clock.System.now()
 
                 authTokenInfoAfterDelay shouldBe tmpTokenInfo.copy(
                     expirationDate = newExpirationDate
@@ -356,16 +382,18 @@ class VaultAuthTest : ShouldSpec({
 
     should("not renew token if auto-renew is disabled before setting new token") {
         auth.disableAutoRenewToken()
+        val leaseDuration = 1.seconds
 
-        val tmpToken = createRenewToken(auth, 100.milliseconds)
+        val tmpToken = createRenewToken(auth, leaseDuration)
+        tmpToken.leaseDuration shouldBe leaseDuration
         val tmpTokenInfo = tmpToken.toTokenInfo()
         auth.setTokenInfo(tmpTokenInfo)
 
-        delay(1.seconds)
+        delay(leaseDuration + 200.milliseconds)
 
         val authTokenInfoAfterDelay = auth.getTokenInfo()!!
         authTokenInfoAfterDelay shouldBe tmpTokenInfo
-        (authTokenInfoAfterDelay.expirationDate!! <= Clock.System.now()) shouldBe true
+        authTokenInfoAfterDelay.expirationDate!! shouldBeLessThanOrEqualTo Clock.System.now()
     }
 
     should("not renew token if auto-renew is disabled before expiration of the new token") {
@@ -393,6 +421,8 @@ private suspend fun createRenewToken(auth: VaultAuth, leaseDuration: VaultDurati
     return tokenService.createToken {
         this.renewable = true
         this.ttl = leaseDuration
+        noParent = true
+        period = leaseDuration
     }
 }
 

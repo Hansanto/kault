@@ -1,10 +1,30 @@
 package io.github.hansanto.kault.auth.token.response
 
+import io.github.hansanto.kault.auth.common.common.TokenInfo
 import io.github.hansanto.kault.auth.common.common.TokenType
 import io.github.hansanto.kault.serializer.VaultDuration
 import kotlinx.datetime.Instant
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+
+/**
+ * Build an instance of [TokenInfo] from the [TokenLookupResponse].
+ * @receiver The response from the token lookup request.
+ * @param token The token that was looked up.
+ * @return All information about the token.
+ */
+public fun TokenLookupResponse.toTokenInfo(token: String): TokenInfo = TokenInfo(
+    token = token,
+    accessor = accessor,
+    tokenPolicies = policies,
+    metadata = metadata ?: emptyMap(),
+    expirationDate = expireTime,
+    renewable = renewable,
+    entityId = entityId,
+    tokenType = tokenType,
+    orphan = orphan,
+    numUses = numUses
+)
 
 @Serializable
 public data class TokenLookupResponse(
@@ -36,7 +56,7 @@ public data class TokenLookupResponse(
     public val issueTime: Instant,
 
     @SerialName("meta")
-    public val meta: Map<String, String>?,
+    public val metadata: Map<String, String>?,
 
     @SerialName("num_uses")
     public val numUses: Long,
@@ -57,6 +77,6 @@ public data class TokenLookupResponse(
     public val ttl: VaultDuration,
 
     @SerialName("type")
-    public val type: TokenType
+    public val tokenType: TokenType
 
 )

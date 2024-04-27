@@ -1,8 +1,10 @@
 package io.github.hansanto.kault
 
+import io.github.hansanto.kault.util.VAULT_URL
 import io.github.hansanto.kault.util.createVaultClient
 import io.github.hansanto.kault.util.randomBoolean
 import io.github.hansanto.kault.util.randomString
+import io.github.hansanto.kault.util.revokeAllTokenData
 import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
 import io.ktor.utils.io.core.use
@@ -10,9 +12,15 @@ import kotlinx.coroutines.isActive
 
 class VaultClientTest : ShouldSpec({
 
+    beforeTest {
+        createVaultClient().use {
+            revokeAllTokenData(it)
+        }
+    }
+
     should("use default values if not set in builder") {
         val built = VaultClient {
-            url = "http://localhost:8200"
+            url = VAULT_URL
         }
         built.auth.autoRenewToken shouldBe true
     }
