@@ -14,7 +14,7 @@ dependencyResolutionManagement {
             version("kotest", "5.8.1")
             version("kover", "0.7.6")
             version("kotlinx-datetime", "0.5.0")
-            version("kotlinx-coroutines", "1.8.0")
+            version("kotlinx-coroutines", "1.8.1")
             version("kotlinx-io", "0.3.4")
             version("resources", "0.4.1")
             version("slf4j", "2.0.13")
