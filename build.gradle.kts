@@ -51,21 +51,24 @@ detekt {
     reportsDir = reportFolder.resolve("detekt")
 }
 
-koverReport {
-    val reportKoverFolder = reportFolder.resolve("kover")
-    defaults {
-        xml {
-            this.setReportFile(reportKoverFolder.resolve("xml/result.xml"))
-        }
-        html {
-            this.setReportDir(reportKoverFolder.resolve("html"))
-        }
-    }
+kover {
+    reports {
+        val reportKoverFolder = reportFolder.resolve("kover")
 
-    filters {
-        excludes {
-            packages("*.payload", "*.response", "*.common")
-            classes("*Exception")
+        total {
+            xml {
+                this.xmlFile.set(reportKoverFolder.resolve("xml/result.xml"))
+            }
+            html {
+                this.htmlDir.set(reportKoverFolder.resolve("html"))
+            }
+        }
+
+        filters {
+            excludes {
+                packages("*.payload", "*.response", "*.common")
+                classes("*Exception")
+            }
         }
     }
 }
