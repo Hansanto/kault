@@ -8,7 +8,7 @@ pluginManagement {
 dependencyResolutionManagement {
     versionCatalogs {
         create("libs") {
-            version("kotlin", "1.9.24")
+            version("kotlin", "2.0.0")
             version("ktor", "3.0.0-beta-1")
             version("kotlin-serialization", "1.6.3")
             version("kotest", "5.9.1")
@@ -16,7 +16,6 @@ dependencyResolutionManagement {
             version("kotlinx-datetime", "0.6.0")
             version("kotlinx-coroutines", "1.8.1")
             version("kotlinx-io", "0.3.5")
-            version("resources", "0.4.1")
             version("slf4j", "2.0.13")
             version("dokka", "1.9.20")
             version("detekt", "1.23.6")
@@ -30,7 +29,6 @@ dependencyResolutionManagement {
             plugin("dokka", "org.jetbrains.dokka").versionRef("dokka")
             plugin("detekt", "io.gitlab.arturbosch.detekt").versionRef("detekt")
             plugin("ktlint", "org.jlleitschuh.gradle.ktlint").versionRef("ktlint")
-            plugin("resources", "com.goncalossilva.resources").versionRef("resources")
             plugin("gradle-publish", "io.github.gradle-nexus.publish-plugin").versionRef("publish")
 
             library("ktor-core", "io.ktor", "ktor-client-core").versionRef("ktor")
@@ -52,8 +50,6 @@ dependencyResolutionManagement {
             library("kotest-engine", "io.kotest", "kotest-framework-engine").versionRef("kotest")
             library("kotest-junit5", "io.kotest", "kotest-runner-junit5").versionRef("kotest")
             library("kotest-json", "io.kotest", "kotest-assertions-json").versionRef("kotest")
-
-            library("resources", "com.goncalossilva", "resources").versionRef("resources")
 
             library("slf4j-simple", "org.slf4j", "slf4j-simple").versionRef("slf4j")
 

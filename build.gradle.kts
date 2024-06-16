@@ -11,7 +11,6 @@ plugins {
         alias(dokka)
         alias(detekt)
         alias(ktlint)
-        alias(resources)
         alias(gradle.publish)
     }
     `maven-publish`
@@ -76,8 +75,8 @@ kover {
 kotlin {
     explicitApi = org.jetbrains.kotlin.gradle.dsl.ExplicitApiMode.Strict
 
+    jvmToolchain(8)
     jvm {
-        jvmToolchain(8)
         withJava()
         testRuns.named("test") {
             executionTask.configure {
@@ -127,7 +126,6 @@ kotlin {
                 implementation(kotlin("test"))
                 implementation(libs.bundles.kotest.common)
                 implementation(libs.ktor.logging)
-                implementation(libs.resources)
                 implementation(libs.kt.io)
             }
         }
