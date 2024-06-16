@@ -76,6 +76,7 @@ jobs:
         with:
           arguments: build
         env:
+          KOTEST_DEBUG: true
           KUBERNETES_IP: ${{ steps.kubernetes.outputs.ip }}
           KUBERNETES_PORT: ${{ steps.kubernetes.outputs.port }}
           KUBERNETES_TOKEN: ${{ steps.kubernetes.outputs.token }}
