@@ -9,3 +9,4 @@ dokka
 *.tmp
 
 kotlin-js-store
+.kotlin
