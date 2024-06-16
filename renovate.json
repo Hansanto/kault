@@ -6,13 +6,5 @@
   "labels": [
     "dependencies"
   ],
-  "automerge": true,
-  "packageRules": [
-    {
-      "dependencyDashboardApproval": true,
-      "matchUpdateTypes": [
-        "major"
-      ]
-    }
-  ]
+  "automerge": true
 }
