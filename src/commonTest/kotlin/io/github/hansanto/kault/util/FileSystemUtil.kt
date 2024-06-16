@@ -25,7 +25,6 @@ fun Path.readLines(): String {
  */
 tailrec fun findFileInParentDirectories(fileName: String, startFolder: Path = workingDirectory()): Path? {
     val filePath = Path(startFolder, fileName)
-    println(filePath)
     if (filePath.exists()) {
         return filePath
     }
