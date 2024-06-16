@@ -1,7 +1,6 @@
 package io.github.hansanto.kault.util
 
 import io.github.hansanto.kault.VaultClient
-import io.kotest.mpp.log
 import kotlinx.io.files.Path
 
 /**
@@ -10,12 +9,7 @@ import kotlinx.io.files.Path
  * @return Resource object to read the file content.
  */
 fun String.asResourceFile(): Path {
-    val path = Path(workingDirectory(), "src/commonTest/resources/$this")
-    log { "Resource file: $path, exists: ${path.exists()}" }
-    if (!path.exists()) {
-        throw IllegalStateException("Resource file [$this] is not found")
-    }
-    return path
+    return findFileInParentDirectories("src/commonTest/resources/$this") ?: error("Resource file not found: $this")
 }
 
 /**
