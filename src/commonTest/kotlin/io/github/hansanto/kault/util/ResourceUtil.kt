@@ -1,15 +1,15 @@
 package io.github.hansanto.kault.util
 
-import com.goncalossilva.resources.Resource
 import io.github.hansanto.kault.VaultClient
+import kotlinx.io.files.Path
 
 /**
  * Allows searching for a file in the resources test folder.
  * @receiver Path of the file that should be present in the resource folder.
  * @return Resource object to read the file content.
  */
-fun String.asResourceFile(): Resource {
-    return Resource("src/commonTest/resources/$this")
+fun String.asResourceFile(): Path {
+    return findFileInParentDirectories("src/commonTest/resources/$this") ?: error("Resource file not found: $this")
 }
 
 /**
@@ -19,5 +19,5 @@ fun String.asResourceFile(): Resource {
  * @return Object of type T.
  */
 inline fun <reified T> readJson(name: String): T {
-    return VaultClient.json.decodeFromString(name.asResourceFile().readText())
+    return VaultClient.json.decodeFromString(name.asResourceFile().readLines())
 }
