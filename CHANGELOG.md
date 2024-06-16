@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.2.1](https://github.com/Hansanto/kault/compare/v1.2.0...v1.2.1) (2024-06-16)
+
+
+### Bug Fixes
+
+* **deps:** update dependency org.jetbrains.kotlinx:kotlinx-coroutines-core to v1.8.1 ([#79](https://github.com/Hansanto/kault/issues/79)) ([7c38cea](https://github.com/Hansanto/kault/commit/7c38cea0fd09abc358b8bd37bf8da3f4ef2ec3e8))
+* **deps:** update dependency org.jetbrains.kotlinx:kotlinx-datetime to v0.6.0 ([#80](https://github.com/Hansanto/kault/issues/80)) ([0584fd2](https://github.com/Hansanto/kault/commit/0584fd2e10bac38e31310dc820fb450c00caab78))
+* **deps:** update dependency org.jetbrains.kotlinx:kotlinx-io-core to v0.3.4 ([#76](https://github.com/Hansanto/kault/issues/76)) ([37938e9](https://github.com/Hansanto/kault/commit/37938e92b035eac135821685db322319a3e25f99))
+* **deps:** update dependency org.jetbrains.kotlinx:kotlinx-io-core to v0.3.5 ([#83](https://github.com/Hansanto/kault/issues/83)) ([5827014](https://github.com/Hansanto/kault/commit/5827014eb36155b75030cf2df394fcb38df4259c))
+* **deps:** update dependency org.jetbrains.kotlinx:kotlinx-io-core to v0.4.0 ([#88](https://github.com/Hansanto/kault/issues/88)) ([f508f36](https://github.com/Hansanto/kault/commit/f508f36cca647b5cb85f91d5d48f5a2941c9079e))
+* **deps:** update dependency org.jetbrains.kotlinx:kotlinx-serialization-json to v1.7.0 ([#89](https://github.com/Hansanto/kault/issues/89)) ([f8ed250](https://github.com/Hansanto/kault/commit/f8ed250ca14ca49064b3050f7b2e0dbb87afd53e))
+* **deps:** update kotest to v5.9.0 ([#78](https://github.com/Hansanto/kault/issues/78)) ([61eb1f8](https://github.com/Hansanto/kault/commit/61eb1f8c77ae42c36f6cb175803dd4e5be3654d6))
+* **deps:** update kotest to v5.9.1 ([#87](https://github.com/Hansanto/kault/issues/87)) ([1046bc1](https://github.com/Hansanto/kault/commit/1046bc125941f17ed933c9e70e2802b8b71486fc))
+
 ## [1.2.0](https://github.com/Hansanto/kault/compare/v1.1.1...v1.2.0) (2024-04-27)
 
 
