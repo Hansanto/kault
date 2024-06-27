@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.2](https://github.com/Hansanto/kault/compare/v1.2.1...v1.2.2) (2024-06-27)
+
+
+### Bug Fixes
+
+* **deps:** update dependency org.jetbrains.kotlinx:kotlinx-serialization-json to v1.7.1 ([#95](https://github.com/Hansanto/kault/issues/95)) ([c3272a7](https://github.com/Hansanto/kault/commit/c3272a7e48034dc3f8a9137bd9f5cef43ccb0608))
+
 ## [1.2.1](https://github.com/Hansanto/kault/compare/v1.2.0...v1.2.1) (2024-06-16)
 
 
