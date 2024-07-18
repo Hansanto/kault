@@ -1,5 +1,6 @@
 import io.gitlab.arturbosch.detekt.Detekt
 import io.gitlab.arturbosch.detekt.DetektCreateBaselineTask
+import org.jetbrains.kotlin.gradle.targets.js.dsl.KotlinJsTargetDsl
 import org.jlleitschuh.gradle.ktlint.reporter.ReporterType
 
 plugins {
@@ -75,7 +76,7 @@ kover {
 kotlin {
     explicitApi = org.jetbrains.kotlin.gradle.dsl.ExplicitApiMode.Strict
     jvmToolchain(8)
-    
+
     iosX64()
     iosArm64()
     iosSimulatorArm64()
@@ -89,7 +90,7 @@ kotlin {
      * - ktor
      * - kotest
      */
-    //watchosDeviceArm64()
+    // watchosDeviceArm64()
     watchosX64()
     watchosSimulatorArm64()
     linuxX64()
@@ -104,20 +105,26 @@ kotlin {
             }
         }
     }
-    js(IR) {
+
+    fun KotlinJsTargetDsl.jsAndWasmSharedConfigurationTarget() {
         nodejs()
         binaries.library()
         useCommonJs()
         generateTypeScriptDefinitions()
     }
-    wasmJs()
+    js {
+        jsAndWasmSharedConfigurationTarget()
+    }
+    wasmJs {
+        jsAndWasmSharedConfigurationTarget()
+    }
     /**
      * Not supported yet by:
      * - ktor
      * - kotlinx-datetime
      * - kotest
      */
-    //wasmWasi()
+    // wasmWasi()
 
     sourceSets {
         all {
