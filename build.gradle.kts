@@ -74,10 +74,30 @@ kover {
 
 kotlin {
     explicitApi = org.jetbrains.kotlin.gradle.dsl.ExplicitApiMode.Strict
-
     jvmToolchain(8)
+    
+    iosX64()
+    iosArm64()
+    iosSimulatorArm64()
+    tvosX64()
+    tvosArm64()
+    tvosSimulatorArm64()
+    watchosArm32()
+    watchosArm64()
+    /**
+     * Not supported yet by:
+     * - ktor
+     * - kotest
+     */
+    //watchosDeviceArm64()
+    watchosX64()
+    watchosSimulatorArm64()
+    linuxX64()
+    linuxArm64()
+    macosX64()
+    macosArm64()
+    mingwX64()
     jvm {
-        withJava()
         testRuns.named("test") {
             executionTask.configure {
                 useJUnitPlatform()
@@ -90,21 +110,14 @@ kotlin {
         useCommonJs()
         generateTypeScriptDefinitions()
     }
-
-    val hostOs = System.getProperty("os.name")
-    val isMacOs = hostOs == "Mac OS X"
-    val isLinux = hostOs == "Linux"
-    val isWindows = hostOs.startsWith("Windows")
-
-    val isArm64 = System.getProperty("os.arch") == "aarch64"
-    when {
-        isMacOs && isArm64 -> macosArm64("native")
-        isMacOs && !isArm64 -> macosX64("native")
-        isLinux && isArm64 -> linuxArm64("native")
-        isLinux && !isArm64 -> linuxX64("native")
-        isWindows -> mingwX64("native")
-        else -> throw GradleException("Host OS is not supported in Kotlin/Native.")
-    }
+    wasmJs()
+    /**
+     * Not supported yet by:
+     * - ktor
+     * - kotlinx-datetime
+     * - kotest
+     */
+    //wasmWasi()
 
     sourceSets {
         all {
@@ -130,7 +143,6 @@ kotlin {
             }
         }
 
-        val jvmMain by getting
         val jvmTest by getting {
             dependencies {
                 implementation(libs.ktor.cio)
@@ -139,23 +151,35 @@ kotlin {
             }
         }
 
-        val jsMain by getting
         val jsTest by getting {
             dependencies {
                 implementation(libs.ktor.js)
             }
         }
 
-        val nativeMain by getting
-        val nativeTest by getting {
+        val mingwX64Test by getting {
             dependencies {
-                if (isWindows) {
-                    implementation(libs.ktor.winhttp)
-                } else if (isMacOs) {
-                    implementation(libs.ktor.darwin)
-                } else {
-                    implementation(libs.ktor.cio)
-                }
+                implementation(libs.ktor.winhttp)
+            }
+        }
+        val linuxArm64Test by getting {
+            dependencies {
+                implementation(libs.ktor.cio)
+            }
+        }
+        val linuxX64Test by getting {
+            dependencies {
+                implementation(libs.ktor.cio)
+            }
+        }
+        val macosArm64Test by getting {
+            dependencies {
+                implementation(libs.ktor.darwin)
+            }
+        }
+        val macosX64Test by getting {
+            dependencies {
+                implementation(libs.ktor.darwin)
             }
         }
     }

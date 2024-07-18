@@ -53,6 +53,30 @@ jobs:
       matrix:
         include:
           - os: ubuntu-latest
+          - os: windows-latest
+          - os: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Initialization
+        id: init
+        uses: ./.github/actions/init
+        with:
+          jdk: 21
+
+      - name: Build
+        uses: gradle/gradle-build-action@v3
+        with:
+          arguments: assemble
+
+  test:
+    needs: [ validation, format, build ]
+    name: Test on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
     #          - os: windows-latest -> No matching manifest when pulling Vault image
     #          - os: macos-latest -> Docker-compose command not found
     steps:
