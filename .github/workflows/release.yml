@@ -22,7 +22,7 @@ jobs:
 
   publish:
     needs: release
-    runs-on: ubuntu-latest
+    runs-on: macos-latest # MacOS is able to build all platforms
     if: ${{ needs.release.outputs.release_created }}
     steps:
 
