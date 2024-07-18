@@ -115,9 +115,9 @@ kotlin {
     js {
         jsAndWasmSharedConfigurationTarget()
     }
-    wasmJs {
-        jsAndWasmSharedConfigurationTarget()
-    }
+//    wasmJs {
+//        jsAndWasmSharedConfigurationTarget()
+//    }
     /**
      * Not supported yet by:
      * - ktor
