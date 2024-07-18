@@ -115,9 +115,12 @@ kotlin {
     js {
         jsAndWasmSharedConfigurationTarget()
     }
-    wasmJs {
-        jsAndWasmSharedConfigurationTarget()
-    }
+    /**
+     * Bug during tests execution
+     */
+    // wasmJs {
+    //     jsAndWasmSharedConfigurationTarget()
+    // }
     /**
      * Not supported yet by:
      * - ktor
