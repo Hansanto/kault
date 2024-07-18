@@ -68,7 +68,7 @@ jobs:
           arguments: assemble
 
   test:
-    needs: [ validation, format, build ]
+    needs: [ validation, format ]
     name: Test
     runs-on: ${{ matrix.os }}
     strategy:
