@@ -36,12 +36,12 @@ jobs:
         uses: ./.github/actions/init
 
       - name: Check format
-        uses: gradle/gradle-build-action@v3
+        uses: gradle/actions/setup-gradle@v3
         with:
           arguments: ktlintCheck
 
       - name: Check code style
-        uses: gradle/gradle-build-action@v3
+        uses: gradle/actions/setup-gradle@v3
         with:
           arguments: detektAll
 
@@ -63,7 +63,7 @@ jobs:
           jdk: 21
 
       - name: Build
-        uses: gradle/gradle-build-action@v3
+        uses: gradle/actions/setup-gradle@v3
         with:
           arguments: assemble
 
@@ -94,7 +94,7 @@ jobs:
         run: docker-compose up -d
 
       - name: Test
-        uses: gradle/gradle-build-action@v3
+        uses: gradle/actions/setup-gradle@v3
         with:
           arguments: allTests
         env:
