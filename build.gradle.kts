@@ -1,5 +1,8 @@
 import io.gitlab.arturbosch.detekt.Detekt
 import io.gitlab.arturbosch.detekt.DetektCreateBaselineTask
+import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 import org.jetbrains.kotlin.gradle.targets.js.dsl.KotlinJsTargetDsl
 import org.jlleitschuh.gradle.ktlint.reporter.ReporterType
 
@@ -73,32 +76,19 @@ kover {
     }
 }
 
+val jvmTargetVersion = JvmTarget.JVM_1_8
+val jvmTargetVersionNumber = 8
+
 kotlin {
     explicitApi = org.jetbrains.kotlin.gradle.dsl.ExplicitApiMode.Strict
-    jvmToolchain(8)
+    jvmToolchain(jvmTargetVersionNumber)
 
-    iosX64()
-    iosArm64()
-    iosSimulatorArm64()
-    tvosX64()
-    tvosArm64()
-    tvosSimulatorArm64()
-    watchosArm32()
-    watchosArm64()
-    /**
-     * Not supported yet by:
-     * - ktor
-     * - kotest
-     */
-    // watchosDeviceArm64()
-    watchosX64()
-    watchosSimulatorArm64()
-    linuxX64()
-    linuxArm64()
-    macosX64()
-    macosArm64()
-    mingwX64()
     jvm {
+        @OptIn(ExperimentalKotlinGradlePluginApi::class)
+        compilerOptions {
+            jvmTarget = jvmTargetVersion
+        }
+
         testRuns.named("test") {
             executionTask.configure {
                 useJUnitPlatform()
@@ -116,18 +106,46 @@ kotlin {
         jsAndWasmSharedConfigurationTarget()
     }
     /**
-     * Bug during tests execution
+     * https://youtrack.jetbrains.com/issue/KT-70075
      */
     // wasmJs {
-    //     jsAndWasmSharedConfigurationTarget()
+    //   jsAndWasmSharedConfigurationTarget()
     // }
     /**
-     * Not supported yet by:
+     * Not supported by:
      * - ktor
      * - kotlinx-datetime
      * - kotest
      */
     // wasmWasi()
+
+    // Native tiers: https://kotlinlang.org/docs/native-target-support.html
+    // Tier 1
+    macosX64()
+    macosArm64()
+    iosSimulatorArm64()
+    iosX64()
+
+    // Tier 2
+    linuxX64()
+    linuxArm64()
+    watchosSimulatorArm64()
+    watchosX64()
+    watchosArm32()
+    watchosArm64()
+    tvosSimulatorArm64()
+    tvosX64()
+    tvosArm64()
+    iosArm64()
+
+    // Tier 3
+    mingwX64()
+    /**
+     * Not supported yet by:
+     * - ktor
+     * - kotest
+     */
+    // watchosDeviceArm64()
 
     sourceSets {
         all {
@@ -167,31 +185,42 @@ kotlin {
             }
         }
 
-        val mingwX64Test by getting {
+        // Tier 1
+        fun KotlinSourceSet.iosTest() {
+            dependencies {
+                implementation(libs.ktor.darwin)
+            }
+        }
+        val macosX64Test by getting { iosTest() }
+        val macosArm64Test by getting { iosTest() }
+        val iosSimulatorArm64Test by getting { iosTest() }
+        val iosX64Test by getting { iosTest() }
+
+        // Tier 2
+        fun KotlinSourceSet.linuxTest() {
+            dependencies {
+                implementation(libs.ktor.cio)
+            }
+        }
+        val linuxX64Test by getting { linuxTest() }
+        val linuxArm64Test by getting { linuxTest() }
+        val watchosSimulatorArm64Test by getting { iosTest() }
+        val watchosX64Test by getting { iosTest() }
+        val watchosArm32Test by getting { iosTest() }
+        val watchosArm64Test by getting { iosTest() }
+        val tvosSimulatorArm64Test by getting { iosTest() }
+        val tvosX64Test by getting { iosTest() }
+        val tvosArm64Test by getting { iosTest() }
+        val iosArm64Test by getting { iosTest() }
+
+        // Tier 3
+        fun KotlinSourceSet.windowsTest() {
             dependencies {
                 implementation(libs.ktor.winhttp)
             }
         }
-        val linuxArm64Test by getting {
-            dependencies {
-                implementation(libs.ktor.cio)
-            }
-        }
-        val linuxX64Test by getting {
-            dependencies {
-                implementation(libs.ktor.cio)
-            }
-        }
-        val macosArm64Test by getting {
-            dependencies {
-                implementation(libs.ktor.darwin)
-            }
-        }
-        val macosX64Test by getting {
-            dependencies {
-                implementation(libs.ktor.darwin)
-            }
-        }
+        val mingwX64Test by getting { windowsTest() }
+        // val watchosDeviceArm64Test by getting { iosTest() }
     }
 }
 
@@ -232,7 +261,7 @@ tasks {
     }
 
     withType<Detekt>().configureEach {
-        jvmTarget = "1.8"
+        jvmTarget = jvmTargetVersion.target
 
         reports {
             html.required.set(true)
@@ -244,7 +273,7 @@ tasks {
     }
 
     withType<DetektCreateBaselineTask>().configureEach {
-        jvmTarget = "1.8"
+        jvmTarget = jvmTargetVersion.target
     }
 
     register("detektAll") {
