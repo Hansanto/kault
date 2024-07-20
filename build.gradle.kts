@@ -14,6 +14,7 @@ plugins {
         alias(dokka)
         alias(detekt)
         alias(ktlint)
+        alias(resources)
         alias(gradle.publish)
     }
     `maven-publish`
@@ -166,6 +167,7 @@ kotlin {
             implementation(libs.bundles.kotest.common)
             implementation(libs.ktor.logging)
             implementation(libs.kt.io)
+            implementation(libs.resources)
         }
 
         jvmTest.dependencies {
