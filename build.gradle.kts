@@ -180,7 +180,7 @@ kotlin {
             implementation(libs.ktor.js)
         }
 
-        iosTest.dependencies {
+        appleTest.dependencies {
             implementation(libs.ktor.darwin)
         }
 
