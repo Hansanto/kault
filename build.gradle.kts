@@ -80,6 +80,7 @@ val jvmTargetVersion = JvmTarget.JVM_1_8
 val jvmTargetVersionNumber = 8
 
 kotlin {
+    applyDefaultHierarchyTemplate()
     explicitApi = org.jetbrains.kotlin.gradle.dsl.ExplicitApiMode.Strict
     jvmToolchain(jvmTargetVersionNumber)
 
@@ -156,71 +157,39 @@ kotlin {
             }
         }
 
-        val commonMain by getting {
-            dependencies {
-                api(libs.bundles.ktor.common)
-                api(libs.bundles.kt.common)
-            }
-        }
-        val commonTest by getting {
-            dependencies {
-                implementation(kotlin("test"))
-                implementation(libs.bundles.kotest.common)
-                implementation(libs.ktor.logging)
-                implementation(libs.kt.io)
-            }
+        commonMain.dependencies {
+            api(libs.bundles.ktor.common)
+            api(libs.bundles.kt.common)
         }
 
-        val jvmTest by getting {
-            dependencies {
-                implementation(libs.ktor.cio)
-                implementation(libs.slf4j.simple)
-                implementation(libs.kotest.junit5)
-            }
+        commonTest.dependencies {
+            implementation(kotlin("test"))
+            implementation(libs.bundles.kotest.common)
+            implementation(libs.ktor.logging)
+            implementation(libs.kt.io)
         }
 
-        val jsTest by getting {
-            dependencies {
-                implementation(libs.ktor.js)
-            }
+        jvmTest.dependencies {
+            implementation(libs.ktor.cio)
+            implementation(libs.slf4j.simple)
+            implementation(libs.kotest.junit5)
         }
 
-        // Tier 1
-        fun KotlinSourceSet.iosTest() {
-            dependencies {
-                implementation(libs.ktor.darwin)
-            }
+        jsTest.dependencies {
+            implementation(libs.ktor.js)
         }
-        val macosX64Test by getting { iosTest() }
-        val macosArm64Test by getting { iosTest() }
-        val iosSimulatorArm64Test by getting { iosTest() }
-        val iosX64Test by getting { iosTest() }
 
-        // Tier 2
-        fun KotlinSourceSet.linuxTest() {
-            dependencies {
-                implementation(libs.ktor.cio)
-            }
+        iosTest.dependencies {
+            implementation(libs.ktor.darwin)
         }
-        val linuxX64Test by getting { linuxTest() }
-        val linuxArm64Test by getting { linuxTest() }
-        val watchosSimulatorArm64Test by getting { iosTest() }
-        val watchosX64Test by getting { iosTest() }
-        val watchosArm32Test by getting { iosTest() }
-        val watchosArm64Test by getting { iosTest() }
-        val tvosSimulatorArm64Test by getting { iosTest() }
-        val tvosX64Test by getting { iosTest() }
-        val tvosArm64Test by getting { iosTest() }
-        val iosArm64Test by getting { iosTest() }
 
-        // Tier 3
-        fun KotlinSourceSet.windowsTest() {
-            dependencies {
-                implementation(libs.ktor.winhttp)
-            }
+        linuxTest.dependencies {
+            implementation(libs.ktor.cio)
         }
-        val mingwX64Test by getting { windowsTest() }
-        // val watchosDeviceArm64Test by getting { iosTest() }
+
+        mingwTest.dependencies {
+            implementation(libs.ktor.winhttp)
+        }
     }
 }
 
