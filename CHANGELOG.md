@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.3.0](https://github.com/Hansanto/kault/compare/v1.2.1...v1.3.0) (2024-07-24)
+
+
+### Features
+
+* Support native targets ([#105](https://github.com/Hansanto/kault/issues/105)) ([d75c4b4](https://github.com/Hansanto/kault/commit/d75c4b4c25515362b4367380e86ba1d3559742b3))
+
+
+### Bug Fixes
+
+* **deps:** update dependency org.jetbrains.kotlinx:kotlinx-io-core to v0.5.0 ([#101](https://github.com/Hansanto/kault/issues/101)) ([3b80572](https://github.com/Hansanto/kault/commit/3b805723a8b54daad64fa8753e614b7e37548727))
+* **deps:** update dependency org.jetbrains.kotlinx:kotlinx-io-core to v0.5.1 ([#102](https://github.com/Hansanto/kault/issues/102)) ([4af30da](https://github.com/Hansanto/kault/commit/4af30da60e797a19f2724941bec76ef54e77dde2))
+* **deps:** update dependency org.jetbrains.kotlinx:kotlinx-serialization-json to v1.7.1 ([#95](https://github.com/Hansanto/kault/issues/95)) ([c3272a7](https://github.com/Hansanto/kault/commit/c3272a7e48034dc3f8a9137bd9f5cef43ccb0608))
+
 ## [1.2.1](https://github.com/Hansanto/kault/compare/v1.2.0...v1.2.1) (2024-06-16)
 
 
