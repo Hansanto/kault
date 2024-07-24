@@ -36,14 +36,10 @@ jobs:
         uses: ./.github/actions/init
 
       - name: Check format
-        uses: gradle/actions/setup-gradle@v3
-        with:
-          arguments: ktlintCheck
+        run: ./gradlew ktlintCheck
 
       - name: Check code style
-        uses: gradle/actions/setup-gradle@v3
-        with:
-          arguments: detektAll
+        run: ./gradlew detektAll
 
   build:
     needs: [ validation, format ]
@@ -63,9 +59,7 @@ jobs:
           jdk: 21
 
       - name: Build
-        uses: gradle/actions/setup-gradle@v3
-        with:
-          arguments: assemble
+        run: ./gradlew assemble
 
   test:
     needs: [ validation, format ]
@@ -94,9 +88,7 @@ jobs:
         run: docker-compose up -d
 
       - name: Test
-        uses: gradle/actions/setup-gradle@v3
-        with:
-          arguments: allTests
+        run: ./gradlew allTests
         env:
           KUBERNETES_IP: ${{ steps.kubernetes.outputs.ip }}
           KUBERNETES_PORT: ${{ steps.kubernetes.outputs.port }}
