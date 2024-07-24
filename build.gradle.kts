@@ -108,6 +108,8 @@ kotlin {
     }
     /**
      * https://youtrack.jetbrains.com/issue/KT-70075
+     * Not supported by:
+     * - resources
      */
     // wasmJs {
     //   jsAndWasmSharedConfigurationTarget()
@@ -117,6 +119,7 @@ kotlin {
      * - ktor
      * - kotlinx-datetime
      * - kotest
+     * - resources
      */
     // wasmWasi()
 
@@ -142,9 +145,10 @@ kotlin {
     // Tier 3
     mingwX64()
     /**
-     * Not supported yet by:
+     * Not supported by:
      * - ktor
      * - kotest
+     * - resources
      */
     // watchosDeviceArm64()
 
