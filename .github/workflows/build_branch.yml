@@ -47,7 +47,29 @@ jobs:
 
   build:
     needs: [ validation, format ]
-    name: Build on ${{ matrix.os }}
+    name: Build
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: macos-latest # MacOS is able to build all platforms
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Initialization
+        id: init
+        uses: ./.github/actions/init
+        with:
+          jdk: 21
+
+      - name: Build
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          arguments: assemble
+
+  test:
+    needs: [ validation, format ]
+    name: Test
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -71,10 +93,10 @@ jobs:
       - name: Docker Compose up
         run: docker-compose up -d
 
-      - name: Build
+      - name: Test
         uses: gradle/actions/setup-gradle@v3
         with:
-          arguments: build
+          arguments: allTests
         env:
           KUBERNETES_IP: ${{ steps.kubernetes.outputs.ip }}
           KUBERNETES_PORT: ${{ steps.kubernetes.outputs.port }}

@@ -1,5 +1,8 @@
 import io.gitlab.arturbosch.detekt.Detekt
 import io.gitlab.arturbosch.detekt.DetektCreateBaselineTask
+import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.targets.js.dsl.KotlinJsTargetDsl
 import org.jlleitschuh.gradle.ktlint.reporter.ReporterType
 
 plugins {
@@ -11,6 +14,7 @@ plugins {
         alias(dokka)
         alias(detekt)
         alias(ktlint)
+        alias(resources)
         alias(gradle.publish)
     }
     `maven-publish`
@@ -72,39 +76,81 @@ kover {
     }
 }
 
-kotlin {
-    explicitApi = org.jetbrains.kotlin.gradle.dsl.ExplicitApiMode.Strict
+val jvmTargetVersion = JvmTarget.JVM_1_8
+val jvmTargetVersionNumber = 8
 
-    jvmToolchain(8)
+kotlin {
+    applyDefaultHierarchyTemplate()
+    explicitApi = org.jetbrains.kotlin.gradle.dsl.ExplicitApiMode.Strict
+    jvmToolchain(jvmTargetVersionNumber)
+
     jvm {
-        withJava()
+        @OptIn(ExperimentalKotlinGradlePluginApi::class)
+        compilerOptions {
+            jvmTarget = jvmTargetVersion
+        }
+
         testRuns.named("test") {
             executionTask.configure {
                 useJUnitPlatform()
             }
         }
     }
-    js(IR) {
+
+    fun KotlinJsTargetDsl.jsAndWasmSharedConfigurationTarget() {
         nodejs()
         binaries.library()
         useCommonJs()
         generateTypeScriptDefinitions()
     }
-
-    val hostOs = System.getProperty("os.name")
-    val isMacOs = hostOs == "Mac OS X"
-    val isLinux = hostOs == "Linux"
-    val isWindows = hostOs.startsWith("Windows")
-
-    val isArm64 = System.getProperty("os.arch") == "aarch64"
-    when {
-        isMacOs && isArm64 -> macosArm64("native")
-        isMacOs && !isArm64 -> macosX64("native")
-        isLinux && isArm64 -> linuxArm64("native")
-        isLinux && !isArm64 -> linuxX64("native")
-        isWindows -> mingwX64("native")
-        else -> throw GradleException("Host OS is not supported in Kotlin/Native.")
+    js {
+        jsAndWasmSharedConfigurationTarget()
     }
+    /**
+     * https://youtrack.jetbrains.com/issue/KT-70075
+     * Not supported by:
+     * - resources
+     */
+    // wasmJs {
+    //   jsAndWasmSharedConfigurationTarget()
+    // }
+    /**
+     * Not supported by:
+     * - ktor
+     * - kotlinx-datetime
+     * - kotest
+     * - resources
+     */
+    // wasmWasi()
+
+    // Native tiers: https://kotlinlang.org/docs/native-target-support.html
+    // Tier 1
+    macosX64()
+    macosArm64()
+    iosSimulatorArm64()
+    iosX64()
+
+    // Tier 2
+    linuxX64()
+    linuxArm64()
+    watchosSimulatorArm64()
+    watchosX64()
+    watchosArm32()
+    watchosArm64()
+    tvosSimulatorArm64()
+    tvosX64()
+    tvosArm64()
+    iosArm64()
+
+    // Tier 3
+    mingwX64()
+    /**
+     * Not supported by:
+     * - ktor
+     * - kotest
+     * - resources
+     */
+    // watchosDeviceArm64()
 
     sourceSets {
         all {
@@ -115,48 +161,39 @@ kotlin {
             }
         }
 
-        val commonMain by getting {
-            dependencies {
-                api(libs.bundles.ktor.common)
-                api(libs.bundles.kt.common)
-            }
-        }
-        val commonTest by getting {
-            dependencies {
-                implementation(kotlin("test"))
-                implementation(libs.bundles.kotest.common)
-                implementation(libs.ktor.logging)
-                implementation(libs.kt.io)
-            }
+        commonMain.dependencies {
+            api(libs.bundles.ktor.common)
+            api(libs.bundles.kt.common)
         }
 
-        val jvmMain by getting
-        val jvmTest by getting {
-            dependencies {
-                implementation(libs.ktor.cio)
-                implementation(libs.slf4j.simple)
-                implementation(libs.kotest.junit5)
-            }
+        commonTest.dependencies {
+            implementation(kotlin("test"))
+            implementation(libs.bundles.kotest.common)
+            implementation(libs.ktor.logging)
+            implementation(libs.kt.io)
+            implementation(libs.resources)
         }
 
-        val jsMain by getting
-        val jsTest by getting {
-            dependencies {
-                implementation(libs.ktor.js)
-            }
+        jvmTest.dependencies {
+            implementation(libs.ktor.cio)
+            implementation(libs.slf4j.simple)
+            implementation(libs.kotest.junit5)
         }
 
-        val nativeMain by getting
-        val nativeTest by getting {
-            dependencies {
-                if (isWindows) {
-                    implementation(libs.ktor.winhttp)
-                } else if (isMacOs) {
-                    implementation(libs.ktor.darwin)
-                } else {
-                    implementation(libs.ktor.cio)
-                }
-            }
+        jsTest.dependencies {
+            implementation(libs.ktor.js)
+        }
+
+        appleTest.dependencies {
+            implementation(libs.ktor.darwin)
+        }
+
+        linuxTest.dependencies {
+            implementation(libs.ktor.cio)
+        }
+
+        mingwTest.dependencies {
+            implementation(libs.ktor.winhttp)
         }
     }
 }
@@ -198,7 +235,7 @@ tasks {
     }
 
     withType<Detekt>().configureEach {
-        jvmTarget = "1.8"
+        jvmTarget = jvmTargetVersion.target
 
         reports {
             html.required.set(true)
@@ -210,7 +247,7 @@ tasks {
     }
 
     withType<DetektCreateBaselineTask>().configureEach {
-        jvmTarget = "1.8"
+        jvmTarget = jvmTargetVersion.target
     }
 
     register("detektAll") {
