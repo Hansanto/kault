@@ -35,9 +35,7 @@ jobs:
           jdk: 21
 
       - name: Build
-        uses: gradle/actions/setup-gradle@v3
-        with:
-          arguments: publishToSonatype closeAndReleaseSonatypeStagingRepository
+        run: ./gradlew publishToSonatype closeAndReleaseSonatypeStagingRepository
         env:
           REPOSITORY_USERNAME: ${{ secrets.REPOSITORY_USERNAME }}
           REPOSITORY_PASSWORD: ${{ secrets.REPOSITORY_PASSWORD }}
