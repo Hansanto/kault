@@ -11,7 +11,7 @@ permissions:
 
 jobs:
   release:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     outputs:
       release_created: ${{ steps.release.outputs.release_created }}
       tag_name: ${{ steps.release.outputs.tag_name }}
@@ -25,7 +25,6 @@ jobs:
     runs-on: macos-latest # MacOS is able to build all platforms
     if: ${{ needs.release.outputs.release_created }}
     steps:
-
       - name: Checkout
         uses: actions/checkout@v4
 
