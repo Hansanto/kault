@@ -68,9 +68,9 @@ jobs:
     strategy:
       matrix:
         include:
-        #  - os: ubuntu-22.04
-        #  - os: windows-latest -> No matching manifest when pulling Vault image
-          - os: macos-latest
+          - os: ubuntu-22.04
+    #          - os: windows-latest -> No matching manifest when pulling Vault image
+    #          - os: macos-latest -> Docker-compose command not found
     steps:
       - name: Setup docker-compose
         uses: KengoTODA/actions-setup-docker-compose@v1.2.2
