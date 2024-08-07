@@ -30,4 +30,4 @@ runs:
           ${{ runner.os }}-gradle-
 
     - name: Setup Gradle
-      uses: gradle/actions/setup-gradle@v3
+      uses: gradle/actions/setup-gradle@v4
