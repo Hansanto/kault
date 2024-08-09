@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.3.1](https://github.com/Hansanto/kault/compare/v1.3.0...v1.3.1) (2024-08-09)
+
+
+### Bug Fixes
+
+* **deps:** update dependency org.slf4j:slf4j-simple to v2.0.14 ([#110](https://github.com/Hansanto/kault/issues/110)) ([37c6ecf](https://github.com/Hansanto/kault/commit/37c6ecf42509428cf249166bb2f7ae2807d555b9))
+* **deps:** update dependency org.slf4j:slf4j-simple to v2.0.15 ([#114](https://github.com/Hansanto/kault/issues/114)) ([152c731](https://github.com/Hansanto/kault/commit/152c731acab56a243363ad91d3744a4f1c747f7e))
+* **deps:** update ktor monorepo to v3.0.0-rc-1-eap-994 ([#81](https://github.com/Hansanto/kault/issues/81)) ([3787589](https://github.com/Hansanto/kault/commit/378758988cc54aa0a72f26279457d62c2751affb))
+* **deps:** update ktor monorepo to v3.0.0-rc-1-eap-995 ([#113](https://github.com/Hansanto/kault/issues/113)) ([3ad4b71](https://github.com/Hansanto/kault/commit/3ad4b710969371bd9f1b113a6227499cb20677be))
+* **deps:** update ktor monorepo to v3.0.0-rc-1-eap-996 ([#115](https://github.com/Hansanto/kault/issues/115)) ([df0d627](https://github.com/Hansanto/kault/commit/df0d6276948728284447fafc074b825b191a22f4))
+
 ## [1.3.0](https://github.com/Hansanto/kault/compare/v1.2.1...v1.3.0) (2024-07-24)
 
 
