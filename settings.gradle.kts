@@ -19,7 +19,7 @@ dependencyResolutionManagement {
             version("resources", "0.9.0")
             version("slf4j", "2.0.16")
             version("dokka", "1.9.20")
-            version("detekt", "1.23.6")
+            version("detekt", "1.23.7")
             version("ktlint", "11.6.1")
             version("publish", "2.0.0")
 
