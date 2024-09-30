@@ -9,6 +9,7 @@ dependencyResolutionManagement {
     versionCatalogs {
         create("libs") {
             // For kotlin 2.0.20, need kotest using 2.x.x
+            // KT-71112
             version("kotlin", "2.0.10")
             version("ktor", "3.0.0-beta-2")
             version("kotlin-serialization", "1.7.3")
