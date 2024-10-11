@@ -103,7 +103,7 @@ kotlin {
         useCommonJs()
         generateTypeScriptDefinitions()
     }
-    js(IR) {
+    js {
         jsAndWasmSharedConfigurationTarget()
     }
     /**
