@@ -1,5 +1,29 @@
 # Changelog
 
+## [1.4.0](https://github.com/Hansanto/kault/compare/v1.3.0...v1.4.0) (2024-10-11)
+
+
+### Features
+
+* **deps:** Update dependencies ([#139](https://github.com/Hansanto/kault/issues/139)) ([1bd1a70](https://github.com/Hansanto/kault/commit/1bd1a701ac0b13c3546aef8a7350301d8c051d2d))
+
+
+### Bug Fixes
+
+* **deps:** update dependency org.jetbrains.kotlinx:kotlinx-coroutines-core to v1.9.0 ([#130](https://github.com/Hansanto/kault/issues/130)) ([b6d1986](https://github.com/Hansanto/kault/commit/b6d198642228650ddb7504a4698da226d669c86a))
+* **deps:** update dependency org.jetbrains.kotlinx:kotlinx-datetime to v0.6.1 ([#123](https://github.com/Hansanto/kault/issues/123)) ([d78df99](https://github.com/Hansanto/kault/commit/d78df99fbb49bbe19f455093955f67861bed925c))
+* **deps:** update dependency org.jetbrains.kotlinx:kotlinx-io-core to v0.5.2 ([#121](https://github.com/Hansanto/kault/issues/121)) ([658c8b1](https://github.com/Hansanto/kault/commit/658c8b12ef93599ca94387215264eeff9c8ca1b9))
+* **deps:** update dependency org.jetbrains.kotlinx:kotlinx-io-core to v0.5.3 ([#122](https://github.com/Hansanto/kault/issues/122)) ([9b09108](https://github.com/Hansanto/kault/commit/9b09108fcc13bb6f6efd80329bdb6230de08cb04))
+* **deps:** update dependency org.jetbrains.kotlinx:kotlinx-io-core to v0.5.4 ([#131](https://github.com/Hansanto/kault/issues/131)) ([babf37f](https://github.com/Hansanto/kault/commit/babf37fdc6a671763dba2db00dbc881755c0917b))
+* **deps:** update dependency org.slf4j:slf4j-simple to v2.0.14 ([#110](https://github.com/Hansanto/kault/issues/110)) ([37c6ecf](https://github.com/Hansanto/kault/commit/37c6ecf42509428cf249166bb2f7ae2807d555b9))
+* **deps:** update dependency org.slf4j:slf4j-simple to v2.0.15 ([#114](https://github.com/Hansanto/kault/issues/114)) ([152c731](https://github.com/Hansanto/kault/commit/152c731acab56a243363ad91d3744a4f1c747f7e))
+* **deps:** update dependency org.slf4j:slf4j-simple to v2.0.16 ([#117](https://github.com/Hansanto/kault/issues/117)) ([d53acd1](https://github.com/Hansanto/kault/commit/d53acd1431fd503979e575b471b4247d382035c2))
+* **deps:** update ktor monorepo to v3.0.0-rc-1-eap-994 ([#81](https://github.com/Hansanto/kault/issues/81)) ([3787589](https://github.com/Hansanto/kault/commit/378758988cc54aa0a72f26279457d62c2751affb))
+* **deps:** update ktor monorepo to v3.0.0-rc-1-eap-995 ([#113](https://github.com/Hansanto/kault/issues/113)) ([3ad4b71](https://github.com/Hansanto/kault/commit/3ad4b710969371bd9f1b113a6227499cb20677be))
+* **deps:** update ktor monorepo to v3.0.0-rc-1-eap-996 ([#115](https://github.com/Hansanto/kault/issues/115)) ([df0d627](https://github.com/Hansanto/kault/commit/df0d6276948728284447fafc074b825b191a22f4))
+* **deps:** update ktor monorepo to v3.0.0-rc-1-eap-997 ([#116](https://github.com/Hansanto/kault/issues/116)) ([5dde21e](https://github.com/Hansanto/kault/commit/5dde21e2c0b5172ee2e5672f58891c3404705c85))
+* **deps:** update ktor monorepo to v3.0.0-rc-1-eap-998 ([#118](https://github.com/Hansanto/kault/issues/118)) ([425a533](https://github.com/Hansanto/kault/commit/425a5335f2439b280a1cabebc462cf4f291b46df))
+
 ## [1.3.0](https://github.com/Hansanto/kault/compare/v1.2.1...v1.3.0) (2024-07-24)
 
 
