@@ -9,7 +9,7 @@ dependencyResolutionManagement {
     versionCatalogs {
         create("libs") {
             version("kotlin", "2.0.21")
-            version("ktor", "3.0.0")
+            version("ktor", "3.0.1-eap-1113")
             version("kotlin-serialization", "1.7.3")
             version("kotest", "6.0.0.M1")
             version("kover", "0.8.3")
