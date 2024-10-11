@@ -8,12 +8,10 @@ pluginManagement {
 dependencyResolutionManagement {
     versionCatalogs {
         create("libs") {
-            // For kotlin 2.0.20, need kotest using 2.x.x
-            // KT-71112
-            version("kotlin", "2.0.10")
-            version("ktor", "3.0.0-beta-2")
+            version("kotlin", "2.0.21")
+            version("ktor", "3.0.0")
             version("kotlin-serialization", "1.7.3")
-            version("kotest", "5.9.1")
+            version("kotest", "6.0.0.M1")
             version("kover", "0.8.3")
             version("kotlinx-datetime", "0.6.1")
             version("kotlinx-coroutines", "1.9.0")
