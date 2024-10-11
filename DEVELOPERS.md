@@ -97,7 +97,7 @@ minikube start
 To run the tests:
 
 ```shell
-./gradlew test
+./gradlew allTests
 ```
 
 To stop Vault:
