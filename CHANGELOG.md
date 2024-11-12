@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.4.1](https://github.com/Hansanto/kault/compare/v1.4.0...v1.4.1) (2024-11-11)
+
+
+### Bug Fixes
+
+* **deps:** update ktor monorepo to v3.0.1 ([#144](https://github.com/Hansanto/kault/issues/144)) ([426ef59](https://github.com/Hansanto/kault/commit/426ef59175963ce7db2556a1ab8567b2a0f64fd8))
+* **deps:** update ktor monorepo to v3.0.1-eap-1113 ([#140](https://github.com/Hansanto/kault/issues/140)) ([86d51ae](https://github.com/Hansanto/kault/commit/86d51aea772aa785e48dc420d9f4f6765b9fe6b3))
+
 ## [1.4.0](https://github.com/Hansanto/kault/compare/v1.3.0...v1.4.0) (2024-10-11)
 
 
