@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.2](https://github.com/Hansanto/kault/compare/v1.4.1...v1.4.2) (2024-12-03)
+
+
+### Bug Fixes
+
+* **deps:** update dependency org.jetbrains.kotlinx:kotlinx-io-core to v0.6.0 ([#147](https://github.com/Hansanto/kault/issues/147)) ([6ba2fc5](https://github.com/Hansanto/kault/commit/6ba2fc51686dc937b0303006f1e20926e2237fcf))
+
 ## [1.4.1](https://github.com/Hansanto/kault/compare/v1.4.0...v1.4.1) (2024-11-11)
 
 
