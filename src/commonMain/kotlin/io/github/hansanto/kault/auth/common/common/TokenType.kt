@@ -12,7 +12,7 @@ public enum class TokenType(public val value: String) {
     DEFAULT_SERVICE("default-service"),
     BATCH("batch"),
     DEFAULT_BATCH("default-batch"),
-    DEFAULT("default");
+    DEFAULT("default")
 }
 
 /**

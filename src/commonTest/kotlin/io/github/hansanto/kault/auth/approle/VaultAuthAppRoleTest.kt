@@ -535,11 +535,7 @@ private suspend inline fun <reified P> assertCreateAndReadSecret(
     readResponse shouldBe replaceTemplateString(expectedReadResponse, readResponse)
 }
 
-private suspend fun assertCreateRole(
-    appRole: VaultAuthAppRole,
-    givenPath: String?,
-    expectedReadPath: String
-) {
+private suspend fun assertCreateRole(appRole: VaultAuthAppRole, givenPath: String?, expectedReadPath: String) {
     assertCreateRole(
         appRole,
         givenPath,

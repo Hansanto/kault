@@ -9,7 +9,7 @@ import kotlinx.serialization.Serializable
 @Serializable(KubernetesAliasNameSourceTypeSerializer::class)
 public enum class KubernetesAliasNameSourceType(public val value: String) {
     SERVICE_ACCOUNT_UID("serviceaccount_uid"),
-    SERVICE_ACCOUNT_NAME("serviceaccount_name");
+    SERVICE_ACCOUNT_NAME("serviceaccount_name")
 }
 
 /**

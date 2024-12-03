@@ -181,10 +181,7 @@ private suspend inline fun assertLogin(
     response shouldBe replaceTemplateString(expected, response)
 }
 
-private suspend fun createRole(
-    kubernetes: VaultAuthKubernetes,
-    role: String
-) {
+private suspend fun createRole(kubernetes: VaultAuthKubernetes, role: String) {
     kubernetes.createOrUpdateRole(role) {
         boundServiceAccountNames = listOf("*")
         boundServiceAccountNamespaces = listOf("*")

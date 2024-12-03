@@ -595,22 +595,17 @@ private suspend fun createAndUpdate(
     readResponse shouldBe expected
 }
 
-private fun readSubKeysResponse(
-    path: String,
-    writeResponse: KvV2WriteResponse
-) = readJson<KvV2ReadSubkeysResponse>(path).let {
-    it.copy(
-        metadata = it.metadata.copy(
-            createdTime = writeResponse.createdTime,
-            deletionTime = writeResponse.deletionTime
+private fun readSubKeysResponse(path: String, writeResponse: KvV2WriteResponse) =
+    readJson<KvV2ReadSubkeysResponse>(path).let {
+        it.copy(
+            metadata = it.metadata.copy(
+                createdTime = writeResponse.createdTime,
+                deletionTime = writeResponse.deletionTime
+            )
         )
-    )
-}
+    }
 
-private fun readSecretResponse(
-    path: String,
-    writeResponse: KvV2WriteResponse
-) = readJson<KvV2ReadResponse>(path).let {
+private fun readSecretResponse(path: String, writeResponse: KvV2WriteResponse) = readJson<KvV2ReadResponse>(path).let {
     it.copy(
         metadata = it.metadata.copy(
             createdTime = writeResponse.createdTime,

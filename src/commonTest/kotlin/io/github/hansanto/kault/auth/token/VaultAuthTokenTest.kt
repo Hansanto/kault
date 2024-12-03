@@ -514,11 +514,7 @@ private suspend inline fun assertRevokeToken(
     }
 }
 
-private suspend fun assertRenewToken(
-    token: VaultAuthToken,
-    increment: VaultDuration?,
-    expectedReadPath: String
-) {
+private suspend fun assertRenewToken(token: VaultAuthToken, increment: VaultDuration?, expectedReadPath: String) {
     assertRenewToken(token, increment, expectedReadPath) { _, tokenRenew ->
         token.renewToken(tokenRenew)
     }
@@ -537,11 +533,7 @@ private suspend fun assertRenewTokenWithBuilder(
     }
 }
 
-private suspend fun assertRenewSelfToken(
-    client: VaultClient,
-    increment: VaultDuration?,
-    expectedReadPath: String
-) {
+private suspend fun assertRenewSelfToken(client: VaultClient, increment: VaultDuration?, expectedReadPath: String) {
     val token = client.auth.token
     assertRenewToken(token, increment, expectedReadPath) { tokenCreate, tokenRenew ->
         client.auth.setTokenString(tokenCreate.clientToken)
@@ -590,31 +582,19 @@ private suspend inline fun assertRenewToken(
     renewTokenResponse shouldBe replaceTemplateString(expected, renewTokenResponse)
 }
 
-private suspend fun assertLookupToken(
-    token: VaultAuthToken,
-    givenPath: String?,
-    expectedReadPath: String
-) {
+private suspend fun assertLookupToken(token: VaultAuthToken, givenPath: String?, expectedReadPath: String) {
     assertLookupToken(token, givenPath, expectedReadPath) {
         token.lookupToken(it.clientToken)
     }
 }
 
-private suspend fun assertLookupTokenFromAccessor(
-    token: VaultAuthToken,
-    givenPath: String?,
-    expectedReadPath: String
-) {
+private suspend fun assertLookupTokenFromAccessor(token: VaultAuthToken, givenPath: String?, expectedReadPath: String) {
     assertLookupToken(token, givenPath, expectedReadPath) {
         token.lookupAccessorToken(it.accessor)
     }
 }
 
-private suspend fun assertLookupSelfToken(
-    client: VaultClient,
-    givenPath: String?,
-    expectedReadPath: String
-) {
+private suspend fun assertLookupSelfToken(client: VaultClient, givenPath: String?, expectedReadPath: String) {
     val token = client.auth.token
     assertLookupToken(token, givenPath, expectedReadPath) {
         client.auth.setTokenString(it.clientToken)
@@ -637,11 +617,7 @@ private suspend inline fun assertLookupToken(
     lookupResponse shouldBe replaceTemplateString(expected, lookupResponse)
 }
 
-private suspend fun assertCreateToken(
-    token: VaultAuthToken,
-    givenPath: String?,
-    expectedReadPath: String
-) {
+private suspend fun assertCreateToken(token: VaultAuthToken, givenPath: String?, expectedReadPath: String) {
     assertCreateToken(
         givenPath,
         expectedReadPath
@@ -654,11 +630,7 @@ private suspend fun assertCreateToken(
     }
 }
 
-private suspend fun assertCreateTokenWithBuilder(
-    token: VaultAuthToken,
-    givenPath: String?,
-    expectedReadPath: String
-) {
+private suspend fun assertCreateTokenWithBuilder(token: VaultAuthToken, givenPath: String?, expectedReadPath: String) {
     assertCreateToken(
         givenPath,
         expectedReadPath
@@ -906,10 +878,7 @@ private inline fun createToken(
     return create(given)
 }
 
-private inline fun createTokenRole(
-    givenPath: String?,
-    createOrUpdate: (TokenWriteRolePayload) -> Boolean
-): Boolean {
+private inline fun createTokenRole(givenPath: String?, createOrUpdate: (TokenWriteRolePayload) -> Boolean): Boolean {
     val given = givenPath?.let { readJson<TokenWriteRolePayload>(it) } ?: TokenWriteRolePayload()
     return createOrUpdate(given)
 }

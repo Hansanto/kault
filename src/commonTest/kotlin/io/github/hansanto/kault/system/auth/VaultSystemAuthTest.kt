@@ -56,7 +56,8 @@ class VaultSystemAuthTest : ShouldSpec({
 
     should("list with no additional auth methods") {
         val response = auth.list()
-        val expected = readJson<Map<String, AuthReadConfigurationResponse>>("cases/sys/auth/list/without_additional/expected.json")
+        val expected =
+            readJson<Map<String, AuthReadConfigurationResponse>>("cases/sys/auth/list/without_additional/expected.json")
         response shouldBe replaceTemplateString(response, expected)
     }
 
@@ -65,7 +66,8 @@ class VaultSystemAuthTest : ShouldSpec({
         auth.enable(DEFAULT_METHOD, payload) shouldBe true
 
         val response = auth.list()
-        val expected = readJson<Map<String, AuthReadConfigurationResponse>>("cases/sys/auth/list/with_additional/expected.json")
+        val expected =
+            readJson<Map<String, AuthReadConfigurationResponse>>("cases/sys/auth/list/with_additional/expected.json")
         response shouldBe replaceTemplateString(response, expected)
     }
 
@@ -168,11 +170,7 @@ class VaultSystemAuthTest : ShouldSpec({
     }
 })
 
-private suspend fun assertTune(
-    auth: VaultSystemAuth,
-    givenPath: String?,
-    expectedPath: String
-) {
+private suspend fun assertTune(auth: VaultSystemAuth, givenPath: String?, expectedPath: String) {
     auth.enable(DEFAULT_METHOD) { type = DEFAULT_METHOD } shouldBe true
 
     val payload = givenPath?.let { readJson<AuthTuneConfigurationParametersPayload>(it) }
@@ -182,11 +180,7 @@ private suspend fun assertTune(
     auth.readTuning(DEFAULT_METHOD) shouldBe readJson<AuthReadTuningInformationResponse>(expectedPath)
 }
 
-private suspend fun assertTuneWithBuilder(
-    auth: VaultSystemAuth,
-    givenPath: String?,
-    expectedPath: String
-) {
+private suspend fun assertTuneWithBuilder(auth: VaultSystemAuth, givenPath: String?, expectedPath: String) {
     auth.enable(DEFAULT_METHOD) { type = DEFAULT_METHOD } shouldBe true
 
     val payload = givenPath?.let { readJson<AuthTuneConfigurationParametersPayload>(it) }

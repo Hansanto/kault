@@ -84,6 +84,7 @@ class VaultAuthTest : ShouldSpec({
         checkNotThrowConstructor(1.days)
     }
 
+    @Suppress("ktlint:standard:max-line-length")
     should("use default values if not set in builder") {
         VaultAuth.Default.PATH shouldBe "auth"
 

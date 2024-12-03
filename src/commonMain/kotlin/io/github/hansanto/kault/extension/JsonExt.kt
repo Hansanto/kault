@@ -17,10 +17,7 @@ import kotlinx.serialization.json.Json
  * @param valueSerializer Serializer for the value.
  * @return JSON string corresponding to the Map.
  */
-public fun <K, V> Map<K, V>.toJsonString(
-    keySerializer: KSerializer<K>,
-    valueSerializer: KSerializer<V>
-): String {
+public fun <K, V> Map<K, V>.toJsonString(keySerializer: KSerializer<K>, valueSerializer: KSerializer<V>): String {
     val serializer = MapSerializer(keySerializer, valueSerializer)
     return Json.encodeToString(serializer, this)
 }

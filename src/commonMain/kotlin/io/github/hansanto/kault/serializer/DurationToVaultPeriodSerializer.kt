@@ -63,8 +63,11 @@ public object DurationToVaultPeriodSerializer : KSerializer<Duration> {
      * - Optional seconds value followed by the "[SECOND_UNIT]" or nothing.
      * Vault can send a duration without a unit, in which case it is interpreted as seconds.
      */
+    @Suppress("ktlint:standard:max-line-length")
     private val timeRegex =
-        Regex("""^(?:(?<days>\d+)$DAY_UNIT)?(?:(?<hours>\d+)$HOUR_UNIT)?(?:(?<minutes>\d+)$MINUTE_UNIT)?(?:(?<seconds>\d+)$SECOND_UNIT?)?$""")
+        Regex(
+            """^(?:(?<days>\d+)$DAY_UNIT)?(?:(?<hours>\d+)$HOUR_UNIT)?(?:(?<minutes>\d+)$MINUTE_UNIT)?(?:(?<seconds>\d+)$SECOND_UNIT?)?$"""
+        )
 
     override val descriptor: SerialDescriptor =
         PrimitiveSerialDescriptor("durationToVaultStringDate", PrimitiveKind.STRING)
@@ -101,12 +104,10 @@ public object DurationToVaultPeriodSerializer : KSerializer<Duration> {
      * @param unitValue The value of the unit that is invalid.
      * @param unit The unit that is invalid.
      */
-    private fun invalidFormat(
-        decodedString: String,
-        unitValue: String,
-        unit: Char
-    ): Nothing =
-        throw SerializationException("Invalid duration format [$decodedString] with value [$unitValue] for unit [$unit].")
+    private fun invalidFormat(decodedString: String, unitValue: String, unit: Char): Nothing =
+        throw SerializationException(
+            "Invalid duration format [$decodedString] with value [$unitValue] for unit [$unit]."
+        )
 
     /**
      * Throws a [SerializationException] with the given duration string to indicate that the format is invalid.
