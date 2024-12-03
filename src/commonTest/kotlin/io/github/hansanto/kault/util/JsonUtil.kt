@@ -42,22 +42,14 @@ fun replaceTemplateString(expected: JsonElement, response: JsonElement, path: St
     throw IllegalArgumentException("Expected and response must be of type JsonArray or JsonObject")
 }
 
-fun replaceTemplateString(
-    expectedJson: JsonObject,
-    responseJson: JsonObject,
-    path: String
-): JsonElement {
+fun replaceTemplateString(expectedJson: JsonObject, responseJson: JsonObject, path: String): JsonElement {
     val replacedExpectedJsonObject = expectedJson.mapValues { (key, value) ->
         replaceTemplateString(value, responseJson[key] ?: JsonNull, "$path$key")
     }
     return JsonObject(replacedExpectedJsonObject)
 }
 
-fun replaceTemplateString(
-    expectedJson: JsonArray,
-    responseJson: JsonArray,
-    path: String
-): JsonArray {
+fun replaceTemplateString(expectedJson: JsonArray, responseJson: JsonArray, path: String): JsonArray {
     responseJson.size shouldBeExactly expectedJson.size
     val replacedExpectedJsonArray = expectedJson.mapIndexed { index, value ->
         replaceTemplateString(value, responseJson[index], "$path[$index]")
@@ -65,10 +57,7 @@ fun replaceTemplateString(
     return JsonArray(replacedExpectedJsonArray)
 }
 
-fun replaceTemplateString(
-    expected: JsonPrimitive,
-    response: JsonPrimitive
-): JsonPrimitive {
+fun replaceTemplateString(expected: JsonPrimitive, response: JsonPrimitive): JsonPrimitive {
     val expectedValue = expected.content
     return if (
         expectedValue == TEMPLATE_STRING ||

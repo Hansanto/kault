@@ -183,11 +183,7 @@ class VaultAuthUserpassTest : ShouldSpec({
     }
 })
 
-private suspend fun assertCreateOrUpdate(
-    userpass: VaultAuthUserpass,
-    givenPath: String,
-    expectedReadPath: String
-) {
+private suspend fun assertCreateOrUpdate(userpass: VaultAuthUserpass, givenPath: String, expectedReadPath: String) {
     assertCreateOrUpdate(userpass, givenPath, expectedReadPath) { username, given ->
         userpass.createOrUpdate(username, given)
     }

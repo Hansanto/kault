@@ -79,8 +79,7 @@ public class VaultClient(
          * @param builder Builder to create the instance.
          * @return Instance of [VaultClient].
          */
-        public inline operator fun invoke(builder: BuilderDsl<Builder>): VaultClient =
-            Builder().apply(builder).build()
+        public inline operator fun invoke(builder: BuilderDsl<Builder>): VaultClient = Builder().apply(builder).build()
     }
 
     /**
@@ -199,10 +198,7 @@ public class VaultClient(
          * @param vaultClient Vault client built.
          * @param authBuilder Authentication builder.
          */
-        private fun initClient(
-            vaultClient: VaultClient,
-            authBuilder: AuthBuilder
-        ) {
+        private fun initClient(vaultClient: VaultClient, authBuilder: AuthBuilder) {
             val auth = vaultClient.auth
             if (authBuilder.autoRenewToken) {
                 auth.enableAutoRenewToken()
@@ -260,10 +256,9 @@ public class VaultClient(
          * @param headerBuilder Builder to create [Headers] instance.
          * @return The configured [HttpClient] instance.
          */
-        private inline fun createHttpClient(crossinline headerBuilder: () -> Headers): HttpClient =
-            HttpClient {
-                defaultHttpClientConfiguration(headerBuilder)
-            }
+        private inline fun createHttpClient(crossinline headerBuilder: () -> Headers): HttpClient = HttpClient {
+            defaultHttpClientConfiguration(headerBuilder)
+        }
 
         /**
          * Configures the default HttpClient settings to interact with the Vault API.

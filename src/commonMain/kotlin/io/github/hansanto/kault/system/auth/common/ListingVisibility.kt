@@ -14,7 +14,7 @@ public enum class ListingVisibility(public val value: String) {
     /**
      * Mount is marked as internal-only.
      */
-    UNAUTH("unauth");
+    UNAUTH("unauth")
 }
 
 /**

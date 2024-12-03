@@ -44,7 +44,7 @@ public abstract class EnumSerializer<T : Enum<T>>(
         return values.firstOrNull { enumToValue(it) == decoded }
             ?: throw SerializationException(
                 "Invalid enum value: $decoded. Valid values are: ${
-                values.joinToString { enumToValue(it) }
+                    values.joinToString { enumToValue(it) }
                 }"
             )
     }

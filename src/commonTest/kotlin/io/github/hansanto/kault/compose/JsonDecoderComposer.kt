@@ -12,10 +12,7 @@ import kotlinx.serialization.json.jsonObject
 
 object JsonDecoderComposer {
 
-    fun composeSerialFieldTest(
-        scope: ShouldSpec,
-        createAndRetrieve: (JsonObject?) -> ComplexSerializableClass?
-    ) {
+    fun composeSerialFieldTest(scope: ShouldSpec, createAndRetrieve: (JsonObject?) -> ComplexSerializableClass?) {
         scope.should("decode value") {
             val value = createSerializableObject()
             val customMetadata = Json.encodeToJsonElement(value).jsonObject

@@ -20,6 +20,7 @@ class VaultSystemTest : ShouldSpec({
         client.close()
     }
 
+    @Suppress("ktlint:standard:max-line-length")
     should("use default path if not set in builder") {
         VaultSystem.Default.PATH shouldBe "sys"
         val built = VaultSystem(client.client, null) {

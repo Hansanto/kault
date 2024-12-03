@@ -87,10 +87,7 @@ public interface VaultAuthKubernetes {
      * @param payload Optional parameters for creating or updating a role.
      * @return Returns true if the role was created or updated successfully.
      */
-    public suspend fun createOrUpdateRole(
-        roleName: String,
-        payload: KubernetesWriteAuthRolePayload
-    ): Boolean
+    public suspend fun createOrUpdateRole(roleName: String, payload: KubernetesWriteAuthRolePayload): Boolean
 
     /**
      * Returns the previously registered role configuration.

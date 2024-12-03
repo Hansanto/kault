@@ -8,14 +8,20 @@ import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 
-object TestEnumSerializerWithValue : EnumSerializer<TestEnum>("TestEnumValue", TestEnum.entries, { it.value.toString() })
+object TestEnumSerializerWithValue : EnumSerializer<TestEnum>("TestEnumValue", TestEnum.entries, {
+    it.value.toString()
+})
 
-object TestEnumSerializerWithOrdinal : EnumSerializer<TestEnum>("TestEnumOrdinal", TestEnum.entries, { it.ordinal.toString() })
+object TestEnumSerializerWithOrdinal : EnumSerializer<TestEnum>("TestEnumOrdinal", TestEnum.entries, {
+    it.ordinal.toString()
+})
 
 object TestEnumSerializerWithName : EnumSerializer<TestEnum>("TestEnumName", TestEnum.entries, { it.name.lowercase() })
 
 enum class TestEnum(val value: Int) {
-    ONE(1), TWO(2), THREE(3)
+    ONE(1),
+    TWO(2),
+    THREE(3)
 }
 
 class EnumSerializerTest : ShouldSpec({
