@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.5.0](https://github.com/Hansanto/kault/compare/v1.4.1...v1.5.0) (2024-12-20)
+
+
+### Features
+
+* **deps:** Upgrade for Kotlin 2.1.0 ([#162](https://github.com/Hansanto/kault/issues/162)) ([1d89e73](https://github.com/Hansanto/kault/commit/1d89e73861ef35be14f8ae33b29bb537857520e4))
+
+
+### Bug Fixes
+
+* **deps:** update dependency org.jetbrains.kotlinx:kotlinx-io-core to v0.6.0 ([#147](https://github.com/Hansanto/kault/issues/147)) ([6ba2fc5](https://github.com/Hansanto/kault/commit/6ba2fc51686dc937b0303006f1e20926e2237fcf))
+* **deps:** update ktor monorepo to v3.0.2 ([#154](https://github.com/Hansanto/kault/issues/154)) ([b4d5e15](https://github.com/Hansanto/kault/commit/b4d5e151b64214247b228e46743d1efc541cffb8))
+
 ## [1.4.1](https://github.com/Hansanto/kault/compare/v1.4.0...v1.4.1) (2024-11-11)
 
 
