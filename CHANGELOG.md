@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.5.1](https://github.com/Hansanto/kault/compare/v1.5.0...v1.5.1) (2025-02-28)
+
+
+### Bug Fixes
+
+* **deps:** update dependency org.jetbrains.kotlinx:kotlinx-datetime to v0.6.2 ([#171](https://github.com/Hansanto/kault/issues/171)) ([04aa499](https://github.com/Hansanto/kault/commit/04aa499c0d38e831410c1fd8e18b2602b5b4cf67))
+* **deps:** update dependency org.jetbrains.kotlinx:kotlinx-io-core to v0.7.0 ([#178](https://github.com/Hansanto/kault/issues/178)) ([488c172](https://github.com/Hansanto/kault/commit/488c1723f62ead719e3e664f96639b76f8307b06))
+* **deps:** update dependency org.jetbrains.kotlinx:kotlinx-serialization-json to v1.8.0 ([#163](https://github.com/Hansanto/kault/issues/163)) ([10ac2b0](https://github.com/Hansanto/kault/commit/10ac2b05723d9d2f1e95d564d6482e614c995d5a))
+* **deps:** update dependency org.slf4j:slf4j-simple to v2.0.17 ([#177](https://github.com/Hansanto/kault/issues/177)) ([d51bfda](https://github.com/Hansanto/kault/commit/d51bfda1b40d19446ea3cbaea8868454413e95a5))
+* **deps:** update ktor monorepo to v3.1.0 ([#172](https://github.com/Hansanto/kault/issues/172)) ([a52f5d4](https://github.com/Hansanto/kault/commit/a52f5d479cdf5fb42b66ca5191197eda91b7d87a))
+* **deps:** update ktor monorepo to v3.1.1 ([#174](https://github.com/Hansanto/kault/issues/174)) ([6ce082c](https://github.com/Hansanto/kault/commit/6ce082c9066edf6180eb32e18953921f4122b5eb))
+
 ## [1.5.0](https://github.com/Hansanto/kault/compare/v1.4.1...v1.5.0) (2024-12-20)
 
 
