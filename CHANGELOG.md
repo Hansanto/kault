@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.2](https://github.com/Hansanto/kault/compare/v1.5.1...v1.5.2) (2025-03-20)
+
+
+### Bug Fixes
+
+* **deps:** update kotlin monorepo to v2.1.20 ([#181](https://github.com/Hansanto/kault/issues/181)) ([23df1bc](https://github.com/Hansanto/kault/commit/23df1bc0928811f51376bf81325e0d1c32a62ffd))
+
 ## [1.5.1](https://github.com/Hansanto/kault/compare/v1.5.0...v1.5.1) (2025-02-28)
 
 
