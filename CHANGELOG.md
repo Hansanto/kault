@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.5.2](https://github.com/Hansanto/kault/compare/v1.5.1...v1.5.2) (2025-04-10)
+
+
+### Bug Fixes
+
+* **deps:** update dependency org.jetbrains.kotlinx:kotlinx-coroutines-core to v1.10.2 ([#186](https://github.com/Hansanto/kault/issues/186)) ([ca8619c](https://github.com/Hansanto/kault/commit/ca8619c3d8bd12b5a1588f6dd3b6fe235907aaef))
+* **deps:** update dependency org.jetbrains.kotlinx:kotlinx-serialization-json to v1.8.1 ([#184](https://github.com/Hansanto/kault/issues/184)) ([c2e33a0](https://github.com/Hansanto/kault/commit/c2e33a0484972ce8e0c44e6fabc2c19142d58fcd))
+* **deps:** update kotlin monorepo to v2.1.20 ([#181](https://github.com/Hansanto/kault/issues/181)) ([23df1bc](https://github.com/Hansanto/kault/commit/23df1bc0928811f51376bf81325e0d1c32a62ffd))
+* **deps:** update ktor monorepo to v3.1.2 ([#183](https://github.com/Hansanto/kault/issues/183)) ([56e8de5](https://github.com/Hansanto/kault/commit/56e8de5aba2e475dd817a0b180c9f1884499bdba))
+
 ## [1.5.1](https://github.com/Hansanto/kault/compare/v1.5.0...v1.5.1) (2025-02-28)
 
 
