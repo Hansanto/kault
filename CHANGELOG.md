@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.5.3](https://github.com/Hansanto/kault/compare/v1.5.2...v1.5.3) (2025-06-24)
+
+
+### Bug Fixes
+
+* **deps:** update dependency org.jetbrains.kotlinx:kotlinx-datetime to v0.7.0-0.6.x-compat ([#201](https://github.com/Hansanto/kault/issues/201)) ([ea238d9](https://github.com/Hansanto/kault/commit/ea238d92ff9a4d8a9af838e9e1aee9e13304df1c))
+* **deps:** update ktor monorepo to v3.2.0 ([#198](https://github.com/Hansanto/kault/issues/198)) ([e8a62a2](https://github.com/Hansanto/kault/commit/e8a62a20a0d24620efa3f9d2916d76dd4b26df40))
+
 ## [1.5.2](https://github.com/Hansanto/kault/compare/v1.5.1...v1.5.2) (2025-05-13)
 
 
