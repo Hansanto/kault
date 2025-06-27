@@ -161,38 +161,41 @@ kotlin {
         }
 
         commonMain.dependencies {
-            api(libs.bundles.ktor.common)
+            api(ktorLibs.client.core)
+            api(ktorLibs.serialization)
+            api(ktorLibs.serialization.kotlinx.json)
+            api(ktorLibs.client.contentNegotiation)
             api(libs.bundles.kt.common)
         }
 
         commonTest.dependencies {
             implementation(kotlin("test"))
             implementation(libs.bundles.kotest.common)
-            implementation(libs.ktor.logging)
+            implementation(ktorLibs.client.logging)
             implementation(libs.kt.io)
             implementation(libs.resources)
         }
 
         jvmTest.dependencies {
-            implementation(libs.ktor.cio)
+            implementation(ktorLibs.client.cio)
             implementation(libs.slf4j.simple)
             implementation(libs.kotest.junit5)
         }
 
         jsTest.dependencies {
-            implementation(libs.ktor.js)
+            implementation(ktorLibs.client.js)
         }
 
         appleTest.dependencies {
-            implementation(libs.ktor.darwin)
+            implementation(ktorLibs.client.darwin)
         }
 
         linuxTest.dependencies {
-            implementation(libs.ktor.cio)
+            implementation(ktorLibs.client.cio)
         }
 
         mingwTest.dependencies {
-            implementation(libs.ktor.winhttp)
+            implementation(ktorLibs.client.winhttp)
         }
     }
 }
