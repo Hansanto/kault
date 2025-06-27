@@ -3,7 +3,7 @@ package io.github.hansanto.kault.auth.token.response
 import io.github.hansanto.kault.auth.common.common.TokenInfo
 import io.github.hansanto.kault.auth.common.common.TokenType
 import io.github.hansanto.kault.serializer.VaultDuration
-import kotlinx.datetime.Clock
+import kotlin.time.Clock
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 

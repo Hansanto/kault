@@ -1,7 +1,7 @@
 package io.github.hansanto.kault.auth.approle.response
 
 import io.github.hansanto.kault.serializer.VaultDuration
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
