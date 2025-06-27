@@ -90,7 +90,7 @@ jobs:
         uses: ./.github/actions/kubernetes
 
       - name: Docker Compose up
-        run: docker-compose up -d
+        run: docker compose up -d
 
       - name: Test
         run: ./gradlew allTests
