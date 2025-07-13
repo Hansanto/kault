@@ -1,7 +1,7 @@
 package io.github.hansanto.kault.auth.common.common
 
 import io.github.hansanto.kault.KaultDsl
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 
 public data class TokenInfo(
     /**
