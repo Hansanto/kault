@@ -9,7 +9,7 @@ dependencyResolutionManagement {
     repositories { mavenCentral() }
     versionCatalogs {
         create("ktorLibs") {
-            from("io.ktor:ktor-version-catalog:3.2.0")
+            from("io.ktor:ktor-version-catalog:3.2.1")
         }
 
         create("libs") {
