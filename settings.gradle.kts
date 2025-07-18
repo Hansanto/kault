@@ -16,7 +16,6 @@ dependencyResolutionManagement {
             version("kotlinx-datetime", "0.7.0-0.6.x-compat")
             version("kotlinx-coroutines", "1.10.2")
             version("kotlinx-io", "0.7.0")
-            version("resources", "0.10.0")
             version("slf4j", "2.0.17")
             version("dokka", "2.0.0")
             version("detekt", "1.23.8")
@@ -30,7 +29,6 @@ dependencyResolutionManagement {
             plugin("dokka", "org.jetbrains.dokka").versionRef("dokka")
             plugin("detekt", "io.gitlab.arturbosch.detekt").versionRef("detekt")
             plugin("ktlint", "org.jlleitschuh.gradle.ktlint").versionRef("ktlint")
-            plugin("resources", "com.goncalossilva.resources").versionRef("resources")
             plugin("gradle-publish", "io.github.gradle-nexus.publish-plugin").versionRef("publish")
 
             library("ktor-core", "io.ktor", "ktor-client-core").versionRef("ktor")
@@ -52,8 +50,6 @@ dependencyResolutionManagement {
             library("kotest-engine", "io.kotest", "kotest-framework-engine").versionRef("kotest")
             library("kotest-junit5", "io.kotest", "kotest-runner-junit5").versionRef("kotest")
             library("kotest-json", "io.kotest", "kotest-assertions-json").versionRef("kotest")
-
-            library("resources", "com.goncalossilva", "resources").versionRef("resources")
 
             library("slf4j-simple", "org.slf4j", "slf4j-simple").versionRef("slf4j")
 

@@ -73,6 +73,6 @@ data class ResourceValue(
      * @return Content of the file if readable, null otherwise.
      */
     private fun readFileFromResources(): String? {
-        return runCatching { pathFile.asResourceFile().readText() }.getOrNull()
+        return runCatching { readResourceFile(pathFile) }.getOrNull()
     }
 }

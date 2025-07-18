@@ -7,7 +7,6 @@ import io.github.hansanto.kault.util.randomString
 import io.github.hansanto.kault.util.revokeAllTokenData
 import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
-import io.ktor.utils.io.core.use
 import kotlinx.coroutines.isActive
 
 class VaultClientTest : ShouldSpec({

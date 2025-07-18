@@ -9,6 +9,10 @@ fun workingDirectory(): Path {
     return SystemFileSystem.resolve(Path("."))
 }
 
+fun Path.resolve(path: String): Path {
+    return Path(this, path)
+}
+
 fun Path.exists(): Boolean {
     return SystemFileSystem.exists(this)
 }

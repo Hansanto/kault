@@ -14,7 +14,6 @@ plugins {
         alias(dokka)
         alias(detekt)
         alias(ktlint)
-        alias(resources)
         alias(gradle.publish)
     }
     `maven-publish`
@@ -105,11 +104,6 @@ kotlin {
     js {
         jsAndWasmSharedConfigurationTarget()
     }
-    /**
-     * https://youtrack.jetbrains.com/issue/KT-70075
-     * Not supported by:
-     * - resources
-     */
     // wasmJs {
     //   jsAndWasmSharedConfigurationTarget()
     // }
@@ -118,7 +112,6 @@ kotlin {
      * - ktor
      * - kotlinx-datetime
      * - kotest
-     * - resources
      */
     // wasmWasi()
 
@@ -147,7 +140,6 @@ kotlin {
      * Not supported by:
      * - ktor
      * - kotest
-     * - resources
      */
     // watchosDeviceArm64()
 
@@ -170,7 +162,6 @@ kotlin {
             implementation(libs.bundles.kotest.common)
             implementation(libs.ktor.logging)
             implementation(libs.kt.io)
-            implementation(libs.resources)
         }
 
         jvmTest.dependencies {
