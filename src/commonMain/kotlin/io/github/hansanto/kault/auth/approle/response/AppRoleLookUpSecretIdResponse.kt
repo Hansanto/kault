@@ -1,9 +1,9 @@
 package io.github.hansanto.kault.auth.approle.response
 
 import io.github.hansanto.kault.serializer.VaultDuration
-import kotlin.time.Instant
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlin.time.Instant
 
 @Serializable
 public data class AppRoleLookUpSecretIdResponse(

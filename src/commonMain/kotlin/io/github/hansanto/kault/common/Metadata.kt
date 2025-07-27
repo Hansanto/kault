@@ -2,13 +2,13 @@ package io.github.hansanto.kault.common
 
 import io.github.hansanto.kault.VaultClient
 import io.github.hansanto.kault.serializer.optional.OptionalInstantSerializer
-import kotlin.time.Instant
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.serializer
+import kotlin.time.Instant
 
 @Serializable
 public data class Metadata(

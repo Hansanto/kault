@@ -170,19 +170,17 @@ public data class EnableMethodPayload(
          * Build the instance of [EnableMethodPayload] with the values defined in builder.
          * @return A new instance.
          */
-        public fun build(): EnableMethodPayload {
-            return EnableMethodPayload(
-                type = type,
-                config = configBuilder?.let { Config().apply(it) },
-                description = description,
-                externalEntropyAccess = externalEntropyAccess,
-                local = local,
-                options = options,
-                pluginName = pluginName,
-                pluginVersion = pluginVersion,
-                sealWrap = sealWrap
-            )
-        }
+        public fun build(): EnableMethodPayload = EnableMethodPayload(
+            type = type,
+            config = configBuilder?.let { Config().apply(it) },
+            description = description,
+            externalEntropyAccess = externalEntropyAccess,
+            local = local,
+            options = options,
+            pluginName = pluginName,
+            pluginVersion = pluginVersion,
+            sealWrap = sealWrap
+        )
 
         /**
          * Sets the config builder.

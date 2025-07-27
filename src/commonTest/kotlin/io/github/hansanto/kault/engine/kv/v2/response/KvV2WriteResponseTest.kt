@@ -6,13 +6,14 @@ import io.kotest.core.spec.style.ShouldSpec
 import kotlinx.datetime.Instant
 import kotlinx.serialization.json.JsonObject
 
-class KvV2WriteResponseTest : ShouldSpec({
+class KvV2WriteResponseTest :
+    ShouldSpec({
 
-    JsonDecoderComposer.composeSerialFieldTest(this) {
-        val response = createResponse(it)
-        response.customMetadata<ComplexSerializableClass>()
-    }
-})
+        JsonDecoderComposer.composeSerialFieldTest(this) {
+            val response = createResponse(it)
+            response.customMetadata<ComplexSerializableClass>()
+        }
+    })
 
 private fun createResponse(customMetadata: JsonObject?) = KvV2WriteResponse(
     createdTime = Instant.DISTANT_PAST,

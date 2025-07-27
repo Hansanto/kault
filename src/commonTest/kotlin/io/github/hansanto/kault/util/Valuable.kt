@@ -14,10 +14,7 @@ typealias ValueFallback = () -> String?
  * @property name Name of the environment variable.
  * @property fallback Fallback to use if the environment variable is not set.
  */
-data class EnvValue(
-    val name: String,
-    val fallback: ValueFallback = { null }
-) : Valuable {
+data class EnvValue(val name: String, val fallback: ValueFallback = { null }) : Valuable {
     override val value: String by lazy {
         syspropOrEnv(name) ?: fallback() ?: throw IllegalStateException("Environment variable [$name] is not set")
     }
@@ -28,10 +25,7 @@ data class EnvValue(
  * @property pathFile Path of the file to load.
  * @property fallback Fallback to use if the file is not found.
  */
-data class SystemFileValue(
-    val pathFile: String,
-    val fallback: ValueFallback = { null }
-) : Valuable {
+data class SystemFileValue(val pathFile: String, val fallback: ValueFallback = { null }) : Valuable {
     override val value: String by lazy {
         readFileFromSystem()
             ?: fallback()
@@ -58,10 +52,7 @@ data class SystemFileValue(
  * @property pathFile Path of the file to load.
  * @property fallback Fallback to use if the file is not found.
  */
-data class ResourceValue(
-    val pathFile: String,
-    val fallback: ValueFallback = { null }
-) : Valuable {
+data class ResourceValue(val pathFile: String, val fallback: ValueFallback = { null }) : Valuable {
     override val value: String by lazy {
         readFileFromResources()
             ?: fallback()
@@ -72,7 +63,5 @@ data class ResourceValue(
      * Read the file from the "resources" folder.
      * @return Content of the file if readable, null otherwise.
      */
-    private fun readFileFromResources(): String? {
-        return runCatching { pathFile.asResourceFile().readText() }.getOrNull()
-    }
+    private fun readFileFromResources(): String? = runCatching { pathFile.asResourceFile().readText() }.getOrNull()
 }

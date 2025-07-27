@@ -144,12 +144,11 @@ public class VaultAuthUserpassImpl(
 
         public override var path: String = Default.PATH
 
-        override fun buildWithCompletePath(client: HttpClient, completePath: String): VaultAuthUserpassImpl {
-            return VaultAuthUserpassImpl(
+        override fun buildWithCompletePath(client: HttpClient, completePath: String): VaultAuthUserpassImpl =
+            VaultAuthUserpassImpl(
                 client = client,
                 path = completePath
             )
-        }
     }
 
     override suspend fun createOrUpdate(username: String, payload: UserpassWriteUserPayload): Boolean {

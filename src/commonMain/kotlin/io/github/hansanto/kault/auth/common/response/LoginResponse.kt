@@ -3,9 +3,9 @@ package io.github.hansanto.kault.auth.common.response
 import io.github.hansanto.kault.auth.common.common.TokenInfo
 import io.github.hansanto.kault.auth.common.common.TokenType
 import io.github.hansanto.kault.serializer.VaultDuration
-import kotlin.time.Clock
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlin.time.Clock
 
 /**
  * Build an instance of [TokenInfo] from the [LoginResponse].

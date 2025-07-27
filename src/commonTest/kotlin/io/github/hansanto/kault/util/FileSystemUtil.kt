@@ -5,17 +5,11 @@ import kotlinx.io.files.Path
 import kotlinx.io.files.SystemFileSystem
 import kotlinx.io.readString
 
-fun workingDirectory(): Path {
-    return SystemFileSystem.resolve(Path("."))
-}
+fun workingDirectory(): Path = SystemFileSystem.resolve(Path("."))
 
-fun Path.exists(): Boolean {
-    return SystemFileSystem.exists(this)
-}
+fun Path.exists(): Boolean = SystemFileSystem.exists(this)
 
-fun Path.readLines(): String {
-    return SystemFileSystem.source(this).buffered().use { it.readString() }
-}
+fun Path.readLines(): String = SystemFileSystem.source(this).buffered().use { it.readString() }
 
 /**
  * Search the file in the working directory and its parent folders.

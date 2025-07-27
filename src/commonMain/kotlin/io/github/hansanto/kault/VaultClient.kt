@@ -55,7 +55,8 @@ public class VaultClient(
      * Secrets service.
      */
     public val secret: VaultSecretEngine
-) : CoroutineScope by client, Closeable {
+) : CoroutineScope by client,
+    Closeable {
 
     public companion object {
 

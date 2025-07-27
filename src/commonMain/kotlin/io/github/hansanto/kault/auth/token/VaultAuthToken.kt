@@ -301,12 +301,11 @@ public class VaultAuthTokenImpl(
 
         public override var path: String = Default.PATH
 
-        override fun buildWithCompletePath(client: HttpClient, completePath: String): VaultAuthTokenImpl {
-            return VaultAuthTokenImpl(
+        override fun buildWithCompletePath(client: HttpClient, completePath: String): VaultAuthTokenImpl =
+            VaultAuthTokenImpl(
                 client = client,
                 path = completePath
             )
-        }
     }
 
     override suspend fun listAccessors(): List<String> {

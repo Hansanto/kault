@@ -18,157 +18,163 @@ import io.kotest.matchers.shouldBe
 
 private const val DEFAULT_METHOD = "approle"
 
-class VaultSystemAuthTest : ShouldSpec({
+class VaultSystemAuthTest :
+    ShouldSpec({
 
-    lateinit var client: VaultClient
-    lateinit var auth: VaultSystemAuth
+        lateinit var client: VaultClient
+        lateinit var auth: VaultSystemAuth
 
-    beforeTest {
-        client = createVaultClient()
-        auth = client.system.auth
+        beforeTest {
+            client = createVaultClient()
+            auth = client.system.auth
 
-        disableAllAuth(client)
-    }
-
-    afterTest {
-        client.close()
-    }
-
-    should("use default path if not set in builder") {
-        VaultSystemAuthImpl.Default.PATH shouldBe "auth"
-
-        val built = VaultSystemAuthImpl(client.client, null) {
+            disableAllAuth(client)
         }
 
-        built.path shouldBe VaultSystemAuthImpl.Default.PATH
-    }
-
-    should("use custom values in the builder") {
-        val randomPath = randomString()
-        val parentPath = randomString()
-
-        val built = VaultSystemAuthImpl(client.client, parentPath) {
-            path = randomPath
+        afterTest {
+            client.close()
         }
 
-        built.path shouldBe "$parentPath/$randomPath"
-    }
+        should("use default path if not set in builder") {
+            VaultSystemAuthImpl.Default.PATH shouldBe "auth"
 
-    should("list with no additional auth methods") {
-        val response = auth.list()
-        val expected =
-            readJson<Map<String, AuthReadConfigurationResponse>>("cases/sys/auth/list/without_additional/expected.json")
-        response shouldBe replaceTemplateString(response, expected)
-    }
+            val built = VaultSystemAuthImpl(client.client, null) {
+            }
 
-    should("list with additional auth methods") {
-        val payload = readJson<EnableMethodPayload>("cases/sys/auth/list/with_additional/given.json")
-        auth.enable(DEFAULT_METHOD, payload) shouldBe true
-
-        val response = auth.list()
-        val expected =
-            readJson<Map<String, AuthReadConfigurationResponse>>("cases/sys/auth/list/with_additional/expected.json")
-        response shouldBe replaceTemplateString(response, expected)
-    }
-
-    should("throw exception when enabling non-existing method with empty payload") {
-        val exception = shouldThrow<Exception> {
-            auth.enable(DEFAULT_METHOD) {}
+            built.path shouldBe VaultSystemAuthImpl.Default.PATH
         }
 
-        (exception !is VaultAPIException) shouldBe true
+        should("use custom values in the builder") {
+            val randomPath = randomString()
+            val parentPath = randomString()
 
-        shouldThrow<VaultAPIException> {
-            auth.readConfiguration(DEFAULT_METHOD)
-        }
-    }
+            val built = VaultSystemAuthImpl(client.client, parentPath) {
+                path = randomPath
+            }
 
-    should("enable method & read configuration with minimal payload") {
-        auth.enable(DEFAULT_METHOD) {
-            type = DEFAULT_METHOD
-        } shouldBe true
-
-        val response = auth.readConfiguration(DEFAULT_METHOD)
-        val expected = readJson<AuthReadConfigurationResponse>("cases/sys/auth/enable/without_options/expected.json")
-        response shouldBe replaceTemplateString(response, expected)
-    }
-
-    should("enable method & read configuration with full payload") {
-        val payload = readJson<EnableMethodPayload>("cases/sys/auth/enable/with_options/given.json")
-        auth.enable(DEFAULT_METHOD, payload) shouldBe true
-
-        val response = auth.readConfiguration(DEFAULT_METHOD)
-        val expected = readJson<AuthReadConfigurationResponse>("cases/sys/auth/enable/with_options/expected.json")
-        response shouldBe replaceTemplateString(response, expected)
-    }
-
-    should("throw exception when disabling non-existing method") {
-        shouldThrow<VaultAPIException> {
-            auth.disable("token")
-        }
-    }
-
-    should("throw exception when reading configuration of non-existing method") {
-        auth.disable(DEFAULT_METHOD) shouldBe true
-        shouldThrow<VaultAPIException> {
-            auth.readConfiguration(DEFAULT_METHOD)
-        }
-    }
-
-    should("disable method if enabled") {
-        auth.enable(DEFAULT_METHOD) {
-            type = DEFAULT_METHOD
-        } shouldBe true
-
-        shouldNotThrow<VaultAPIException> {
-            auth.readConfiguration(DEFAULT_METHOD)
+            built.path shouldBe "$parentPath/$randomPath"
         }
 
-        auth.disable(DEFAULT_METHOD) shouldBe true
-
-        shouldThrow<VaultAPIException> {
-            auth.readConfiguration(DEFAULT_METHOD)
+        should("list with no additional auth methods") {
+            val response = auth.list()
+            val expected =
+                readJson<Map<String, AuthReadConfigurationResponse>>(
+                    "cases/sys/auth/list/without_additional/expected.json"
+                )
+            response shouldBe replaceTemplateString(response, expected)
         }
-    }
 
-    should("throw exception when tuning non-existing method") {
-        shouldThrow<VaultAPIException> {
-            auth.tune(DEFAULT_METHOD)
+        should("list with additional auth methods") {
+            val payload = readJson<EnableMethodPayload>("cases/sys/auth/list/with_additional/given.json")
+            auth.enable(DEFAULT_METHOD, payload) shouldBe true
+
+            val response = auth.list()
+            val expected =
+                readJson<Map<String, AuthReadConfigurationResponse>>(
+                    "cases/sys/auth/list/with_additional/expected.json"
+                )
+            response shouldBe replaceTemplateString(response, expected)
         }
-    }
 
-    should("tune with default values") {
-        assertTune(
-            auth,
-            null,
-            "cases/sys/auth/tune/without_options/expected.json"
-        )
-    }
+        should("throw exception when enabling non-existing method with empty payload") {
+            val exception = shouldThrow<Exception> {
+                auth.enable(DEFAULT_METHOD) {}
+            }
 
-    should("tune with all defined values") {
-        assertTune(
-            auth,
-            "cases/sys/auth/tune/with_options/given.json",
-            "cases/sys/auth/tune/with_options/expected.json"
-        )
-    }
+            (exception !is VaultAPIException) shouldBe true
 
-    should("tune using builder with default values") {
-        assertTuneWithBuilder(
-            auth,
-            null,
-            "cases/sys/auth/tune/without_options/expected.json"
-        )
-    }
+            shouldThrow<VaultAPIException> {
+                auth.readConfiguration(DEFAULT_METHOD)
+            }
+        }
 
-    should("tune using builder with all defined values") {
-        assertTuneWithBuilder(
-            auth,
-            "cases/sys/auth/tune/with_options/given.json",
-            "cases/sys/auth/tune/with_options/expected.json"
-        )
-    }
-})
+        should("enable method & read configuration with minimal payload") {
+            auth.enable(DEFAULT_METHOD) {
+                type = DEFAULT_METHOD
+            } shouldBe true
+
+            val response = auth.readConfiguration(DEFAULT_METHOD)
+            val expected =
+                readJson<AuthReadConfigurationResponse>("cases/sys/auth/enable/without_options/expected.json")
+            response shouldBe replaceTemplateString(response, expected)
+        }
+
+        should("enable method & read configuration with full payload") {
+            val payload = readJson<EnableMethodPayload>("cases/sys/auth/enable/with_options/given.json")
+            auth.enable(DEFAULT_METHOD, payload) shouldBe true
+
+            val response = auth.readConfiguration(DEFAULT_METHOD)
+            val expected = readJson<AuthReadConfigurationResponse>("cases/sys/auth/enable/with_options/expected.json")
+            response shouldBe replaceTemplateString(response, expected)
+        }
+
+        should("throw exception when disabling non-existing method") {
+            shouldThrow<VaultAPIException> {
+                auth.disable("token")
+            }
+        }
+
+        should("throw exception when reading configuration of non-existing method") {
+            auth.disable(DEFAULT_METHOD) shouldBe true
+            shouldThrow<VaultAPIException> {
+                auth.readConfiguration(DEFAULT_METHOD)
+            }
+        }
+
+        should("disable method if enabled") {
+            auth.enable(DEFAULT_METHOD) {
+                type = DEFAULT_METHOD
+            } shouldBe true
+
+            shouldNotThrow<VaultAPIException> {
+                auth.readConfiguration(DEFAULT_METHOD)
+            }
+
+            auth.disable(DEFAULT_METHOD) shouldBe true
+
+            shouldThrow<VaultAPIException> {
+                auth.readConfiguration(DEFAULT_METHOD)
+            }
+        }
+
+        should("throw exception when tuning non-existing method") {
+            shouldThrow<VaultAPIException> {
+                auth.tune(DEFAULT_METHOD)
+            }
+        }
+
+        should("tune with default values") {
+            assertTune(
+                auth,
+                null,
+                "cases/sys/auth/tune/without_options/expected.json"
+            )
+        }
+
+        should("tune with all defined values") {
+            assertTune(
+                auth,
+                "cases/sys/auth/tune/with_options/given.json",
+                "cases/sys/auth/tune/with_options/expected.json"
+            )
+        }
+
+        should("tune using builder with default values") {
+            assertTuneWithBuilder(
+                auth,
+                null,
+                "cases/sys/auth/tune/without_options/expected.json"
+            )
+        }
+
+        should("tune using builder with all defined values") {
+            assertTuneWithBuilder(
+                auth,
+                "cases/sys/auth/tune/with_options/given.json",
+                "cases/sys/auth/tune/with_options/expected.json"
+            )
+        }
+    })
 
 private suspend fun assertTune(auth: VaultSystemAuth, givenPath: String?, expectedPath: String) {
     auth.enable(DEFAULT_METHOD) { type = DEFAULT_METHOD } shouldBe true

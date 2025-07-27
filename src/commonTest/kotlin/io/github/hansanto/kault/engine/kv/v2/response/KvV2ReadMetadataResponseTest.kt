@@ -9,13 +9,14 @@ import kotlinx.datetime.Instant
 import kotlinx.serialization.json.JsonObject
 import kotlin.time.Duration
 
-class KvV2ReadMetadataResponseTest : ShouldSpec({
+class KvV2ReadMetadataResponseTest :
+    ShouldSpec({
 
-    JsonDecoderComposer.composeSerialFieldTest(this) {
-        val response = createResponse(it)
-        response.customMetadata<ComplexSerializableClass>()
-    }
-})
+        JsonDecoderComposer.composeSerialFieldTest(this) {
+            val response = createResponse(it)
+            response.customMetadata<ComplexSerializableClass>()
+        }
+    })
 
 private fun createResponse(customMetadata: JsonObject?) = KvV2ReadMetadataResponse(
     casRequired = randomBoolean(),

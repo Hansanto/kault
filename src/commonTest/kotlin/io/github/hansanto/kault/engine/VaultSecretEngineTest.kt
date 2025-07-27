@@ -7,35 +7,36 @@ import io.github.hansanto.kault.util.randomString
 import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
 
-class VaultSecretEngineTest : ShouldSpec({
+class VaultSecretEngineTest :
+    ShouldSpec({
 
-    lateinit var client: VaultClient
+        lateinit var client: VaultClient
 
-    beforeTest {
-        client = createVaultClient()
-    }
-
-    afterTest {
-        client.close()
-    }
-
-    should("use default path if not set in builder") {
-        val built = VaultSecretEngine(client.client, null) {
+        beforeTest {
+            client = createVaultClient()
         }
 
-        (built.kv2 as VaultKV2EngineImpl).path shouldBe VaultKV2EngineImpl.Default.PATH
-    }
+        afterTest {
+            client.close()
+        }
 
-    should("use custom path if set in builder") {
-        val kv2Path = randomString()
-        val parentPath = randomString()
-
-        val built = VaultSecretEngine(client.client, parentPath) {
-            kv2 {
-                path = kv2Path
+        should("use default path if not set in builder") {
+            val built = VaultSecretEngine(client.client, null) {
             }
+
+            (built.kv2 as VaultKV2EngineImpl).path shouldBe VaultKV2EngineImpl.Default.PATH
         }
 
-        (built.kv2 as VaultKV2EngineImpl).path shouldBe "$parentPath/$kv2Path"
-    }
-})
+        should("use custom path if set in builder") {
+            val kv2Path = randomString()
+            val parentPath = randomString()
+
+            val built = VaultSecretEngine(client.client, parentPath) {
+                kv2 {
+                    path = kv2Path
+                }
+            }
+
+            (built.kv2 as VaultKV2EngineImpl).path shouldBe "$parentPath/$kv2Path"
+        }
+    })

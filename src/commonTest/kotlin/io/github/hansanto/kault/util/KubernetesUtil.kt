@@ -34,9 +34,7 @@ private val KUBERNETES_CA_CERT_FILE = SystemFileValue(".minikube/ca.crt")
  * Get the kubernetes host URL.
  * @return URL of kubernetes host.
  */
-private fun getKubernetesHost(): String {
-    return "https://${getKubernetesIp()}:${getKubernetesPort()}"
-}
+private fun getKubernetesHost(): String = "https://${getKubernetesIp()}:${getKubernetesPort()}"
 
 /**
  * Get the IP of kubernetes from the environment variable.

@@ -25,9 +25,9 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.job
 import kotlinx.coroutines.launch
-import kotlin.time.Clock
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
+import kotlin.time.Clock
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
 
@@ -141,17 +141,15 @@ public class VaultAuth(
          */
         private var tokenBuilder: BuilderDsl<VaultAuthTokenImpl.Builder> = {}
 
-        override fun buildWithCompletePath(client: HttpClient, completePath: String): VaultAuth {
-            return VaultAuth(
-                renewCoroutineScope = CoroutineScope(SupervisorJob(client.coroutineContext.job) + Dispatchers.Default),
-                renewBeforeExpiration = renewBeforeExpiration,
-                tokenInfo = tokenInfo,
-                appRole = VaultAuthAppRoleImpl.Builder().apply(appRoleBuilder).build(client, completePath),
-                userpass = VaultAuthUserpassImpl.Builder().apply(userpassBuilder).build(client, completePath),
-                kubernetes = VaultAuthKubernetesImpl.Builder().apply(kubernetesBuilder).build(client, completePath),
-                token = VaultAuthTokenImpl.Builder().apply(tokenBuilder).build(client, completePath)
-            )
-        }
+        override fun buildWithCompletePath(client: HttpClient, completePath: String): VaultAuth = VaultAuth(
+            renewCoroutineScope = CoroutineScope(SupervisorJob(client.coroutineContext.job) + Dispatchers.Default),
+            renewBeforeExpiration = renewBeforeExpiration,
+            tokenInfo = tokenInfo,
+            appRole = VaultAuthAppRoleImpl.Builder().apply(appRoleBuilder).build(client, completePath),
+            userpass = VaultAuthUserpassImpl.Builder().apply(userpassBuilder).build(client, completePath),
+            kubernetes = VaultAuthKubernetesImpl.Builder().apply(kubernetesBuilder).build(client, completePath),
+            token = VaultAuthTokenImpl.Builder().apply(tokenBuilder).build(client, completePath)
+        )
 
         /**
          * Sets the token information builder.
@@ -266,9 +264,7 @@ public class VaultAuth(
      * Get the [tokenInfo] used to interact with the API.
      * @return The token information used to interact with the API.
      */
-    public fun getTokenInfo(): TokenInfo? {
-        return tokenInfo
-    }
+    public fun getTokenInfo(): TokenInfo? = tokenInfo
 
     /**
      * Retrieve the token information of the current token [tokenInfo]
@@ -301,9 +297,7 @@ public class VaultAuth(
      * If the [tokenInfo] is null, the token will be null.
      * @return The token used to interact with the API.
      */
-    public fun getTokenString(): String? {
-        return getTokenInfo()?.token
-    }
+    public fun getTokenString(): String? = getTokenInfo()?.token
 
     /**
      * Enable the auto-renewal token feature.
