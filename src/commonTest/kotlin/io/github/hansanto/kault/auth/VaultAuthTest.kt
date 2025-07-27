@@ -32,12 +32,12 @@ import io.kotest.matchers.shouldBe
 import io.ktor.utils.io.core.use
 import kotlinx.coroutines.delay
 import kotlin.time.Clock
-import kotlin.time.Instant
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
+import kotlin.time.Instant
 
 class VaultAuthTest :
     ShouldSpec({

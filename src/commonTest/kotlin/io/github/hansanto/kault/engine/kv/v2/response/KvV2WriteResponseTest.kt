@@ -3,8 +3,8 @@ package io.github.hansanto.kault.engine.kv.v2.response
 import io.github.hansanto.kault.compose.JsonDecoderComposer
 import io.github.hansanto.kault.util.ComplexSerializableClass
 import io.kotest.core.spec.style.ShouldSpec
-import kotlin.time.Instant
 import kotlinx.serialization.json.JsonObject
+import kotlin.time.Instant
 
 class KvV2WriteResponseTest :
     ShouldSpec({
