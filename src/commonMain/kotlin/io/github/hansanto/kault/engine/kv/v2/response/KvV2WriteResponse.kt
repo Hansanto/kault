@@ -3,6 +3,7 @@ package io.github.hansanto.kault.engine.kv.v2.response
 import io.github.hansanto.kault.VaultClient
 import io.github.hansanto.kault.common.SecretVersion
 import io.github.hansanto.kault.serializer.optional.OptionalInstantSerializer
+import kotlinx.serialization.Contextual
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -18,6 +19,7 @@ public data class KvV2WriteResponse(
      * The time at which the version was created.
      */
     @SerialName("created_time")
+    @Contextual
     val createdTime: Instant,
 
     /**

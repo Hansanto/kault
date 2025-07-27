@@ -1,6 +1,7 @@
 package io.github.hansanto.kault.auth.approle.response
 
 import io.github.hansanto.kault.serializer.VaultDuration
+import kotlinx.serialization.Contextual
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlin.time.Instant
@@ -17,18 +18,21 @@ public data class AppRoleLookUpSecretIdResponse(
      * Creation time of the secret ID.
      */
     @SerialName("creation_time")
+    @Contextual
     public val creationTime: Instant,
 
     /**
      * Expiration time of the secret ID.
      */
     @SerialName("expiration_time")
+    @Contextual
     public val expirationTime: Instant,
 
     /**
      * Last updated time of the secret ID.
      */
     @SerialName("last_updated_time")
+    @Contextual
     public val lastUpdatedTime: Instant,
 
     /**

@@ -3,6 +3,7 @@ package io.github.hansanto.kault.auth.token.response
 import io.github.hansanto.kault.auth.common.common.TokenInfo
 import io.github.hansanto.kault.auth.common.common.TokenType
 import io.github.hansanto.kault.serializer.VaultDuration
+import kotlinx.serialization.Contextual
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlin.time.Instant
@@ -44,6 +45,7 @@ public data class TokenLookupResponse(
     public val entityId: String,
 
     @SerialName("expire_time")
+    @Contextual
     public val expireTime: Instant?,
 
     @SerialName("explicit_max_ttl")
@@ -53,6 +55,7 @@ public data class TokenLookupResponse(
     public val id: String,
 
     @SerialName("issue_time")
+    @Contextual
     public val issueTime: Instant,
 
     @SerialName("meta")

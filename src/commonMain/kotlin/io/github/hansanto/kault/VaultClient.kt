@@ -19,8 +19,11 @@ import io.ktor.serialization.kotlinx.json.json
 import io.ktor.utils.io.core.Closeable
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.cancel
+import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.modules.SerializersModule
+import kotlin.time.Instant
 
 /**
  * Headers used in each request to the [VaultClient].
@@ -67,6 +70,9 @@ public class VaultClient(
             explicitNulls = false
             isLenient = true
             ignoreUnknownKeys = true
+            serializersModule = SerializersModule {
+                contextual(Instant::class, Instant.serializer())
+            }
         }
 
         /**
@@ -183,6 +189,7 @@ public class VaultClient(
                 system = VaultSystem(client, null, this.sysBuilder),
                 secret = VaultSecretEngine(client, null, this.secretBuilder)
             ).also { vaultClientBuilt ->
+                vaultClient = vaultClientBuilt
                 runCatching {
                     initClient(vaultClientBuilt, authBuilderComplete)
                 }.onFailure { ex ->

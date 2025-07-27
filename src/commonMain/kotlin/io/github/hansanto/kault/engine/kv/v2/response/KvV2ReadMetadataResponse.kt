@@ -4,6 +4,7 @@ import io.github.hansanto.kault.VaultClient
 import io.github.hansanto.kault.common.SecretVersion
 import io.github.hansanto.kault.serializer.VaultDuration
 import io.github.hansanto.kault.serializer.optional.OptionalInstantSerializer
+import kotlinx.serialization.Contextual
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -19,6 +20,7 @@ public data class KvV2ReadMetadataResponse(
     val casRequired: Boolean,
 
     @SerialName("created_time")
+    @Contextual
     val createdTime: Instant,
 
     @SerialName("current_version")
@@ -37,6 +39,7 @@ public data class KvV2ReadMetadataResponse(
     val oldestVersion: SecretVersion,
 
     @SerialName("updated_time")
+    @Contextual
     val updatedTime: Instant,
 
     @SerialName("versions")
@@ -49,6 +52,7 @@ public data class KvV2ReadMetadataResponse(
          * The time at which the version was created.
          */
         @SerialName("created_time")
+        @Contextual
         val createdTime: Instant,
 
         /**
