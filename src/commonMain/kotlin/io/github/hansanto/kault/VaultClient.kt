@@ -183,8 +183,6 @@ public class VaultClient(
                 system = VaultSystem(client, null, this.sysBuilder),
                 secret = VaultSecretEngine(client, null, this.secretBuilder)
             ).also { vaultClientBuilt ->
-                vaultClient = vaultClientBuilt
-
                 runCatching {
                     initClient(vaultClientBuilt, authBuilderComplete)
                 }.onFailure { ex ->

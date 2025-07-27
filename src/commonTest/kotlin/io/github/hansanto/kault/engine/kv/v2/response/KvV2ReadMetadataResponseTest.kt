@@ -5,7 +5,7 @@ import io.github.hansanto.kault.util.ComplexSerializableClass
 import io.github.hansanto.kault.util.randomBoolean
 import io.github.hansanto.kault.util.randomLong
 import io.kotest.core.spec.style.ShouldSpec
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 import kotlinx.serialization.json.JsonObject
 import kotlin.time.Duration
 

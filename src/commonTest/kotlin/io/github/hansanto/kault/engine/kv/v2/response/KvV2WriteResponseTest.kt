@@ -3,7 +3,7 @@ package io.github.hansanto.kault.engine.kv.v2.response
 import io.github.hansanto.kault.compose.JsonDecoderComposer
 import io.github.hansanto.kault.util.ComplexSerializableClass
 import io.kotest.core.spec.style.ShouldSpec
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 import kotlinx.serialization.json.JsonObject
 
 class KvV2WriteResponseTest :

@@ -1,6 +1,6 @@
 package io.github.hansanto.kault.util
 
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 
 const val DEFAULT_ROLE_NAME = "test"
 

@@ -6,7 +6,7 @@ import io.github.hansanto.kault.util.ComplexSerializableClass
 import io.github.hansanto.kault.util.randomBoolean
 import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 import kotlinx.serialization.json.JsonObject
 
 class KvV2ReadResponseTest :

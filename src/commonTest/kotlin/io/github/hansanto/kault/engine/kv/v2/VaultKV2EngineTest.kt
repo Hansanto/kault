@@ -20,7 +20,6 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
-import io.ktor.utils.io.core.use
 
 class VaultKV2EngineTest :
     ShouldSpec({
