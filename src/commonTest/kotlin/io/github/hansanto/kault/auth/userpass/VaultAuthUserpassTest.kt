@@ -215,7 +215,7 @@ private suspend inline fun assertCreateOrUpdate(
     userpass: VaultAuthUserpass,
     givenPath: String,
     expectedReadPath: String,
-    createOrUpdate: (String, UserpassWriteUserPayload) -> Boolean
+    createOrUpdate: suspend (String, UserpassWriteUserPayload) -> Boolean
 ) {
     val username = randomString()
     val given = readJson<UserpassWriteUserPayload>(givenPath)
