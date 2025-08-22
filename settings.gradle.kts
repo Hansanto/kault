@@ -15,7 +15,8 @@ dependencyResolutionManagement {
         create("libs") {
             version("kotlin", "2.2.0")
             version("kotlin-serialization", "1.9.0")
-            version("kotest", "6.0.0.M1")
+            version("ksp", "2.2.10-2.0.2")
+            version("kotest", "6.0.0")
             version("kover", "0.9.1")
             version("kotlinx-datetime", "0.7.1-0.6.x-compat")
             version("kotlinx-coroutines", "1.10.2")
@@ -29,7 +30,8 @@ dependencyResolutionManagement {
 
             plugin("kt-multiplatform", "org.jetbrains.kotlin.multiplatform").versionRef("kotlin")
             plugin("kt-serialization", "org.jetbrains.kotlin.plugin.serialization").versionRef("kotlin")
-            plugin("kotest", "io.kotest.multiplatform").versionRef("kotest")
+            plugin("ksp", "com.google.devtools.ksp").versionRef("ksp")
+            plugin("kotest", "io.kotest").versionRef("kotest")
             plugin("kover", "org.jetbrains.kotlinx.kover").versionRef("kover")
             plugin("dokka", "org.jetbrains.dokka").versionRef("dokka")
             plugin("detekt", "io.gitlab.arturbosch.detekt").versionRef("detekt")

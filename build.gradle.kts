@@ -9,6 +9,7 @@ plugins {
     libs.plugins.run {
         alias(kt.multiplatform)
         alias(kt.serialization)
+        alias(ksp)
         alias(kotest)
         alias(kover)
         alias(dokka)
