@@ -11,6 +11,7 @@ plugins {
         alias(kt.serialization)
         alias(ksp)
         alias(kotest)
+        alias(power.assert)
         alias(kover)
         alias(dokka)
         alias(detekt)
@@ -81,6 +82,10 @@ ktlint {
         reporter(ReporterType.HTML)
         reporter(ReporterType.CHECKSTYLE)
     }
+}
+
+powerAssert {
+    functions = listOf("io.kotest.matchers.shouldBe")
 }
 
 val jvmTargetVersion = JvmTarget.JVM_11
