@@ -22,5 +22,5 @@ ij_properties_keep_blank_lines = true
 [settings.gradle.kts]
 max_line_length = off
 
-[build/generated/**/*]
+[build/**/*]
 ktlint = disabled

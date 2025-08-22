@@ -1,6 +1,6 @@
 package io.github.hansanto.kault.util
 
-import io.kotest.mpp.syspropOrEnv
+import io.kotest.common.syspropOrEnv
 
 interface Valuable {
     val value: String

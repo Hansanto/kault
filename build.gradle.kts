@@ -83,8 +83,8 @@ ktlint {
     }
 }
 
-val jvmTargetVersion = JvmTarget.JVM_1_8
-val jvmTargetVersionNumber = 8
+val jvmTargetVersion = JvmTarget.JVM_11
+val jvmTargetVersionNumber = jvmTargetVersion.target.toInt()
 
 kotlin {
     applyDefaultHierarchyTemplate()
@@ -240,6 +240,10 @@ tasks {
 
     withType<Detekt>().configureEach {
         jvmTarget = jvmTargetVersion.target
+
+        exclude {
+            it.file.path.contains("/build/")
+        }
 
         reports {
             html.required.set(true)
