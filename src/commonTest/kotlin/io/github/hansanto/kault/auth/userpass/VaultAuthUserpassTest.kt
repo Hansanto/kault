@@ -16,172 +16,173 @@ import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
 
-class VaultAuthUserpassTest : ShouldSpec({
+class VaultAuthUserpassTest :
+    ShouldSpec({
 
-    lateinit var client: VaultClient
-    lateinit var userpass: VaultAuthUserpass
+        lateinit var client: VaultClient
+        lateinit var userpass: VaultAuthUserpass
 
-    beforeTest {
-        client = createVaultClient()
-        userpass = client.auth.userpass
+        beforeTest {
+            client = createVaultClient()
+            userpass = client.auth.userpass
 
-        enableAuthMethod(client, "userpass")
-        revokeAllUserpassData(client)
-    }
-
-    afterTest {
-        client.close()
-    }
-
-    should("use default path if not set in builder") {
-        VaultAuthUserpassImpl.Default.PATH shouldBe "userpass"
-
-        val built = VaultAuthUserpassImpl(client.client, null) {
+            enableAuthMethod(client, "userpass")
+            revokeAllUserpassData(client)
         }
 
-        built.path shouldBe VaultAuthUserpassImpl.Default.PATH
-    }
-
-    should("use custom path if set in builder") {
-        val builderPath = randomString()
-        val parentPath = randomString()
-
-        val built = VaultAuthUserpassImpl(client.client, parentPath) {
-            path = builderPath
+        afterTest {
+            client.close()
         }
 
-        built.path shouldBe "$parentPath/$builderPath"
-    }
+        should("use default path if not set in builder") {
+            VaultAuthUserpassImpl.Default.PATH shouldBe "userpass"
 
-    should("create a user with default values") {
-        assertCreateOrUpdate(
-            userpass,
-            "cases/auth/userpass/create/without_options/given.json",
-            "cases/auth/userpass/create/without_options/expected.json"
-        )
-    }
+            val built = VaultAuthUserpassImpl(client.client, null) {
+            }
 
-    should("create a user with all defined values") {
-        assertCreateOrUpdate(
-            userpass,
-            "cases/auth/userpass/create/with_options/given.json",
-            "cases/auth/userpass/create/with_options/expected.json"
-        )
-    }
-
-    should("create a user using builder with default values") {
-        assertCreateOrUpdateWithBuilder(
-            userpass,
-            "cases/auth/userpass/create/without_options/given.json",
-            "cases/auth/userpass/create/without_options/expected.json"
-        )
-    }
-
-    should("create a user using builder with all defined values") {
-        assertCreateOrUpdateWithBuilder(
-            userpass,
-            "cases/auth/userpass/create/with_options/given.json",
-            "cases/auth/userpass/create/with_options/expected.json"
-        )
-    }
-
-    should("do nothing when deleting non-existing role") {
-        shouldThrow<VaultAPIException> { userpass.read(DEFAULT_ROLE_NAME) }
-        userpass.delete(DEFAULT_ROLE_NAME) shouldBe true
-        shouldThrow<VaultAPIException> { userpass.read(DEFAULT_ROLE_NAME) }
-    }
-
-    should("delete existing user") {
-        val username = DEFAULT_ROLE_NAME
-        userpass.createOrUpdate(username) {
-            password = randomString()
+            built.path shouldBe VaultAuthUserpassImpl.Default.PATH
         }
 
-        shouldNotThrow<VaultAPIException> {
-            userpass.read(username)
+        should("use custom path if set in builder") {
+            val builderPath = randomString()
+            val parentPath = randomString()
+
+            val built = VaultAuthUserpassImpl(client.client, parentPath) {
+                path = builderPath
+            }
+
+            built.path shouldBe "$parentPath/$builderPath"
         }
 
-        userpass.delete(username) shouldBe true
-
-        shouldThrow<VaultAPIException> {
-            userpass.read(username)
-        }
-    }
-
-    should("throw exception when updating password with non-existing user") {
-        val username = DEFAULT_ROLE_NAME
-        val password = randomString()
-        shouldThrow<VaultAPIException> {
-            userpass.updatePassword(username, password)
-        }
-    }
-
-    should("update password with existing user") {
-        val username = DEFAULT_ROLE_NAME
-        val firstPassword = randomString()
-        val secondPassword = randomString()
-        userpass.createOrUpdate(username) {
-            password = firstPassword
+        should("create a user with default values") {
+            assertCreateOrUpdate(
+                userpass,
+                "cases/auth/userpass/create/without_options/given.json",
+                "cases/auth/userpass/create/without_options/expected.json"
+            )
         }
 
-        shouldNotThrow<VaultAPIException> {
-            userpass.login(username, firstPassword)
+        should("create a user with all defined values") {
+            assertCreateOrUpdate(
+                userpass,
+                "cases/auth/userpass/create/with_options/given.json",
+                "cases/auth/userpass/create/with_options/expected.json"
+            )
         }
 
-        shouldThrow<VaultAPIException> {
-            userpass.login(username, secondPassword)
+        should("create a user using builder with default values") {
+            assertCreateOrUpdateWithBuilder(
+                userpass,
+                "cases/auth/userpass/create/without_options/given.json",
+                "cases/auth/userpass/create/without_options/expected.json"
+            )
         }
 
-        userpass.updatePassword(username, secondPassword) shouldBe true
-
-        shouldThrow<VaultAPIException> {
-            userpass.login(username, firstPassword)
+        should("create a user using builder with all defined values") {
+            assertCreateOrUpdateWithBuilder(
+                userpass,
+                "cases/auth/userpass/create/with_options/given.json",
+                "cases/auth/userpass/create/with_options/expected.json"
+            )
         }
 
-        shouldNotThrow<VaultAPIException> {
-            userpass.login(username, secondPassword)
-        }
-    }
-
-    should("throw exception when updating policies with non-existing user") {
-        val username = DEFAULT_ROLE_NAME
-        val policies = listOf(randomString())
-        shouldThrow<VaultAPIException> {
-            userpass.updatePolicies(username, policies)
-        }
-    }
-
-    should("update policies with existing user") {
-        val username = DEFAULT_ROLE_NAME
-        val initialPolicies = List(3) { "old-policy-$it" }
-        val newPolicies = listOf("new-policy")
-        userpass.createOrUpdate(username) {
-            password = randomString()
-            tokenPolicies = initialPolicies
+        should("do nothing when deleting non-existing role") {
+            shouldThrow<VaultAPIException> { userpass.read(DEFAULT_ROLE_NAME) }
+            userpass.delete(DEFAULT_ROLE_NAME) shouldBe true
+            shouldThrow<VaultAPIException> { userpass.read(DEFAULT_ROLE_NAME) }
         }
 
-        userpass.updatePolicies(username, newPolicies) shouldBe true
-
-        val user = userpass.read(username)
-        user.tokenPolicies shouldContainExactlyInAnyOrder newPolicies
-    }
-
-    should("throw exception if no role was created when listing users") {
-        shouldThrow<VaultAPIException> {
-            userpass.list()
-        }
-    }
-
-    should("return created users when listing") {
-        val users = List(3) { "test-$it" }
-        users.forEach {
-            userpass.createOrUpdate(it) {
+        should("delete existing user") {
+            val username = DEFAULT_ROLE_NAME
+            userpass.createOrUpdate(username) {
                 password = randomString()
             }
+
+            shouldNotThrow<VaultAPIException> {
+                userpass.read(username)
+            }
+
+            userpass.delete(username) shouldBe true
+
+            shouldThrow<VaultAPIException> {
+                userpass.read(username)
+            }
         }
-        userpass.list() shouldContainExactlyInAnyOrder users
-    }
-})
+
+        should("throw exception when updating password with non-existing user") {
+            val username = DEFAULT_ROLE_NAME
+            val password = randomString()
+            shouldThrow<VaultAPIException> {
+                userpass.updatePassword(username, password)
+            }
+        }
+
+        should("update password with existing user") {
+            val username = DEFAULT_ROLE_NAME
+            val firstPassword = randomString()
+            val secondPassword = randomString()
+            userpass.createOrUpdate(username) {
+                password = firstPassword
+            }
+
+            shouldNotThrow<VaultAPIException> {
+                userpass.login(username, firstPassword)
+            }
+
+            shouldThrow<VaultAPIException> {
+                userpass.login(username, secondPassword)
+            }
+
+            userpass.updatePassword(username, secondPassword) shouldBe true
+
+            shouldThrow<VaultAPIException> {
+                userpass.login(username, firstPassword)
+            }
+
+            shouldNotThrow<VaultAPIException> {
+                userpass.login(username, secondPassword)
+            }
+        }
+
+        should("throw exception when updating policies with non-existing user") {
+            val username = DEFAULT_ROLE_NAME
+            val policies = listOf(randomString())
+            shouldThrow<VaultAPIException> {
+                userpass.updatePolicies(username, policies)
+            }
+        }
+
+        should("update policies with existing user") {
+            val username = DEFAULT_ROLE_NAME
+            val initialPolicies = List(3) { "old-policy-$it" }
+            val newPolicies = listOf("new-policy")
+            userpass.createOrUpdate(username) {
+                password = randomString()
+                tokenPolicies = initialPolicies
+            }
+
+            userpass.updatePolicies(username, newPolicies) shouldBe true
+
+            val user = userpass.read(username)
+            user.tokenPolicies shouldContainExactlyInAnyOrder newPolicies
+        }
+
+        should("throw exception if no role was created when listing users") {
+            shouldThrow<VaultAPIException> {
+                userpass.list()
+            }
+        }
+
+        should("return created users when listing") {
+            val users = List(3) { "test-$it" }
+            users.forEach {
+                userpass.createOrUpdate(it) {
+                    password = randomString()
+                }
+            }
+            userpass.list() shouldContainExactlyInAnyOrder users
+        }
+    })
 
 private suspend fun assertCreateOrUpdate(userpass: VaultAuthUserpass, givenPath: String, expectedReadPath: String) {
     assertCreateOrUpdate(userpass, givenPath, expectedReadPath) { username, given ->

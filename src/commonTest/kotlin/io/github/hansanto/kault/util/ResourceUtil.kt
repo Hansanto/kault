@@ -8,9 +8,7 @@ import io.github.hansanto.kault.VaultClient
  * @receiver Path of the file that should be present in the resource folder.
  * @return Resource object to read the file content.
  */
-fun String.asResourceFile(): Resource {
-    return Resource("src/commonTest/resources/$this")
-}
+fun String.asResourceFile(): Resource = Resource("src/commonTest/resources/$this")
 
 /**
  * Search a file in the resources test folder and read its content as a string.
@@ -18,6 +16,4 @@ fun String.asResourceFile(): Resource {
  * @param name Path of the file that should be present in the resource folder.
  * @return Object of type T.
  */
-inline fun <reified T> readJson(name: String): T {
-    return VaultClient.json.decodeFromString(name.asResourceFile().readText())
-}
+inline fun <reified T> readJson(name: String): T = VaultClient.json.decodeFromString(name.asResourceFile().readText())

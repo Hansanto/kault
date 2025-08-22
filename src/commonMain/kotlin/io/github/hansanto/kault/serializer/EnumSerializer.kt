@@ -29,9 +29,7 @@ public abstract class EnumSerializer<T : Enum<T>>(
         encoder.encodeString(enumToValue(value))
     }
 
-    override fun deserialize(decoder: Decoder): T {
-        return findEnumValue(decoder.decodeString())
-    }
+    override fun deserialize(decoder: Decoder): T = findEnumValue(decoder.decodeString())
 
     /**
      * Finds the matching enum value for a given decoded string.
@@ -40,12 +38,10 @@ public abstract class EnumSerializer<T : Enum<T>>(
      * @return The matching enum value.
      * @throws SerializationException if no matching enum value is found.
      */
-    private fun findEnumValue(decoded: String): T {
-        return values.firstOrNull { enumToValue(it) == decoded }
-            ?: throw SerializationException(
-                "Invalid enum value: $decoded. Valid values are: ${
-                    values.joinToString { enumToValue(it) }
-                }"
-            )
-    }
+    private fun findEnumValue(decoded: String): T = values.firstOrNull { enumToValue(it) == decoded }
+        ?: throw SerializationException(
+            "Invalid enum value: $decoded. Valid values are: ${
+                values.joinToString { enumToValue(it) }
+            }"
+        )
 }

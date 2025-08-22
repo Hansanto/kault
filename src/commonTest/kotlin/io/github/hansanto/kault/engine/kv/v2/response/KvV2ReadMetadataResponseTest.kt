@@ -5,17 +5,18 @@ import io.github.hansanto.kault.util.ComplexSerializableClass
 import io.github.hansanto.kault.util.randomBoolean
 import io.github.hansanto.kault.util.randomLong
 import io.kotest.core.spec.style.ShouldSpec
-import kotlinx.datetime.Instant
 import kotlinx.serialization.json.JsonObject
 import kotlin.time.Duration
+import kotlin.time.Instant
 
-class KvV2ReadMetadataResponseTest : ShouldSpec({
+class KvV2ReadMetadataResponseTest :
+    ShouldSpec({
 
-    JsonDecoderComposer.composeSerialFieldTest(this) {
-        val response = createResponse(it)
-        response.customMetadata<ComplexSerializableClass>()
-    }
-})
+        JsonDecoderComposer.composeSerialFieldTest(this) {
+            val response = createResponse(it)
+            response.customMetadata<ComplexSerializableClass>()
+        }
+    })
 
 private fun createResponse(customMetadata: JsonObject?) = KvV2ReadMetadataResponse(
     casRequired = randomBoolean(),

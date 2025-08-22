@@ -64,9 +64,8 @@ public suspend inline fun HttpClient.list(builder: HttpRequestBuilder): HttpResp
  * @param format Format to use to decode the JSON object.
  * @return Decoded value of the specified field.
  */
-public suspend inline fun HttpResponse.decodeBodyJsonWarningFieldArray(format: Json = VaultClient.json): List<String> {
-    return decodeBodyJsonFieldArray(ResponseFields.WARNINGS, format)
-}
+public suspend inline fun HttpResponse.decodeBodyJsonWarningFieldArray(format: Json = VaultClient.json): List<String> =
+    decodeBodyJsonFieldArray(ResponseFields.WARNINGS, format)
 
 /**
  * Decodes the response body as a JSON object and returns the value of the "auth" field.
@@ -75,9 +74,8 @@ public suspend inline fun HttpResponse.decodeBodyJsonWarningFieldArray(format: J
  * @param format Format to use to decode the JSON object.
  * @return Decoded value of the specified field.
  */
-public suspend inline fun <reified T> HttpResponse.decodeBodyJsonAuthFieldObject(format: Json = VaultClient.json): T {
-    return decodeBodyJsonFieldObject(ResponseFields.AUTH, format)
-}
+public suspend inline fun <reified T> HttpResponse.decodeBodyJsonAuthFieldObject(format: Json = VaultClient.json): T =
+    decodeBodyJsonFieldObject(ResponseFields.AUTH, format)
 
 /**
  * Decodes the response body as a JSON object and returns the value of the "data" field.
@@ -86,9 +84,8 @@ public suspend inline fun <reified T> HttpResponse.decodeBodyJsonAuthFieldObject
  * @param format Format to use to decode the JSON object.
  * @return Decoded value of the specified field.
  */
-public suspend inline fun <reified T> HttpResponse.decodeBodyJsonDataFieldObject(format: Json = VaultClient.json): T {
-    return decodeBodyJsonFieldObject(ResponseFields.DATA, format)
-}
+public suspend inline fun <reified T> HttpResponse.decodeBodyJsonDataFieldObject(format: Json = VaultClient.json): T =
+    decodeBodyJsonFieldObject(ResponseFields.DATA, format)
 
 /**
  * Decodes the response body as a JSON object and returns the value of the "data" field.
@@ -100,9 +97,7 @@ public suspend inline fun <reified T> HttpResponse.decodeBodyJsonDataFieldObject
  */
 public suspend inline fun <reified T> HttpResponse.decodeBodyJsonDataFieldObjectOrNull(
     format: Json = VaultClient.json
-): T? {
-    return decodeBodyJsonFieldObjectOrNull(ResponseFields.DATA, format)
-}
+): T? = decodeBodyJsonFieldObjectOrNull(ResponseFields.DATA, format)
 
 /**
  * Decodes the response body as a JSON object and returns the value of the specified field.
@@ -116,13 +111,11 @@ public suspend inline fun <reified T> HttpResponse.decodeBodyJsonDataFieldObject
 public suspend inline fun <reified T> HttpResponse.decodeBodyJsonFieldObject(
     fieldName: String,
     format: Json = VaultClient.json
-): T {
-    return decodeBodyJsonFieldObject(
-        { it[fieldName]?.jsonObject },
-        { throw VaultAPIException() },
-        format
-    ) ?: throw VaultFieldNotFoundException(fieldName)
-}
+): T = decodeBodyJsonFieldObject(
+    { it[fieldName]?.jsonObject },
+    { throw VaultAPIException() },
+    format
+) ?: throw VaultFieldNotFoundException(fieldName)
 
 /**
  * Decodes the response body as a JSON object and returns the value of the specified field.
@@ -136,13 +129,11 @@ public suspend inline fun <reified T> HttpResponse.decodeBodyJsonFieldObject(
 public suspend inline fun <reified T> HttpResponse.decodeBodyJsonFieldObjectOrNull(
     fieldName: String,
     format: Json = VaultClient.json
-): T? {
-    return decodeBodyJsonFieldObject(
-        { it[fieldName]?.jsonObject },
-        { null },
-        format
-    )
-}
+): T? = decodeBodyJsonFieldObject(
+    { it[fieldName]?.jsonObject },
+    { null },
+    format
+)
 
 /**
  * Decodes the response body as a JSON array and returns the value of the specified field as a list.
@@ -156,13 +147,11 @@ public suspend inline fun <reified T> HttpResponse.decodeBodyJsonFieldObjectOrNu
 public suspend inline fun <reified T> HttpResponse.decodeBodyJsonFieldArray(
     fieldName: String,
     format: Json = VaultClient.json
-): List<T> {
-    return decodeBodyJsonFieldObject(
-        { it[fieldName]?.jsonArray },
-        { throw VaultAPIException() },
-        format
-    ) ?: throw VaultFieldNotFoundException(fieldName)
-}
+): List<T> = decodeBodyJsonFieldObject(
+    { it[fieldName]?.jsonArray },
+    { throw VaultAPIException() },
+    format
+) ?: throw VaultFieldNotFoundException(fieldName)
 
 /**
  * Decodes the response body as a JSON object and returns the value of the specified field.
