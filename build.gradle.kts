@@ -77,12 +77,6 @@ kover {
 }
 
 ktlint {
-    filter {
-        exclude {
-            it.file.path.contains("/generated/")
-        }
-    }
-
     reporters {
         reporter(ReporterType.HTML)
         reporter(ReporterType.CHECKSTYLE)
