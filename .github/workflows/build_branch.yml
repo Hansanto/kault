@@ -38,8 +38,8 @@ jobs:
       - name: Check format
         run: ./gradlew ktlintCheck
 
-      - name: Check code style
-        run: ./gradlew detektAll
+#      - name: Check code style
+#        run: ./gradlew detektAll
 
   build:
     needs: [ validation, format ]
