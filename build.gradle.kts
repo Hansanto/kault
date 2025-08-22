@@ -76,6 +76,19 @@ kover {
     }
 }
 
+ktlint {
+    filter {
+        exclude {
+            it.file.path.contains("/generated/")
+        }
+    }
+
+    reporters {
+        reporter(ReporterType.HTML)
+        reporter(ReporterType.CHECKSTYLE)
+    }
+}
+
 val jvmTargetVersion = JvmTarget.JVM_1_8
 val jvmTargetVersionNumber = 8
 
@@ -227,13 +240,6 @@ tasks.withType<AbstractPublishToMaven>().configureEach {
 //endregion
 
 tasks {
-    configure<org.jlleitschuh.gradle.ktlint.KtlintExtension> {
-        reporters {
-            reporter(ReporterType.HTML)
-            reporter(ReporterType.CHECKSTYLE)
-        }
-    }
-
     withType<org.jlleitschuh.gradle.ktlint.tasks.GenerateReportsTask> {
         reportsOutputDirectory.set(reportFolder.resolve("klint/$name"))
     }
