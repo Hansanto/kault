@@ -528,7 +528,7 @@ private suspend inline fun updateMetadataWithSecret(
     kv2: VaultKV2Engine,
     writeGivenPath: String,
     readExpectedPath: String,
-    updateMetadata: suspend (String, KvV2WriteMetadataRequest) -> Boolean
+    updateMetadata: (String, KvV2WriteMetadataRequest) -> Boolean
 ) {
     val path = randomString()
     val writeSecretResponse = kv2.createOrUpdateSecret(path, simpleWriteRequestBuilder())

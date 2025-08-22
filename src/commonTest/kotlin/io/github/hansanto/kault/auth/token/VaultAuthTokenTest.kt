@@ -480,7 +480,7 @@ class VaultAuthTokenTest :
 private suspend inline fun assertRevokeToken(
     client: VaultClient,
     childrenAreOrphan: Boolean,
-    revoke: suspend (TokenCreateResponse) -> Boolean
+    revoke: (TokenCreateResponse) -> Boolean
 ) {
     val token = client.auth.token
 
@@ -569,7 +569,7 @@ private suspend inline fun assertRenewToken(
     token: VaultAuthToken,
     increment: VaultDuration?,
     expectedReadPath: String,
-    renewToken: suspend (TokenCreateResponse, TokenRenewPayload) -> TokenCreateResponse
+    renewToken: (TokenCreateResponse, TokenRenewPayload) -> TokenCreateResponse
 ) {
     val tokenCreateResponse = token.createToken {
         renewable = true
@@ -607,7 +607,7 @@ private suspend inline fun assertLookupToken(
     token: VaultAuthToken,
     givenPath: String?,
     expectedReadPath: String,
-    lookupToken: suspend (TokenCreateResponse) -> TokenLookupResponse
+    lookupToken: (TokenCreateResponse) -> TokenLookupResponse
 ) {
     val response = createToken(givenPath) { payload ->
         token.createToken(payload)
@@ -654,10 +654,10 @@ private suspend fun assertCreateTokenWithBuilder(token: VaultAuthToken, givenPat
     }
 }
 
-private suspend inline fun assertCreateToken(
+private inline fun assertCreateToken(
     givenPath: String?,
     expectedReadPath: String,
-    create: suspend (TokenCreatePayload) -> TokenCreateResponse
+    create: (TokenCreatePayload) -> TokenCreateResponse
 ) {
     val response = createToken(givenPath, create)
 
@@ -721,7 +721,7 @@ private suspend inline fun assertCreateTokenRole(
     roleName: String,
     givenPath: String?,
     expectedReadPath: String,
-    create: suspend (TokenWriteRolePayload) -> Boolean
+    create: (TokenWriteRolePayload) -> Boolean
 ) {
     shouldThrow<VaultAPIException> {
         token.readTokenRole(roleName)
@@ -789,7 +789,7 @@ private suspend inline fun assertUpdateTokenRole(
     roleName: String,
     givenPath: String?,
     expectedReadPath: String,
-    update: suspend (TokenWriteRolePayload) -> Boolean
+    update: (TokenWriteRolePayload) -> Boolean
 ) {
     shouldThrow<VaultAPIException> {
         token.readTokenRole(roleName)
@@ -858,7 +858,7 @@ private suspend inline fun assertCreateTokenRoleName(
     roleName: String,
     givenPath: String?,
     expectedReadPath: String,
-    create: suspend (TokenCreatePayload) -> TokenCreateResponse
+    create: (TokenCreatePayload) -> TokenCreateResponse
 ) {
     shouldThrow<VaultAPIException> {
         token.readTokenRole(roleName)
@@ -871,18 +871,15 @@ private suspend inline fun assertCreateTokenRoleName(
     response shouldBe replaceTemplateString(expected, response)
 }
 
-private suspend inline fun createToken(
+private inline fun createToken(
     givenPath: String?,
-    create: suspend (TokenCreatePayload) -> TokenCreateResponse
+    create: (TokenCreatePayload) -> TokenCreateResponse
 ): TokenCreateResponse {
     val given = givenPath?.let { readJson<TokenCreatePayload>(it) } ?: TokenCreatePayload()
     return create(given)
 }
 
-private suspend inline fun createTokenRole(
-    givenPath: String?,
-    createOrUpdate: suspend (TokenWriteRolePayload) -> Boolean
-): Boolean {
+private inline fun createTokenRole(givenPath: String?, createOrUpdate: (TokenWriteRolePayload) -> Boolean): Boolean {
     val given = givenPath?.let { readJson<TokenWriteRolePayload>(it) } ?: TokenWriteRolePayload()
     return createOrUpdate(given)
 }

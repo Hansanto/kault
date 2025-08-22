@@ -519,8 +519,8 @@ private suspend inline fun <reified P> assertCreateAndReadSecret(
     expectedWritePath: String,
     expectedReadPath: String,
     defaultPayload: () -> P,
-    write: suspend (String, P) -> AppRoleWriteSecretIdResponse,
-    read: suspend (String, AppRoleWriteSecretIdResponse) -> AppRoleLookUpSecretIdResponse
+    write: (String, P) -> AppRoleWriteSecretIdResponse,
+    read: (String, AppRoleWriteSecretIdResponse) -> AppRoleLookUpSecretIdResponse
 ) {
     appRole.createOrUpdate(DEFAULT_ROLE_NAME) shouldBe true
 
@@ -579,7 +579,7 @@ private suspend inline fun assertCreateRole(
     appRole: VaultAuthAppRole,
     givenPath: String?,
     expectedReadPath: String,
-    createOrUpdate: suspend (String, AppRoleCreateOrUpdatePayload) -> Boolean
+    createOrUpdate: (String, AppRoleCreateOrUpdatePayload) -> Boolean
 ) {
     val given = givenPath?.let { readJson<AppRoleCreateOrUpdatePayload>(it) } ?: AppRoleCreateOrUpdatePayload()
     createOrUpdate(DEFAULT_ROLE_NAME, given) shouldBe true
@@ -589,7 +589,7 @@ private suspend inline fun assertCreateRole(
 private suspend inline fun assertLogin(
     appRole: VaultAuthAppRole,
     expectedWritePath: String,
-    login: suspend (String, String) -> LoginResponse
+    login: (String, String) -> LoginResponse
 ) {
     appRole.createOrUpdate(DEFAULT_ROLE_NAME) shouldBe true
     val secretId = appRole.generateSecretID(DEFAULT_ROLE_NAME).secretId

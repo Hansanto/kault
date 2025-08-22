@@ -150,7 +150,7 @@ private suspend inline fun assertListWithEnabledAudit(
     audit: VaultSystemAudit,
     givenPaths: List<String>,
     expectedPath: String,
-    enableAudit: suspend (String, AuditingEnableDevicePayload) -> Boolean
+    enableAudit: (String, AuditingEnableDevicePayload) -> Boolean
 ) {
     givenPaths.forEachIndexed { index, value ->
         val given = readJson<AuditingEnableDevicePayload>(value)

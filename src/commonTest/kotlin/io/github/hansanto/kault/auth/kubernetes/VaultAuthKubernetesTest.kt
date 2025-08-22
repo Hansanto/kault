@@ -175,7 +175,7 @@ class VaultAuthKubernetesTest :
 private suspend inline fun assertLogin(
     kubernetes: VaultAuthKubernetes,
     expectedWritePath: String,
-    login: suspend (String, String) -> LoginResponse
+    login: (String, String) -> LoginResponse
 ) {
     createRole(kubernetes, DEFAULT_ROLE_NAME)
 
@@ -229,7 +229,7 @@ private suspend inline fun assertCreateOrUpdateRole(
     kubernetes: VaultAuthKubernetes,
     givenPath: String,
     expectedReadPath: String,
-    createOrUpdate: suspend (String, KubernetesWriteAuthRolePayload) -> Boolean
+    createOrUpdate: (String, KubernetesWriteAuthRolePayload) -> Boolean
 ) {
     val given = readJson<KubernetesWriteAuthRolePayload>(givenPath)
     createOrUpdate(DEFAULT_ROLE_NAME, given) shouldBe true
