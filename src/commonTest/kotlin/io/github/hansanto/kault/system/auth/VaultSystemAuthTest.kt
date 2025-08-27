@@ -88,7 +88,7 @@ class VaultSystemAuthTest :
             }
         }
 
-        should("enable method & read configuration with minimal payload") {
+        should("enable method and read configuration with minimal payload") {
             auth.enable(DEFAULT_METHOD) {
                 type = DEFAULT_METHOD
             } shouldBe true
@@ -99,7 +99,7 @@ class VaultSystemAuthTest :
             response shouldBe replaceTemplateString(response, expected)
         }
 
-        should("enable method & read configuration with full payload") {
+        should("enable method and read configuration with full payload") {
             val payload = readJson<EnableMethodPayload>("cases/sys/auth/enable/with_options/given.json")
             auth.enable(DEFAULT_METHOD, payload) shouldBe true
 

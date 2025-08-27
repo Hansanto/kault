@@ -6,7 +6,7 @@ import io.kotest.matchers.shouldBe
 class HttpExtTest :
     ShouldSpec({
 
-        should("check that URL_PATH_SEPARATOR is /") {
+        should("check that URL_PATH_SEPARATOR is slash") {
             URL_PATH_SEPARATOR shouldBe "/"
         }
     })
