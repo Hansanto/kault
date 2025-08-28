@@ -33,11 +33,14 @@ class VaultKV2EngineTest {
     @BeforeTest
     fun onBefore() = runTest {
         client = createVaultClient()
-        if (initialKv2Configuration == null) {
-            initialKv2Configuration = client.secret.kv2.readConfiguration()
-        }
         kv2 = client.secret.kv2
-        // Reset the configuration to have the same starting point for each test
+        if (initialKv2Configuration == null) {
+            initialKv2Configuration = kv2.readConfiguration()
+        }
+    }
+
+    @AfterTest
+    fun onAfter() = runTest {
         kv2.configure(
             KvV2ConfigureRequest(
                 casRequired = initialKv2Configuration!!.casRequired,
@@ -45,10 +48,6 @@ class VaultKV2EngineTest {
                 maxVersions = initialKv2Configuration!!.maxVersions
             )
         )
-    }
-
-    @AfterTest
-    fun onAfter() {
         client.close()
     }
 
