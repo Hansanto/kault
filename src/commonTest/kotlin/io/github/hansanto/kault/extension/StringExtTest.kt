@@ -79,6 +79,7 @@ class StringExtTest {
             actual shouldBe expected
         }
 
+    @Suppress("ktlint:standard:max-line-length")
     @Test
     fun `should add url child path with non-empty parent and non-empty child with leading slash and no trailing slash`() =
         runTest {
@@ -89,6 +90,7 @@ class StringExtTest {
             actual shouldBe expected
         }
 
+    @Suppress("ktlint:standard:max-line-length")
     @Test
     fun `should add url child path with non-empty parent and non-empty child with no leading slash and trailing slash`() =
         runTest {
