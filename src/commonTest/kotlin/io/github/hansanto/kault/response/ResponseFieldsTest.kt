@@ -1,13 +1,14 @@
 package io.github.hansanto.kault.response
 
-import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
+import kotlinx.coroutines.test.runTest
+import kotlin.test.Test
 
-class ResponseFieldsTest :
-    ShouldSpec({
+class ResponseFieldsTest {
 
-        should("have fields matching the response structure") {
-            ResponseFields.DATA shouldBe "data"
-            ResponseFields.AUTH shouldBe "auth"
-        }
-    })
+    @Test
+    fun `should have fields matching the response structure`() = runTest {
+        ResponseFields.DATA shouldBe "data"
+        ResponseFields.AUTH shouldBe "auth"
+    }
+}

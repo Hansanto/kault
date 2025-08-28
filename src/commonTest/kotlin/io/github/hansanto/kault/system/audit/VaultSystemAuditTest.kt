@@ -7,119 +7,133 @@ import io.github.hansanto.kault.util.createVaultClient
 import io.github.hansanto.kault.util.disableAllAudit
 import io.github.hansanto.kault.util.randomString
 import io.github.hansanto.kault.util.readJson
-import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
+import kotlinx.coroutines.test.runTest
+import kotlin.test.AfterTest
+import kotlin.test.BeforeTest
+import kotlin.test.Test
 
-class VaultSystemAuditTest :
-    ShouldSpec({
+class VaultSystemAuditTest {
 
-        lateinit var client: VaultClient
-        lateinit var audit: VaultSystemAudit
+    lateinit var client: VaultClient
+    lateinit var audit: VaultSystemAudit
 
-        beforeTest {
-            client = createVaultClient()
-            audit = client.system.audit
-            disableAllAudit(client)
+    @BeforeTest
+    fun onBefore() = runTest {
+        client = createVaultClient()
+        audit = client.system.audit
+        disableAllAudit(client)
+    }
+
+    @AfterTest
+    fun onAfter() = runTest {
+        client.close()
+    }
+
+    @Test
+    fun `should use default path if not set in builder`() = runTest {
+        VaultSystemAuditImpl.Default.PATH shouldBe "audit"
+
+        val built = VaultSystemAuditImpl(client.client, null) {
         }
 
-        afterTest {
-            client.close()
+        built.path shouldBe VaultSystemAuditImpl.Default.PATH
+    }
+
+    @Test
+    fun `should use custom values in the builder`() = runTest {
+        val randomPath = randomString()
+        val parentPath = randomString()
+
+        val built = VaultSystemAuditImpl(client.client, parentPath) {
+            path = randomPath
         }
 
-        should("use default path if not set in builder") {
-            VaultSystemAuditImpl.Default.PATH shouldBe "audit"
+        built.path shouldBe "$parentPath/$randomPath"
+    }
 
-            val built = VaultSystemAuditImpl(client.client, null) {
-            }
+    @Test
+    fun `should list without audit enabled`() = runTest {
+        val response = audit.list()
+        response.size shouldBe 0
+    }
 
-            built.path shouldBe VaultSystemAuditImpl.Default.PATH
-        }
+    @Test
+    fun `should list with audit enabled with default values`() = runTest {
+        assertListWithEnabledAudit(
+            audit,
+            listOf(
+                "cases/sys/audit/without_options/given.json"
+            ),
+            "cases/sys/audit/without_options/expected.json"
+        )
+    }
 
-        should("use custom values in the builder") {
-            val randomPath = randomString()
-            val parentPath = randomString()
+    @Test
+    fun `should list with audit enabled with all defined values`() = runTest {
+        assertListWithEnabledAudit(
+            audit,
+            listOf(
+                "cases/sys/audit/with_options/given.json"
+            ),
+            "cases/sys/audit/with_options/expected.json"
+        )
+    }
 
-            val built = VaultSystemAuditImpl(client.client, parentPath) {
-                path = randomPath
-            }
+    @Test
+    fun `should list with several audit enabled`() = runTest {
+        assertListWithEnabledAudit(
+            audit,
+            listOf(
+                "cases/sys/audit/several_audit/given1.json",
+                "cases/sys/audit/several_audit/given2.json"
+            ),
+            "cases/sys/audit/several_audit/expected.json"
+        )
+    }
 
-            built.path shouldBe "$parentPath/$randomPath"
-        }
+    @Test
+    fun `should list using builder with audit enabled with all defined values`() = runTest {
+        assertListWithEnabledAuditWithBuilder(
+            audit,
+            listOf(
+                "cases/sys/audit/with_options/given.json"
+            ),
+            "cases/sys/audit/with_options/expected.json"
+        )
+    }
 
-        should("list without audit enabled") {
-            val response = audit.list()
-            response.size shouldBe 0
-        }
+    @Test
+    fun `should list using builder with several audit enabled`() = runTest {
+        assertListWithEnabledAuditWithBuilder(
+            audit,
+            listOf(
+                "cases/sys/audit/several_audit/given1.json",
+                "cases/sys/audit/several_audit/given2.json"
+            ),
+            "cases/sys/audit/several_audit/expected.json"
+        )
+    }
 
-        should("list with audit enabled with default values") {
-            assertListWithEnabledAudit(
-                audit,
-                listOf(
-                    "cases/sys/audit/without_options/given.json"
-                ),
-                "cases/sys/audit/without_options/expected.json"
-            )
-        }
+    @Test
+    fun `should disable with non-existing audit`() = runTest {
+        val response = audit.disable("non-existing-audit")
+        response shouldBe true
+    }
 
-        should("list with audit enabled with all defined values") {
-            assertListWithEnabledAudit(
-                audit,
-                listOf(
-                    "cases/sys/audit/with_options/given.json"
-                ),
-                "cases/sys/audit/with_options/expected.json"
-            )
-        }
+    @Test
+    fun `should disable with existing audit`() = runTest {
+        val given = readJson<AuditingEnableDevicePayload>("cases/sys/audit/without_options/given.json")
+        val path = "role"
+        audit.enable(path, given) shouldBe true
 
-        should("list with several audit enabled") {
-            assertListWithEnabledAudit(
-                audit,
-                listOf(
-                    "cases/sys/audit/several_audit/given1.json",
-                    "cases/sys/audit/several_audit/given2.json"
-                ),
-                "cases/sys/audit/several_audit/expected.json"
-            )
-        }
+        val response = audit.disable(path)
+        response shouldBe true
 
-        should("list using builder with audit enabled with all defined values") {
-            assertListWithEnabledAuditWithBuilder(
-                audit,
-                listOf(
-                    "cases/sys/audit/with_options/given.json"
-                ),
-                "cases/sys/audit/with_options/expected.json"
-            )
-        }
-
-        should("list using builder with several audit enabled") {
-            assertListWithEnabledAuditWithBuilder(
-                audit,
-                listOf(
-                    "cases/sys/audit/several_audit/given1.json",
-                    "cases/sys/audit/several_audit/given2.json"
-                ),
-                "cases/sys/audit/several_audit/expected.json"
-            )
-        }
-
-        should("disable with non-existing audit") {
-            val response = audit.disable("non-existing-audit")
-            response shouldBe true
-        }
-
-        should("disable with existing audit") {
-            val given = readJson<AuditingEnableDevicePayload>("cases/sys/audit/without_options/given.json")
-            val path = "role"
-            audit.enable(path, given) shouldBe true
-
-            val response = audit.disable(path)
-            response shouldBe true
-
-            val list = audit.list()
-            list.size shouldBe 0
-        }
-    })
+        val list = audit.list()
+        list.size shouldBe 0
+    }
+}
 
 private suspend inline fun assertListWithEnabledAudit(
     audit: VaultSystemAudit,

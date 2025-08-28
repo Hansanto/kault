@@ -17,160 +17,179 @@ import io.github.hansanto.kault.util.replaceTemplateString
 import io.github.hansanto.kault.util.revokeAllKubernetesData
 import io.kotest.assertions.throwables.shouldNotThrow
 import io.kotest.assertions.throwables.shouldThrow
-import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
+import kotlinx.coroutines.test.runTest
+import kotlin.test.AfterTest
+import kotlin.test.BeforeTest
+import kotlin.test.Test
 
-class VaultAuthKubernetesTest :
-    ShouldSpec({
+class VaultAuthKubernetesTest {
 
-        lateinit var client: VaultClient
-        lateinit var kubernetes: VaultAuthKubernetes
+    lateinit var client: VaultClient
+    lateinit var kubernetes: VaultAuthKubernetes
 
-        beforeTest {
-            client = createVaultClient()
-            kubernetes = client.auth.kubernetes
+    @BeforeTest
+    fun onBefore() = runTest {
+        client = createVaultClient()
+        kubernetes = client.auth.kubernetes
 
-            enableAuthMethod(client, "kubernetes")
+        enableAuthMethod(client, "kubernetes")
 
-            kubernetes.configure {
-                kubernetesHost = KubernetesUtil.host
-                kubernetesCaCert = KubernetesUtil.caCert
-                tokenReviewerJwt = KubernetesUtil.token
-            }
-
-            revokeAllKubernetesData(client)
-
-            shouldThrow<VaultAPIException> { kubernetes.readRole(DEFAULT_ROLE_NAME) }
+        kubernetes.configure {
+            kubernetesHost = KubernetesUtil.host
+            kubernetesCaCert = KubernetesUtil.caCert
+            tokenReviewerJwt = KubernetesUtil.token
         }
 
-        afterTest {
-            client.close()
+        revokeAllKubernetesData(client)
+
+        shouldThrow<VaultAPIException> { kubernetes.readRole(DEFAULT_ROLE_NAME) }
+    }
+
+    @AfterTest
+    fun onAfter() = runTest {
+        client.close()
+    }
+
+    @Test
+    fun `should use default path if not set in builder`() = runTest {
+        VaultAuthKubernetesImpl.Default.PATH shouldBe "kubernetes"
+
+        val built = VaultAuthKubernetesImpl(client.client, null) {
         }
 
-        should("use default path if not set in builder") {
-            VaultAuthKubernetesImpl.Default.PATH shouldBe "kubernetes"
+        built.path shouldBe VaultAuthKubernetesImpl.Default.PATH
+    }
 
-            val built = VaultAuthKubernetesImpl(client.client, null) {
-            }
+    @Test
+    fun `should use custom path if set in builder`() = runTest {
+        val builderPath = randomString()
+        val parentPath = randomString()
 
-            built.path shouldBe VaultAuthKubernetesImpl.Default.PATH
+        val built = VaultAuthKubernetesImpl(client.client, parentPath) {
+            path = builderPath
         }
 
-        should("use custom path if set in builder") {
-            val builderPath = randomString()
-            val parentPath = randomString()
+        built.path shouldBe "$parentPath/$builderPath"
+    }
 
-            val built = VaultAuthKubernetesImpl(client.client, parentPath) {
-                path = builderPath
-            }
+    @Test
+    fun `should read default configuration`() = runTest {
+        kubernetes.readConfiguration() shouldBe KubernetesConfigureAuthResponse(
+            kubernetesHost = KubernetesUtil.host,
+            kubernetesCaCert = KubernetesUtil.caCert,
+            pemKeys = emptyList(),
+            disableLocalCaJwt = false
+        )
+    }
 
-            built.path shouldBe "$parentPath/$builderPath"
+    @Test
+    fun `should create a role with default values`() = runTest {
+        assertCreateOrUpdateRole(
+            kubernetes,
+            "cases/auth/kubernetes/create/without_options/given.json",
+            "cases/auth/kubernetes/create/without_options/expected.json"
+        )
+    }
+
+    @Test
+    fun `should create a role with all defined values`() = runTest {
+        assertCreateOrUpdateRole(
+            kubernetes,
+            "cases/auth/kubernetes/create/with_options/given.json",
+            "cases/auth/kubernetes/create/with_options/expected.json"
+        )
+    }
+
+    @Test
+    fun `should create a role using builder with default values`() = runTest {
+        assertCreateOrUpdateRoleWithBuilder(
+            kubernetes,
+            "cases/auth/kubernetes/create/without_options/given.json",
+            "cases/auth/kubernetes/create/without_options/expected.json"
+        )
+    }
+
+    @Test
+    fun `should create a role using builder with all defined values`() = runTest {
+        assertCreateOrUpdateRoleWithBuilder(
+            kubernetes,
+            "cases/auth/kubernetes/create/with_options/given.json",
+            "cases/auth/kubernetes/create/with_options/expected.json"
+        )
+    }
+
+    @Test
+    fun `should throw exception if no role was created when listing roles`() = runTest {
+        shouldThrow<VaultAPIException> {
+            kubernetes.list()
         }
+    }
 
-        should("read default configuration") {
-            kubernetes.readConfiguration() shouldBe KubernetesConfigureAuthResponse(
-                kubernetesHost = KubernetesUtil.host,
-                kubernetesCaCert = KubernetesUtil.caCert,
-                pemKeys = emptyList(),
-                disableLocalCaJwt = false
-            )
-        }
+    @Test
+    fun `should return created roles when listing`() = runTest {
+        val roles = List(10) { "test-$it" }
+        roles.forEach { createRole(kubernetes, it) }
+        kubernetes.list() shouldContainExactlyInAnyOrder roles
+    }
 
-        should("create a role with default values") {
-            assertCreateOrUpdateRole(
-                kubernetes,
-                "cases/auth/kubernetes/create/without_options/given.json",
-                "cases/auth/kubernetes/create/without_options/expected.json"
-            )
-        }
+    @Test
+    fun `should do nothing when deleting non-existing role`() = runTest {
+        shouldThrow<VaultAPIException> { kubernetes.readRole(DEFAULT_ROLE_NAME) }
+        kubernetes.deleteRole(DEFAULT_ROLE_NAME) shouldBe true
+        shouldThrow<VaultAPIException> { kubernetes.readRole(DEFAULT_ROLE_NAME) }
+    }
 
-        should("create a role with all defined values") {
-            assertCreateOrUpdateRole(
-                kubernetes,
-                "cases/auth/kubernetes/create/with_options/given.json",
-                "cases/auth/kubernetes/create/with_options/expected.json"
-            )
-        }
+    @Test
+    fun `should delete existing role`() = runTest {
+        createRole(kubernetes, DEFAULT_ROLE_NAME)
+        shouldNotThrow<VaultAPIException> { kubernetes.readRole(DEFAULT_ROLE_NAME) }
+        kubernetes.deleteRole(DEFAULT_ROLE_NAME) shouldBe true
+        shouldThrow<VaultAPIException> { kubernetes.readRole(DEFAULT_ROLE_NAME) }
+    }
 
-        should("create a role using builder with default values") {
-            assertCreateOrUpdateRoleWithBuilder(
-                kubernetes,
-                "cases/auth/kubernetes/create/without_options/given.json",
-                "cases/auth/kubernetes/create/without_options/expected.json"
-            )
-        }
-
-        should("create a role using builder with all defined values") {
-            assertCreateOrUpdateRoleWithBuilder(
-                kubernetes,
-                "cases/auth/kubernetes/create/with_options/given.json",
-                "cases/auth/kubernetes/create/with_options/expected.json"
-            )
-        }
-
-        should("throw exception if no role was created when listing roles") {
-            shouldThrow<VaultAPIException> {
-                kubernetes.list()
-            }
-        }
-
-        should("return created roles when listing") {
-            val roles = List(10) { "test-$it" }
-            roles.forEach { createRole(kubernetes, it) }
-            kubernetes.list() shouldContainExactlyInAnyOrder roles
-        }
-
-        should("do nothing when deleting non-existing role") {
-            shouldThrow<VaultAPIException> { kubernetes.readRole(DEFAULT_ROLE_NAME) }
-            kubernetes.deleteRole(DEFAULT_ROLE_NAME) shouldBe true
-            shouldThrow<VaultAPIException> { kubernetes.readRole(DEFAULT_ROLE_NAME) }
-        }
-
-        should("delete existing role") {
-            createRole(kubernetes, DEFAULT_ROLE_NAME)
-            shouldNotThrow<VaultAPIException> { kubernetes.readRole(DEFAULT_ROLE_NAME) }
-            kubernetes.deleteRole(DEFAULT_ROLE_NAME) shouldBe true
-            shouldThrow<VaultAPIException> { kubernetes.readRole(DEFAULT_ROLE_NAME) }
-        }
-
-        should("throw exception when login with non-existing role") {
-            shouldThrow<VaultAPIException> {
-                kubernetes.login(
-                    KubernetesLoginPayload(
-                        DEFAULT_ROLE_NAME,
-                        KubernetesUtil.token
-                    )
+    @Test
+    fun `should throw exception when login with non-existing role`() = runTest {
+        shouldThrow<VaultAPIException> {
+            kubernetes.login(
+                KubernetesLoginPayload(
+                    DEFAULT_ROLE_NAME,
+                    KubernetesUtil.token
                 )
+            )
+        }
+    }
+
+    @Test
+    fun `should throw exception when login with invalid token`() = runTest {
+        createRole(kubernetes, DEFAULT_ROLE_NAME)
+        shouldThrow<VaultAPIException> {
+            kubernetes.login(KubernetesLoginPayload(DEFAULT_ROLE_NAME, "invalid-token"))
+        }
+    }
+
+    @Test
+    fun `should login with valid token`() = runTest {
+        assertLogin(
+            kubernetes,
+            "cases/auth/kubernetes/login/expected.json"
+        ) { role, token -> kubernetes.login(KubernetesLoginPayload(role, token)) }
+    }
+
+    @Test
+    fun `should login using builder with valid token`() = runTest {
+        assertLogin(
+            kubernetes,
+            "cases/auth/kubernetes/login/expected.json"
+        ) { role, token ->
+            kubernetes.login {
+                this.role = role
+                this.jwt = token
             }
         }
-
-        should("throw exception when login with invalid token") {
-            createRole(kubernetes, DEFAULT_ROLE_NAME)
-            shouldThrow<VaultAPIException> {
-                kubernetes.login(KubernetesLoginPayload(DEFAULT_ROLE_NAME, "invalid-token"))
-            }
-        }
-
-        should("login with valid token") {
-            assertLogin(
-                kubernetes,
-                "cases/auth/kubernetes/login/expected.json"
-            ) { role, token -> kubernetes.login(KubernetesLoginPayload(role, token)) }
-        }
-
-        should("login using builder with valid token") {
-            assertLogin(
-                kubernetes,
-                "cases/auth/kubernetes/login/expected.json"
-            ) { role, token ->
-                kubernetes.login {
-                    this.role = role
-                    this.jwt = token
-                }
-            }
-        }
-    })
+    }
+}
 
 private suspend inline fun assertLogin(
     kubernetes: VaultAuthKubernetes,

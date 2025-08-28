@@ -17,465 +17,524 @@ import io.github.hansanto.kault.util.readJson
 import io.github.hansanto.kault.util.replaceTemplateString
 import io.github.hansanto.kault.util.revokeAllTokenData
 import io.kotest.assertions.throwables.shouldThrow
-import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import kotlinx.coroutines.test.runTest
+import kotlin.test.AfterTest
+import kotlin.test.BeforeTest
+import kotlin.test.Test
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.hours
 
 private const val TOKEN_ROLE_NAME = "test-role"
 
-class VaultAuthTokenTest :
-    ShouldSpec({
+class VaultAuthTokenTest {
 
-        lateinit var client: VaultClient
-        lateinit var token: VaultAuthToken
-        lateinit var rootAccessor: String
+    lateinit var client: VaultClient
+    lateinit var token: VaultAuthToken
+    lateinit var rootAccessor: String
 
-        beforeTest {
-            client = createVaultClient()
-            token = client.auth.token
-            rootAccessor = token.lookupToken(ROOT_TOKEN).accessor
-            revokeAllTokenData(client)
+    @BeforeTest
+    fun onBefore() = runTest {
+        client = createVaultClient()
+        token = client.auth.token
+        rootAccessor = token.lookupToken(ROOT_TOKEN).accessor
+        revokeAllTokenData(client)
+    }
+
+    @AfterTest
+    fun onAfter() = runTest {
+        client.close()
+    }
+
+    @Test
+    fun `should use default path if not set in builder`() = runTest {
+        VaultAuthTokenImpl.Default.PATH shouldBe "token"
+
+        val built = VaultAuthTokenImpl(client.client, null) {
         }
 
-        afterTest {
-            client.close()
+        built.path shouldBe VaultAuthTokenImpl.Default.PATH
+    }
+
+    @Test
+    fun `should use custom path if set in builder`() = runTest {
+        val builderPath = randomString()
+        val parentPath = randomString()
+
+        val built = VaultAuthTokenImpl(client.client, parentPath) {
+            path = builderPath
         }
 
-        should("use default path if not set in builder") {
-            VaultAuthTokenImpl.Default.PATH shouldBe "token"
+        built.path shouldBe "$parentPath/$builderPath"
+    }
 
-            val built = VaultAuthTokenImpl(client.client, null) {
-            }
+    @Test
+    fun `should return only root accessor`() = runTest {
+        token.listAccessors() shouldContainExactly listOf(rootAccessor)
+    }
 
-            built.path shouldBe VaultAuthTokenImpl.Default.PATH
+    @Test
+    fun `should return all accessors`() = runTest {
+        val accessors = List(5) { token.createToken().accessor } + rootAccessor
+        token.listAccessors() shouldContainExactlyInAnyOrder accessors
+    }
+
+    @Test
+    fun `should create a token with default values`() = runTest {
+        assertCreateToken(
+            token,
+            null,
+            "cases/auth/token/create/without_options/expected.json"
+        )
+    }
+
+    @Test
+    fun `should create a token with all defined values`() = runTest {
+        assertCreateToken(
+            token,
+            "cases/auth/token/create/with_options/given.json",
+            "cases/auth/token/create/with_options/expected.json"
+        )
+    }
+
+    @Test
+    fun `should create a token using builder with default values`() = runTest {
+        assertCreateTokenWithBuilder(
+            token,
+            null,
+            "cases/auth/token/create/without_options/expected.json"
+        )
+    }
+
+    @Test
+    fun `should create a token using builder with all defined values`() = runTest {
+        assertCreateTokenWithBuilder(
+            token,
+            "cases/auth/token/create/with_options/given.json",
+            "cases/auth/token/create/with_options/expected.json"
+        )
+    }
+
+    @Test
+    fun `should create a token role name with default values`() = runTest {
+        assertCreateTokenRoleName(
+            token,
+            TOKEN_ROLE_NAME,
+            null,
+            "cases/auth/token/create_with_rolename/without_options/expected.json"
+        )
+    }
+
+    @Test
+    fun `should create a token role name with all defined values`() = runTest {
+        assertCreateTokenRoleName(
+            token,
+            TOKEN_ROLE_NAME,
+            "cases/auth/token/create_with_rolename/with_options/given.json",
+            "cases/auth/token/create_with_rolename/with_options/expected.json"
+        )
+    }
+
+    @Test
+    fun `should create a token role name using builder with default values`() = runTest {
+        assertCreateTokenRoleNameWithBuilder(
+            token,
+            TOKEN_ROLE_NAME,
+            null,
+            "cases/auth/token/create_with_rolename/without_options/expected.json"
+        )
+    }
+
+    @Test
+    fun `should create a token with role name using builder with all defined values`() = runTest {
+        assertCreateTokenRoleNameWithBuilder(
+            token,
+            TOKEN_ROLE_NAME,
+            "cases/auth/token/create_with_rolename/with_options/given.json",
+            "cases/auth/token/create_with_rolename/with_options/expected.json"
+        )
+    }
+
+    @Test
+    fun `should throw exception if lookup token with invalid token`() = runTest {
+        shouldThrow<VaultAPIException> {
+            token.lookupToken("invalid-token")
         }
+    }
 
-        should("use custom path if set in builder") {
-            val builderPath = randomString()
-            val parentPath = randomString()
+    @Test
+    fun `should lookup a created token with default values`() = runTest {
+        assertLookupToken(
+            token,
+            null,
+            "cases/auth/token/lookup/without_options/expected.json"
+        )
+    }
 
-            val built = VaultAuthTokenImpl(client.client, parentPath) {
-                path = builderPath
-            }
+    @Test
+    fun `should lookup a created token with all defined values`() = runTest {
+        assertLookupToken(
+            token,
+            "cases/auth/token/lookup/with_options/given.json",
+            "cases/auth/token/lookup/with_options/expected.json"
+        )
+    }
 
-            built.path shouldBe "$parentPath/$builderPath"
+    @Test
+    fun `should lookup the self token with default values`() = runTest {
+        assertLookupSelfToken(
+            client,
+            null,
+            "cases/auth/token/lookup_self/without_options/expected.json"
+        )
+    }
+
+    @Test
+    fun `should lookup the self token with all defined values`() = runTest {
+        assertLookupSelfToken(
+            client,
+            "cases/auth/token/lookup_self/with_options/given.json",
+            "cases/auth/token/lookup_self/with_options/expected.json"
+        )
+    }
+
+    @Test
+    fun `should throw exception if lookup token with invalid accessor`() = runTest {
+        shouldThrow<VaultAPIException> {
+            token.lookupAccessorToken("invalid-token")
         }
+    }
 
-        should("return only root accessor") {
-            token.listAccessors() shouldContainExactly listOf(rootAccessor)
+    @Test
+    fun `should lookup token from accessor with default values`() = runTest {
+        assertLookupTokenFromAccessor(
+            token,
+            null,
+            "cases/auth/token/lookup_accessor/without_options/expected.json"
+        )
+    }
+
+    @Test
+    fun `should lookup token from accessor with all defined values`() = runTest {
+        assertLookupTokenFromAccessor(
+            token,
+            "cases/auth/token/lookup_accessor/with_options/given.json",
+            "cases/auth/token/lookup_accessor/with_options/expected.json"
+        )
+    }
+
+    @Test
+    fun `should throw exception if renew token with invalid token`() = runTest {
+        shouldThrow<VaultAPIException> {
+            token.renewToken(TokenRenewPayload("invalid-token"))
         }
+    }
 
-        should("return all accessors") {
-            val accessors = List(5) { token.createToken().accessor } + rootAccessor
-            token.listAccessors() shouldContainExactlyInAnyOrder accessors
+    @Test
+    fun `should renew token with no increment`() = runTest {
+        assertRenewToken(
+            token,
+            null,
+            "cases/auth/token/renew/without_options/expected.json"
+        )
+    }
+
+    @Test
+    fun `should renew token with increment`() = runTest {
+        assertRenewToken(
+            token,
+            10.days,
+            "cases/auth/token/renew/with_options/expected.json"
+        )
+    }
+
+    @Test
+    fun `should renew token using builder with no increment`() = runTest {
+        assertRenewTokenWithBuilder(
+            token,
+            null,
+            "cases/auth/token/renew/without_options/expected.json"
+        )
+    }
+
+    @Test
+    fun `should renew token using builder with increment`() = runTest {
+        assertRenewTokenWithBuilder(
+            token,
+            10.days,
+            "cases/auth/token/renew/with_options/expected.json"
+        )
+    }
+
+    @Test
+    fun `should renew self token with no increment`() = runTest {
+        assertRenewSelfToken(
+            client,
+            null,
+            "cases/auth/token/renew/without_options/expected.json"
+        )
+    }
+
+    @Test
+    fun `should renew self token with increment`() = runTest {
+        assertRenewSelfToken(
+            client,
+            10.days,
+            "cases/auth/token/renew/with_options/expected.json"
+        )
+    }
+
+    @Test
+    fun `should renew token from accessor with no increment`() = runTest {
+        assertRenewTokenFromAccessor(
+            token,
+            null,
+            "cases/auth/token/renew/without_options/expected.json"
+        )
+    }
+
+    @Test
+    fun `should renew token from accessor with increment`() = runTest {
+        assertRenewTokenFromAccessor(
+            token,
+            10.days,
+            "cases/auth/token/renew/with_options/expected.json"
+        )
+    }
+
+    @Test
+    fun `should renew token from accessor using builder with no increment`() = runTest {
+        assertRenewTokenFromAccessorWithBuilder(
+            token,
+            null,
+            "cases/auth/token/renew/without_options/expected.json"
+        )
+    }
+
+    @Test
+    fun `should renew token from accessor using builder with increment`() = runTest {
+        assertRenewTokenFromAccessorWithBuilder(
+            token,
+            10.days,
+            "cases/auth/token/renew/with_options/expected.json"
+        )
+    }
+
+    @Test
+    fun `should do nothing if revoke token with invalid token`() = runTest {
+        val tokenValue = "invalid-token"
+        shouldThrow<VaultAPIException> {
+            token.lookupToken(tokenValue)
         }
-
-        should("create a token with default values") {
-            assertCreateToken(
-                token,
-                null,
-                "cases/auth/token/create/without_options/expected.json"
-            )
+        token.revokeToken(tokenValue) shouldBe true
+        shouldThrow<VaultAPIException> {
+            token.lookupToken(tokenValue)
         }
+    }
 
-        should("create a token with all defined values") {
-            assertCreateToken(
-                token,
-                "cases/auth/token/create/with_options/given.json",
-                "cases/auth/token/create/with_options/expected.json"
-            )
+    @Test
+    fun `should revoke existing token`() = runTest {
+        val response = token.createToken()
+        token.revokeToken(response.clientToken) shouldBe true
+        shouldThrow<VaultAPIException> {
+            token.lookupToken(response.clientToken)
         }
+    }
 
-        should("create a token using builder with default values") {
-            assertCreateTokenWithBuilder(
-                token,
-                null,
-                "cases/auth/token/create/without_options/expected.json"
-            )
+    @Test
+    fun `should revoke token and all children`() = runTest {
+        assertRevokeToken(client, false) {
+            token.revokeToken(it.clientToken)
         }
+    }
 
-        should("create a token using builder with all defined values") {
-            assertCreateTokenWithBuilder(
-                token,
-                "cases/auth/token/create/with_options/given.json",
-                "cases/auth/token/create/with_options/expected.json"
-            )
+    @Test
+    fun `should revoke self token`() = runTest {
+        val response = token.createToken()
+        client.auth.setTokenString(response.clientToken)
+        token.revokeSelfToken() shouldBe true
+        shouldThrow<VaultAPIException> {
+            token.lookupToken(response.clientToken)
         }
+    }
 
-        should("create a token role name with default values") {
-            assertCreateTokenRoleName(
-                token,
-                TOKEN_ROLE_NAME,
-                null,
-                "cases/auth/token/create_with_rolename/without_options/expected.json"
-            )
+    @Test
+    fun `should revoke self token and all children`() = runTest {
+        assertRevokeToken(client, false) {
+            token.revokeSelfToken()
         }
+    }
 
-        should("create a token role name with all defined values") {
-            assertCreateTokenRoleName(
-                token,
-                TOKEN_ROLE_NAME,
-                "cases/auth/token/create_with_rolename/with_options/given.json",
-                "cases/auth/token/create_with_rolename/with_options/expected.json"
-            )
+    @Test
+    fun `should do nothing if revoke token with invalid accessor`() = runTest {
+        token.revokeAccessorToken("invalid-token") shouldBe true
+    }
+
+    @Test
+    fun `should revoke token from accessor`() = runTest {
+        val response = token.createToken()
+        val accessor = response.accessor
+        token.revokeAccessorToken(accessor) shouldBe true
+        shouldThrow<VaultAPIException> {
+            token.lookupToken(response.clientToken)
         }
+    }
 
-        should("create a token role name using builder with default values") {
-            assertCreateTokenRoleNameWithBuilder(
-                token,
-                TOKEN_ROLE_NAME,
-                null,
-                "cases/auth/token/create_with_rolename/without_options/expected.json"
-            )
+    @Test
+    fun `should revoke token from accessor and all children`() = runTest {
+        assertRevokeToken(client, false) {
+            token.revokeAccessorToken(it.accessor)
         }
+    }
 
-        should("create a token with role name using builder with all defined values") {
-            assertCreateTokenRoleNameWithBuilder(
-                token,
-                TOKEN_ROLE_NAME,
-                "cases/auth/token/create_with_rolename/with_options/given.json",
-                "cases/auth/token/create_with_rolename/with_options/expected.json"
-            )
+    @Test
+    fun `should throw exception if revoke token and orphan children with invalid token`() = runTest {
+        shouldThrow<VaultAPIException> {
+            token.revokeTokenAndOrphanChildren("invalid-token")
         }
+    }
 
-        should("throw exception if lookup token with invalid token") {
-            shouldThrow<VaultAPIException> {
-                token.lookupToken("invalid-token")
-            }
+    @Test
+    fun `should revoke token and orphan children`() = runTest {
+        assertRevokeToken(client, true) {
+            token.revokeTokenAndOrphanChildren(it.clientToken)
         }
+    }
 
-        should("lookup a created token with default values") {
-            assertLookupToken(
-                token,
-                null,
-                "cases/auth/token/lookup/without_options/expected.json"
-            )
+    @Test
+    fun `should throw exception if read token role with invalid token`() = runTest {
+        shouldThrow<VaultAPIException> {
+            token.readTokenRole("invalid-token")
         }
+    }
 
-        should("lookup a created token with all defined values") {
-            assertLookupToken(
-                token,
-                "cases/auth/token/lookup/with_options/given.json",
-                "cases/auth/token/lookup/with_options/expected.json"
-            )
+    @Test
+    fun `should throw exception when list token roles with no roles`() = runTest {
+        shouldThrow<VaultAPIException> {
+            token.listTokenRoles()
         }
+    }
 
-        should("lookup the self token with default values") {
-            assertLookupSelfToken(
-                client,
-                null,
-                "cases/auth/token/lookup_self/without_options/expected.json"
-            )
+    @Test
+    fun `should list token roles`() = runTest {
+        val roles = List(5) { "role-${it + 1}" }
+        roles.forEach {
+            token.createOrUpdateTokenRole(it)
         }
+        val response = token.listTokenRoles()
+        response shouldContainExactly roles
+    }
 
-        should("lookup the self token with all defined values") {
-            assertLookupSelfToken(
-                client,
-                "cases/auth/token/lookup_self/with_options/given.json",
-                "cases/auth/token/lookup_self/with_options/expected.json"
-            )
+    @Test
+    fun `should create and read a token role with default values`() = runTest {
+        assertCreateTokenRole(
+            token,
+            TOKEN_ROLE_NAME,
+            null,
+            "cases/auth/token/create_role/without_options/expected.json"
+        )
+    }
+
+    @Test
+    fun `should create and read a token role with all defined values`() = runTest {
+        assertCreateTokenRole(
+            token,
+            TOKEN_ROLE_NAME,
+            "cases/auth/token/create_role/with_options/given.json",
+            "cases/auth/token/create_role/with_options/expected.json"
+        )
+    }
+
+    @Test
+    fun `should create and read a token role using builder with default values`() = runTest {
+        assertCreateTokenRoleWithBuilder(
+            token,
+            TOKEN_ROLE_NAME,
+            null,
+            "cases/auth/token/create_role/without_options/expected.json"
+        )
+    }
+
+    @Test
+    fun `should create and read a token role using builder with all defined values`() = runTest {
+        assertCreateTokenRoleWithBuilder(
+            token,
+            TOKEN_ROLE_NAME,
+            "cases/auth/token/create_role/with_options/given.json",
+            "cases/auth/token/create_role/with_options/expected.json"
+        )
+    }
+
+    @Test
+    fun `should update and read a token role with default values`() = runTest {
+        assertUpdateTokenRole(
+            token,
+            TOKEN_ROLE_NAME,
+            null,
+            "cases/auth/token/create_role/without_options/expected.json"
+        )
+    }
+
+    @Test
+    fun `should update and read a token role with all defined values`() = runTest {
+        assertUpdateTokenRole(
+            token,
+            TOKEN_ROLE_NAME,
+            "cases/auth/token/create_role/with_options/given.json",
+            "cases/auth/token/create_role/with_options/expected.json"
+        )
+    }
+
+    @Test
+    fun `should update and read a token role using builder with default values`() = runTest {
+        assertUpdateTokenRoleWithBuilder(
+            token,
+            TOKEN_ROLE_NAME,
+            null,
+            "cases/auth/token/create_role/without_options/expected.json"
+        )
+    }
+
+    @Test
+    fun `should update and read a token role using builder with all defined values`() = runTest {
+        assertUpdateTokenRoleWithBuilder(
+            token,
+            TOKEN_ROLE_NAME,
+            "cases/auth/token/create_role/with_options/given.json",
+            "cases/auth/token/create_role/with_options/expected.json"
+        )
+    }
+
+    @Test
+    fun `should do nothing if delete token role with invalid role`() = runTest {
+        val role = randomString()
+        token.deleteTokenRole(role) shouldBe true
+        shouldThrow<VaultAPIException> {
+            token.readTokenRole(role)
         }
+    }
 
-        should("throw exception if lookup token with invalid accessor") {
-            shouldThrow<VaultAPIException> {
-                token.lookupAccessorToken("invalid-token")
-            }
+    @Test
+    fun `should delete token role`() = runTest {
+        val role = randomString()
+        token.createOrUpdateTokenRole(role)
+
+        token.deleteTokenRole(role) shouldBe true
+
+        shouldThrow<VaultAPIException> {
+            token.readTokenRole(role)
         }
+    }
 
-        should("lookup token from accessor with default values") {
-            assertLookupTokenFromAccessor(
-                token,
-                null,
-                "cases/auth/token/lookup_accessor/without_options/expected.json"
-            )
-        }
-
-        should("lookup token from accessor with all defined values") {
-            assertLookupTokenFromAccessor(
-                token,
-                "cases/auth/token/lookup_accessor/with_options/given.json",
-                "cases/auth/token/lookup_accessor/with_options/expected.json"
-            )
-        }
-
-        should("throw exception if renew token with invalid token") {
-            shouldThrow<VaultAPIException> {
-                token.renewToken(TokenRenewPayload("invalid-token"))
-            }
-        }
-
-        should("renew token with no increment") {
-            assertRenewToken(
-                token,
-                null,
-                "cases/auth/token/renew/without_options/expected.json"
-            )
-        }
-
-        should("renew token with increment") {
-            assertRenewToken(
-                token,
-                10.days,
-                "cases/auth/token/renew/with_options/expected.json"
-            )
-        }
-
-        should("renew token using builder with no increment") {
-            assertRenewTokenWithBuilder(
-                token,
-                null,
-                "cases/auth/token/renew/without_options/expected.json"
-            )
-        }
-
-        should("renew token using builder with increment") {
-            assertRenewTokenWithBuilder(
-                token,
-                10.days,
-                "cases/auth/token/renew/with_options/expected.json"
-            )
-        }
-
-        should("renew self token with no increment") {
-            assertRenewSelfToken(
-                client,
-                null,
-                "cases/auth/token/renew/without_options/expected.json"
-            )
-        }
-
-        should("renew self token with increment") {
-            assertRenewSelfToken(
-                client,
-                10.days,
-                "cases/auth/token/renew/with_options/expected.json"
-            )
-        }
-
-        should("renew token from accessor with no increment") {
-            assertRenewTokenFromAccessor(
-                token,
-                null,
-                "cases/auth/token/renew/without_options/expected.json"
-            )
-        }
-
-        should("renew token from accessor with increment") {
-            assertRenewTokenFromAccessor(
-                token,
-                10.days,
-                "cases/auth/token/renew/with_options/expected.json"
-            )
-        }
-
-        should("renew token from accessor using builder with no increment") {
-            assertRenewTokenFromAccessorWithBuilder(
-                token,
-                null,
-                "cases/auth/token/renew/without_options/expected.json"
-            )
-        }
-
-        should("renew token from accessor using builder with increment") {
-            assertRenewTokenFromAccessorWithBuilder(
-                token,
-                10.days,
-                "cases/auth/token/renew/with_options/expected.json"
-            )
-        }
-
-        should("do nothing if revoke token with invalid token") {
-            val tokenValue = "invalid-token"
-            shouldThrow<VaultAPIException> {
-                token.lookupToken(tokenValue)
-            }
-            token.revokeToken(tokenValue) shouldBe true
-            shouldThrow<VaultAPIException> {
-                token.lookupToken(tokenValue)
-            }
-        }
-
-        should("revoke existing token") {
-            val response = token.createToken()
-            token.revokeToken(response.clientToken) shouldBe true
-            shouldThrow<VaultAPIException> {
-                token.lookupToken(response.clientToken)
-            }
-        }
-
-        should("revoke token and all children") {
-            assertRevokeToken(client, false) {
-                token.revokeToken(it.clientToken)
-            }
-        }
-
-        should("revoke self token") {
-            val response = token.createToken()
-            client.auth.setTokenString(response.clientToken)
-            token.revokeSelfToken() shouldBe true
-            shouldThrow<VaultAPIException> {
-                token.lookupToken(response.clientToken)
-            }
-        }
-
-        should("revoke self token and all children") {
-            assertRevokeToken(client, false) {
-                token.revokeSelfToken()
-            }
-        }
-
-        should("do nothing if revoke token with invalid accessor") {
-            token.revokeAccessorToken("invalid-token") shouldBe true
-        }
-
-        should("revoke token from accessor") {
-            val response = token.createToken()
-            val accessor = response.accessor
-            token.revokeAccessorToken(accessor) shouldBe true
-            shouldThrow<VaultAPIException> {
-                token.lookupToken(response.clientToken)
-            }
-        }
-
-        should("revoke token from accessor and all children") {
-            assertRevokeToken(client, false) {
-                token.revokeAccessorToken(it.accessor)
-            }
-        }
-
-        should("throw exception if revoke token and orphan children with invalid token") {
-            shouldThrow<VaultAPIException> {
-                token.revokeTokenAndOrphanChildren("invalid-token")
-            }
-        }
-
-        should("revoke token and orphan children") {
-            assertRevokeToken(client, true) {
-                token.revokeTokenAndOrphanChildren(it.clientToken)
-            }
-        }
-
-        should("throw exception if read token role with invalid token") {
-            shouldThrow<VaultAPIException> {
-                token.readTokenRole("invalid-token")
-            }
-        }
-
-        should("throw exception when list token roles with no roles") {
-            shouldThrow<VaultAPIException> {
-                token.listTokenRoles()
-            }
-        }
-
-        should("list token roles") {
-            val roles = List(5) { "role-${it + 1}" }
-            roles.forEach {
-                token.createOrUpdateTokenRole(it)
-            }
-            val response = token.listTokenRoles()
-            response shouldContainExactly roles
-        }
-
-        should("create and read a token role with default values") {
-            assertCreateTokenRole(
-                token,
-                TOKEN_ROLE_NAME,
-                null,
-                "cases/auth/token/create_role/without_options/expected.json"
-            )
-        }
-
-        should("create and read a token role with all defined values") {
-            assertCreateTokenRole(
-                token,
-                TOKEN_ROLE_NAME,
-                "cases/auth/token/create_role/with_options/given.json",
-                "cases/auth/token/create_role/with_options/expected.json"
-            )
-        }
-
-        should("create and read a token role using builder with default values") {
-            assertCreateTokenRoleWithBuilder(
-                token,
-                TOKEN_ROLE_NAME,
-                null,
-                "cases/auth/token/create_role/without_options/expected.json"
-            )
-        }
-
-        should("create and read a token role using builder with all defined values") {
-            assertCreateTokenRoleWithBuilder(
-                token,
-                TOKEN_ROLE_NAME,
-                "cases/auth/token/create_role/with_options/given.json",
-                "cases/auth/token/create_role/with_options/expected.json"
-            )
-        }
-
-        should("update and read a token role with default values") {
-            assertUpdateTokenRole(
-                token,
-                TOKEN_ROLE_NAME,
-                null,
-                "cases/auth/token/create_role/without_options/expected.json"
-            )
-        }
-
-        should("update and read a token role with all defined values") {
-            assertUpdateTokenRole(
-                token,
-                TOKEN_ROLE_NAME,
-                "cases/auth/token/create_role/with_options/given.json",
-                "cases/auth/token/create_role/with_options/expected.json"
-            )
-        }
-
-        should("update and read a token role using builder with default values") {
-            assertUpdateTokenRoleWithBuilder(
-                token,
-                TOKEN_ROLE_NAME,
-                null,
-                "cases/auth/token/create_role/without_options/expected.json"
-            )
-        }
-
-        should("update and read a token role using builder with all defined values") {
-            assertUpdateTokenRoleWithBuilder(
-                token,
-                TOKEN_ROLE_NAME,
-                "cases/auth/token/create_role/with_options/given.json",
-                "cases/auth/token/create_role/with_options/expected.json"
-            )
-        }
-
-        should("do nothing if delete token role with invalid role") {
-            val role = randomString()
-            token.deleteTokenRole(role) shouldBe true
-            shouldThrow<VaultAPIException> {
-                token.readTokenRole(role)
-            }
-        }
-
-        should("delete token role") {
-            val role = randomString()
-            token.createOrUpdateTokenRole(role)
-
-            token.deleteTokenRole(role) shouldBe true
-
-            shouldThrow<VaultAPIException> {
-                token.readTokenRole(role)
-            }
-        }
-
-        should("tidy tokens should start internal task") {
-            val warnings = token.tidyTokens()
-            warnings.size shouldNotBe 0
-        }
-    })
+    @Test
+    fun `should tidy tokens should start internal task`() = runTest {
+        val warnings = token.tidyTokens()
+        warnings.size shouldNotBe 0
+    }
+}
 
 private suspend inline fun assertRevokeToken(
     client: VaultClient,

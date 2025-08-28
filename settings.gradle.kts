@@ -30,8 +30,6 @@ dependencyResolutionManagement {
 
             plugin("kt-multiplatform", "org.jetbrains.kotlin.multiplatform").versionRef("kotlin")
             plugin("kt-serialization", "org.jetbrains.kotlin.plugin.serialization").versionRef("kotlin")
-            plugin("ksp", "com.google.devtools.ksp").versionRef("ksp")
-            plugin("kotest", "io.kotest").versionRef("kotest")
             plugin("kover", "org.jetbrains.kotlinx.kover").versionRef("kover")
             plugin("dokka", "org.jetbrains.dokka").versionRef("dokka")
             plugin("detekt", "io.gitlab.arturbosch.detekt").versionRef("detekt")
@@ -46,7 +44,6 @@ dependencyResolutionManagement {
 
             library("kotest-core", "io.kotest", "kotest-assertions-core").versionRef("kotest")
             library("kotest-engine", "io.kotest", "kotest-framework-engine").versionRef("kotest")
-            library("kotest-junit5", "io.kotest", "kotest-runner-junit5").versionRef("kotest")
             library("kotest-json", "io.kotest", "kotest-assertions-json").versionRef("kotest")
 
             library("resources", "com.goncalossilva", "resources").versionRef("resources")

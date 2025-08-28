@@ -1,12 +1,13 @@
 package io.github.hansanto.kault.extension
 
-import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
+import kotlinx.coroutines.test.runTest
+import kotlin.test.Test
 
-class HttpExtTest :
-    ShouldSpec({
+class HttpExtTest {
 
-        should("check that URL_PATH_SEPARATOR is slash") {
-            URL_PATH_SEPARATOR shouldBe "/"
-        }
-    })
+    @Test
+    fun `should check that URL_PATH_SEPARATOR is slash`() = runTest {
+        URL_PATH_SEPARATOR shouldBe "/"
+    }
+}

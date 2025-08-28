@@ -9,8 +9,6 @@ plugins {
     libs.plugins.run {
         alias(kt.multiplatform)
         alias(kt.serialization)
-        alias(ksp)
-        alias(kotest)
         alias(kover)
         alias(dokka)
         alias(detekt)
@@ -179,6 +177,7 @@ kotlin {
 
         commonTest.dependencies {
             implementation(kotlin("test"))
+            implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.10.2")
             implementation(libs.bundles.kotest.common)
             implementation(ktorLibs.client.logging)
             implementation(libs.kt.io)
@@ -188,7 +187,6 @@ kotlin {
         jvmTest.dependencies {
             implementation(ktorLibs.client.cio)
             implementation(libs.slf4j.simple)
-            implementation(libs.kotest.junit5)
         }
 
         jsTest.dependencies {
