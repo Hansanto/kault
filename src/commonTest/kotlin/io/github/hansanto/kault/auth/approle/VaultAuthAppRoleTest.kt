@@ -38,12 +38,12 @@ class VaultAuthAppRoleTest {
         appRole = client.auth.appRole
 
         enableAuthMethod(client, "approle")
-        revokeAllAppRoleData(client)
         shouldThrow<VaultAPIException> { appRole.read(DEFAULT_ROLE_NAME) }
     }
 
     @AfterTest
     fun onAfter() = runTest {
+        revokeAllAppRoleData(client)
         client.close()
     }
 

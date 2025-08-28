@@ -22,11 +22,11 @@ class VaultSystemAuditTest {
     fun onBefore() = runTest {
         client = createVaultClient()
         audit = client.system.audit
-        disableAllAudit(client)
     }
 
     @AfterTest
     fun onAfter() = runTest {
+        disableAllAudit(client)
         client.close()
     }
 

@@ -41,11 +41,11 @@ class VaultAuthTokenTest {
         client = createVaultClient()
         token = client.auth.token
         rootAccessor = token.lookupToken(ROOT_TOKEN).accessor
-        revokeAllTokenData(client)
     }
 
     @AfterTest
     fun onAfter() = runTest {
+        revokeAllTokenData(client)
         client.close()
     }
 

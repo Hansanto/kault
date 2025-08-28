@@ -43,14 +43,14 @@ dependencyResolutionManagement {
             library("kt-io", "org.jetbrains.kotlinx", "kotlinx-io-core").versionRef("kotlinx-io")
 
             library("kotest-core", "io.kotest", "kotest-assertions-core").versionRef("kotest")
-            library("kotest-engine", "io.kotest", "kotest-framework-engine").versionRef("kotest")
+            library("kotest-common", "io.kotest", "kotest-common").versionRef("kotest")
             library("kotest-json", "io.kotest", "kotest-assertions-json").versionRef("kotest")
 
             library("resources", "com.goncalossilva", "resources").versionRef("resources")
 
             library("slf4j-simple", "org.slf4j", "slf4j-simple").versionRef("slf4j")
 
-            bundle("kotest-common", listOf("kotest-core", "kotest-engine", "kotest-json"))
+            bundle("kotest-common", listOf("kotest-core", "kotest-common", "kotest-json"))
             bundle("kt-common", listOf("kt-serialization-json", "kt-datetime", "kt-coroutines"))
         }
     }

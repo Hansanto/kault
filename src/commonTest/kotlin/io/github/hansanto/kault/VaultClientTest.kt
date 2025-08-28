@@ -8,13 +8,14 @@ import io.github.hansanto.kault.util.revokeAllTokenData
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.test.runTest
+import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
 class VaultClientTest {
 
-    @BeforeTest
-    fun onBefore() = runTest {
+    @AfterTest
+    fun onAfter() = runTest {
         createVaultClient().use {
             revokeAllTokenData(it)
         }

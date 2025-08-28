@@ -30,11 +30,11 @@ class VaultAuthUserpassTest {
         userpass = client.auth.userpass
 
         enableAuthMethod(client, "userpass")
-        revokeAllUserpassData(client)
     }
 
     @AfterTest
     fun onAfter() = runTest {
+        revokeAllUserpassData(client)
         client.close()
     }
 

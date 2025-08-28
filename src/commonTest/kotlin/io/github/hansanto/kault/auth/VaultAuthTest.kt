@@ -22,9 +22,9 @@ import io.github.hansanto.kault.util.randomLong
 import io.github.hansanto.kault.util.randomString
 import io.github.hansanto.kault.util.revokeAllAppRoleData
 import io.github.hansanto.kault.util.revokeAllTokenData
+import io.github.hansanto.kault.util.runBlockingTest
 import io.kotest.assertions.throwables.shouldNotThrow
 import io.kotest.assertions.throwables.shouldThrow
-import io.kotest.engine.runBlocking
 import io.kotest.matchers.comparables.shouldBeGreaterThan
 import io.kotest.matchers.comparables.shouldBeLessThan
 import io.kotest.matchers.comparables.shouldBeLessThanOrEqualTo
@@ -51,14 +51,13 @@ class VaultAuthTest {
     fun onBefore() = runTest {
         client = createVaultClient()
         auth = client.auth
-
         enableAuthMethod(client, "approle")
-        revokeAllAppRoleData(client)
-        revokeAllTokenData(client)
     }
 
     @AfterTest
     fun onAfter() = runTest {
+        revokeAllAppRoleData(client)
+        revokeAllTokenData(client)
         client.close()
     }
 
@@ -209,7 +208,7 @@ class VaultAuthTest {
     }
 
     @Test
-    fun `should start auto renew job when creating a new instance`() = runBlocking<Unit> {
+    fun `should start auto renew job when creating a new instance`() = runBlockingTest {
         val tokenCreated = client.auth.token.createToken {
             renewable = true
             ttl = 1.days
@@ -307,7 +306,7 @@ class VaultAuthTest {
     }
 
     @Test
-    fun `should renew token once if the renewal is enabled after setting new token`() = runBlocking<Unit> {
+    fun `should renew token once if the renewal is enabled after setting new token`() = runBlockingTest {
         createVaultClient {
             renewBeforeExpiration = 1.seconds
             autoRenewToken = false
@@ -335,7 +334,7 @@ class VaultAuthTest {
     }
 
     @Test
-    fun `should renew token once if the renewal is enabled before setting new token`() = runBlocking<Unit> {
+    fun `should renew token once if the renewal is enabled before setting new token`() = runBlockingTest {
         createVaultClient {
             renewBeforeExpiration = 1.seconds
             autoRenewToken = false
@@ -363,7 +362,7 @@ class VaultAuthTest {
     }
 
     @Test
-    fun `should renew token several times if the renewal is enabled`() = runBlocking {
+    fun `should renew token several times if the renewal is enabled`() = runBlockingTest {
         createVaultClient {
             renewBeforeExpiration = 5.seconds
             autoRenewToken = false
@@ -411,7 +410,7 @@ class VaultAuthTest {
     }
 
     @Test
-    fun `should not renew token if auto-renew is disabled before setting new token`() = runBlocking<Unit> {
+    fun `should not renew token if auto-renew is disabled before setting new token`() = runBlockingTest {
         auth.disableAutoRenewToken()
         val leaseDuration = 1.seconds
 
