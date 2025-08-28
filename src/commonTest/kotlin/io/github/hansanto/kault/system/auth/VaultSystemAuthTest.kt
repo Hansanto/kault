@@ -27,11 +27,10 @@ class VaultSystemAuthTest :
         beforeTest {
             client = createVaultClient()
             auth = client.system.auth
-
-            disableAllAuth(client)
         }
 
         afterTest {
+            disableAllAuth(client)
             client.close()
         }
 

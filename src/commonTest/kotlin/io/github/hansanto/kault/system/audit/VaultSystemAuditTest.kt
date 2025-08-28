@@ -19,10 +19,10 @@ class VaultSystemAuditTest :
         beforeTest {
             client = createVaultClient()
             audit = client.system.audit
-            disableAllAudit(client)
         }
 
         afterTest {
+            disableAllAudit(client)
             client.close()
         }
 

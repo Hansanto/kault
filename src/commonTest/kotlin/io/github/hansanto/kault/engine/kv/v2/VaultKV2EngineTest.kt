@@ -37,6 +37,9 @@ class VaultKV2EngineTest :
         beforeTest {
             client = createVaultClient()
             kv2 = client.secret.kv2
+        }
+
+        afterTest {
             // Reset the configuration to have the same starting point for each test
             kv2.configure(
                 KvV2ConfigureRequest(
@@ -45,9 +48,6 @@ class VaultKV2EngineTest :
                     maxVersions = initialKv2Configuration.maxVersions
                 )
             )
-        }
-
-        afterTest {
             client.close()
         }
 

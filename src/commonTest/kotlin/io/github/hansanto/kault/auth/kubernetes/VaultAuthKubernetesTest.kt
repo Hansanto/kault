@@ -39,12 +39,11 @@ class VaultAuthKubernetesTest :
                 tokenReviewerJwt = KubernetesUtil.token
             }
 
-            revokeAllKubernetesData(client)
-
             shouldThrow<VaultAPIException> { kubernetes.readRole(DEFAULT_ROLE_NAME) }
         }
 
         afterTest {
+            revokeAllKubernetesData(client)
             client.close()
         }
 

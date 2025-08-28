@@ -12,7 +12,7 @@ import kotlinx.coroutines.isActive
 class VaultClientTest :
     ShouldSpec({
 
-        beforeTest {
+        afterTest {
             createVaultClient().use {
                 revokeAllTokenData(it)
             }

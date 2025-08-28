@@ -49,11 +49,11 @@ class VaultAuthTest :
             auth = client.auth
 
             enableAuthMethod(client, "approle")
-            revokeAllAppRoleData(client)
-            revokeAllTokenData(client)
         }
 
         afterTest {
+            revokeAllAppRoleData(client)
+            revokeAllTokenData(client)
             client.close()
         }
 
