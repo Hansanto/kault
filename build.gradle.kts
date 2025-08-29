@@ -233,11 +233,6 @@ tasks.withType<AbstractPublishToMaven>().configureEach {
 }
 //endregion
 
-// https://github.com/kotest/kotest/issues/5029
-tasks.withType<AbstractTestTask>().configureEach {
-    failOnNoDiscoveredTests = false
-}
-
 tasks {
     withType<org.jlleitschuh.gradle.ktlint.tasks.GenerateReportsTask> {
         reportsOutputDirectory.set(reportFolder.resolve("klint/$name"))
