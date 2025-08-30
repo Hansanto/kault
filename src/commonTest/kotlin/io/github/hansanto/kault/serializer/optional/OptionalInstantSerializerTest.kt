@@ -4,10 +4,9 @@ import io.kotest.assertions.json.shouldEqualJson
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
-import kotlinx.datetime.Instant
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import kotlin.time.Instant
 
 @Serializable
 data class WrapperOptionalInstantValue(
@@ -15,34 +14,35 @@ data class WrapperOptionalInstantValue(
     val value: Instant?
 )
 
-class OptionalInstantSerializerTest : ShouldSpec({
+class OptionalInstantSerializerTest :
+    ShouldSpec({
 
-    should("serialize with null value") {
-        assertSerialized(null, null)
-    }
+        should("serialize with null value") {
+            assertSerialized(null, null)
+        }
 
-    should("serialize with value") {
-        assertSerialized(Instant.parse("2030-12-20T14:42:52Z"), "2030-12-20T14:42:52Z")
-        assertSerialized(Instant.fromEpochMilliseconds(0), "1970-01-01T00:00:00Z")
-    }
+        should("serialize with value") {
+            assertSerialized(Instant.parse("2030-12-20T14:42:52Z"), "2030-12-20T14:42:52Z")
+            assertSerialized(Instant.fromEpochMilliseconds(0), "1970-01-01T00:00:00Z")
+        }
 
-    should("deserialize with null value") {
-        assertDeserialized(null, null)
-    }
+        should("deserialize with null value") {
+            assertDeserialized(null, null)
+        }
 
-    should("deserialize with empty string") {
-        assertDeserialized("", null)
-    }
+        should("deserialize with empty string") {
+            assertDeserialized("", null)
+        }
 
-    should("deserialize with wrong string") {
-        assertInvalidFormat("wrong")
-    }
+        should("deserialize with wrong string") {
+            assertInvalidFormat("wrong")
+        }
 
-    should("deserialize with valid") {
-        assertDeserialized("2030-12-20T14:42:52Z", Instant.parse("2030-12-20T14:42:52Z"))
-        assertDeserialized("1970-01-01T00:00:00Z", Instant.fromEpochMilliseconds(0))
-    }
-})
+        should("deserialize with valid") {
+            assertDeserialized("2030-12-20T14:42:52Z", Instant.parse("2030-12-20T14:42:52Z"))
+            assertDeserialized("1970-01-01T00:00:00Z", Instant.fromEpochMilliseconds(0))
+        }
+    })
 
 private fun assertSerialized(instant: Instant?, expected: String?) {
     val wrapper = WrapperOptionalInstantValue(instant)

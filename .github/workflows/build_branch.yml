@@ -90,10 +90,14 @@ jobs:
         uses: ./.github/actions/kubernetes
 
       - name: Docker Compose up
-        run: docker-compose up -d
+        run: docker compose up -d
 
       - name: Test
-        run: ./gradlew allTests
+        # There is a bug with Kotest where linuxX64Test is always on error.
+        # See: https://github.com/kotest/kotest/issues/5029
+        # In order to not block the CI, we only run the jvmTest (code is common, so it's "acceptable").
+        # TODO: When problem is fixed, change command for "./gradlew allTests"
+        run: ./gradlew jvmTest
         env:
           KUBERNETES_IP: ${{ steps.kubernetes.outputs.ip }}
           KUBERNETES_PORT: ${{ steps.kubernetes.outputs.port }}

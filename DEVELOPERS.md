@@ -85,7 +85,7 @@ The tests are located in the [src/commonTest](src/commonTest) directory.
 To start Vault:
 
 ```shell
-docker-compose up -d
+docker compose up -d
 ```
 
 To start Minikube:
@@ -103,7 +103,7 @@ To run the tests:
 To stop Vault:
 
 ```shell
-docker-compose down
+docker compose down
 ```
 
 To stop Minikube:

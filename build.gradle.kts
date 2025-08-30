@@ -9,6 +9,7 @@ plugins {
     libs.plugins.run {
         alias(kt.multiplatform)
         alias(kt.serialization)
+        alias(ksp)
         alias(kotest)
         alias(kover)
         alias(dokka)
@@ -75,8 +76,15 @@ kover {
     }
 }
 
-val jvmTargetVersion = JvmTarget.JVM_1_8
-val jvmTargetVersionNumber = 8
+ktlint {
+    reporters {
+        reporter(ReporterType.HTML)
+        reporter(ReporterType.CHECKSTYLE)
+    }
+}
+
+val jvmTargetVersion = JvmTarget.JVM_11
+val jvmTargetVersionNumber = jvmTargetVersion.target.toInt()
 
 kotlin {
     applyDefaultHierarchyTemplate()
@@ -157,42 +165,46 @@ kotlin {
                 optIn("kotlin.contracts.ExperimentalContracts")
                 optIn("kotlinx.serialization.ExperimentalSerializationApi")
                 optIn("kotlin.ExperimentalStdlibApi")
+                optIn("kotlin.time.ExperimentalTime")
             }
         }
 
         commonMain.dependencies {
-            api(libs.bundles.ktor.common)
+            api(ktorLibs.client.core)
+            api(ktorLibs.serialization)
+            api(ktorLibs.serialization.kotlinx.json)
+            api(ktorLibs.client.contentNegotiation)
             api(libs.bundles.kt.common)
         }
 
         commonTest.dependencies {
             implementation(kotlin("test"))
             implementation(libs.bundles.kotest.common)
-            implementation(libs.ktor.logging)
+            implementation(ktorLibs.client.logging)
             implementation(libs.kt.io)
             implementation(libs.resources)
         }
 
         jvmTest.dependencies {
-            implementation(libs.ktor.cio)
+            implementation(ktorLibs.client.cio)
             implementation(libs.slf4j.simple)
             implementation(libs.kotest.junit5)
         }
 
         jsTest.dependencies {
-            implementation(libs.ktor.js)
+            implementation(ktorLibs.client.js)
         }
 
         appleTest.dependencies {
-            implementation(libs.ktor.darwin)
+            implementation(ktorLibs.client.darwin)
         }
 
         linuxTest.dependencies {
-            implementation(libs.ktor.cio)
+            implementation(ktorLibs.client.cio)
         }
 
         mingwTest.dependencies {
-            implementation(libs.ktor.winhttp)
+            implementation(ktorLibs.client.winhttp)
         }
     }
 }
@@ -222,19 +234,16 @@ tasks.withType<AbstractPublishToMaven>().configureEach {
 //endregion
 
 tasks {
-    configure<org.jlleitschuh.gradle.ktlint.KtlintExtension> {
-        reporters {
-            reporter(ReporterType.HTML)
-            reporter(ReporterType.CHECKSTYLE)
-        }
-    }
-
     withType<org.jlleitschuh.gradle.ktlint.tasks.GenerateReportsTask> {
         reportsOutputDirectory.set(reportFolder.resolve("klint/$name"))
     }
 
     withType<Detekt>().configureEach {
         jvmTarget = jvmTargetVersion.target
+
+        exclude {
+            it.file.path.contains("/build/")
+        }
 
         reports {
             html.required.set(true)

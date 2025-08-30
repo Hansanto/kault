@@ -43,11 +43,10 @@ public class VaultSecretEngine(
          */
         private var kv2Builder: BuilderDsl<VaultKV2EngineImpl.Builder> = {}
 
-        override fun buildWithCompletePath(client: HttpClient, completePath: String): VaultSecretEngine {
-            return VaultSecretEngine(
+        override fun buildWithCompletePath(client: HttpClient, completePath: String): VaultSecretEngine =
+            VaultSecretEngine(
                 kv2 = VaultKV2EngineImpl.Builder().apply(kv2Builder).build(client, completePath)
             )
-        }
 
         /**
          * Sets the key-value version 2 service builder.

@@ -2,13 +2,14 @@ package io.github.hansanto.kault.common
 
 import io.github.hansanto.kault.VaultClient
 import io.github.hansanto.kault.serializer.optional.OptionalInstantSerializer
-import kotlinx.datetime.Instant
+import kotlinx.serialization.Contextual
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.serializer
+import kotlin.time.Instant
 
 @Serializable
 public data class Metadata(
@@ -17,6 +18,7 @@ public data class Metadata(
      * The time at which the version was created.
      */
     @SerialName("created_time")
+    @Contextual
     val createdTime: Instant,
 
     /**
