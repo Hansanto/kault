@@ -1,5 +1,21 @@
 # Changelog
 
+## [1.6.0](https://github.com/Hansanto/kault/compare/v1.5.2...v1.6.0) (2025-08-30)
+
+
+### Features
+
+* **deps:** Upgrade dependencies ([#205](https://github.com/Hansanto/kault/issues/205)) ([92cb666](https://github.com/Hansanto/kault/commit/92cb666228eeb6283225a585bb13ed1d99e1a3ec))
+
+
+### Bug Fixes
+
+* **deps:** update dependency org.jetbrains.kotlinx:kotlinx-datetime to v0.7.0-0.6.x-compat ([#201](https://github.com/Hansanto/kault/issues/201)) ([ea238d9](https://github.com/Hansanto/kault/commit/ea238d92ff9a4d8a9af838e9e1aee9e13304df1c))
+* **deps:** update ktor monorepo to v3.2.0 ([#198](https://github.com/Hansanto/kault/issues/198)) ([e8a62a2](https://github.com/Hansanto/kault/commit/e8a62a20a0d24620efa3f9d2916d76dd4b26df40))
+* **deps:** update ktor monorepo to v3.2.1 ([#206](https://github.com/Hansanto/kault/issues/206)) ([623723c](https://github.com/Hansanto/kault/commit/623723c6c8a323805ada0f3e75a528e82306c825))
+* **deps:** update ktor monorepo to v3.2.2 ([#211](https://github.com/Hansanto/kault/issues/211)) ([b1766d9](https://github.com/Hansanto/kault/commit/b1766d9fd6f7bb1b53cdd187d97d4fde9149803a))
+* **deps:** update ktor monorepo to v3.2.3 ([#214](https://github.com/Hansanto/kault/issues/214)) ([64bbe08](https://github.com/Hansanto/kault/commit/64bbe08bbf9826f820005fd839b77055682da928))
+
 ## [1.5.2](https://github.com/Hansanto/kault/compare/v1.5.1...v1.5.2) (2025-05-13)
 
 
