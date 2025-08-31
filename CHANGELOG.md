@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.6.1](https://github.com/Hansanto/kault/compare/v1.6.0...v1.6.1) (2025-08-31)
+
+
+### Bug Fixes
+
+* Publish on Maven Central ([#222](https://github.com/Hansanto/kault/issues/222)) ([5ef5f8b](https://github.com/Hansanto/kault/commit/5ef5f8b0af214debdbd56c656894943845edda75))
+
 ## [1.6.0](https://github.com/Hansanto/kault/compare/v1.5.2...v1.6.0) (2025-08-30)
 
 
