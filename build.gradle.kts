@@ -232,7 +232,7 @@ tasks {
 deployer {
     content {
         kotlinComponents {
-           docs(javadocJar)
+            docs(javadocJar)
         }
     }
 
