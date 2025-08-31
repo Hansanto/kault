@@ -249,7 +249,9 @@ tasks {
 
 deployer {
     content {
-        kotlinComponents()
+        kotlinComponents {
+           docs(javadocJar)
+        }
     }
 
     localSpec()
@@ -262,55 +264,24 @@ deployer {
         signing.key.set(secret("SIGNING_KEY"))
         signing.password.set(secret("SIGNING_PASSWORD"))
     }
-}
 
-publishing {
-    publications {
+    projectInfo {
+        // https://opensource.deepmedia.io/deployer/configuration
         val projectName = project.name
         val projectOrganizationPath = "Hansanto/$projectName"
         val projectGitUrl = "https://github.com/$projectOrganizationPath"
 
-        withType<MavenPublication> {
-            artifact(javadocJar)
-            pom {
-                name.set(rootProject.name)
-                description.set(project.description)
-                url.set(projectGitUrl)
+        url.set(projectGitUrl)
 
-                issueManagement {
-                    system.set("GitHub")
-                    url.set("$projectGitUrl/issues")
-                }
+        scm {
+            fromGithub("Hansanto", projectName)
+        }
 
-                ciManagement {
-                    system.set("GitHub Actions")
-                }
-
-                licenses {
-                    license {
-                        name.set("Apache-2.0")
-                        url.set("https://www.apache.org/licenses/")
-                    }
-                }
-
-                developers {
-                    developer {
-                        name.set("Hansanto")
-                        email.set("anthony.hanson@outlook.fr")
-                        url.set("https://github.com/Hansanto")
-                    }
-                }
-
-                scm {
-                    connection.set("scm:git:$projectGitUrl.git")
-                    developerConnection.set("scm:git:git@github.com:$projectOrganizationPath.git")
-                    url.set(projectGitUrl)
-                }
-
-                distributionManagement {
-                    downloadUrl.set("$projectGitUrl/releases")
-                }
-            }
+        license(apache2)
+        developer {
+            name.set("Hansanto")
+            url.set("https://github.com/Hansanto")
+            email.set("anthony.hanson@outlook.fr")
         }
     }
 }
