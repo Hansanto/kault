@@ -189,20 +189,11 @@ kotlin {
     }
 }
 
-val dokkaOutputDir = file("dokka")
-
-val deleteDokkaOutputDir by tasks.register<Delete>("deleteDokkaOutputDirectory") {
-    group = JavaBasePlugin.DOCUMENTATION_GROUP
-    description = "Deletes the dokka output directory."
-    delete(dokkaOutputDir)
-}
-
-val javadocJar = tasks.register<Jar>("docJar") {
-    group = JavaBasePlugin.DOCUMENTATION_GROUP
+val javadocJar = tasks.register<Jar>("dokkaJavadocJar") {
+    group = "dokka"
     description = "Creates a jar containing the documentation."
-    dependsOn(deleteDokkaOutputDir, tasks.dokkaHtml)
     archiveClassifier.set("javadoc")
-    from(dokkaOutputDir)
+    dependsOn(tasks.dokkaGenerate)
 }
 
 tasks {
@@ -235,15 +226,6 @@ tasks {
         allprojects {
             this@register.dependsOn(tasks.withType<Detekt>())
         }
-    }
-
-    clean {
-        delete(dokkaOutputDir)
-    }
-
-    dokkaHtml.configure {
-        dependsOn(deleteDokkaOutputDir)
-        outputDirectory.set(file(dokkaOutputDir))
     }
 }
 
