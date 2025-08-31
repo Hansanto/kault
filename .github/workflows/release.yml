@@ -34,7 +34,7 @@ jobs:
           jdk: 21
 
       - name: Build
-        run: ./gradlew publishToSonatype closeAndReleaseSonatypeStagingRepository
+        run: ./gradlew deployCentralPortal
         env:
           REPOSITORY_USERNAME: ${{ secrets.REPOSITORY_USERNAME }}
           REPOSITORY_PASSWORD: ${{ secrets.REPOSITORY_PASSWORD }}

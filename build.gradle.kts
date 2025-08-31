@@ -22,26 +22,6 @@ plugins {
     signing
 }
 
-val signingKey: String? = System.getenv("SIGNING_KEY")
-val signingPassword: String? = System.getenv("SIGNING_PASSWORD")
-if (signingKey != null && signingPassword != null) {
-    signing {
-        useInMemoryPgpKeys(signingKey, signingPassword)
-        sign(publishing.publications)
-    }
-}
-
-nexusPublishing {
-    repositories {
-        sonatype {
-            nexusUrl.set(uri("https://s01.oss.sonatype.org/service/local/"))
-            snapshotRepositoryUrl.set(uri("https://s01.oss.sonatype.org/content/repositories/snapshots/"))
-            username.set(System.getenv("REPOSITORY_USERNAME"))
-            password.set(System.getenv("REPOSITORY_PASSWORD"))
-        }
-    }
-}
-
 repositories {
     mavenCentral()
 }
@@ -209,29 +189,12 @@ kotlin {
     }
 }
 
-val dokkaOutputDir = file("dokka")
-
-val deleteDokkaOutputDir by tasks.register<Delete>("deleteDokkaOutputDirectory") {
-    group = JavaBasePlugin.DOCUMENTATION_GROUP
-    description = "Deletes the dokka output directory."
-    delete(dokkaOutputDir)
-}
-
-val javadocJar = tasks.register<Jar>("docJar") {
-    group = JavaBasePlugin.DOCUMENTATION_GROUP
+val javadocJar = tasks.register<Jar>("dokkaJavadocJar") {
+    group = "dokka"
     description = "Creates a jar containing the documentation."
-    dependsOn(deleteDokkaOutputDir, tasks.dokkaHtml)
     archiveClassifier.set("javadoc")
-    from(dokkaOutputDir)
+    dependsOn(tasks.dokkaGenerate)
 }
-
-//region Fix Gradle warning about signing tasks using publishing task outputs without explicit dependencies
-// https://github.com/gradle/gradle/issues/26091
-tasks.withType<AbstractPublishToMaven>().configureEach {
-    val signingTasks = tasks.withType<Sign>()
-    mustRunAfter(signingTasks)
-}
-//endregion
 
 tasks {
     withType<org.jlleitschuh.gradle.ktlint.tasks.GenerateReportsTask> {
@@ -264,64 +227,43 @@ tasks {
             this@register.dependsOn(tasks.withType<Detekt>())
         }
     }
-
-    clean {
-        delete(dokkaOutputDir)
-    }
-
-    dokkaHtml.configure {
-        dependsOn(deleteDokkaOutputDir)
-        outputDirectory.set(file(dokkaOutputDir))
-    }
 }
 
-publishing {
-    publications {
+deployer {
+    content {
+        kotlinComponents {
+            docs(javadocJar)
+        }
+    }
+
+    localSpec()
+    // https://opensource.deepmedia.io/deployer
+    centralPortalSpec {
+        // Generate key pair from https://central.sonatype.com/account
+        auth.user.set(secret("REPOSITORY_USERNAME"))
+        auth.password.set(secret("REPOSITORY_PASSWORD"))
+
+        signing.key.set(secret("SIGNING_KEY"))
+        signing.password.set(secret("SIGNING_PASSWORD"))
+    }
+
+    projectInfo {
+        // https://opensource.deepmedia.io/deployer/configuration
         val projectName = project.name
         val projectOrganizationPath = "Hansanto/$projectName"
         val projectGitUrl = "https://github.com/$projectOrganizationPath"
 
-        withType<MavenPublication> {
-            artifact(javadocJar)
-            pom {
-                name.set(rootProject.name)
-                description.set(project.description)
-                url.set(projectGitUrl)
+        url.set(projectGitUrl)
 
-                issueManagement {
-                    system.set("GitHub")
-                    url.set("$projectGitUrl/issues")
-                }
+        scm {
+            fromGithub("Hansanto", projectName)
+        }
 
-                ciManagement {
-                    system.set("GitHub Actions")
-                }
-
-                licenses {
-                    license {
-                        name.set("Apache-2.0")
-                        url.set("https://www.apache.org/licenses/")
-                    }
-                }
-
-                developers {
-                    developer {
-                        name.set("Hansanto")
-                        email.set("anthony.hanson@outlook.fr")
-                        url.set("https://github.com/Hansanto")
-                    }
-                }
-
-                scm {
-                    connection.set("scm:git:$projectGitUrl.git")
-                    developerConnection.set("scm:git:git@github.com:$projectOrganizationPath.git")
-                    url.set(projectGitUrl)
-                }
-
-                distributionManagement {
-                    downloadUrl.set("$projectGitUrl/releases")
-                }
-            }
+        license(apache2)
+        developer {
+            name.set("Hansanto")
+            url.set("https://github.com/Hansanto")
+            email.set("anthony.hanson@outlook.fr")
         }
     }
 }

@@ -26,7 +26,7 @@ dependencyResolutionManagement {
             version("dokka", "2.0.0")
             version("detekt", "1.23.8")
             version("ktlint", "13.1.0")
-            version("publish", "2.0.0")
+            version("deployer", "0.18.0")
 
             plugin("kt-multiplatform", "org.jetbrains.kotlin.multiplatform").versionRef("kotlin")
             plugin("kt-serialization", "org.jetbrains.kotlin.plugin.serialization").versionRef("kotlin")
@@ -37,7 +37,7 @@ dependencyResolutionManagement {
             plugin("detekt", "io.gitlab.arturbosch.detekt").versionRef("detekt")
             plugin("ktlint", "org.jlleitschuh.gradle.ktlint").versionRef("ktlint")
             plugin("resources", "com.goncalossilva.resources").versionRef("resources")
-            plugin("gradle-publish", "io.github.gradle-nexus.publish-plugin").versionRef("publish")
+            plugin("gradle-publish", "io.deepmedia.tools.deployer").versionRef("deployer")
 
             library("kt-serialization-json", "org.jetbrains.kotlinx", "kotlinx-serialization-json").versionRef("kotlin-serialization")
             library("kt-datetime", "org.jetbrains.kotlinx", "kotlinx-datetime").versionRef("kotlinx-datetime")
