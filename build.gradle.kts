@@ -22,26 +22,6 @@ plugins {
     signing
 }
 
-val signingKey: String? = System.getenv("SIGNING_KEY")
-val signingPassword: String? = System.getenv("SIGNING_PASSWORD")
-if (signingKey != null && signingPassword != null) {
-    signing {
-        useInMemoryPgpKeys(signingKey, signingPassword)
-        sign(publishing.publications)
-    }
-}
-
-nexusPublishing {
-    repositories {
-        sonatype {
-            nexusUrl.set(uri("https://s01.oss.sonatype.org/service/local/"))
-            snapshotRepositoryUrl.set(uri("https://s01.oss.sonatype.org/content/repositories/snapshots/"))
-            username.set(System.getenv("REPOSITORY_USERNAME"))
-            password.set(System.getenv("REPOSITORY_PASSWORD"))
-        }
-    }
-}
-
 repositories {
     mavenCentral()
 }
@@ -225,14 +205,6 @@ val javadocJar = tasks.register<Jar>("docJar") {
     from(dokkaOutputDir)
 }
 
-//region Fix Gradle warning about signing tasks using publishing task outputs without explicit dependencies
-// https://github.com/gradle/gradle/issues/26091
-tasks.withType<AbstractPublishToMaven>().configureEach {
-    val signingTasks = tasks.withType<Sign>()
-    mustRunAfter(signingTasks)
-}
-//endregion
-
 tasks {
     withType<org.jlleitschuh.gradle.ktlint.tasks.GenerateReportsTask> {
         reportsOutputDirectory.set(reportFolder.resolve("klint/$name"))
@@ -272,6 +244,23 @@ tasks {
     dokkaHtml.configure {
         dependsOn(deleteDokkaOutputDir)
         outputDirectory.set(file(dokkaOutputDir))
+    }
+}
+
+deployer {
+    content {
+        kotlinComponents()
+    }
+
+    localSpec()
+    // https://opensource.deepmedia.io/deployer
+    centralPortalSpec {
+        // Generate key pair from https://central.sonatype.com/account
+        auth.user.set(secret("REPOSITORY_USERNAME"))
+        auth.password.set(secret("REPOSITORY_PASSWORD"))
+
+        signing.key.set(secret("SIGNING_KEY"))
+        signing.password.set(secret("SIGNING_PASSWORD"))
     }
 }
 
