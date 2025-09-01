@@ -249,10 +249,12 @@ deployer {
 
     projectInfo {
         // https://opensource.deepmedia.io/deployer/configuration
-        val projectName = project.name
+        val projectName = rootProject.name
         val projectOrganizationPath = "Hansanto/$projectName"
         val projectGitUrl = "https://github.com/$projectOrganizationPath"
 
+        name.set(projectName)
+        description.set(rootProject.description)
         url.set(projectGitUrl)
 
         scm {
