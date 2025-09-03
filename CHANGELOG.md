@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.6.2](https://github.com/Hansanto/kault/compare/v1.6.1...v1.6.2) (2025-09-03)
+
+
+### Bug Fixes
+
+* **deps:** update kotest to v6.0.2 ([#170](https://github.com/Hansanto/kault/issues/170)) ([119213e](https://github.com/Hansanto/kault/commit/119213ee844ea0643ef658466938034ac1ec8112))
+* **publish:** Description of the library ([467b984](https://github.com/Hansanto/kault/commit/467b9842a3aef4acd16fc11c43149de880e4624d))
+
 ## [1.6.1](https://github.com/Hansanto/kault/compare/v1.6.0...v1.6.1) (2025-08-31)
 
 
