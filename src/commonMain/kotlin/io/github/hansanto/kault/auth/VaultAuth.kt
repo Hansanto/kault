@@ -8,6 +8,8 @@ import io.github.hansanto.kault.auth.approle.VaultAuthAppRoleImpl
 import io.github.hansanto.kault.auth.common.common.TokenInfo
 import io.github.hansanto.kault.auth.common.response.LoginResponse
 import io.github.hansanto.kault.auth.common.response.toTokenInfo
+import io.github.hansanto.kault.auth.jwt.VaultAuthOIDC
+import io.github.hansanto.kault.auth.jwt.VaultAuthOIDCImpl
 import io.github.hansanto.kault.auth.kubernetes.VaultAuthKubernetes
 import io.github.hansanto.kault.auth.kubernetes.VaultAuthKubernetesImpl
 import io.github.hansanto.kault.auth.token.VaultAuthToken
@@ -15,7 +17,7 @@ import io.github.hansanto.kault.auth.token.VaultAuthTokenImpl
 import io.github.hansanto.kault.auth.token.response.toTokenInfo
 import io.github.hansanto.kault.auth.userpass.VaultAuthUserpass
 import io.github.hansanto.kault.auth.userpass.VaultAuthUserpassImpl
-import io.ktor.client.HttpClient
+import io.ktor.client.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -59,6 +61,11 @@ public class VaultAuth(
      * Authentication token service.
      */
     public val token: VaultAuthToken,
+
+    /**
+     * Authentication OIDC service.
+     */
+    public val oidc: VaultAuthOIDC,
 
     /**
      * Coroutine scope to renew the token when it is about to expire.
@@ -141,6 +148,11 @@ public class VaultAuth(
          */
         private var tokenBuilder: BuilderDsl<VaultAuthTokenImpl.Builder> = {}
 
+        /**
+         * Builder to define authentication OIDC service.
+         */
+        private var oidcBuilder: BuilderDsl<VaultAuthOIDCImpl.Builder> = {}
+
         override fun buildWithCompletePath(client: HttpClient, completePath: String): VaultAuth = VaultAuth(
             renewCoroutineScope = CoroutineScope(SupervisorJob(client.coroutineContext.job) + Dispatchers.Default),
             renewBeforeExpiration = renewBeforeExpiration,
@@ -148,7 +160,8 @@ public class VaultAuth(
             appRole = VaultAuthAppRoleImpl.Builder().apply(appRoleBuilder).build(client, completePath),
             userpass = VaultAuthUserpassImpl.Builder().apply(userpassBuilder).build(client, completePath),
             kubernetes = VaultAuthKubernetesImpl.Builder().apply(kubernetesBuilder).build(client, completePath),
-            token = VaultAuthTokenImpl.Builder().apply(tokenBuilder).build(client, completePath)
+            token = VaultAuthTokenImpl.Builder().apply(tokenBuilder).build(client, completePath),
+            oidc = VaultAuthOIDCImpl.Builder().apply(oidcBuilder).build(client, completePath)
         )
 
         /**
@@ -211,6 +224,15 @@ public class VaultAuth(
          */
         public fun token(builder: BuilderDsl<VaultAuthTokenImpl.Builder>) {
             tokenBuilder = builder
+        }
+
+        /**
+         * Sets the authentication OIDC service builder.
+         *
+         * @param builder Builder to create [VaultAuthOIDCImpl] instance.
+         */
+        public fun oidc(builder: BuilderDsl<VaultAuthOIDCImpl.Builder>) {
+            oidcBuilder = builder
         }
     }
 
