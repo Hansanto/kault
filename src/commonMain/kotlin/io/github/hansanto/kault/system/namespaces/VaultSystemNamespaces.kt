@@ -5,6 +5,8 @@ import io.github.hansanto.kault.ServiceBuilder
 import io.github.hansanto.kault.extension.decodeBodyJsonDataFieldObject
 import io.github.hansanto.kault.extension.list
 import io.github.hansanto.kault.response.StandardListResponse
+import io.github.hansanto.kault.system.namespaces.payload.CreateNamespacePayload
+import io.github.hansanto.kault.system.namespaces.payload.PatchNamespacePayload
 import io.ktor.client.*
 import io.ktor.client.request.*
 import io.ktor.http.*
@@ -25,7 +27,7 @@ public interface VaultSystemNamespaces {
      * @param customMetadata A map of arbitrary string to string valued user-provided metadata meant to describe the namespace.
      * @return Response.
      */
-    public suspend fun create(path: String, customMetadata: Map<String, String>? = null): Any
+    public suspend fun create(path: String, customMetadata: Map<String, String>? = null): Boolean
 
     /**
      * This endpoint patches an existing namespace at the specified path.
@@ -34,7 +36,7 @@ public interface VaultSystemNamespaces {
      * @param customMetadata A map of arbitrary string to string valued user-provided metadata meant to describe the namespace.
      * @return Response.
      */
-    public suspend fun patch(path: String, customMetadata: Map<String, String>? = null): Any
+    public suspend fun patch(path: String, customMetadata: Map<String, String>? = null): Boolean
 
     /**
      * This endpoint deletes a namespace at the specified path.
@@ -42,7 +44,7 @@ public interface VaultSystemNamespaces {
      * @param path Specifies the path where the namespace will be deleted.
      * @return Response.
      */
-    public suspend fun delete(path: String): Any
+    public suspend fun delete(path: String): Boolean
 
     /**
      * This endpoint gets the metadata for the given namespace path.
@@ -135,7 +137,7 @@ public class VaultSystemNamespacesImpl(
         return response.decodeBodyJsonDataFieldObject()
     }
 
-    override suspend fun create(path: String, customMetadata: Map<String, String>?): Any {
+    override suspend fun create(path: String, customMetadata: Map<String, String>?): Boolean {
         val payload = CreateNamespacePayload(customMetadata = customMetadata)
         val response = client.post {
             url {
@@ -144,28 +146,28 @@ public class VaultSystemNamespacesImpl(
             contentType(ContentType.Application.Json)
             setBody(payload)
         }
-        return response.decodeBodyJsonDataFieldObject()
+        return response.status.isSuccess()
     }
 
-    override suspend fun patch(path: String, customMetadata: Map<String, String>?): Any {
+    override suspend fun patch(path: String, customMetadata: Map<String, String>?): Boolean {
         val payload = PatchNamespacePayload(customMetadata = customMetadata)
-        val response = client.post {
+        val response = client.patch {
             url {
                 appendPathSegments(this@VaultSystemNamespacesImpl.path, path)
             }
             contentType(ContentType.Application.Json)
             setBody(payload)
         }
-        return response.decodeBodyJsonDataFieldObject()
+        return response.status.isSuccess()
     }
 
-    override suspend fun delete(path: String): Any {
+    override suspend fun delete(path: String): Boolean {
         val response = client.delete {
             url {
                 appendPathSegments(this@VaultSystemNamespacesImpl.path, path)
             }
         }
-        return response.decodeBodyJsonDataFieldObject()
+        return response.status.isSuccess()
     }
 
     override suspend fun readInformation(path: String): Any {
