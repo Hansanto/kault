@@ -1,13 +1,17 @@
 package io.github.hansanto.kault.auth.jwt
 
 import io.github.hansanto.kault.VaultClient
-import io.github.hansanto.kault.auth.jwt.payload.OIDCResponseMode
-import io.github.hansanto.kault.auth.jwt.payload.OIDCResponseType
+import io.github.hansanto.kault.auth.jwt.common.OIDCResponseMode
+import io.github.hansanto.kault.auth.jwt.common.OIDCResponseType
+import io.github.hansanto.kault.auth.jwt.payload.OIDCCreateOrUpdatePayload
 import io.github.hansanto.kault.auth.jwt.response.OIDCConfigureResponse
+import io.github.hansanto.kault.auth.jwt.response.OIDCReadRoleResponse
 import io.github.hansanto.kault.extension.toJsonPrimitiveMap
+import io.github.hansanto.kault.util.DEFAULT_ROLE_NAME
 import io.github.hansanto.kault.util.createVaultClient
 import io.github.hansanto.kault.util.enableAuthMethod
 import io.github.hansanto.kault.util.randomString
+import io.github.hansanto.kault.util.readJson
 import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
 
@@ -145,3 +149,14 @@ class VaultAuthJwtTest :
         }
 
     })
+
+private suspend inline fun assertCreateRole(
+    oidc: VaultAuthOIDC,
+    givenPath: String?,
+    expectedReadPath: String,
+    createOrUpdate: (String, OIDCCreateOrUpdatePayload) -> Boolean
+) {
+    val given = givenPath?.let { readJson<OIDCCreateOrUpdatePayload>(it) } ?: OIDCCreateOrUpdatePayload()
+    createOrUpdate(DEFAULT_ROLE_NAME, given) shouldBe true
+    oidc.readRole(DEFAULT_ROLE_NAME) shouldBe readJson<OIDCReadRoleResponse>(expectedReadPath)
+}

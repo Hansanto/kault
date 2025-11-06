@@ -1,4 +1,4 @@
-package io.github.hansanto.kault.auth.jwt.payload
+package io.github.hansanto.kault.auth.jwt.common
 
 import io.github.hansanto.kault.serializer.EnumSerializer
 import kotlinx.serialization.Serializable

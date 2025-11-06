@@ -23,6 +23,18 @@ public suspend inline fun VaultAuthOIDC.configure(
 }
 
 /**
+ * @see VaultAuthOIDC.createOrUpdateRole(roleName, payload)
+ */
+public suspend inline fun VaultAuthOIDC.createOrUpdateRole(
+    roleName: String,
+    payloadBuilder: BuilderDsl<OIDCConfigurePayload>
+): Boolean {
+    contract { callsInPlace(payloadBuilder, InvocationKind.EXACTLY_ONCE) }
+    val payload = OIDCConfigurePayload().apply(payloadBuilder)
+    return createOrUpdateRole(roleName, payload)
+}
+
+/**
  * Provides methods for managing Kubernetes authentication within Vault.
  */
 public interface VaultAuthOIDC {
@@ -40,6 +52,30 @@ public interface VaultAuthOIDC {
      * @return Response.
      */
     public suspend fun readConfiguration(): OIDCConfigureResponse
+
+    /**
+     * Registers a role in the method. Role types have specific entities that can perform login operations against this endpoint. Constraints specific to the role type must be set on the role. These are applied to the authenticated entities attempting to login. At least one of the bound values must be set.
+     * [Documentation](https://developer.hashicorp.com/vault/api-docs/auth/jwt#create-update-role)
+     *
+     * @param roleName Name of the role.
+     * @param payload Payload to create or update the role.
+     * @return Returns true if the role was created or updated successfully.
+     */
+    public suspend fun createOrUpdateRole(
+        roleName: String,
+        payload: OIDCConfigurePayload
+    ): Boolean
+
+    /**
+     * Returns the previously registered role configuration.
+     * [Documentation](https://developer.hashicorp.com/vault/api-docs/auth/jwt#read-role)
+     *
+     * @param roleName Name of the role.
+     * @return Response.
+     */
+    public suspend fun readRole(
+        roleName: String
+    ): String
 }
 
 /**
@@ -106,6 +142,26 @@ public class VaultAuthOIDCImpl(
         val response = client.get {
             url {
                 appendPathSegments(path, "config")
+            }
+        }
+        return response.decodeBodyJsonDataFieldObject()
+    }
+
+    override suspend fun createOrUpdateRole(roleName: String, payload: OIDCConfigurePayload): Boolean {
+        val response = client.post {
+            url {
+                appendPathSegments(path, "role", roleName)
+            }
+            contentType(ContentType.Application.Json)
+            setBody(payload)
+        }
+        return response.status.isSuccess()
+    }
+
+    override suspend fun readRole(roleName: String): String {
+        val response = client.get {
+            url {
+                appendPathSegments(path, "role", roleName)
             }
         }
         return response.decodeBodyJsonDataFieldObject()

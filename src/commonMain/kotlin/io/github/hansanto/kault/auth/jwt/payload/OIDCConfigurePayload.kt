@@ -1,6 +1,8 @@
 package io.github.hansanto.kault.auth.jwt.payload
 
 import io.github.hansanto.kault.KaultDsl
+import io.github.hansanto.kault.auth.jwt.common.OIDCResponseMode
+import io.github.hansanto.kault.auth.jwt.common.OIDCResponseType
 import io.github.hansanto.kault.extension.toJsonPrimitiveMap
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -12,91 +14,91 @@ public data class OIDCConfigurePayload(
      * The value against which to match the iss claim in a JWT. Cannot be configured when [jwksPairs] is set.
      */
     @SerialName("bound_issuer")
-    public var boundIssuer: String?,
+    public var boundIssuer: String? = null,
 
     /**
      * The default role to use if none is provided during login.
      */
     @SerialName("default_role")
-    public var defaultRole: String?,
+    public var defaultRole: String? = null,
 
     /**
      * The contents of a CA certificate or chain of certificates, in PEM format, to use to validate connections to the JWKS URL. If not set, system certificates are used.
      */
     @SerialName("jwks_ca_pem")
-    public var jwksCaPem: String?,
+    public var jwksCaPem: String? = null,
 
     /**
      * List of JWKS URL and optional CA certificate pairs. CA certificates must be in PEM format. Cannot be used with [jwksUrl] or [jwksCaPem].
      */
     @SerialName("jwks_pairs")
-    public var jwksPairs: List<JwksPair>?,
+    public var jwksPairs: List<JwksPair>? = null,
 
     /**
      * JWKS URL to use to authenticate signatures. Cannot be used with [oidcDiscoveryUrl] or [jwtValidationPubkeys].
      */
     @SerialName("jwks_url")
-    public var jwksUrl: String?,
+    public var jwksUrl: String? = null,
 
     /**
      * A list of supported signing algorithms. Defaults to RS256 for OIDC roles. Defaults to all [available algorithms](https://github.com/hashicorp/cap/blob/main/jwt/algs.go) for JWT roles.
      */
     @SerialName("jwt_supported_algs")
-    public var jwtSupportedAlgorithms: List<String>?,
+    public var jwtSupportedAlgorithms: List<String>? = null,
 
     /**
      * A list of PEM-encoded public keys to use to authenticate signatures locally. Cannot be used with [jwksUrl] or [oidcDiscoveryUrl].
      */
     @SerialName("jwt_validation_pubkeys")
-    public var jwtValidationPubkeys: List<String>?,
+    public var jwtValidationPubkeys: List<String>? = null,
 
     /**
      * Pass namespace in the OIDC state parameter instead of as a separate query parameter. With this setting, the allowed redirect URL(s) in Vault and on the provider side should not contain a namespace query parameter. This means only one redirect URL entry needs to be maintained on the provider side for all vault namespaces that will be authenticating against it. Defaults to true for new configs.
      */
     @SerialName("namespace_in_state")
-    public var namespaceInState: Boolean?,
+    public var namespaceInState: Boolean? = null,
 
     /**
      * The OAuth Client ID from the provider for OIDC roles.
      */
     @SerialName("oidc_client_id")
-    public var oidcClientId: String?,
+    public var oidcClientId: String? = null,
 
     /**
      * The OAuth Client Secret from the provider for OIDC roles.
      */
     @SerialName("oidc_client_secret")
-    public var oidcClientSecret: String?,
+    public var oidcClientSecret: String? = null,
 
     /**
      * The contents of a CA certificate or chain of certificates, in PEM format, to use to validate connections to the OIDC Discovery URL. If not set, system certificates are used.
      */
     @SerialName("oidc_discovery_ca_pem")
-    public var oidcDiscoveryCaPem: String?,
+    public var oidcDiscoveryCaPem: String? = null,
 
     /**
      * The OIDC Discovery URL, without any .well-known component (base path). Cannot be used with [jwksUrl] or [jwtValidationPubkeys].
      */
     @SerialName("oidc_discovery_url")
-    public var oidcDiscoveryUrl: String?,
+    public var oidcDiscoveryUrl: String? = null,
 
     /**
-     * The response mode to be used in the OAuth2 request. Defaults to [OIDCResponseMode.QUERY]. If using Vault namespaces, and oidc_response_mode is [OIDCResponseMode.FORM_POST], then [namespaceInState] should be set to false.
+     * The response mode to be used in the OAuth2 request. Defaults to [io.github.hansanto.kault.auth.jwt.common.OIDCResponseMode.QUERY]. If using Vault namespaces, and oidc_response_mode is [io.github.hansanto.kault.auth.jwt.common.OIDCResponseMode.FORM_POST], then [namespaceInState] should be set to false.
      */
     @SerialName("oidc_response_mode")
-    public var oidcResponseMode: OIDCResponseMode?,
+    public var oidcResponseMode: OIDCResponseMode? = null,
 
     /**
-     * The response types to request. Defaults to [OIDCResponseType.CODE]. Note: [OIDCResponseType.ID_TOKEN] may only be used if [oidcResponseMode] is set to [OIDCResponseMode.FORM_POST].
+     * The response types to request. Defaults to [io.github.hansanto.kault.auth.jwt.common.OIDCResponseType.CODE]. Note: [io.github.hansanto.kault.auth.jwt.common.OIDCResponseType.ID_TOKEN] may only be used if [oidcResponseMode] is set to [OIDCResponseMode.FORM_POST].
      */
     @SerialName("oidc_response_types")
-    public var oidcResponseTypes: List<OIDCResponseType>?,
+    public var oidcResponseTypes: List<OIDCResponseType>? = null,
 
     /**
      * Configuration options for provider-specific handling. Providers with specific handling include: Azure, Google, SecureAuth, IBM ISAM. The options are described in each provider's section in [OIDC Provider Setup](https://developer.hashicorp.com/vault/docs/auth/jwt/oidc-providers).
      */
     @SerialName("provider_config")
-    public var providerConfig: Map<String, JsonPrimitive>?,
+    public var providerConfig: Map<String, JsonPrimitive>? = null,
 ) {
 
     @Serializable

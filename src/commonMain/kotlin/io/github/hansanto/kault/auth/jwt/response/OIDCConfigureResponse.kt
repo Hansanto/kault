@@ -1,8 +1,8 @@
 package io.github.hansanto.kault.auth.jwt.response
 
+import io.github.hansanto.kault.auth.jwt.common.OIDCResponseMode
+import io.github.hansanto.kault.auth.jwt.common.OIDCResponseType
 import io.github.hansanto.kault.auth.jwt.payload.OIDCConfigurePayload.JwksPair
-import io.github.hansanto.kault.auth.jwt.payload.OIDCResponseMode
-import io.github.hansanto.kault.auth.jwt.payload.OIDCResponseType
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonPrimitive
