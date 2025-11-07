@@ -2,10 +2,15 @@ package io.github.hansanto.kault.auth.jwt
 
 import io.github.hansanto.kault.BuilderDsl
 import io.github.hansanto.kault.ServiceBuilder
+import io.github.hansanto.kault.auth.common.response.LoginResponse
+import io.github.hansanto.kault.auth.jwt.payload.OIDCAuthorizationUrlPayload
+import io.github.hansanto.kault.auth.jwt.payload.OIDCCallbackPayload
 import io.github.hansanto.kault.auth.jwt.payload.OIDCConfigurePayload
 import io.github.hansanto.kault.auth.jwt.payload.OIDCCreateOrUpdatePayload
+import io.github.hansanto.kault.auth.jwt.response.OIDCAuthorizationUrlResponse
 import io.github.hansanto.kault.auth.jwt.response.OIDCConfigureResponse
 import io.github.hansanto.kault.auth.jwt.response.OIDCReadRoleResponse
+import io.github.hansanto.kault.extension.decodeBodyJsonAuthFieldObject
 import io.github.hansanto.kault.extension.decodeBodyJsonDataFieldObject
 import io.github.hansanto.kault.extension.list
 import io.github.hansanto.kault.response.StandardListResponse
@@ -36,6 +41,28 @@ public suspend inline fun VaultAuthOIDC.createOrUpdateRole(
     contract { callsInPlace(payloadBuilder, InvocationKind.EXACTLY_ONCE) }
     val payload = OIDCCreateOrUpdatePayload.Builder().apply(payloadBuilder).build()
     return createOrUpdateRole(roleName, payload)
+}
+
+/**
+ * @see VaultAuthOIDC.createOrUpdateRole(roleName, payload)
+ */
+public suspend inline fun VaultAuthOIDC.oidcAuthorizationUrl(
+    payloadBuilder: BuilderDsl<OIDCAuthorizationUrlPayload.Builder>
+): String {
+    contract { callsInPlace(payloadBuilder, InvocationKind.EXACTLY_ONCE) }
+    val payload = OIDCAuthorizationUrlPayload.Builder().apply(payloadBuilder).build()
+    return oidcAuthorizationUrl(payload)
+}
+
+/**
+ * @see VaultAuthOIDC.oidcCallback(parameters)
+ */
+public suspend inline fun VaultAuthOIDC.oidcCallback(
+    parametersBuilder: BuilderDsl<OIDCCallbackPayload.Builder>
+): LoginResponse {
+    contract { callsInPlace(parametersBuilder, InvocationKind.EXACTLY_ONCE) }
+    val parameters = OIDCCallbackPayload.Builder().apply(parametersBuilder).build()
+    return oidcCallback(parameters)
 }
 
 /**
@@ -95,6 +122,22 @@ public interface VaultAuthOIDC {
      * @return Returns true if the role was deleted successfully.
      */
     public suspend fun deleteRole(roleName: String): Boolean
+
+    /**
+     * Obtain an authorization URL from Vault to start an OIDC login flow.
+     * [Documentation](https://developer.hashicorp.com/vault/api-docs/auth/jwt#oidc-authorization-url-request)
+     * @param payload Payload to obtain the authorization URL.
+     * @return The OIDC authorization URL to which the client should be redirected.
+     */
+    public suspend fun oidcAuthorizationUrl(payload: OIDCAuthorizationUrlPayload): String
+
+    /**
+     * Exchange an authorization code for an OIDC ID Token. The ID token will be further validated against any bound claims, and if valid a Vault token will be returned.
+     * [Documentation](https://developer.hashicorp.com/vault/api-docs/auth/jwt#oidc-callback)
+     * @param payload Payload for the OIDC callback.
+     * @return Response.
+     */
+    public suspend fun oidcCallback(payload: OIDCCallbackPayload): LoginResponse
 }
 
 /**
@@ -202,6 +245,30 @@ public class VaultAuthOIDCImpl(
             }
         }
         return response.status.isSuccess()
+    }
+
+    override suspend fun oidcAuthorizationUrl(payload: OIDCAuthorizationUrlPayload): String {
+        val response = client.post {
+            url {
+                appendPathSegments(path, "oidc", "auth_url")
+            }
+            contentType(ContentType.Application.Json)
+            setBody(payload)
+        }
+        return response.decodeBodyJsonDataFieldObject<OIDCAuthorizationUrlResponse>().authUrl
+    }
+
+    override suspend fun oidcCallback(payload: OIDCCallbackPayload): LoginResponse {
+        val response = client.get {
+            url {
+                appendPathSegments(path, "oidc", "callback")
+                parameter("state", payload.state)
+                parameter("nonce", payload.nonce)
+                parameter("code", payload.code)
+                payload.clientNonce?.let { parameter("client_nonce", it) }
+            }
+        }
+        return response.decodeBodyJsonAuthFieldObject()
     }
 
 }

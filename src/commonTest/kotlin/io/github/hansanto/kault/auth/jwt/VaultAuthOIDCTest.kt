@@ -6,6 +6,7 @@ import io.github.hansanto.kault.auth.jwt.common.OIDCResponseType
 import io.github.hansanto.kault.auth.jwt.payload.OIDCCreateOrUpdatePayload
 import io.github.hansanto.kault.auth.jwt.response.OIDCConfigureResponse
 import io.github.hansanto.kault.auth.jwt.response.OIDCReadRoleResponse
+import io.github.hansanto.kault.exception.VaultAPIException
 import io.github.hansanto.kault.extension.toJsonPrimitiveMap
 import io.github.hansanto.kault.util.DEFAULT_ROLE_NAME
 import io.github.hansanto.kault.util.createVaultClient
@@ -13,8 +14,16 @@ import io.github.hansanto.kault.util.enableAuthMethod
 import io.github.hansanto.kault.util.randomString
 import io.github.hansanto.kault.util.readJson
 import io.github.hansanto.kault.util.revokeAllOIDCData
+import io.kotest.assertions.throwables.shouldNotThrow
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.ShouldSpec
+import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
+import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldContain
+import io.kotest.matchers.types.shouldNotBeSameInstanceAs
+import io.ktor.http.URLProtocol
+import io.ktor.http.Url
 
 class VaultAuthOIDCTest :
     ShouldSpec({
@@ -150,7 +159,7 @@ class VaultAuthOIDCTest :
         }
 
         should("create a role with default values") {
-            assertCreateRole(
+            assertCreateOrUpdateRole(
                 oidc,
                 "cases/auth/oidc/create/without_options/given.json",
                 "cases/auth/oidc/create/without_options/expected.json"
@@ -158,17 +167,172 @@ class VaultAuthOIDCTest :
         }
 
         should("create a role with all defined values") {
-            assertCreateRole(
+            assertCreateOrUpdateRole(
                 oidc,
                 "cases/auth/oidc/create/with_options/given.json",
                 "cases/auth/oidc/create/with_options/expected.json"
             )
         }
 
+        should("create a role using builder with default values") {
+            assertCreateOrUpdateRoleWithBuilder(
+                oidc,
+                "cases/auth/oidc/create/without_options/given.json",
+                "cases/auth/oidc/create/without_options/expected.json"
+            )
+        }
+
+        should("create a role using builder with all defined values") {
+            assertCreateOrUpdateRoleWithBuilder(
+                oidc,
+                "cases/auth/oidc/create/with_options/given.json",
+                "cases/auth/oidc/create/with_options/expected.json"
+            )
+        }
+
+        should("throw exception if no role was created when listing roles") {
+            shouldThrow<VaultAPIException> {
+                oidc.list()
+            }
+        }
+
+        should("return created roles when listing") {
+            val roles = List(10) { "test-$it" }
+            roles.forEach { createRole(oidc, it) }
+            oidc.list() shouldContainExactlyInAnyOrder roles
+        }
+
+        should("do nothing when deleting non-existing role") {
+            shouldThrow<VaultAPIException> { oidc.readRole(DEFAULT_ROLE_NAME) }
+            oidc.deleteRole(DEFAULT_ROLE_NAME) shouldBe true
+            shouldThrow<VaultAPIException> { oidc.readRole(DEFAULT_ROLE_NAME) }
+        }
+
+        should("delete existing role") {
+            createRole(oidc, DEFAULT_ROLE_NAME)
+            shouldNotThrow<VaultAPIException> { oidc.readRole(DEFAULT_ROLE_NAME) }
+            oidc.deleteRole(DEFAULT_ROLE_NAME) shouldBe true
+            shouldThrow<VaultAPIException> { oidc.readRole(DEFAULT_ROLE_NAME) }
+        }
+
+        should("throw exception if obtaining oidc authorization url with missing redirect uri") {
+            val exception = shouldThrow<Exception> {
+                oidc.oidcAuthorizationUrl {
+                    this.role = DEFAULT_ROLE_NAME
+                }
+            }
+            exception::class shouldNotBeSameInstanceAs VaultAPIException::class
+        }
+
+        should("throw exception if obtaining oidc authorization url when role does not exist") {
+            shouldThrow<VaultAPIException> {
+                oidc.oidcAuthorizationUrl {
+                    this.role = DEFAULT_ROLE_NAME
+                    this.redirectUri = "https://localhost:8080/callback"
+                    this.clientNonce = randomString()
+                }
+            }
+        }
+
+        should("get oidc authorization url") {
+            createRole(oidc, DEFAULT_ROLE_NAME)
+
+            val clientNonce = randomString()
+            val urlString = oidc.oidcAuthorizationUrl {
+                this.redirectUri = "https://localhost:8080/callback"
+                this.role = DEFAULT_ROLE_NAME
+                this.clientNonce = clientNonce
+            }
+
+            val urlObject = Url(urlString)
+            urlObject.protocol shouldBe URLProtocol.HTTP
+            urlObject.host shouldBe "keycloak"
+            urlObject.port shouldBe 8080
+            urlObject.parameters["response_type"] shouldBe OIDCResponseType.CODE.value
+            urlObject.parameters["client_id"] shouldBe "vault"
+            urlObject.parameters["redirect_uri"] shouldBe "https://localhost:8080/callback"
+            urlObject.parameters["scope"] shouldBe "openid"
+            urlObject.parameters["nonce"] should {
+                it != null && it.isNotEmpty()
+            }
+            urlObject.parameters["state"] should {
+                it != null && it.isNotEmpty()
+            }
+        }
+
+        should("throw exception when calling oidc callback without initiating auth flow") {
+            createRole(oidc, DEFAULT_ROLE_NAME)
+
+            shouldThrow<VaultAPIException> {
+                oidc.oidcCallback {
+                    state = "invalid-state"
+                    nonce = "invalid-nonce"
+                    code = "invalid-code"
+                }
+            }
+        }
+
+        should("throw exception when calling oidc callback with missing client nonce when required") {
+            createRole(oidc, DEFAULT_ROLE_NAME)
+
+            val clientNonce = randomString()
+            val urlString = oidc.oidcAuthorizationUrl {
+                this.redirectUri = "https://localhost:3000/callback"
+                this.role = DEFAULT_ROLE_NAME
+                this.clientNonce = clientNonce
+            }
+
+            val urlObject = Url(urlString)
+            val state = urlObject.parameters["state"] ?: error("Missing state parameter")
+            val nonce = urlObject.parameters["nonce"] ?: error("Missing nonce parameter")
+            val ex = shouldThrow<VaultAPIException> {
+                oidc.oidcCallback {
+                    this.state = state
+                    this.nonce = nonce
+                    this.code = "invalid-code"
+                }
+            }
+
+            ex.message shouldContain "invalid client_nonce"
+        }
+
+        should("call oidc callback successfully when providing correct parameters") {
+            createRole(oidc, DEFAULT_ROLE_NAME)
+
+            val clientNonce = randomString()
+            val urlString = oidc.oidcAuthorizationUrl {
+                this.redirectUri = "https://localhost:3000/callback"
+                this.role = DEFAULT_ROLE_NAME
+                this.clientNonce = clientNonce
+            }
+
+            val urlObject = Url(urlString)
+            val state = urlObject.parameters["state"] ?: error("Missing state parameter")
+            val nonce = urlObject.parameters["nonce"] ?: error("Missing nonce parameter")
+
+            // Since we cannot complete the full OIDC flow in tests, we expect an exception due to invalid code
+            val ex = shouldThrow<VaultAPIException> {
+                oidc.oidcCallback {
+                    this.state = state
+                    this.nonce = nonce
+                    this.code = "invalid-code"
+                    this.clientNonce = clientNonce
+                }
+            }
+
+            ex.message shouldContain "Code not valid"
+        }
     })
 
-private suspend fun assertCreateRole(oidc: VaultAuthOIDC, givenPath: String, expectedReadPath: String) {
-    assertCreateRole(
+private suspend fun createRole(oidc: VaultAuthOIDC, role: String) {
+    oidc.createOrUpdateRole(role) {
+        userClaim = "sub"
+        allowedRedirectUris = listOf("https://localhost:8080/callback")
+    } shouldBe true
+}
+
+private suspend fun assertCreateOrUpdateRole(oidc: VaultAuthOIDC, givenPath: String, expectedReadPath: String) {
+    assertCreateOrUpdateRole(
         oidc,
         givenPath,
         expectedReadPath
@@ -177,12 +341,12 @@ private suspend fun assertCreateRole(oidc: VaultAuthOIDC, givenPath: String, exp
     }
 }
 
-private suspend fun assertCreateRoleWithBuilder(
+private suspend fun assertCreateOrUpdateRoleWithBuilder(
     oidc: VaultAuthOIDC,
     givenPath: String,
     expectedReadPath: String
 ) {
-    assertCreateRole(
+    assertCreateOrUpdateRole(
         oidc,
         givenPath,
         expectedReadPath
@@ -217,7 +381,7 @@ private suspend fun assertCreateRoleWithBuilder(
     }
 }
 
-private suspend inline fun assertCreateRole(
+private suspend inline fun assertCreateOrUpdateRole(
     oidc: VaultAuthOIDC,
     givenPath: String,
     expectedReadPath: String,
