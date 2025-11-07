@@ -12,10 +12,11 @@ import io.github.hansanto.kault.util.createVaultClient
 import io.github.hansanto.kault.util.enableAuthMethod
 import io.github.hansanto.kault.util.randomString
 import io.github.hansanto.kault.util.readJson
+import io.github.hansanto.kault.util.revokeAllOIDCData
 import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
 
-class VaultAuthJwtTest :
+class VaultAuthOIDCTest :
     ShouldSpec({
 
         lateinit var client: VaultClient
@@ -25,7 +26,7 @@ class VaultAuthJwtTest :
             client = createVaultClient()
             oidc = client.auth.oidc
 
-            enableAuthMethod(client, "jwt")
+            enableAuthMethod(client, "oidc")
             // TODO: Add keycloak as provider with https://developer.hashicorp.com/vault/api-docs/secret/identity/oidc-provider
 
             oidc.configure {
@@ -38,7 +39,7 @@ class VaultAuthJwtTest :
         }
 
         afterTest {
-//            revokeAllKubernetesData(client)
+            revokeAllOIDCData(client)
             client.close()
         }
 
@@ -148,15 +149,81 @@ class VaultAuthJwtTest :
             )
         }
 
+        should("create a role with default values") {
+            assertCreateRole(
+                oidc,
+                "cases/auth/oidc/create/without_options/given.json",
+                "cases/auth/oidc/create/without_options/expected.json"
+            )
+        }
+
+        should("create a role with all defined values") {
+            assertCreateRole(
+                oidc,
+                "cases/auth/oidc/create/with_options/given.json",
+                "cases/auth/oidc/create/with_options/expected.json"
+            )
+        }
+
     })
+
+private suspend fun assertCreateRole(oidc: VaultAuthOIDC, givenPath: String, expectedReadPath: String) {
+    assertCreateRole(
+        oidc,
+        givenPath,
+        expectedReadPath
+    ) { role, payload ->
+        oidc.createOrUpdateRole(role, payload)
+    }
+}
+
+private suspend fun assertCreateRoleWithBuilder(
+    oidc: VaultAuthOIDC,
+    givenPath: String,
+    expectedReadPath: String
+) {
+    assertCreateRole(
+        oidc,
+        givenPath,
+        expectedReadPath
+    ) { role, payload ->
+        oidc.createOrUpdateRole(role) {
+            this.roleType = payload.roleType
+            this.boundAudiences = payload.boundAudiences
+            this.userClaim = payload.userClaim
+            this.userClaimJsonPointer = payload.userClaimJsonPointer
+            this.clockSkewLeeway = payload.clockSkewLeeway
+            this.expirationLeeway = payload.expirationLeeway
+            this.notBeforeLeeway = payload.notBeforeLeeway
+            this.boundSubject = payload.boundSubject
+            this.boundClaims = payload.boundClaims
+            this.boundClaimsType = payload.boundClaimsType
+            this.groupsClaim = payload.groupsClaim
+            this.claimMappings = payload.claimMappings
+            this.oidcScopes = payload.oidcScopes
+            this.allowedRedirectUris = payload.allowedRedirectUris
+            this.verboseOIDCLogging = payload.verboseOIDCLogging
+            this.maxAge = payload.maxAge
+            this.tokenTTL = payload.tokenTTL
+            this.tokenMaxTTL = payload.tokenMaxTTL
+            this.tokenPolicies = payload.tokenPolicies
+            this.tokenBoundCidrs = payload.tokenBoundCidrs
+            this.tokenExplicitMaxTTL = payload.tokenExplicitMaxTTL
+            this.tokenNoDefaultPolicy = payload.tokenNoDefaultPolicy
+            this.tokenNumUses = payload.tokenNumUses
+            this.tokenPeriod = payload.tokenPeriod
+            this.tokenType = payload.tokenType
+        }
+    }
+}
 
 private suspend inline fun assertCreateRole(
     oidc: VaultAuthOIDC,
-    givenPath: String?,
+    givenPath: String,
     expectedReadPath: String,
     createOrUpdate: (String, OIDCCreateOrUpdatePayload) -> Boolean
 ) {
-    val given = givenPath?.let { readJson<OIDCCreateOrUpdatePayload>(it) } ?: OIDCCreateOrUpdatePayload()
+    val given = readJson<OIDCCreateOrUpdatePayload>(givenPath)
     createOrUpdate(DEFAULT_ROLE_NAME, given) shouldBe true
     oidc.readRole(DEFAULT_ROLE_NAME) shouldBe readJson<OIDCReadRoleResponse>(expectedReadPath)
 }

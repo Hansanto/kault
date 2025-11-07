@@ -1,7 +1,9 @@
 package io.github.hansanto.kault.auth.jwt.payload
 
+import io.github.hansanto.kault.KaultDsl
 import io.github.hansanto.kault.auth.common.common.TokenType
 import io.github.hansanto.kault.auth.jwt.common.OIDCBoundClaimsType
+import io.github.hansanto.kault.auth.jwt.common.OIDCRoleType
 import io.github.hansanto.kault.serializer.VaultDuration
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -9,10 +11,22 @@ import kotlinx.serialization.Serializable
 @Serializable
 public data class OIDCCreateOrUpdatePayload(
     /**
+     * The claim to use to uniquely identify the user; this will be used as the name for the Identity entity alias created due to a successful login. The claim value must be a string.
+     */
+    @SerialName("user_claim")
+    public var userClaim: String,
+
+    /**
+     * The list of allowed values for redirect_uri during OIDC logins.
+     */
+    @SerialName("allowed_redirect_uris")
+    public var allowedRedirectUris: List<String>,
+
+    /**
      * Type of role.
      */
     @SerialName("role_type")
-    public var roleType: String? = null,
+    public var roleType: OIDCRoleType? = null,
 
     /**
      * List of aud claims to match against. The [boundAudiences] parameter is required for "jwt" roles that contain an audience (typical case) and must match at least one of the associated JWT 'aud' claims.
@@ -20,11 +34,6 @@ public data class OIDCCreateOrUpdatePayload(
     @SerialName("bound_audiences")
     public var boundAudiences: List<String>? = null,
 
-    /**
-     * The claim to use to uniquely identify the user; this will be used as the name for the Identity entity alias created due to a successful login. The claim value must be a string.
-     */
-    @SerialName("user_claim")
-    public var userClaim: String? = null,
 
     /**
      * Specifies if the [userClaim] value uses [JSON pointer](https://developer.hashicorp.com/vault/docs/auth/jwt#claim-specifications-and-json-pointer) syntax for referencing claims. By default, the [userClaim] value will not use JSON pointer.
@@ -36,7 +45,7 @@ public data class OIDCCreateOrUpdatePayload(
      * The amount of leeway to add to all claims to account for clock skew, in seconds. Defaults to 60 seconds if set to 0 and can be disabled if set to -1. Accepts an integer number of seconds, or a Go duration format string. Only applicable with "jwt" roles.
      */
     @SerialName("clock_skew_leeway")
-    public var clockSkewLeeway: String? = null,
+    public var clockSkewLeeway: VaultDuration? = null,
 
     /**
      * The amount of leeway to add to expiration (exp) claims to account for clock skew, in seconds. Defaults to 150 seconds if set to 0 and can be disabled if set to -1. Accepts an integer number of seconds, or a Go duration format string. Only applicable with "jwt" roles.
@@ -85,12 +94,6 @@ public data class OIDCCreateOrUpdatePayload(
      */
     @SerialName("oidc_scopes")
     public var oidcScopes: List<String>? = null,
-
-    /**
-     * The list of allowed values for redirect_uri during OIDC logins.
-     */
-    @SerialName("allowed_redirect_uris")
-    public var allowedRedirectUris: List<String>? = null,
 
     /**
      * Log received OIDC tokens and claims when debug-level logging is active. Not recommended in production since sensitive information may be present in OIDC responses.
@@ -157,4 +160,169 @@ public data class OIDCCreateOrUpdatePayload(
      */
     @SerialName("token_type")
     public var tokenType: TokenType? = null
-)
+) {
+
+    /**
+     * Builder class to simplify the creation of [OIDCCreateOrUpdatePayload].
+     */
+    @KaultDsl
+    public class Builder {
+
+        /**
+         * @see [OIDCCreateOrUpdatePayload.userClaim]
+         */
+        public lateinit var userClaim: String
+
+        /**
+         * @see [OIDCCreateOrUpdatePayload.allowedRedirectUris]
+         */
+        public lateinit var allowedRedirectUris: List<String>
+
+        /**
+         * @see [OIDCCreateOrUpdatePayload.roleType]
+         */
+        public var roleType: OIDCRoleType? = null
+
+        /**
+         * @see [OIDCCreateOrUpdatePayload.boundAudiences]
+         */
+        public var boundAudiences: List<String>? = null
+
+        /**
+         * @see [OIDCCreateOrUpdatePayload.userClaimJsonPointer]
+         */
+        public var userClaimJsonPointer: Boolean? = null
+
+        /**
+         * @see [OIDCCreateOrUpdatePayload.clockSkewLeeway]
+         */
+        public var clockSkewLeeway: VaultDuration? = null
+
+        /**
+         * @see [OIDCCreateOrUpdatePayload.expirationLeeway]
+         */
+        public var expirationLeeway: VaultDuration? = null
+
+        /**
+         * @see [OIDCCreateOrUpdatePayload.notBeforeLeeway]
+         */
+        public var notBeforeLeeway: VaultDuration? = null
+
+        /**
+         * @see [OIDCCreateOrUpdatePayload.boundSubject]
+         */
+        public var boundSubject: String? = null
+
+        /**
+         * @see [OIDCCreateOrUpdatePayload.boundClaims]
+         */
+        public var boundClaims: Map<String, String>? = null
+
+        /**
+         * @see [OIDCCreateOrUpdatePayload.boundClaimsType]
+         */
+        public var boundClaimsType: OIDCBoundClaimsType? = null
+
+        /**
+         * @see [OIDCCreateOrUpdatePayload.groupsClaim]
+         */
+        public var groupsClaim: String? = null
+
+        /**
+         * @see [OIDCCreateOrUpdatePayload.claimMappings]
+         */
+        public var claimMappings: Map<String, String>? = null
+
+        /**
+         * @see [OIDCCreateOrUpdatePayload.oidcScopes]
+         */
+        public var oidcScopes: List<String>? = null
+
+        /**
+         * @see [OIDCCreateOrUpdatePayload.verboseOIDCLogging]
+         */
+        public var verboseOIDCLogging: Boolean? = null
+
+        /**
+         * @see [OIDCCreateOrUpdatePayload.maxAge]
+         */
+        public var maxAge: VaultDuration? = null
+
+        /**
+         * @see [OIDCCreateOrUpdatePayload.tokenTTL]
+         */
+        public var tokenTTL: VaultDuration? = null
+
+        /**
+         * @see [OIDCCreateOrUpdatePayload.tokenMaxTTL]
+         */
+        public var tokenMaxTTL: VaultDuration? = null
+
+        /**
+         * @see [OIDCCreateOrUpdatePayload.tokenPolicies]
+         */
+        public var tokenPolicies: List<String>? = null
+
+        /**
+         * @see [OIDCCreateOrUpdatePayload.tokenBoundCidrs]
+         */
+        public var tokenBoundCidrs: List<String>? = null
+
+        /**
+         * @see [OIDCCreateOrUpdatePayload.tokenExplicitMaxTTL]
+         */
+        public var tokenExplicitMaxTTL: VaultDuration? = null
+
+        /**
+         * @see [OIDCCreateOrUpdatePayload.tokenNoDefaultPolicy]
+         */
+        public var tokenNoDefaultPolicy: Boolean? = null
+
+        /**
+         * @see [OIDCCreateOrUpdatePayload.tokenNumUses]
+         */
+        public var tokenNumUses: Long? = null
+
+        /**
+         * @see [OIDCCreateOrUpdatePayload.tokenPeriod]
+         */
+        public var tokenPeriod: VaultDuration? = null
+
+        /**
+         * @see [OIDCCreateOrUpdatePayload.tokenType]
+         */
+        public var tokenType: TokenType? = null
+
+        /**
+         * Build the instance of [OIDCCreateOrUpdatePayload] with the values defined in builder.
+         * @return A new instance.
+         */
+        public fun build(): OIDCCreateOrUpdatePayload = OIDCCreateOrUpdatePayload(
+            userClaim = userClaim,
+            allowedRedirectUris = allowedRedirectUris,
+            roleType = roleType,
+            boundAudiences = boundAudiences,
+            userClaimJsonPointer = userClaimJsonPointer,
+            clockSkewLeeway = clockSkewLeeway,
+            expirationLeeway = expirationLeeway,
+            notBeforeLeeway = notBeforeLeeway,
+            boundSubject = boundSubject,
+            boundClaims = boundClaims,
+            boundClaimsType = boundClaimsType,
+            groupsClaim = groupsClaim,
+            claimMappings = claimMappings,
+            oidcScopes = oidcScopes,
+            verboseOIDCLogging = verboseOIDCLogging,
+            maxAge = maxAge,
+            tokenTTL = tokenTTL,
+            tokenMaxTTL = tokenMaxTTL,
+            tokenPolicies = tokenPolicies,
+            tokenBoundCidrs = tokenBoundCidrs,
+            tokenExplicitMaxTTL = tokenExplicitMaxTTL,
+            tokenNoDefaultPolicy = tokenNoDefaultPolicy,
+            tokenNumUses = tokenNumUses,
+            tokenPeriod = tokenPeriod,
+            tokenType = tokenType
+        )
+    }
+}

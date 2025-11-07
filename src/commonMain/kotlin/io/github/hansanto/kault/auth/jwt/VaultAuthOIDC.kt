@@ -3,8 +3,12 @@ package io.github.hansanto.kault.auth.jwt
 import io.github.hansanto.kault.BuilderDsl
 import io.github.hansanto.kault.ServiceBuilder
 import io.github.hansanto.kault.auth.jwt.payload.OIDCConfigurePayload
+import io.github.hansanto.kault.auth.jwt.payload.OIDCCreateOrUpdatePayload
 import io.github.hansanto.kault.auth.jwt.response.OIDCConfigureResponse
+import io.github.hansanto.kault.auth.jwt.response.OIDCReadRoleResponse
 import io.github.hansanto.kault.extension.decodeBodyJsonDataFieldObject
+import io.github.hansanto.kault.extension.list
+import io.github.hansanto.kault.response.StandardListResponse
 import io.ktor.client.*
 import io.ktor.client.request.*
 import io.ktor.http.*
@@ -27,10 +31,10 @@ public suspend inline fun VaultAuthOIDC.configure(
  */
 public suspend inline fun VaultAuthOIDC.createOrUpdateRole(
     roleName: String,
-    payloadBuilder: BuilderDsl<OIDCConfigurePayload>
+    payloadBuilder: BuilderDsl<OIDCCreateOrUpdatePayload.Builder>
 ): Boolean {
     contract { callsInPlace(payloadBuilder, InvocationKind.EXACTLY_ONCE) }
-    val payload = OIDCConfigurePayload().apply(payloadBuilder)
+    val payload = OIDCCreateOrUpdatePayload.Builder().apply(payloadBuilder).build()
     return createOrUpdateRole(roleName, payload)
 }
 
@@ -63,7 +67,7 @@ public interface VaultAuthOIDC {
      */
     public suspend fun createOrUpdateRole(
         roleName: String,
-        payload: OIDCConfigurePayload
+        payload: OIDCCreateOrUpdatePayload
     ): Boolean
 
     /**
@@ -75,7 +79,22 @@ public interface VaultAuthOIDC {
      */
     public suspend fun readRole(
         roleName: String
-    ): String
+    ): OIDCReadRoleResponse
+
+    /**
+     * Lists all the roles that are registered with the plugin.
+     * [Documentation](https://developer.hashicorp.com/vault/api-docs/auth/jwt#list-roles)
+     * @return List of role names.
+     */
+    public suspend fun list(): List<String>
+
+    /**
+     * Deletes the previously registered role.
+     * [Documentation](https://developer.hashicorp.com/vault/api-docs/auth/jwt#delete-role)
+     * @param roleName Name of the role.
+     * @return Returns true if the role was deleted successfully.
+     */
+    public suspend fun deleteRole(roleName: String): Boolean
 }
 
 /**
@@ -147,7 +166,7 @@ public class VaultAuthOIDCImpl(
         return response.decodeBodyJsonDataFieldObject()
     }
 
-    override suspend fun createOrUpdateRole(roleName: String, payload: OIDCConfigurePayload): Boolean {
+    override suspend fun createOrUpdateRole(roleName: String, payload: OIDCCreateOrUpdatePayload): Boolean {
         val response = client.post {
             url {
                 appendPathSegments(path, "role", roleName)
@@ -158,13 +177,31 @@ public class VaultAuthOIDCImpl(
         return response.status.isSuccess()
     }
 
-    override suspend fun readRole(roleName: String): String {
+    override suspend fun readRole(roleName: String): OIDCReadRoleResponse {
         val response = client.get {
             url {
                 appendPathSegments(path, "role", roleName)
             }
         }
         return response.decodeBodyJsonDataFieldObject()
+    }
+
+    override suspend fun list(): List<String> {
+        val response = client.list {
+            url {
+                appendPathSegments(path, "role")
+            }
+        }
+        return response.decodeBodyJsonDataFieldObject<StandardListResponse>().keys
+    }
+
+    override suspend fun deleteRole(roleName: String): Boolean {
+        val response = client.delete {
+            url {
+                appendPathSegments(path, "role", roleName)
+            }
+        }
+        return response.status.isSuccess()
     }
 
 }
