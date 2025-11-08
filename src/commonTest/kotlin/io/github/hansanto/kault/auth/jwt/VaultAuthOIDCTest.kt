@@ -39,13 +39,7 @@ class VaultAuthOIDCTest :
             enableAuthMethod(client, "oidc")
             // TODO: Add keycloak as provider with https://developer.hashicorp.com/vault/api-docs/secret/identity/oidc-provider
 
-            oidc.configure {
-                oidcDiscoveryUrl = "${KeycloakUtil.HOST_FOR_VAULT}/realms/${KeycloakUtil.REALM}"
-                oidcClientId = KeycloakUtil.CLIENT_ID
-                oidcClientSecret = KeycloakUtil.CLIENT_SECRET
-                defaultRole = "default-role"
-                boundIssuer = "${KeycloakUtil.HOST_FOR_VAULT}/realms/${KeycloakUtil.REALM}"
-            }
+            configureOIDC(oidc)
         }
 
         afterTest {
@@ -75,10 +69,10 @@ class VaultAuthOIDCTest :
 
         should("read default configuration") {
             oidc.readConfiguration() shouldBe OIDCConfigureResponse(
-                oidcDiscoveryUrl = "http://keycloak:8080/realms/vault",
-                oidcClientId = "vault",
+                oidcDiscoveryUrl = "${KeycloakUtil.HOST_FOR_VAULT}/realms/${KeycloakUtil.REALM}",
+                oidcClientId = KeycloakUtil.CLIENT_ID,
                 defaultRole = "default-role",
-                boundIssuer = "http://keycloak:8080/realms/vault",
+                boundIssuer = "${KeycloakUtil.HOST_FOR_VAULT}/realms/${KeycloakUtil.REALM}",
                 jwksCaPem = "",
                 jwksPairs = emptyList(),
                 jwksUrl = "",
@@ -94,7 +88,7 @@ class VaultAuthOIDCTest :
 
         should("configure with jwks url") {
             oidc.configure {
-                this.jwksUrl = "http://keycloak:8080/realms/vault/protocol/openid-connect/certs"
+                this.jwksUrl = KeycloakUtil.getJwksUrl()
                 this.jwtSupportedAlgorithms = listOf("RS256", "RS512")
                 this.boundIssuer = "another-issuer"
                 this.defaultRole = "another-role"
@@ -107,7 +101,7 @@ class VaultAuthOIDCTest :
                 boundIssuer = "another-issuer",
                 jwksCaPem = "",
                 jwksPairs = emptyList(),
-                jwksUrl = "http://keycloak:8080/realms/vault/protocol/openid-connect/certs",
+                jwksUrl = KeycloakUtil.getJwksUrl(),
                 jwtSupportedAlgorithms = listOf("RS256", "RS512"),
                 jwtValidationPubkeys = emptyList(),
                 namespaceInState = true,
@@ -120,11 +114,11 @@ class VaultAuthOIDCTest :
 
         should("configure with oidc full options") {
             oidc.configure {
-                oidcDiscoveryUrl = "http://keycloak:8080/realms/vault"
-                oidcClientId = "vault"
-                oidcClientSecret = "vault-client-secret"
+                oidcDiscoveryUrl = "${KeycloakUtil.HOST_FOR_VAULT}/realms/${KeycloakUtil.REALM}"
+                oidcClientId = KeycloakUtil.CLIENT_ID
+                oidcClientSecret = KeycloakUtil.CLIENT_SECRET
                 defaultRole = "default-role"
-                boundIssuer = "http://keycloak:8080/realms/vault"
+                boundIssuer = "${KeycloakUtil.HOST_FOR_VAULT}/realms/${KeycloakUtil.REALM}"
                 providerConfig = mapOf(
                     "provider" to "keycloak",
                 )
@@ -133,10 +127,10 @@ class VaultAuthOIDCTest :
             }
 
             oidc.readConfiguration() shouldBe OIDCConfigureResponse(
-                oidcDiscoveryUrl = "http://keycloak:8080/realms/vault",
-                oidcClientId = "vault",
+                oidcDiscoveryUrl = "${KeycloakUtil.HOST_FOR_VAULT}/realms/${KeycloakUtil.REALM}",
+                oidcClientId = KeycloakUtil.CLIENT_ID,
                 defaultRole = "default-role",
-                boundIssuer = "http://keycloak:8080/realms/vault",
+                boundIssuer = "${KeycloakUtil.HOST_FOR_VAULT}/realms/${KeycloakUtil.REALM}",
                 jwksCaPem = "",
                 jwksPairs = emptyList(),
                 jwksUrl = "",
@@ -147,14 +141,7 @@ class VaultAuthOIDCTest :
                 oidcResponseMode = OIDCResponseMode.FORM_POST,
                 oidcResponseTypes = listOf(OIDCResponseType.CODE, OIDCResponseType.ID_TOKEN),
                 providerConfig = mapOf(
-                    "provider" to "gsuite",
-                    "gsuite_service_account" to "/path/to/service-account.json",
-                    "gsuite_admin_impersonate" to "admin@gsuitedomain.com",
-                    "fetch_groups" to true,
-                    "fetch_user_info" to true,
-                    "groups_recurse_max_depth" to 5,
-                    "user_custom_schemas" to "Education,Preferences",
-                    "impersonate_principal" to "sa@project.iam.gserviceaccount.com"
+                    "provider" to "keycloak"
                 ).toJsonPrimitiveMap()
             )
         }
@@ -310,8 +297,6 @@ class VaultAuthOIDCTest :
             val urlObject = Url(urlString)
             val state = urlObject.parameters["state"] ?: error("Missing state parameter")
             val nonce = urlObject.parameters["nonce"] ?: error("Missing nonce parameter")
-
-            // Since we cannot complete the full OIDC flow in tests, we expect an exception due to invalid code
             val ex = shouldThrow<VaultAPIException> {
                 oidc.oidcCallback {
                     this.state = state
@@ -384,6 +369,16 @@ private suspend fun configureJwt(oidc: VaultAuthOIDC) {
     oidc.configure {
         jwksUrl = KeycloakUtil.getJwksUrl()
         jwtSupportedAlgorithms = listOf("RS256")
+    }
+}
+
+private suspend fun configureOIDC(oidc: VaultAuthOIDC) {
+    oidc.configure {
+        oidcDiscoveryUrl = "${KeycloakUtil.HOST_FOR_VAULT}/realms/${KeycloakUtil.REALM}"
+        oidcClientId = KeycloakUtil.CLIENT_ID
+        oidcClientSecret = KeycloakUtil.CLIENT_SECRET
+        defaultRole = "default-role"
+        boundIssuer = "${KeycloakUtil.HOST_FOR_VAULT}/realms/${KeycloakUtil.REALM}"
     }
 }
 
