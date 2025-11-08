@@ -45,7 +45,7 @@ public suspend inline fun VaultAuthOIDC.createOrUpdateRole(
 }
 
 /**
- * @see VaultAuthOIDC.createOrUpdateRole(roleName, payload)
+ * @see VaultAuthOIDC.oidcAuthorizationUrl(payload)
  */
 public suspend inline fun VaultAuthOIDC.oidcAuthorizationUrl(
     payloadBuilder: BuilderDsl<OIDCAuthorizationUrlPayload.Builder>
