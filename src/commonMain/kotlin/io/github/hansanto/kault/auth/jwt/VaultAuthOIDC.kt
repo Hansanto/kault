@@ -15,18 +15,23 @@ import io.github.hansanto.kault.extension.decodeBodyJsonAuthFieldObject
 import io.github.hansanto.kault.extension.decodeBodyJsonDataFieldObject
 import io.github.hansanto.kault.extension.list
 import io.github.hansanto.kault.response.StandardListResponse
-import io.ktor.client.*
-import io.ktor.client.request.*
-import io.ktor.http.*
+import io.ktor.client.HttpClient
+import io.ktor.client.request.delete
+import io.ktor.client.request.get
+import io.ktor.client.request.parameter
+import io.ktor.client.request.post
+import io.ktor.client.request.setBody
+import io.ktor.http.ContentType
+import io.ktor.http.appendPathSegments
+import io.ktor.http.contentType
+import io.ktor.http.isSuccess
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
 
 /**
  * @see VaultAuthOIDC.configure(payload)
  */
-public suspend inline fun VaultAuthOIDC.configure(
-    payloadBuilder: BuilderDsl<OIDCConfigurePayload.Builder>
-): Boolean {
+public suspend inline fun VaultAuthOIDC.configure(payloadBuilder: BuilderDsl<OIDCConfigurePayload.Builder>): Boolean {
     contract { callsInPlace(payloadBuilder, InvocationKind.EXACTLY_ONCE) }
     val payload = OIDCConfigurePayload.Builder().apply(payloadBuilder).build()
     return configure(payload)
@@ -104,10 +109,7 @@ public interface VaultAuthOIDC {
      * @param payload Payload to create or update the role.
      * @return Returns true if the role was created or updated successfully.
      */
-    public suspend fun createOrUpdateRole(
-        roleName: String,
-        payload: OIDCCreateOrUpdatePayload
-    ): Boolean
+    public suspend fun createOrUpdateRole(roleName: String, payload: OIDCCreateOrUpdatePayload): Boolean
 
     /**
      * Returns the previously registered role configuration.
@@ -116,9 +118,7 @@ public interface VaultAuthOIDC {
      * @param roleName Name of the role.
      * @return Response.
      */
-    public suspend fun readRole(
-        roleName: String
-    ): OIDCReadRoleResponse
+    public suspend fun readRole(roleName: String): OIDCReadRoleResponse
 
     /**
      * Lists all the roles that are registered with the plugin.
@@ -301,5 +301,4 @@ public class VaultAuthOIDCImpl(
         }
         return response.decodeBodyJsonAuthFieldObject()
     }
-
 }

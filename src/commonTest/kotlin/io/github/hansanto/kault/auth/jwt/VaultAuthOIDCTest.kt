@@ -24,7 +24,8 @@ import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.types.shouldNotBeSameInstanceAs
-import io.ktor.http.*
+import io.ktor.http.URLProtocol
+import io.ktor.http.Url
 
 class VaultAuthOIDCTest :
     ShouldSpec({

@@ -33,7 +33,6 @@ public data class OIDCReadRoleResponse(
     @SerialName("bound_audiences")
     public val boundAudiences: List<String>?,
 
-
     /**
      * Specifies if the [userClaim] value uses [JSON pointer](https://developer.hashicorp.com/vault/docs/auth/jwt#claim-specifications-and-json-pointer) syntax for referencing claims. By default, the [userClaim] value will not use JSON pointer.
      */
