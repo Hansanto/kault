@@ -278,7 +278,7 @@ class VaultAuthOIDCTest :
 
             val clientNonce = randomString()
             val urlString = oidc.oidcAuthorizationUrl {
-                this.redirectUri = "https://localhost:3000/callback"
+                this.redirectUri = "https://localhost:8080/callback"
                 this.role = DEFAULT_ROLE_NAME
                 this.clientNonce = clientNonce
             }
@@ -302,7 +302,7 @@ class VaultAuthOIDCTest :
 
             val clientNonce = randomString()
             val urlString = oidc.oidcAuthorizationUrl {
-                this.redirectUri = "https://localhost:3000/callback"
+                this.redirectUri = "https://localhost:8080/callback"
                 this.role = DEFAULT_ROLE_NAME
                 this.clientNonce = clientNonce
             }
