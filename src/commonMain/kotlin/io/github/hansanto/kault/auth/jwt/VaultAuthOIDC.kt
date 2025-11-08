@@ -7,6 +7,7 @@ import io.github.hansanto.kault.auth.jwt.payload.OIDCAuthorizationUrlPayload
 import io.github.hansanto.kault.auth.jwt.payload.OIDCCallbackPayload
 import io.github.hansanto.kault.auth.jwt.payload.OIDCConfigurePayload
 import io.github.hansanto.kault.auth.jwt.payload.OIDCCreateOrUpdatePayload
+import io.github.hansanto.kault.auth.jwt.payload.OIDCJwtLoginPayload
 import io.github.hansanto.kault.auth.jwt.response.OIDCAuthorizationUrlResponse
 import io.github.hansanto.kault.auth.jwt.response.OIDCConfigureResponse
 import io.github.hansanto.kault.auth.jwt.response.OIDCReadRoleResponse
@@ -63,6 +64,17 @@ public suspend inline fun VaultAuthOIDC.oidcCallback(
     contract { callsInPlace(parametersBuilder, InvocationKind.EXACTLY_ONCE) }
     val parameters = OIDCCallbackPayload.Builder().apply(parametersBuilder).build()
     return oidcCallback(parameters)
+}
+
+/**
+ * @see VaultAuthOIDC.jwtLogin(payload)
+ */
+public suspend inline fun VaultAuthOIDC.jwtLogin(
+    payloadBuilder: BuilderDsl<OIDCJwtLoginPayload.Builder>
+): LoginResponse {
+    contract { callsInPlace(payloadBuilder, InvocationKind.EXACTLY_ONCE) }
+    val payload = OIDCJwtLoginPayload.Builder().apply(payloadBuilder).build()
+    return jwtLogin(payload)
 }
 
 /**
@@ -138,6 +150,14 @@ public interface VaultAuthOIDC {
      * @return Response.
      */
     public suspend fun oidcCallback(payload: OIDCCallbackPayload): LoginResponse
+
+    /**
+     * Fetch a token. This endpoint takes a signed JSON Web Token (JWT) and a role name for some entity. It verifies the JWT signature to authenticate that entity and then authorizes the entity for the given role.
+     * [Documentation](https://developer.hashicorp.com/vault/api-docs/auth/jwt#jwt-login)
+     * @param payload Parameters to login with JWT.
+     * @return Response.
+     */
+    public suspend fun jwtLogin(payload: OIDCJwtLoginPayload): LoginResponse
 }
 
 /**
@@ -267,6 +287,17 @@ public class VaultAuthOIDCImpl(
                 parameter("code", payload.code)
                 payload.clientNonce?.let { parameter("client_nonce", it) }
             }
+        }
+        return response.decodeBodyJsonAuthFieldObject()
+    }
+
+    override suspend fun jwtLogin(payload: OIDCJwtLoginPayload): LoginResponse {
+        val response = client.post {
+            url {
+                appendPathSegments(path, "login")
+            }
+            contentType(ContentType.Application.Json)
+            setBody(payload)
         }
         return response.decodeBodyJsonAuthFieldObject()
     }

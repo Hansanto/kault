@@ -3,12 +3,14 @@ package io.github.hansanto.kault.auth.jwt
 import io.github.hansanto.kault.VaultClient
 import io.github.hansanto.kault.auth.jwt.common.OIDCResponseMode
 import io.github.hansanto.kault.auth.jwt.common.OIDCResponseType
+import io.github.hansanto.kault.auth.jwt.common.OIDCRoleType
 import io.github.hansanto.kault.auth.jwt.payload.OIDCCreateOrUpdatePayload
 import io.github.hansanto.kault.auth.jwt.response.OIDCConfigureResponse
 import io.github.hansanto.kault.auth.jwt.response.OIDCReadRoleResponse
 import io.github.hansanto.kault.exception.VaultAPIException
 import io.github.hansanto.kault.extension.toJsonPrimitiveMap
 import io.github.hansanto.kault.util.DEFAULT_ROLE_NAME
+import io.github.hansanto.kault.util.KeycloakUtil
 import io.github.hansanto.kault.util.createVaultClient
 import io.github.hansanto.kault.util.enableAuthMethod
 import io.github.hansanto.kault.util.randomString
@@ -22,8 +24,7 @@ import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.types.shouldNotBeSameInstanceAs
-import io.ktor.http.URLProtocol
-import io.ktor.http.Url
+import io.ktor.http.*
 
 class VaultAuthOIDCTest :
     ShouldSpec({
@@ -39,11 +40,11 @@ class VaultAuthOIDCTest :
             // TODO: Add keycloak as provider with https://developer.hashicorp.com/vault/api-docs/secret/identity/oidc-provider
 
             oidc.configure {
-                oidcDiscoveryUrl = "http://keycloak:8080/realms/vault"
-                oidcClientId = "vault"
-                oidcClientSecret = "vault-client-secret"
+                oidcDiscoveryUrl = "${KeycloakUtil.HOST_FOR_VAULT}/realms/${KeycloakUtil.REALM}"
+                oidcClientId = KeycloakUtil.CLIENT_ID
+                oidcClientSecret = KeycloakUtil.CLIENT_SECRET
                 defaultRole = "default-role"
-                boundIssuer = "http://keycloak:8080/realms/vault"
+                boundIssuer = "${KeycloakUtil.HOST_FOR_VAULT}/realms/${KeycloakUtil.REALM}"
             }
         }
 
@@ -198,7 +199,7 @@ class VaultAuthOIDCTest :
 
         should("return created roles when listing") {
             val roles = List(10) { "test-$it" }
-            roles.forEach { createRole(oidc, it) }
+            roles.forEach { createOIDCRole(oidc, it) }
             oidc.list() shouldContainExactlyInAnyOrder roles
         }
 
@@ -209,7 +210,7 @@ class VaultAuthOIDCTest :
         }
 
         should("delete existing role") {
-            createRole(oidc, DEFAULT_ROLE_NAME)
+            createOIDCRole(oidc, DEFAULT_ROLE_NAME)
             shouldNotThrow<VaultAPIException> { oidc.readRole(DEFAULT_ROLE_NAME) }
             oidc.deleteRole(DEFAULT_ROLE_NAME) shouldBe true
             shouldThrow<VaultAPIException> { oidc.readRole(DEFAULT_ROLE_NAME) }
@@ -235,7 +236,7 @@ class VaultAuthOIDCTest :
         }
 
         should("get oidc authorization url") {
-            createRole(oidc, DEFAULT_ROLE_NAME)
+            createOIDCRole(oidc, DEFAULT_ROLE_NAME)
 
             val clientNonce = randomString()
             val urlString = oidc.oidcAuthorizationUrl {
@@ -261,7 +262,7 @@ class VaultAuthOIDCTest :
         }
 
         should("throw exception when calling oidc callback without initiating auth flow") {
-            createRole(oidc, DEFAULT_ROLE_NAME)
+            createOIDCRole(oidc, DEFAULT_ROLE_NAME)
 
             shouldThrow<VaultAPIException> {
                 oidc.oidcCallback {
@@ -273,7 +274,7 @@ class VaultAuthOIDCTest :
         }
 
         should("throw exception when calling oidc callback with missing client nonce when required") {
-            createRole(oidc, DEFAULT_ROLE_NAME)
+            createOIDCRole(oidc, DEFAULT_ROLE_NAME)
 
             val clientNonce = randomString()
             val urlString = oidc.oidcAuthorizationUrl {
@@ -297,7 +298,7 @@ class VaultAuthOIDCTest :
         }
 
         should("call oidc callback successfully when providing correct parameters") {
-            createRole(oidc, DEFAULT_ROLE_NAME)
+            createOIDCRole(oidc, DEFAULT_ROLE_NAME)
 
             val clientNonce = randomString()
             val urlString = oidc.oidcAuthorizationUrl {
@@ -322,12 +323,83 @@ class VaultAuthOIDCTest :
 
             ex.message shouldContain "Code not valid"
         }
+
+        should("throw exception when jwt login with invalid jwt token") {
+            val (jwt, subject) = KeycloakUtil.getJwtWithPayload()
+            configureJwt(oidc)
+            createJwtOIDCRole(oidc, DEFAULT_ROLE_NAME, subject)
+
+            val ex = shouldThrow<VaultAPIException> {
+                oidc.jwtLogin {
+                    this.jwt = jwt + "invalid-part"
+                    this.role = DEFAULT_ROLE_NAME
+                }
+            }
+
+            ex.message shouldContain "failed to verify id token signature"
+        }
+
+        should("throw exception when jwt login with role that does not exist") {
+            val (jwt, subject) = KeycloakUtil.getJwtWithPayload()
+            configureJwt(oidc)
+            createJwtOIDCRole(oidc, DEFAULT_ROLE_NAME, subject)
+
+            shouldThrow<VaultAPIException> {
+                oidc.jwtLogin {
+                    this.jwt = jwt
+                    this.role = "non-existent-role"
+                }
+            }
+        }
+
+        should("throw exception when jwt login without default role configured") {
+            val (jwt, subject) = KeycloakUtil.getJwtWithPayload()
+            configureJwt(oidc)
+            createJwtOIDCRole(oidc, DEFAULT_ROLE_NAME, subject)
+
+            val ex = shouldThrow<VaultAPIException> {
+                oidc.jwtLogin {
+                    this.jwt = jwt
+                    this.role = null
+                }
+            }
+
+            ex.message shouldContain "missing role"
+        }
+
+        should("login using keycloak jwt token") {
+            val (jwt, subject) = KeycloakUtil.getJwtWithPayload()
+            configureJwt(oidc)
+            createJwtOIDCRole(oidc, DEFAULT_ROLE_NAME, subject)
+            shouldNotThrow<VaultAPIException> {
+                oidc.jwtLogin {
+                    this.jwt = jwt
+                    this.role = DEFAULT_ROLE_NAME
+                }
+            }
+        }
     })
 
-private suspend fun createRole(oidc: VaultAuthOIDC, role: String) {
+private suspend fun configureJwt(oidc: VaultAuthOIDC) {
+    oidc.configure {
+        jwksUrl = KeycloakUtil.getJwksUrl()
+        jwtSupportedAlgorithms = listOf("RS256")
+    }
+}
+
+private suspend fun createOIDCRole(oidc: VaultAuthOIDC, role: String) {
     oidc.createOrUpdateRole(role) {
         userClaim = "sub"
         allowedRedirectUris = listOf("https://localhost:8080/callback")
+    } shouldBe true
+}
+
+private suspend fun createJwtOIDCRole(oidc: VaultAuthOIDC, role: String, subject: String) {
+    oidc.createOrUpdateRole(DEFAULT_ROLE_NAME) {
+        roleType = OIDCRoleType.JWT
+        userClaim = "sub"
+        allowedRedirectUris = listOf("https://localhost:8080/callback")
+        boundSubject = subject
     } shouldBe true
 }
 
