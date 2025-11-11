@@ -25,7 +25,7 @@ dependencyResolutionManagement {
             version("slf4j", "2.0.17")
             version("dokka", "2.1.0")
             version("detekt", "1.23.8")
-            version("ktlint", "13.1.0")
+            version("ktlint", "14.0.1")
             version("deployer", "0.18.0")
 
             plugin("kt-multiplatform", "org.jetbrains.kotlin.multiplatform").versionRef("kotlin")
