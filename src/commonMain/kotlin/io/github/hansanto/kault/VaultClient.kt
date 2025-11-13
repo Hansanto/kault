@@ -6,6 +6,7 @@ import io.github.hansanto.kault.exception.VaultAPIException
 import io.github.hansanto.kault.extension.URL_PATH_SEPARATOR
 import io.github.hansanto.kault.extension.addURLChildPath
 import io.github.hansanto.kault.extension.findErrorFromVaultResponseBody
+import io.github.hansanto.kault.identity.VaultIdentity
 import io.github.hansanto.kault.system.VaultSystem
 import io.ktor.client.HttpClient
 import io.ktor.client.HttpClientConfig
@@ -45,6 +46,16 @@ public class VaultClient(
     public var namespace: String? = null,
 
     /**
+     * Secrets service.
+     */
+    public val secret: VaultSecretEngine,
+
+    /**
+     * Identity service.
+     */
+    public val identity: VaultIdentity,
+
+    /**
      * Authentication service.
      */
     public val auth: VaultAuth,
@@ -53,11 +64,6 @@ public class VaultClient(
      * System service.
      */
     public val system: VaultSystem,
-
-    /**
-     * Secrets service.
-     */
-    public val secret: VaultSecretEngine
 ) : CoroutineScope by client,
     Closeable {
 
@@ -149,6 +155,16 @@ public class VaultClient(
         private var headerBuilder: BuilderDslWithArg<MutableMap<String, String?>, VaultClient> = Default.headers
 
         /**
+         * Builder to define secret engine service.
+         */
+        private var secretBuilder: BuilderDsl<VaultSecretEngine.Builder> = {}
+
+        /**
+         * Builder to define identity service.
+         */
+        private var identityBuilder: BuilderDsl<VaultIdentity.Builder> = {}
+
+        /**
          * Builder to define authentication service.
          */
         private var authBuilder: BuilderDsl<AuthBuilder> = {}
@@ -157,11 +173,6 @@ public class VaultClient(
          * Builder to define system service.
          */
         private var sysBuilder: BuilderDsl<VaultSystem.Builder> = {}
-
-        /**
-         * Builder to define secret engine service.
-         */
-        private var secretBuilder: BuilderDsl<VaultSecretEngine.Builder> = {}
 
         /**
          * Builder to custom the HTTP client.
@@ -185,9 +196,10 @@ public class VaultClient(
             return VaultClient(
                 client = client,
                 namespace = this.namespace,
+                secret = VaultSecretEngine(client, null, this.secretBuilder),
+                identity = VaultIdentity(client, null, this.identityBuilder),
                 auth = authBuilderComplete.build(client, null),
-                system = VaultSystem(client, null, this.sysBuilder),
-                secret = VaultSecretEngine(client, null, this.secretBuilder)
+                system = VaultSystem(client, null, this.sysBuilder)
             ).also { vaultClientBuilt ->
                 vaultClient = vaultClientBuilt
                 runCatching {
@@ -221,6 +233,24 @@ public class VaultClient(
         }
 
         /**
+         * Sets the secret engine service builder.
+         *
+         * @param builder Builder to create [VaultSecretEngine] instance.
+         */
+        public fun secret(builder: BuilderDsl<VaultSecretEngine.Builder>) {
+            secretBuilder = builder
+        }
+
+        /**
+         * Sets the identity service builder.
+         *
+         * @param builder Builder to create [VaultIdentity] instance.
+         */
+        public fun identity(builder: BuilderDsl<VaultIdentity.Builder>) {
+            identityBuilder = builder
+        }
+
+        /**
          * Sets the authentication service builder.
          *
          * @param builder Builder to create [VaultAuth] instance.
@@ -236,15 +266,6 @@ public class VaultClient(
          */
         public fun system(builder: BuilderDsl<VaultSystem.Builder>) {
             sysBuilder = builder
-        }
-
-        /**
-         * Sets the secret engine service builder.
-         *
-         * @param builder Builder to create [VaultSecretEngine] instance.
-         */
-        public fun secret(builder: BuilderDsl<VaultSecretEngine.Builder>) {
-            secretBuilder = builder
         }
 
         /**
