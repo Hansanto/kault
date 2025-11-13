@@ -1,16 +1,16 @@
-package io.github.hansanto.kault.auth.jwt
+package io.github.hansanto.kault.auth.oidc
 
 import io.github.hansanto.kault.BuilderDsl
 import io.github.hansanto.kault.ServiceBuilder
 import io.github.hansanto.kault.auth.common.response.LoginResponse
-import io.github.hansanto.kault.auth.jwt.payload.OIDCAuthorizationUrlPayload
-import io.github.hansanto.kault.auth.jwt.payload.OIDCCallbackPayload
-import io.github.hansanto.kault.auth.jwt.payload.OIDCConfigurePayload
-import io.github.hansanto.kault.auth.jwt.payload.OIDCCreateOrUpdatePayload
-import io.github.hansanto.kault.auth.jwt.payload.OIDCJwtLoginPayload
-import io.github.hansanto.kault.auth.jwt.response.OIDCAuthorizationUrlResponse
-import io.github.hansanto.kault.auth.jwt.response.OIDCConfigureResponse
-import io.github.hansanto.kault.auth.jwt.response.OIDCReadRoleResponse
+import io.github.hansanto.kault.auth.oidc.payload.OIDCAuthorizationUrlPayload
+import io.github.hansanto.kault.auth.oidc.payload.OIDCCallbackPayload
+import io.github.hansanto.kault.auth.oidc.payload.OIDCConfigurePayload
+import io.github.hansanto.kault.auth.oidc.payload.OIDCCreateOrUpdatePayload
+import io.github.hansanto.kault.auth.oidc.payload.OIDCJwtLoginPayload
+import io.github.hansanto.kault.auth.oidc.response.OIDCAuthorizationUrlResponse
+import io.github.hansanto.kault.auth.oidc.response.OIDCConfigureResponse
+import io.github.hansanto.kault.auth.oidc.response.OIDCReadRoleResponse
 import io.github.hansanto.kault.extension.decodeBodyJsonAuthFieldObject
 import io.github.hansanto.kault.extension.decodeBodyJsonDataFieldObject
 import io.github.hansanto.kault.extension.list

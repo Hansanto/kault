@@ -1,9 +1,9 @@
-package io.github.hansanto.kault.auth.jwt.payload
+package io.github.hansanto.kault.auth.oidc.payload
 
 import io.github.hansanto.kault.KaultDsl
 import io.github.hansanto.kault.auth.common.common.TokenType
-import io.github.hansanto.kault.auth.jwt.common.OIDCBoundClaimsType
-import io.github.hansanto.kault.auth.jwt.common.OIDCRoleType
+import io.github.hansanto.kault.auth.oidc.common.OIDCBoundClaimsType
+import io.github.hansanto.kault.auth.oidc.common.OIDCRoleType
 import io.github.hansanto.kault.serializer.VaultDuration
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

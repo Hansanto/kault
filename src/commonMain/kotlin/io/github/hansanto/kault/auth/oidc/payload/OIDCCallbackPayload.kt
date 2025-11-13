@@ -1,4 +1,4 @@
-package io.github.hansanto.kault.auth.jwt.payload
+package io.github.hansanto.kault.auth.oidc.payload
 
 import io.github.hansanto.kault.KaultDsl
 import kotlinx.serialization.SerialName

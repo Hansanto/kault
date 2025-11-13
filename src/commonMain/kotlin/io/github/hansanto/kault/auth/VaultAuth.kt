@@ -8,8 +8,8 @@ import io.github.hansanto.kault.auth.approle.VaultAuthAppRoleImpl
 import io.github.hansanto.kault.auth.common.common.TokenInfo
 import io.github.hansanto.kault.auth.common.response.LoginResponse
 import io.github.hansanto.kault.auth.common.response.toTokenInfo
-import io.github.hansanto.kault.auth.jwt.VaultAuthOIDC
-import io.github.hansanto.kault.auth.jwt.VaultAuthOIDCImpl
+import io.github.hansanto.kault.auth.oidc.VaultAuthOIDC
+import io.github.hansanto.kault.auth.oidc.VaultAuthOIDCImpl
 import io.github.hansanto.kault.auth.kubernetes.VaultAuthKubernetes
 import io.github.hansanto.kault.auth.kubernetes.VaultAuthKubernetesImpl
 import io.github.hansanto.kault.auth.token.VaultAuthToken

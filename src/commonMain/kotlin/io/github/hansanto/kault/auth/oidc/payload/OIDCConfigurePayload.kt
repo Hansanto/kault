@@ -1,8 +1,8 @@
-package io.github.hansanto.kault.auth.jwt.payload
+package io.github.hansanto.kault.auth.oidc.payload
 
 import io.github.hansanto.kault.KaultDsl
-import io.github.hansanto.kault.auth.jwt.common.OIDCResponseMode
-import io.github.hansanto.kault.auth.jwt.common.OIDCResponseType
+import io.github.hansanto.kault.auth.oidc.common.OIDCResponseMode
+import io.github.hansanto.kault.auth.oidc.common.OIDCResponseType
 import io.github.hansanto.kault.extension.toJsonPrimitiveMap
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -83,13 +83,13 @@ public data class OIDCConfigurePayload(
     public var oidcDiscoveryUrl: String? = null,
 
     /**
-     * The response mode to be used in the OAuth2 request. Defaults to [io.github.hansanto.kault.auth.jwt.common.OIDCResponseMode.QUERY]. If using Vault namespaces, and oidc_response_mode is [io.github.hansanto.kault.auth.jwt.common.OIDCResponseMode.FORM_POST], then [namespaceInState] should be set to false.
+     * The response mode to be used in the OAuth2 request. Defaults to [OIDCResponseMode.QUERY]. If using Vault namespaces, and oidc_response_mode is [OIDCResponseMode.FORM_POST], then [namespaceInState] should be set to false.
      */
     @SerialName("oidc_response_mode")
     public var oidcResponseMode: OIDCResponseMode? = null,
 
     /**
-     * The response types to request. Defaults to [io.github.hansanto.kault.auth.jwt.common.OIDCResponseType.CODE]. Note: [io.github.hansanto.kault.auth.jwt.common.OIDCResponseType.ID_TOKEN] may only be used if [oidcResponseMode] is set to [OIDCResponseMode.FORM_POST].
+     * The response types to request. Defaults to [OIDCResponseType.CODE]. Note: [OIDCResponseType.ID_TOKEN] may only be used if [oidcResponseMode] is set to [OIDCResponseMode.FORM_POST].
      */
     @SerialName("oidc_response_types")
     public var oidcResponseTypes: List<OIDCResponseType>? = null,

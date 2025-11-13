@@ -1,4 +1,4 @@
-package io.github.hansanto.kault.auth.jwt.response
+package io.github.hansanto.kault.auth.oidc.response
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

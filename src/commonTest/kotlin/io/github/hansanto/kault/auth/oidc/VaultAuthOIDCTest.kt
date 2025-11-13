@@ -1,12 +1,12 @@
-package io.github.hansanto.kault.auth.jwt
+package io.github.hansanto.kault.auth.oidc
 
 import io.github.hansanto.kault.VaultClient
-import io.github.hansanto.kault.auth.jwt.common.OIDCResponseMode
-import io.github.hansanto.kault.auth.jwt.common.OIDCResponseType
-import io.github.hansanto.kault.auth.jwt.common.OIDCRoleType
-import io.github.hansanto.kault.auth.jwt.payload.OIDCCreateOrUpdatePayload
-import io.github.hansanto.kault.auth.jwt.response.OIDCConfigureResponse
-import io.github.hansanto.kault.auth.jwt.response.OIDCReadRoleResponse
+import io.github.hansanto.kault.auth.oidc.common.OIDCResponseMode
+import io.github.hansanto.kault.auth.oidc.common.OIDCResponseType
+import io.github.hansanto.kault.auth.oidc.common.OIDCRoleType
+import io.github.hansanto.kault.auth.oidc.payload.OIDCCreateOrUpdatePayload
+import io.github.hansanto.kault.auth.oidc.response.OIDCConfigureResponse
+import io.github.hansanto.kault.auth.oidc.response.OIDCReadRoleResponse
 import io.github.hansanto.kault.exception.VaultAPIException
 import io.github.hansanto.kault.extension.toJsonPrimitiveMap
 import io.github.hansanto.kault.util.DEFAULT_ROLE_NAME
