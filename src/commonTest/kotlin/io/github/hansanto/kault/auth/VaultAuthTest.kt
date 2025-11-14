@@ -7,6 +7,7 @@ import io.github.hansanto.kault.auth.common.common.TokenInfo
 import io.github.hansanto.kault.auth.common.common.TokenType
 import io.github.hansanto.kault.auth.common.response.LoginResponse
 import io.github.hansanto.kault.auth.kubernetes.VaultAuthKubernetesImpl
+import io.github.hansanto.kault.auth.oidc.VaultAuthOIDCImpl
 import io.github.hansanto.kault.auth.token.VaultAuthTokenImpl
 import io.github.hansanto.kault.auth.token.createToken
 import io.github.hansanto.kault.auth.token.response.TokenCreateResponse
@@ -102,6 +103,8 @@ class VaultAuthTest :
                 "${VaultAuth.Default.PATH}/${VaultAuthUserpassImpl.Default.PATH}"
             (built.token as VaultAuthTokenImpl).path shouldBe
                 "${VaultAuth.Default.PATH}/${VaultAuthTokenImpl.Default.PATH}"
+            (built.oidc as VaultAuthOIDCImpl).path shouldBe
+                "${VaultAuth.Default.PATH}/${VaultAuthOIDCImpl.Default.PATH}"
         }
 
         should("use custom values in the builder") {
@@ -114,6 +117,7 @@ class VaultAuthTest :
             val kubernetesPath = randomString()
             val userpassPath = randomString()
             val tokenPath = randomString()
+            val oidcPath = randomString()
             val renewBeforeExpiration = randomLong(1L..1000L).seconds
 
             val built = VaultAuth(client.client, parentPath) {
@@ -131,6 +135,9 @@ class VaultAuthTest :
                 token {
                     path = tokenPath
                 }
+                oidc {
+                    path = oidcPath
+                }
                 this.renewBeforeExpiration = renewBeforeExpiration
             }
 
@@ -141,6 +148,7 @@ class VaultAuthTest :
             (built.kubernetes as VaultAuthKubernetesImpl).path shouldBe "$parentPath/$builderPath/$kubernetesPath"
             (built.userpass as VaultAuthUserpassImpl).path shouldBe "$parentPath/$builderPath/$userpassPath"
             (built.token as VaultAuthTokenImpl).path shouldBe "$parentPath/$builderPath/$tokenPath"
+            (built.oidc as VaultAuthOIDCImpl).path shouldBe "$parentPath/$builderPath/$oidcPath"
 
             val tokenInfo = TokenInfo(
                 randomString(),
