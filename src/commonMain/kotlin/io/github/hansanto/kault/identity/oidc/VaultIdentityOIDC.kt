@@ -4,8 +4,12 @@ import io.github.hansanto.kault.BuilderDsl
 import io.github.hansanto.kault.ServiceBuilder
 import io.github.hansanto.kault.identity.oidc.payload.OIDCCreateOrUpdateProviderPayload
 import io.ktor.client.HttpClient
+import io.ktor.client.request.delete
+import io.ktor.client.request.get
+import io.ktor.client.request.parameter
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
+import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.appendPathSegments
 import io.ktor.http.contentType
@@ -34,7 +38,31 @@ public interface VaultIdentityOIDC {
      * @param payload The configuration payload for the OIDC provider.
      * @return Returns true if the configuration was updated successfully.
      */
-    public suspend fun createOrUpdateProvider(name: String, payload: OIDCCreateOrUpdateProviderPayload): Boolean
+    public suspend fun createOrUpdateProvider(name: String, payload: OIDCCreateOrUpdateProviderPayload = OIDCCreateOrUpdateProviderPayload()): Boolean
+
+    /**
+     * This endpoint queries the OIDC provider by its name.
+     * [Documentation](https://developer.hashicorp.com/vault/api-docs/secret/identity/oidc-provider#read-provider-by-name)
+     * @param name The name of the provider.
+     * @return Returns the provider information.
+     */
+    public suspend fun readProvider(name: String): Any
+
+    /**
+     * This endpoint returns a list of all OIDC providers.
+     * [Documentation](https://developer.hashicorp.com/vault/api-docs/secret/identity/oidc-provider#list-providers)
+     * @param allowedClientId Filters the list of OIDC providers to those that allow the given client ID in their set of [allowed_client_ids](https://developer.hashicorp.com/vault/api-docs/secret/identity/oidc-provider#allowed_client_ids).
+     * @return The list of providers.
+     */
+    public suspend fun listProviders(allowedClientId: String? = null): Any
+
+    /**
+     * This endpoint deletes an OIDC provider.
+     * [Documentation](https://developer.hashicorp.com/vault/api-docs/secret/identity/oidc-provider#delete-provider-by-name)
+     * @param name The name of the provider.
+     * @return `true` if the provider was deleted successfully, `false` otherwise.
+     */
+    public suspend fun deleteProvider(name: String): Boolean
 }
 
 /**
@@ -96,6 +124,34 @@ public class VaultIdentityOIDCImpl(
             }
             contentType(ContentType.Application.Json)
             setBody(payload)
+        }
+        return response.status.isSuccess()
+    }
+
+    override suspend fun readProvider(name: String): Any {
+        val response = client.get {
+            url {
+                appendPathSegments(path, "provider", name)
+            }
+        }
+        return response.bodyAsText()
+    }
+
+    override suspend fun listProviders(allowedClientId: String?): Any {
+        val response = client.get {
+            url {
+                appendPathSegments(path, "providers")
+                parameter("allowed_client_id", allowedClientId)
+            }
+        }
+        return response.bodyAsText()
+    }
+
+    override suspend fun deleteProvider(name: String): Boolean {
+        val response = client.delete {
+            url {
+                appendPathSegments(path, "provider", name)
+            }
         }
         return response.status.isSuccess()
     }
