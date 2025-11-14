@@ -111,10 +111,9 @@ public data class OIDCConfigurePayload(
 
         /**
          * The CA certificate or chain of certificates, in PEM format, to use to validate connections to the JWKS URL.
-         * TODO: Check if optional
          */
         @SerialName("jwks_ca_pem")
-        public var jwksCaPem: String?
+        public var jwksCaPem: String? = null
     )
 
     /**
