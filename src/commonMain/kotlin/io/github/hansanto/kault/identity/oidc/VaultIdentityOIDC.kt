@@ -2,14 +2,17 @@ package io.github.hansanto.kault.identity.oidc
 
 import io.github.hansanto.kault.BuilderDsl
 import io.github.hansanto.kault.ServiceBuilder
+import io.github.hansanto.kault.extension.decodeBodyJsonDataFieldObject
+import io.github.hansanto.kault.extension.list
 import io.github.hansanto.kault.identity.oidc.payload.OIDCCreateOrUpdateProviderPayload
+import io.github.hansanto.kault.identity.oidc.response.OIDCListProvidersResponse
+import io.github.hansanto.kault.identity.oidc.response.OIDCReadProviderResponse
 import io.ktor.client.HttpClient
 import io.ktor.client.request.delete
 import io.ktor.client.request.get
 import io.ktor.client.request.parameter
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
-import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.appendPathSegments
 import io.ktor.http.contentType
@@ -46,7 +49,7 @@ public interface VaultIdentityOIDC {
      * @param name The name of the provider.
      * @return Returns the provider information.
      */
-    public suspend fun readProvider(name: String): Any
+    public suspend fun readProvider(name: String): OIDCReadProviderResponse
 
     /**
      * This endpoint returns a list of all OIDC providers.
@@ -54,7 +57,7 @@ public interface VaultIdentityOIDC {
      * @param allowedClientId Filters the list of OIDC providers to those that allow the given client ID in their set of [allowed_client_ids](https://developer.hashicorp.com/vault/api-docs/secret/identity/oidc-provider#allowed_client_ids).
      * @return The list of providers.
      */
-    public suspend fun listProviders(allowedClientId: String? = null): Any
+    public suspend fun listProviders(allowedClientId: String? = null): OIDCListProvidersResponse
 
     /**
      * This endpoint deletes an OIDC provider.
@@ -128,23 +131,23 @@ public class VaultIdentityOIDCImpl(
         return response.status.isSuccess()
     }
 
-    override suspend fun readProvider(name: String): Any {
+    override suspend fun readProvider(name: String): OIDCReadProviderResponse {
         val response = client.get {
             url {
                 appendPathSegments(path, "provider", name)
             }
         }
-        return response.bodyAsText()
+        return response.decodeBodyJsonDataFieldObject()
     }
 
-    override suspend fun listProviders(allowedClientId: String?): Any {
-        val response = client.get {
+    override suspend fun listProviders(allowedClientId: String?): OIDCListProvidersResponse {
+        val response = client.list {
             url {
-                appendPathSegments(path, "providers")
+                appendPathSegments(path, "provider")
                 parameter("allowed_client_id", allowedClientId)
             }
         }
-        return response.bodyAsText()
+        return response.decodeBodyJsonDataFieldObject()
     }
 
     override suspend fun deleteProvider(name: String): Boolean {

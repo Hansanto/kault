@@ -114,6 +114,18 @@ suspend fun revokeAllTokenData(client: VaultClient) {
         }
 }
 
+suspend fun revokeOIDCProviders(client: VaultClient) {
+    client.auth.setTokenString(ROOT_TOKEN)
+    val oidc = client.identity.oidc
+
+    runCatching { oidc.listProviders() }
+        .onSuccess { response ->
+            response.keys.filter { it != "default" }.forEach { providerName ->
+                oidc.deleteProvider(providerName)
+            }
+        }
+}
+
 suspend fun disableAllAudit(client: VaultClient) {
     client.auth.setTokenString(ROOT_TOKEN)
     val auditService = client.system.audit
