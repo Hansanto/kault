@@ -1,0 +1,5 @@
+{
+  "allowed_client_ids": [],
+  "issuer": "http://0.0.0.0:8200/v1/identity/oidc/provider/test",
+  "scopes_supported": []
+}

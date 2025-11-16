@@ -5,8 +5,11 @@ import io.github.hansanto.kault.ServiceBuilder
 import io.github.hansanto.kault.extension.decodeBodyJsonDataFieldObject
 import io.github.hansanto.kault.extension.list
 import io.github.hansanto.kault.identity.oidc.payload.OIDCCreateOrUpdateProviderPayload
+import io.github.hansanto.kault.identity.oidc.payload.OIDCCreateOrUpdateScopePayload
 import io.github.hansanto.kault.identity.oidc.response.OIDCListProvidersResponse
 import io.github.hansanto.kault.identity.oidc.response.OIDCReadProviderResponse
+import io.github.hansanto.kault.identity.oidc.response.OIDCReadScopeResponse
+import io.github.hansanto.kault.response.StandardListResponse
 import io.ktor.client.HttpClient
 import io.ktor.client.request.delete
 import io.ktor.client.request.get
@@ -30,6 +33,18 @@ public suspend inline fun VaultIdentityOIDC.createOrUpdateProvider(
     contract { callsInPlace(builder, InvocationKind.EXACTLY_ONCE) }
     val payload = OIDCCreateOrUpdateProviderPayload().apply(builder)
     return createOrUpdateProvider(name, payload)
+}
+
+/**
+ * @see VaultIdentityOIDC.createOrUpdateScope(name, payload)
+ */
+public suspend inline fun VaultIdentityOIDC.createOrUpdateScope(
+    name: String,
+    builder: BuilderDsl<OIDCCreateOrUpdateScopePayload.Builder>
+): Boolean {
+    contract { callsInPlace(builder, InvocationKind.EXACTLY_ONCE) }
+    val payload = OIDCCreateOrUpdateScopePayload.Builder().apply(builder).build()
+    return createOrUpdateScope(name, payload)
 }
 
 public interface VaultIdentityOIDC {
@@ -66,6 +81,40 @@ public interface VaultIdentityOIDC {
      * @return `true` if the provider was deleted successfully, `false` otherwise.
      */
     public suspend fun deleteProvider(name: String): Boolean
+
+    /**
+     * This endpoint creates or updates a scope.
+     * [Documentation](https://developer.hashicorp.com/vault/api-docs/secret/identity/oidc-provider#create-or-update-a-scope)
+     * @param name The name of the scope. This parameter is specified as part of the URL. The openid scope name is reserved.
+     * @param payload The configuration payload for the OIDC scope.
+     */
+    public suspend fun createOrUpdateScope(
+        name: String,
+        payload: OIDCCreateOrUpdateScopePayload = OIDCCreateOrUpdateScopePayload()
+    ): Boolean
+
+    /**
+     * This endpoint queries a scope by its name.
+     * [Documentation](This endpoint queries a scope by its name.)
+     * @param name The name of the scope.
+     * @return The scope information.
+     */
+    public suspend fun readScope(name: String): OIDCReadScopeResponse
+
+    /**
+     * This endpoint returns a list of all configured scopes.
+     * [Documentation](https://developer.hashicorp.com/vault/api-docs/secret/identity/oidc-provider#list-scopes)
+     * @return The list of scope names.
+     */
+    public suspend fun listScopes(): List<String>
+
+    /**
+     * This endpoint deletes a scope.
+     * [Documentation](https://developer.hashicorp.com/vault/api-docs/secret/identity/oidc-provider#delete-scope-by-name)
+     * @param name The name of the scope.
+     * @return `true` if the scope was deleted successfully, `false` otherwise.
+     */
+    public suspend fun deleteScope(name: String): Boolean
 }
 
 /**
@@ -154,6 +203,47 @@ public class VaultIdentityOIDCImpl(
         val response = client.delete {
             url {
                 appendPathSegments(path, "provider", name)
+            }
+        }
+        return response.status.isSuccess()
+    }
+
+    override suspend fun createOrUpdateScope(
+        name: String,
+        payload: OIDCCreateOrUpdateScopePayload
+    ): Boolean {
+        val response = client.post {
+            url {
+                appendPathSegments(path, "scope", name)
+            }
+            contentType(ContentType.Application.Json)
+            setBody(payload)
+        }
+        return response.status.isSuccess()
+    }
+
+    override suspend fun readScope(name: String): OIDCReadScopeResponse {
+        val response = client.get {
+            url {
+                appendPathSegments(path, "scope", name)
+            }
+        }
+        return response.decodeBodyJsonDataFieldObject()
+    }
+
+    override suspend fun listScopes(): List<String> {
+        val response = client.list {
+            url {
+                appendPathSegments(path, "scope")
+            }
+        }
+        return response.decodeBodyJsonDataFieldObject<StandardListResponse>().keys
+    }
+
+    override suspend fun deleteScope(name: String): Boolean {
+        val response = client.delete {
+            url {
+                appendPathSegments(path, "scope", name)
             }
         }
         return response.status.isSuccess()

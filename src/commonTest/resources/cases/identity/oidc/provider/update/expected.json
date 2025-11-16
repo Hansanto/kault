@@ -1,0 +1,5 @@
+{
+  "allowed_client_ids": ["my-client-id"],
+  "issuer": "https://my-issuer.com:1111",
+  "scopes_supported": ["test"]
+}

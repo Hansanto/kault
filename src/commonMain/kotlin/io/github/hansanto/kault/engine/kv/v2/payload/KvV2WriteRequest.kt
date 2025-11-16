@@ -39,7 +39,7 @@ public data class KvV2WriteRequest(
     )
 
     /**
-     * Builder class to simplify the creation of [AppRoleCreateCustomSecretIDPayload].
+     * Builder class to simplify the creation of [KvV2WriteRequest].
      */
     @KaultDsl
     public class Builder {

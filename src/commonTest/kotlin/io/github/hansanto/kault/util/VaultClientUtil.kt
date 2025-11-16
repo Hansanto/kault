@@ -126,6 +126,18 @@ suspend fun revokeOIDCProviders(client: VaultClient) {
         }
 }
 
+suspend fun revokeOIDCScopes(client: VaultClient) {
+    client.auth.setTokenString(ROOT_TOKEN)
+    val oidc = client.identity.oidc
+
+    runCatching { oidc.listScopes() }
+        .onSuccess { scopes ->
+            scopes.forEach { scopeName ->
+                oidc.deleteScope(scopeName)
+            }
+        }
+}
+
 suspend fun disableAllAudit(client: VaultClient) {
     client.auth.setTokenString(ROOT_TOKEN)
     val auditService = client.system.audit
