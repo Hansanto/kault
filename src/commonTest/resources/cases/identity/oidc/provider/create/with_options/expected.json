@@ -1,5 +1,5 @@
 {
   "allowed_client_ids": ["test-client-id"],
-  "issuer": "https://example.com:8200",
+  "issuer": "https://example.com:8200/v1/identity/oidc/provider/test",
   "scopes_supported": ["test"]
 }

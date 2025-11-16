@@ -18,7 +18,6 @@ import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.maps.shouldContainExactly
 import io.kotest.matchers.shouldBe
-import kotlin.collections.emptyList
 
 private const val DEFAULT_PROVIDER_NAME = "default"
 
@@ -44,7 +43,7 @@ class VaultIdentityOIDCTest : ShouldSpec({
         client.close()
     }
 
-    xshould("use default path if not set in builder") {
+    should("use default path if not set in builder") {
         VaultIdentityOIDCImpl.Default.PATH shouldBe "oidc"
 
         val built = VaultIdentityOIDCImpl.Companion(client.client, null) {
@@ -53,7 +52,7 @@ class VaultIdentityOIDCTest : ShouldSpec({
         built.path shouldBe VaultIdentityOIDCImpl.Default.PATH
     }
 
-    xshould("use custom path if set in builder") {
+    should("use custom path if set in builder") {
         val builderPath = randomString()
         val parentPath = randomString()
 
@@ -64,7 +63,7 @@ class VaultIdentityOIDCTest : ShouldSpec({
         built.path shouldBe "$parentPath/$builderPath"
     }
 
-    xshould("create a provider with default values") {
+    should("create a provider with default values") {
         assertCreateProvider(
             oidc,
             null,
@@ -72,8 +71,11 @@ class VaultIdentityOIDCTest : ShouldSpec({
         )
     }
 
-    xshould("create a provider with all defined values") {
-        oidc.createOrUpdateScope("test") shouldBe true
+    should("create a provider with all defined values") {
+        oidc.createOrUpdateScope("test") {
+            template = """{"test": "scope"}"""
+        } shouldBe true
+
         assertCreateProvider(
             oidc,
             "cases/identity/oidc/provider/create/with_options/given.json",
@@ -81,7 +83,7 @@ class VaultIdentityOIDCTest : ShouldSpec({
         )
     }
 
-    xshould("create a provider using builder with default values") {
+    should("create a provider using builder with default values") {
         assertCreateProviderWithBuilder(
             oidc,
             null,
@@ -89,8 +91,11 @@ class VaultIdentityOIDCTest : ShouldSpec({
         )
     }
 
-    xshould("create a provider using builder with all defined values") {
-        oidc.createOrUpdateScope("test") shouldBe true
+    should("create a provider using builder with all defined values") {
+        oidc.createOrUpdateScope("test") {
+            template = """{"test": "scope"}"""
+        } shouldBe true
+
         assertCreateProviderWithBuilder(
             oidc,
             "cases/identity/oidc/provider/create/with_options/given.json",
@@ -98,24 +103,27 @@ class VaultIdentityOIDCTest : ShouldSpec({
         )
     }
 
-    xshould("update a provider if it exists") {
-        oidc.createOrUpdateScope("test") shouldBe true
+    should("update a provider if it exists") {
+        oidc.createOrUpdateScope("test") {
+            template = """{"test": "scope"}"""
+        } shouldBe true
+
         oidc.createOrUpdateProvider(DEFAULT_ROLE_NAME) shouldBe true
 
         val given = readJson<OIDCCreateOrUpdateProviderPayload>("cases/identity/oidc/provider/update/given.json")
         oidc.createOrUpdateProvider(DEFAULT_ROLE_NAME, given) shouldBe true
 
         val expected = readJson<OIDCReadProviderResponse>("cases/identity/oidc/provider/update/expected.json")
-        oidc.readProvider(DEFAULT_PROVIDER_NAME) shouldBe expected
+        oidc.readProvider(DEFAULT_ROLE_NAME) shouldBe expected
     }
 
-    xshould("throw exception when reading a non-existing provider") {
+    should("throw exception when reading a non-existing provider") {
         shouldThrow<VaultAPIException> {
             oidc.readProvider("non-existing-provider")
         }
     }
 
-    xshould("return provider info when reading an existing provider") {
+    should("return provider info when reading an existing provider") {
         oidc.createOrUpdateProvider("test-0") shouldBe true
 
         oidc.readProvider("test-0") shouldBe createProviderResponse(
@@ -123,7 +131,7 @@ class VaultIdentityOIDCTest : ShouldSpec({
         )
     }
 
-    xshould("return only default providers when listing with no created providers") {
+    should("return only default providers when listing with no created providers") {
         oidc.listProviders() shouldBe OIDCListProvidersResponse(
             keyInfo = mapOf(
                 DEFAULT_PROVIDER_NAME to DEFAULT_PROVIDER_INFO
@@ -132,8 +140,10 @@ class VaultIdentityOIDCTest : ShouldSpec({
         )
     }
 
-    xshould("return created providers when listing without filter") {
-        oidc.createOrUpdateScope("test-scope") shouldBe true
+    should("return created providers when listing without filter") {
+        oidc.createOrUpdateScope("test-scope") {
+            template = """{"test": "scope"}"""
+        } shouldBe true
 
         oidc.createOrUpdateProvider("test-0") shouldBe true
         oidc.createOrUpdateProvider("test-1") {
@@ -142,25 +152,24 @@ class VaultIdentityOIDCTest : ShouldSpec({
             scopesSupported = listOf("test-scope")
         } shouldBe true
 
-        oidc.listProviders() shouldBe OIDCListProvidersResponse(
-            keyInfo = mapOf(
-                DEFAULT_PROVIDER_NAME to DEFAULT_PROVIDER_INFO,
-                "test-0" to OIDCReadProviderResponse(
-                    allowedClientIds = listOf("*"),
-                    issuer = "http://0.0.0.0:8200/v1/identity/oidc/provider/test-0",
-                    scopesSupported = emptyList()
+        assertListProviders(
+            oidc.listProviders(),
+            OIDCListProvidersResponse(
+                keyInfo = mapOf(
+                    DEFAULT_PROVIDER_NAME to DEFAULT_PROVIDER_INFO,
+                    "test-0" to createProviderResponse("test-0"),
+                    "test-1" to OIDCReadProviderResponse(
+                        allowedClientIds = listOf("client-1", "client-2"),
+                        issuer = "https://example.com:8200/v1/identity/oidc/provider/test-1",
+                        scopesSupported = listOf("test-scope")
+                    )
                 ),
-                "test-1" to OIDCReadProviderResponse(
-                    allowedClientIds = listOf("client-1", "client-2"),
-                    issuer = "https://example.com:8200",
-                    scopesSupported = listOf("test-scope")
-                )
-            ),
-            keys = listOf(DEFAULT_PROVIDER_NAME, "test-0", "test-1")
+                keys = listOf(DEFAULT_PROVIDER_NAME, "test-0", "test-1")
+            )
         )
     }
 
-    xshould("return created providers when listing with filter") {
+    should("return created providers when listing with filter") {
         oidc.createOrUpdateProvider("test-0") shouldBe true
         oidc.createOrUpdateProvider("test-1") {
             allowedClientIds = listOf("client-1", "client-2")
@@ -169,30 +178,28 @@ class VaultIdentityOIDCTest : ShouldSpec({
             allowedClientIds = listOf("client-1", "client-3")
         }
 
-        val response = oidc.listProviders("client-1")
-
-        val expected = OIDCListProvidersResponse(
-            keyInfo = mapOf(
-                DEFAULT_PROVIDER_NAME to DEFAULT_PROVIDER_INFO,
-                "test-1" to OIDCReadProviderResponse(
-                    allowedClientIds = listOf("client-1", "client-2"),
-                    issuer = "http://0.0.0.0:8200/v1/identity/oidc/provider/test-1",
-                    scopesSupported = emptyList()
+        assertListProviders(
+            oidc.listProviders("client-1"),
+            OIDCListProvidersResponse(
+                keyInfo = mapOf(
+                    DEFAULT_PROVIDER_NAME to DEFAULT_PROVIDER_INFO,
+                    "test-1" to OIDCReadProviderResponse(
+                        allowedClientIds = listOf("client-1", "client-2"),
+                        issuer = "http://0.0.0.0:8200/v1/identity/oidc/provider/test-1",
+                        scopesSupported = emptyList()
+                    ),
+                    "test-2" to OIDCReadProviderResponse(
+                        allowedClientIds = listOf("client-1", "client-3"),
+                        issuer = "http://0.0.0.0:8200/v1/identity/oidc/provider/test-2",
+                        scopesSupported = emptyList()
+                    )
                 ),
-                "test-2" to OIDCReadProviderResponse(
-                    allowedClientIds = listOf("client-1", "client-3"),
-                    issuer = "http://0.0.0.0:8200/v1/identity/oidc/provider/test-2",
-                    scopesSupported = emptyList()
-                )
-            ),
-            keys = listOf(DEFAULT_PROVIDER_NAME, "test-1", "test-2")
+                keys = listOf(DEFAULT_PROVIDER_NAME, "test-1", "test-2")
+            )
         )
-
-        response.keys shouldContainExactlyInAnyOrder expected.keys
-        response.keyInfo shouldContainExactly expected.keyInfo
     }
 
-    xshould("return true when deleting a non-existing provider") {
+    should("return true when deleting a non-existing provider") {
         oidc.deleteProvider("test-0") shouldBe true
 
         shouldThrow<VaultAPIException> {
@@ -200,7 +207,7 @@ class VaultIdentityOIDCTest : ShouldSpec({
         }
     }
 
-    xshould("delete an existing provider") {
+    should("delete an existing provider") {
         oidc.createOrUpdateProvider("test-0") shouldBe true
         oidc.deleteProvider("test-0") shouldBe true
         shouldThrow<VaultAPIException> {
@@ -301,6 +308,14 @@ class VaultIdentityOIDCTest : ShouldSpec({
 
 })
 
+private fun assertListProviders(
+    response: OIDCListProvidersResponse,
+    expected: OIDCListProvidersResponse
+) {
+    response.keys shouldContainExactlyInAnyOrder expected.keys
+    response.keyInfo shouldContainExactly expected.keyInfo
+}
+
 private suspend fun assertCreateProvider(oidc: VaultIdentityOIDC, givenPath: String?, expectedReadPath: String) {
     assertCreateProvider(
         oidc,
@@ -335,7 +350,8 @@ private suspend inline fun assertCreateProvider(
     expectedReadPath: String,
     createOrUpdate: (String, OIDCCreateOrUpdateProviderPayload) -> Boolean
 ) {
-    val given = givenPath?.let { readJson<OIDCCreateOrUpdateProviderPayload>(it) } ?: OIDCCreateOrUpdateProviderPayload()
+    val given =
+        givenPath?.let { readJson<OIDCCreateOrUpdateProviderPayload>(it) } ?: OIDCCreateOrUpdateProviderPayload()
     createOrUpdate(DEFAULT_ROLE_NAME, given) shouldBe true
     oidc.readProvider(DEFAULT_ROLE_NAME) shouldBe readJson<OIDCReadProviderResponse>(expectedReadPath)
 }
