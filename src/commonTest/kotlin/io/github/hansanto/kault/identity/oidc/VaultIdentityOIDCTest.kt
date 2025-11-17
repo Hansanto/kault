@@ -2,22 +2,31 @@ package io.github.hansanto.kault.identity.oidc
 
 import io.github.hansanto.kault.VaultClient
 import io.github.hansanto.kault.exception.VaultAPIException
+import io.github.hansanto.kault.identity.oidc.common.ClientType
+import io.github.hansanto.kault.identity.oidc.payload.OIDCCreateOrUpdateClientPayload
 import io.github.hansanto.kault.identity.oidc.payload.OIDCCreateOrUpdateProviderPayload
 import io.github.hansanto.kault.identity.oidc.payload.OIDCCreateOrUpdateScopePayload
 import io.github.hansanto.kault.identity.oidc.response.OIDCListProvidersResponse
+import io.github.hansanto.kault.identity.oidc.response.OIDCReadClientResponse
 import io.github.hansanto.kault.identity.oidc.response.OIDCReadProviderResponse
 import io.github.hansanto.kault.identity.oidc.response.OIDCReadScopeResponse
+import io.github.hansanto.kault.serializer.VaultDuration
 import io.github.hansanto.kault.util.DEFAULT_ROLE_NAME
 import io.github.hansanto.kault.util.createVaultClient
 import io.github.hansanto.kault.util.randomString
 import io.github.hansanto.kault.util.readJson
+import io.github.hansanto.kault.util.revokeOIDCClients
 import io.github.hansanto.kault.util.revokeOIDCProviders
 import io.github.hansanto.kault.util.revokeOIDCScopes
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.maps.shouldContainExactly
+import io.kotest.matchers.maps.shouldHaveSize
 import io.kotest.matchers.shouldBe
+import kotlin.time.Duration.Companion.hours
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
 
 private const val DEFAULT_PROVIDER_NAME = "default"
 
@@ -40,6 +49,7 @@ class VaultIdentityOIDCTest : ShouldSpec({
     afterTest {
         revokeOIDCProviders(client)
         revokeOIDCScopes(client)
+        revokeOIDCClients(client)
         client.close()
     }
 
@@ -306,6 +316,138 @@ class VaultIdentityOIDCTest : ShouldSpec({
         }
     }
 
+    // Clients
+
+    should("create a client with default values") {
+        assertCreateClient(
+            oidc,
+            null,
+            "cases/identity/oidc/client/create/without_options/expected.json"
+        )
+    }
+
+    should("create a client with all defined values for client type confidential") {
+        assertCreateClient(
+            oidc,
+            "cases/identity/oidc/client/create/confidential/with_options/given.json",
+            "cases/identity/oidc/client/create/confidential/with_options/expected.json"
+        )
+    }
+
+    should("create a client with all defined values for client type public") {
+        assertCreateClient(
+            oidc,
+            "cases/identity/oidc/client/create/public/with_options/given.json",
+            "cases/identity/oidc/client/create/public/with_options/expected.json"
+        )
+    }
+
+    should("create a client using builder with default values") {
+        assertCreateClientWithBuilder(
+            oidc,
+            null,
+            "cases/identity/oidc/client/create/without_options/expected.json"
+        )
+    }
+
+    should("create a client using builder with all defined values for client type confidential") {
+        assertCreateClientWithBuilder(
+            oidc,
+            "cases/identity/oidc/client/create/confidential/with_options/given.json",
+            "cases/identity/oidc/client/create/confidential/with_options/expected.json"
+        )
+    }
+
+    should("create a client using builder with all defined values for client type public") {
+        assertCreateClientWithBuilder(
+            oidc,
+            "cases/identity/oidc/client/create/public/with_options/given.json",
+            "cases/identity/oidc/client/create/public/with_options/expected.json"
+        )
+    }
+
+    should("update a client if it exists") {
+        oidc.createOrUpdateClient(DEFAULT_ROLE_NAME) shouldBe true
+
+        val given = readJson<OIDCCreateOrUpdateClientPayload>("cases/identity/oidc/client/update/given.json")
+        oidc.createOrUpdateClient(DEFAULT_ROLE_NAME, given) shouldBe true
+
+        assertReadClientResponse(
+            oidc.readClient(DEFAULT_ROLE_NAME),
+            readJson<OIDCReadClientResponse>("cases/identity/oidc/client/update/expected.json")
+        )
+    }
+
+    should("throw exception when reading a non-existing client") {
+        shouldThrow<VaultAPIException> {
+            oidc.readClient("non-existing-scope")
+        }
+    }
+
+    should("return client info when reading an existing client") {
+        oidc.createOrUpdateClient("test-0") shouldBe true
+
+        assertReadClientResponse(
+            oidc.readClient("test-0"),
+            createReadClientResponse(ClientType.CONFIDENTIAL)
+        )
+    }
+
+    should("throw exception when listing with no created clients") {
+        shouldThrow<VaultAPIException> {
+            oidc.listClients()
+        }
+    }
+
+    should("return created clients when listing clients") {
+        val expectedClient = List(10) {
+            createReadClientResponse(
+                clientType = if(it % 2 == 0) ClientType.CONFIDENTIAL else ClientType.PUBLIC,
+                redirectUris = listOf("http://localhost:${it}"),
+                idTokenTTL = it.seconds + 1.minutes,
+                accessTokenTTL = it.seconds + 1.hours,
+            )
+        }
+
+        expectedClient.forEachIndexed { i, client ->
+            oidc.createOrUpdateClient("test-${i}") {
+                this.key = client.key
+                this.redirectUris = client.redirectUris
+                this.assignments = client.assignments
+                this.clientType = client.clientType
+                this.idTokenTTL = client.idTokenTTL
+                this.accessTokenTTL = client.accessTokenTTL
+            } shouldBe true
+        }
+
+        val listClients = oidc.listClients()
+        listClients.keys shouldContainExactlyInAnyOrder List(10) { "test-$it" }
+        listClients.keyInfo shouldHaveSize 10
+
+        expectedClient.forEachIndexed { i, client ->
+            assertReadClientResponse(
+                listClients.keyInfo["test-${i}"]!!,
+                client
+            )
+        }
+    }
+
+    should("return true when deleting a non-existing client") {
+        oidc.deleteClient("test-0") shouldBe true
+
+        shouldThrow<VaultAPIException> {
+            oidc.readClient("test-0")
+        }
+    }
+
+    should("delete an existing client") {
+        oidc.createOrUpdateClient("test-0") shouldBe true
+        oidc.deleteClient("test-0") shouldBe true
+        shouldThrow<VaultAPIException> {
+            oidc.readClient("test-0")
+        }
+    }
+
 })
 
 private fun assertListProviders(
@@ -393,6 +535,81 @@ private suspend inline fun assertCreateScope(
     createOrUpdate(DEFAULT_ROLE_NAME, given) shouldBe true
     oidc.readScope(DEFAULT_ROLE_NAME) shouldBe readJson<OIDCReadScopeResponse>(expectedReadPath)
 }
+
+private suspend fun assertCreateClient(oidc: VaultIdentityOIDC, givenPath: String?, expectedReadPath: String) {
+    assertCreateClient(
+        oidc,
+        givenPath,
+        expectedReadPath
+    ) { providerName, payload ->
+        oidc.createOrUpdateClient(providerName, payload)
+    }
+}
+
+private suspend fun assertCreateClientWithBuilder(
+    oidc: VaultIdentityOIDC,
+    givenPath: String?,
+    expectedReadPath: String
+) {
+    assertCreateClient(
+        oidc,
+        givenPath,
+        expectedReadPath
+    ) { providerName, payload ->
+        oidc.createOrUpdateClient(providerName) {
+            this.key = payload.key
+            this.redirectUris = payload.redirectUris
+            this.assignments = payload.assignments
+            this.clientType = payload.clientType
+            this.idTokenTTL = payload.idTokenTTL
+            this.accessTokenTTL = payload.accessTokenTTL
+        }
+    }
+}
+
+private suspend inline fun assertCreateClient(
+    oidc: VaultIdentityOIDC,
+    givenPath: String?,
+    expectedReadPath: String,
+    createOrUpdate: (String, OIDCCreateOrUpdateClientPayload) -> Boolean
+) {
+    val given = givenPath?.let { readJson<OIDCCreateOrUpdateClientPayload>(it) } ?: OIDCCreateOrUpdateClientPayload()
+    createOrUpdate(DEFAULT_ROLE_NAME, given) shouldBe true
+
+    val value = oidc.readClient(DEFAULT_ROLE_NAME)
+    val expected = readJson<OIDCReadClientResponse>(expectedReadPath)
+    assertReadClientResponse(value, expected)
+}
+
+private suspend fun assertReadClientResponse(
+    value: OIDCReadClientResponse,
+    expected: OIDCReadClientResponse
+) {
+    expected.clientId = value.clientId
+    if (expected.clientType == ClientType.CONFIDENTIAL) {
+        expected.clientSecret = value.clientSecret
+    }
+
+    value shouldBe expected
+}
+
+private fun createReadClientResponse(
+    clientType: ClientType,
+    key: String = "default",
+    redirectUris: List<String> = emptyList(),
+    assignments: List<String> = emptyList(),
+    idTokenTTL: VaultDuration = 86400.seconds,
+    accessTokenTTL: VaultDuration = 86400.seconds
+): OIDCReadClientResponse = OIDCReadClientResponse(
+    key = key,
+    redirectUris = redirectUris,
+    assignments = assignments,
+    clientId = "REPLACE",
+    clientSecret = if (clientType == ClientType.CONFIDENTIAL) "REPLACE" else null,
+    clientType = clientType,
+    idTokenTTL = idTokenTTL,
+    accessTokenTTL = accessTokenTTL
+)
 
 private fun createProviderResponse(
     name: String,

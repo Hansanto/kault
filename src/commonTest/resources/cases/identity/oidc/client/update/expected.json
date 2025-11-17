@@ -1,0 +1,15 @@
+{
+  "access_token_ttl": 87412,
+  "assignments": [
+    "allow_all"
+  ],
+  "client_id": "REPLACE",
+  "client_secret": "REPLACE",
+  "client_type": "confidential",
+  "id_token_ttl": 5632,
+  "key": "default",
+  "redirect_uris": [
+    "https://localhost:8200",
+    "https://vault.example.com/callback"
+  ]
+}

@@ -4,9 +4,12 @@ import io.github.hansanto.kault.BuilderDsl
 import io.github.hansanto.kault.ServiceBuilder
 import io.github.hansanto.kault.extension.decodeBodyJsonDataFieldObject
 import io.github.hansanto.kault.extension.list
+import io.github.hansanto.kault.identity.oidc.payload.OIDCCreateOrUpdateClientPayload
 import io.github.hansanto.kault.identity.oidc.payload.OIDCCreateOrUpdateProviderPayload
 import io.github.hansanto.kault.identity.oidc.payload.OIDCCreateOrUpdateScopePayload
+import io.github.hansanto.kault.identity.oidc.response.OIDCListClientsResponse
 import io.github.hansanto.kault.identity.oidc.response.OIDCListProvidersResponse
+import io.github.hansanto.kault.identity.oidc.response.OIDCReadClientResponse
 import io.github.hansanto.kault.identity.oidc.response.OIDCReadProviderResponse
 import io.github.hansanto.kault.identity.oidc.response.OIDCReadScopeResponse
 import io.github.hansanto.kault.response.StandardListResponse
@@ -45,6 +48,18 @@ public suspend inline fun VaultIdentityOIDC.createOrUpdateScope(
     contract { callsInPlace(builder, InvocationKind.EXACTLY_ONCE) }
     val payload = OIDCCreateOrUpdateScopePayload.Builder().apply(builder).build()
     return createOrUpdateScope(name, payload)
+}
+
+/**
+ * @see VaultIdentityOIDC.createOrUpdateClient(name, payload)
+ */
+public suspend fun VaultIdentityOIDC.createOrUpdateClient(
+    name: String,
+    builder: BuilderDsl<OIDCCreateOrUpdateClientPayload>
+): Boolean {
+    contract { callsInPlace(builder, InvocationKind.EXACTLY_ONCE) }
+    val payload = OIDCCreateOrUpdateClientPayload().apply(builder)
+    return createOrUpdateClient(name, payload)
 }
 
 public interface VaultIdentityOIDC {
@@ -115,6 +130,41 @@ public interface VaultIdentityOIDC {
      * @return `true` if the scope was deleted successfully, `false` otherwise.
      */
     public suspend fun deleteScope(name: String): Boolean
+
+    /**
+     * This endpoint creates or updates a client.
+     * [Documentation](https://developer.hashicorp.com/vault/api-docs/secret/identity/oidc-provider#create-or-update-a-client)
+     * @param name The name of the client. This parameter is specified as part of the URL.
+     * @param payload The configuration payload for the OIDC client.
+     * @return `true` if the client was created or updated successfully, `false` otherwise.
+     */
+    public suspend fun createOrUpdateClient(
+        name: String,
+        payload: OIDCCreateOrUpdateClientPayload = OIDCCreateOrUpdateClientPayload()
+    ): Boolean
+
+    /**
+     * This endpoint queries a client by its name.
+     * [Documentation](https://developer.hashicorp.com/vault/api-docs/secret/identity/oidc-provider#read-client-by-name)
+     * @param name The name of the client.
+     * @return The client information.
+     */
+    public suspend fun readClient(name: String): OIDCReadClientResponse
+
+    /**
+     * This endpoint returns a list of all configured clients.
+     * [Documentation](https://developer.hashicorp.com/vault/api-docs/secret/identity/oidc-provider#list-clients)
+     * @return The list of clients.
+     */
+    public suspend fun listClients(): OIDCListClientsResponse
+
+    /**
+     * This endpoint deletes a client.
+     * [Documentation](https://developer.hashicorp.com/vault/api-docs/secret/identity/oidc-provider#delete-client-by-name)
+     * @param name The name of the client.
+     * @return `true` if the client was deleted successfully, `false` otherwise.
+     */
+    public suspend fun deleteClient(name: String): Boolean
 }
 
 /**
@@ -244,6 +294,47 @@ public class VaultIdentityOIDCImpl(
         val response = client.delete {
             url {
                 appendPathSegments(path, "scope", name)
+            }
+        }
+        return response.status.isSuccess()
+    }
+
+    override suspend fun createOrUpdateClient(
+        name: String,
+        payload: OIDCCreateOrUpdateClientPayload
+    ): Boolean {
+        val response = client.post {
+            url {
+                appendPathSegments(path, "client", name)
+            }
+            contentType(ContentType.Application.Json)
+            setBody(payload)
+        }
+        return response.status.isSuccess()
+    }
+
+    override suspend fun readClient(name: String): OIDCReadClientResponse {
+        val response = client.get {
+            url {
+                appendPathSegments(path, "client", name)
+            }
+        }
+        return response.decodeBodyJsonDataFieldObject()
+    }
+
+    override suspend fun listClients(): OIDCListClientsResponse {
+        val response = client.list {
+            url {
+                appendPathSegments(path, "client")
+            }
+        }
+        return response.decodeBodyJsonDataFieldObject()
+    }
+
+    override suspend fun deleteClient(name: String): Boolean {
+        val response = client.delete {
+            url {
+                appendPathSegments(path, "client", name)
             }
         }
         return response.status.isSuccess()

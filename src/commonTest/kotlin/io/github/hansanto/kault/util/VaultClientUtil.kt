@@ -132,8 +132,20 @@ suspend fun revokeOIDCScopes(client: VaultClient) {
 
     runCatching { oidc.listScopes() }
         .onSuccess { scopes ->
-            scopes.forEach { scopeName ->
-                oidc.deleteScope(scopeName)
+            scopes.forEach { name ->
+                oidc.deleteScope(name)
+            }
+        }
+}
+
+suspend fun revokeOIDCClients(client: VaultClient) {
+    client.auth.setTokenString(ROOT_TOKEN)
+    val oidc = client.identity.oidc
+
+    runCatching { oidc.listClients() }
+        .onSuccess { clients ->
+            clients.keys.forEach { name ->
+                oidc.deleteClient(name)
             }
         }
 }
