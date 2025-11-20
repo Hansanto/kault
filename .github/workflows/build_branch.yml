@@ -21,7 +21,7 @@ jobs:
     name: Validate Gradle Wrapper
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - uses: gradle/actions/wrapper-validation@v5
 
@@ -30,7 +30,7 @@ jobs:
     name: Verify Code Format
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: Initialization
         uses: ./.github/actions/init
@@ -50,7 +50,7 @@ jobs:
         include:
           - os: macos-latest # MacOS is able to build all platforms
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: Initialization
         id: init
@@ -77,7 +77,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: Initialization
         id: init
