@@ -88,10 +88,10 @@ object KeycloakUtil {
     fun getTokenUrl(realm: String = REALM): String = "$HOST_FOR_LOCAL/realms/$realm/protocol/openid-connect/token"
 
     suspend fun createOrUpdateVaultOIDCProvider(
-        oidc: VaultIdentityOIDC,
+        identityOIDC: VaultIdentityOIDC,
         realm: String = REALM
     ) {
-        oidc.createOrUpdateProvider(VAULT_PROVIDER_ID) {
+        identityOIDC.createOrUpdateProvider(VAULT_PROVIDER_ID) {
             this.issuer = "${HOST_FOR_VAULT}/realms/$realm"
             this.allowedClientIds = listOf("*")
         } shouldBe true

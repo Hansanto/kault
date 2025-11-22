@@ -8,7 +8,6 @@ import io.github.hansanto.kault.auth.oidc.payload.OIDCCreateOrUpdatePayload
 import io.github.hansanto.kault.auth.oidc.response.OIDCConfigureResponse
 import io.github.hansanto.kault.auth.oidc.response.OIDCReadRoleResponse
 import io.github.hansanto.kault.exception.VaultAPIException
-import io.github.hansanto.kault.extension.toJsonPrimitiveMap
 import io.github.hansanto.kault.util.DEFAULT_ROLE_NAME
 import io.github.hansanto.kault.util.KeycloakUtil
 import io.github.hansanto.kault.util.createVaultClient
@@ -38,8 +37,6 @@ class VaultAuthOIDCTest :
             oidc = client.auth.oidc
 
             enableAuthMethod(client, "oidc")
-            // TODO: Add keycloak as provider with https://developer.hashicorp.com/vault/api-docs/secret/identity/oidc-provider
-
             configureOIDC(oidc)
         }
 
@@ -120,9 +117,6 @@ class VaultAuthOIDCTest :
                 oidcClientSecret = KeycloakUtil.CLIENT_SECRET
                 defaultRole = "default-role"
                 boundIssuer = "${KeycloakUtil.HOST_FOR_VAULT}/realms/${KeycloakUtil.REALM}"
-                providerConfig = mapOf(
-                    "provider" to KeycloakUtil.VAULT_PROVIDER_ID,
-                )
                 oidcResponseMode = OIDCResponseMode.FORM_POST
                 oidcResponseTypes = listOf(OIDCResponseType.CODE, OIDCResponseType.ID_TOKEN)
             }
@@ -141,9 +135,7 @@ class VaultAuthOIDCTest :
                 oidcDiscoveryCaPem = "",
                 oidcResponseMode = OIDCResponseMode.FORM_POST,
                 oidcResponseTypes = listOf(OIDCResponseType.CODE, OIDCResponseType.ID_TOKEN),
-                providerConfig = mapOf(
-                    "provider" to KeycloakUtil.VAULT_PROVIDER_ID
-                ).toJsonPrimitiveMap()
+                providerConfig = emptyMap()
             )
         }
 
