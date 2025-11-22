@@ -16,7 +16,7 @@ public enum class KubernetesAliasNameSourceType(public val value: String) {
  * Serializer for [KubernetesAliasNameSourceType].
  */
 public object KubernetesAliasNameSourceTypeSerializer : EnumSerializer<KubernetesAliasNameSourceType>(
-    "kubernetesAliasNameSource",
+    KubernetesAliasNameSourceType::class.qualifiedName!!,
     KubernetesAliasNameSourceType.entries,
     { it.value }
 )

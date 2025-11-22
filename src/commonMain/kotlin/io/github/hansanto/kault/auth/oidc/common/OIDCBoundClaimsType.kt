@@ -13,7 +13,7 @@ public enum class OIDCBoundClaimsType(public val value: String) {
  * Serializer for [OIDCBoundClaimsType].
  */
 public object OIDCBoundClaimsTypeSerializer : EnumSerializer<OIDCBoundClaimsType>(
-    "oidcBoundClaimsType",
+    OIDCBoundClaimsType::class.qualifiedName!!,
     OIDCBoundClaimsType.entries,
     { it.value }
 )

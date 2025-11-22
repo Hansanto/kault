@@ -1,6 +1,5 @@
 package io.github.hansanto.kault.identity.oidc.response
 
-import io.github.hansanto.kault.identity.oidc.payload.OIDCCreateOrUpdateScopePayload
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
@@ -14,7 +13,7 @@ class OIDCReadScopeResponseTest :
     ShouldSpec({
 
         should("throw when decoding template with wrong base64 flag") {
-            val payload = OIDCReadScopeResponse(
+            val payload = IdentityOIDCReadScopeResponse(
                 template = BASE64_TEMPLATE,
                 description = ""
             )
@@ -24,7 +23,7 @@ class OIDCReadScopeResponseTest :
         }
 
         should("decode template with correct base64 flag") {
-            val payload = OIDCReadScopeResponse(
+            val payload = IdentityOIDCReadScopeResponse(
                 template = BASE64_TEMPLATE,
                 description = ""
             )
@@ -40,7 +39,7 @@ class OIDCReadScopeResponseTest :
         }
 
         should("decode template without base64") {
-            val payload = OIDCReadScopeResponse(
+            val payload = IdentityOIDCReadScopeResponse(
                 template = JSON_TEMPLATE,
                 description = ""
             )

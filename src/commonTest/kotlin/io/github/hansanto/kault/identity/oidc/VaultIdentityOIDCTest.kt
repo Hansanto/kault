@@ -3,7 +3,7 @@ package io.github.hansanto.kault.identity.oidc
 import io.github.hansanto.kault.VaultClient
 import io.github.hansanto.kault.exception.VaultAPIException
 import io.github.hansanto.kault.identity.oidc.common.ClientType
-import io.github.hansanto.kault.identity.oidc.common.IdentityOIDCResponseType
+import io.github.hansanto.kault.identity.oidc.common.ResponseType
 import io.github.hansanto.kault.identity.oidc.payload.OIDCCreateOrUpdateAssignmentPayload
 import io.github.hansanto.kault.identity.oidc.payload.OIDCCreateOrUpdateClientPayload
 import io.github.hansanto.kault.identity.oidc.payload.OIDCCreateOrUpdateProviderPayload
@@ -31,7 +31,6 @@ import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.maps.shouldContainExactly
 import io.kotest.matchers.maps.shouldHaveSize
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.shouldNotBe
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
@@ -64,7 +63,7 @@ class VaultIdentityOIDCTest : ShouldSpec({
         client.close()
     }
 
-    xshould("use default path if not set in builder") {
+    should("use default path if not set in builder") {
         VaultIdentityOIDCImpl.Default.PATH shouldBe "oidc"
 
         val built = VaultIdentityOIDCImpl.Companion(client.client, null) {
@@ -73,7 +72,7 @@ class VaultIdentityOIDCTest : ShouldSpec({
         built.path shouldBe VaultIdentityOIDCImpl.Default.PATH
     }
 
-    xshould("use custom path if set in builder") {
+    should("use custom path if set in builder") {
         val builderPath = randomString()
         val parentPath = randomString()
 
@@ -84,7 +83,7 @@ class VaultIdentityOIDCTest : ShouldSpec({
         built.path shouldBe "$parentPath/$builderPath"
     }
 
-    xshould("create a provider with default values") {
+    should("create a provider with default values") {
         assertCreateProvider(
             identityOIDC,
             null,
@@ -92,7 +91,7 @@ class VaultIdentityOIDCTest : ShouldSpec({
         )
     }
 
-    xshould("create a provider with all defined values") {
+    should("create a provider with all defined values") {
         identityOIDC.createOrUpdateScope("test") {
             template = """{"test": "scope"}"""
         } shouldBe true
@@ -104,7 +103,7 @@ class VaultIdentityOIDCTest : ShouldSpec({
         )
     }
 
-    xshould("create a provider using builder with default values") {
+    should("create a provider using builder with default values") {
         assertCreateProviderWithBuilder(
             identityOIDC,
             null,
@@ -112,7 +111,7 @@ class VaultIdentityOIDCTest : ShouldSpec({
         )
     }
 
-    xshould("create a provider using builder with all defined values") {
+    should("create a provider using builder with all defined values") {
         identityOIDC.createOrUpdateScope("test") {
             template = """{"test": "scope"}"""
         } shouldBe true
@@ -124,7 +123,7 @@ class VaultIdentityOIDCTest : ShouldSpec({
         )
     }
 
-    xshould("update a provider if it exists") {
+    should("update a provider if it exists") {
         identityOIDC.createOrUpdateScope("test") {
             template = """{"test": "scope"}"""
         } shouldBe true
@@ -138,13 +137,13 @@ class VaultIdentityOIDCTest : ShouldSpec({
         identityOIDC.readProvider(DEFAULT_ROLE_NAME) shouldBe expected
     }
 
-    xshould("throw exception when reading a non-existing provider") {
+    should("throw exception when reading a non-existing provider") {
         shouldThrow<VaultAPIException> {
             identityOIDC.readProvider("non-existing-provider")
         }
     }
 
-    xshould("return provider info when reading an existing provider") {
+    should("return provider info when reading an existing provider") {
         identityOIDC.createOrUpdateProvider("test-0") shouldBe true
 
         identityOIDC.readProvider("test-0") shouldBe createProviderResponse(
@@ -152,7 +151,7 @@ class VaultIdentityOIDCTest : ShouldSpec({
         )
     }
 
-    xshould("return only default providers when listing with no created providers") {
+    should("return only default providers when listing with no created providers") {
         identityOIDC.listProviders() shouldBe OIDCListProvidersResponse(
             keyInfo = mapOf(
                 DEFAULT_PROVIDER_NAME to DEFAULT_PROVIDER_INFO
@@ -161,7 +160,7 @@ class VaultIdentityOIDCTest : ShouldSpec({
         )
     }
 
-    xshould("return created providers when listing without filter") {
+    should("return created providers when listing without filter") {
         identityOIDC.createOrUpdateScope("test-scope") {
             template = """{"test": "scope"}"""
         } shouldBe true
@@ -190,7 +189,7 @@ class VaultIdentityOIDCTest : ShouldSpec({
         )
     }
 
-    xshould("return created providers when listing with filter") {
+    should("return created providers when listing with filter") {
         identityOIDC.createOrUpdateProvider("test-0") shouldBe true
         identityOIDC.createOrUpdateProvider("test-1") {
             allowedClientIds = listOf("client-1", "client-2")
@@ -220,7 +219,7 @@ class VaultIdentityOIDCTest : ShouldSpec({
         )
     }
 
-    xshould("return true when deleting a non-existing provider") {
+    should("return true when deleting a non-existing provider") {
         identityOIDC.deleteProvider("test-0") shouldBe true
 
         shouldThrow<VaultAPIException> {
@@ -228,7 +227,7 @@ class VaultIdentityOIDCTest : ShouldSpec({
         }
     }
 
-    xshould("delete an existing provider") {
+    should("delete an existing provider") {
         identityOIDC.createOrUpdateProvider("test-0") shouldBe true
         identityOIDC.deleteProvider("test-0") shouldBe true
         shouldThrow<VaultAPIException> {
@@ -238,7 +237,7 @@ class VaultIdentityOIDCTest : ShouldSpec({
 
     // Scopes
 
-    xshould("create a scope with default values") {
+    should("create a scope with default values") {
         assertCreateScope(
             identityOIDC,
             null,
@@ -246,7 +245,7 @@ class VaultIdentityOIDCTest : ShouldSpec({
         )
     }
 
-    xshould("create a scope with all defined values") {
+    should("create a scope with all defined values") {
         assertCreateScope(
             identityOIDC,
             "cases/identity/oidc/scope/create/with_options/given.json",
@@ -254,7 +253,7 @@ class VaultIdentityOIDCTest : ShouldSpec({
         )
     }
 
-    xshould("create a scope using builder with default values") {
+    should("create a scope using builder with default values") {
         assertCreateScopeWithBuilder(
             identityOIDC,
             null,
@@ -262,7 +261,7 @@ class VaultIdentityOIDCTest : ShouldSpec({
         )
     }
 
-    xshould("create a scope using builder with all defined values") {
+    should("create a scope using builder with all defined values") {
         assertCreateScopeWithBuilder(
             identityOIDC,
             "cases/identity/oidc/scope/create/with_options/given.json",
@@ -270,7 +269,7 @@ class VaultIdentityOIDCTest : ShouldSpec({
         )
     }
 
-    xshould("create a scope with a typed template using builder") {
+    should("create a scope with a typed template using builder") {
         @Serializable
         data class TestData(
             val name: String,
@@ -286,7 +285,7 @@ class VaultIdentityOIDCTest : ShouldSpec({
         identityOIDC.readScope(DEFAULT_ROLE_NAME).template<TestData>() shouldBe data
     }
 
-    xshould("update a scope if it exists") {
+    should("update a scope if it exists") {
         identityOIDC.createOrUpdateScope(DEFAULT_ROLE_NAME) shouldBe true
 
         val given = readJson<OIDCCreateOrUpdateScopePayload>("cases/identity/oidc/scope/update/given.json")
@@ -296,13 +295,13 @@ class VaultIdentityOIDCTest : ShouldSpec({
         identityOIDC.readScope(DEFAULT_ROLE_NAME) shouldBe expected
     }
 
-    xshould("throw exception when reading a non-existing scope") {
+    should("throw exception when reading a non-existing scope") {
         shouldThrow<VaultAPIException> {
             identityOIDC.readScope("non-existing-scope")
         }
     }
 
-    xshould("return scope info when reading an existing scope") {
+    should("return scope info when reading an existing scope") {
         identityOIDC.createOrUpdateScope("test-0") shouldBe true
 
         identityOIDC.readScope("test-0") shouldBe OIDCReadScopeResponse(
@@ -311,13 +310,13 @@ class VaultIdentityOIDCTest : ShouldSpec({
         )
     }
 
-    xshould("throw exception when listing with no created scopes") {
+    should("throw exception when listing with no created scopes") {
         shouldThrow<VaultAPIException> {
             identityOIDC.listScopes()
         }
     }
 
-    xshould("return created scopes when listing scopes") {
+    should("return created scopes when listing scopes") {
         identityOIDC.createOrUpdateScope("test-0") shouldBe true
         identityOIDC.createOrUpdateScope("test-1") shouldBe true
 
@@ -327,7 +326,7 @@ class VaultIdentityOIDCTest : ShouldSpec({
         )
     }
 
-    xshould("return true when deleting a non-existing scope") {
+    should("return true when deleting a non-existing scope") {
         identityOIDC.deleteScope("test-0") shouldBe true
 
         shouldThrow<VaultAPIException> {
@@ -335,7 +334,7 @@ class VaultIdentityOIDCTest : ShouldSpec({
         }
     }
 
-    xshould("delete an existing scope") {
+    should("delete an existing scope") {
         identityOIDC.createOrUpdateScope("test-0") shouldBe true
         identityOIDC.deleteScope("test-0") shouldBe true
         shouldThrow<VaultAPIException> {
@@ -345,7 +344,7 @@ class VaultIdentityOIDCTest : ShouldSpec({
 
     // Clients
 
-    xshould("create a client with default values") {
+    should("create a client with default values") {
         assertCreateClient(
             identityOIDC,
             null,
@@ -353,7 +352,7 @@ class VaultIdentityOIDCTest : ShouldSpec({
         )
     }
 
-    xshould("create a client with all defined values for client type confidential") {
+    should("create a client with all defined values for client type confidential") {
         assertCreateClient(
             identityOIDC,
             "cases/identity/oidc/client/create/confidential/with_options/given.json",
@@ -361,7 +360,7 @@ class VaultIdentityOIDCTest : ShouldSpec({
         )
     }
 
-    xshould("create a client with all defined values for client type public") {
+    should("create a client with all defined values for client type public") {
         assertCreateClient(
             identityOIDC,
             "cases/identity/oidc/client/create/public/with_options/given.json",
@@ -369,7 +368,7 @@ class VaultIdentityOIDCTest : ShouldSpec({
         )
     }
 
-    xshould("create a client using builder with default values") {
+    should("create a client using builder with default values") {
         assertCreateClientWithBuilder(
             identityOIDC,
             null,
@@ -377,7 +376,7 @@ class VaultIdentityOIDCTest : ShouldSpec({
         )
     }
 
-    xshould("create a client using builder with all defined values for client type confidential") {
+    should("create a client using builder with all defined values for client type confidential") {
         assertCreateClientWithBuilder(
             identityOIDC,
             "cases/identity/oidc/client/create/confidential/with_options/given.json",
@@ -385,7 +384,7 @@ class VaultIdentityOIDCTest : ShouldSpec({
         )
     }
 
-    xshould("create a client using builder with all defined values for client type public") {
+    should("create a client using builder with all defined values for client type public") {
         assertCreateClientWithBuilder(
             identityOIDC,
             "cases/identity/oidc/client/create/public/with_options/given.json",
@@ -393,7 +392,7 @@ class VaultIdentityOIDCTest : ShouldSpec({
         )
     }
 
-    xshould("update a client if it exists") {
+    should("update a client if it exists") {
         identityOIDC.createOrUpdateClient(DEFAULT_ROLE_NAME) shouldBe true
 
         val given = readJson<OIDCCreateOrUpdateClientPayload>("cases/identity/oidc/client/update/given.json")
@@ -405,13 +404,13 @@ class VaultIdentityOIDCTest : ShouldSpec({
         )
     }
 
-    xshould("throw exception when reading a non-existing client") {
+    should("throw exception when reading a non-existing client") {
         shouldThrow<VaultAPIException> {
             identityOIDC.readClient("non-existing-scope")
         }
     }
 
-    xshould("return client info when reading an existing client") {
+    should("return client info when reading an existing client") {
         identityOIDC.createOrUpdateClient("test-0") shouldBe true
 
         assertReadClientResponse(
@@ -420,13 +419,13 @@ class VaultIdentityOIDCTest : ShouldSpec({
         )
     }
 
-    xshould("throw exception when listing with no created clients") {
+    should("throw exception when listing with no created clients") {
         shouldThrow<VaultAPIException> {
             identityOIDC.listClients()
         }
     }
 
-    xshould("return created clients when listing clients") {
+    should("return created clients when listing clients") {
         val expectedClient = List(10) {
             createReadClientResponse(
                 clientType = if(it % 2 == 0) ClientType.CONFIDENTIAL else ClientType.PUBLIC,
@@ -459,7 +458,7 @@ class VaultIdentityOIDCTest : ShouldSpec({
         }
     }
 
-    xshould("return true when deleting a non-existing client") {
+    should("return true when deleting a non-existing client") {
         identityOIDC.deleteClient("test-0") shouldBe true
 
         shouldThrow<VaultAPIException> {
@@ -467,7 +466,7 @@ class VaultIdentityOIDCTest : ShouldSpec({
         }
     }
 
-    xshould("delete an existing client") {
+    should("delete an existing client") {
         identityOIDC.createOrUpdateClient("test-0") shouldBe true
         identityOIDC.deleteClient("test-0") shouldBe true
         shouldThrow<VaultAPIException> {
@@ -477,7 +476,7 @@ class VaultIdentityOIDCTest : ShouldSpec({
 
     // Assignments
 
-    xshould("create an assignment with default values") {
+    should("create an assignment with default values") {
         assertCreateAssignment(
             identityOIDC,
             null,
@@ -485,7 +484,7 @@ class VaultIdentityOIDCTest : ShouldSpec({
         )
     }
 
-    xshould("create an assignment with all defined values") {
+    should("create an assignment with all defined values") {
         assertCreateAssignment(
             identityOIDC,
             "cases/identity/oidc/assignment/create/with_options/given.json",
@@ -493,7 +492,7 @@ class VaultIdentityOIDCTest : ShouldSpec({
         )
     }
 
-    xshould("create an assignment using builder with default values") {
+    should("create an assignment using builder with default values") {
         assertCreateAssignmentWithBuilder(
             identityOIDC,
             null,
@@ -501,7 +500,7 @@ class VaultIdentityOIDCTest : ShouldSpec({
         )
     }
 
-    xshould("create an assignment using builder with all defined values") {
+    should("create an assignment using builder with all defined values") {
         assertCreateAssignmentWithBuilder(
             identityOIDC,
             "cases/identity/oidc/assignment/create/with_options/given.json",
@@ -509,7 +508,7 @@ class VaultIdentityOIDCTest : ShouldSpec({
         )
     }
 
-    xshould("update an assignment if it exists") {
+    should("update an assignment if it exists") {
         identityOIDC.createOrUpdateAssignment(DEFAULT_ROLE_NAME) shouldBe true
 
         val given = readJson<OIDCCreateOrUpdateAssignmentPayload>("cases/identity/oidc/assignment/update/given.json")
@@ -519,17 +518,17 @@ class VaultIdentityOIDCTest : ShouldSpec({
         identityOIDC.readAssignment(DEFAULT_ROLE_NAME) shouldBe expected
     }
 
-    xshould("throw exception when reading a non-existing assignment") {
+    should("throw exception when reading a non-existing assignment") {
         shouldThrow<VaultAPIException> {
             identityOIDC.readAssignment("non-existing-assignments")
         }
     }
 
-    xshould("return default assignment when listing with no created assignments") {
+    should("return default assignment when listing with no created assignments") {
         identityOIDC.listAssignments() shouldBe listOf("allow_all")
     }
 
-    xshould("return created assignments when listing assignments") {
+    should("return created assignments when listing assignments") {
         identityOIDC.createOrUpdateAssignment("test-0") shouldBe true
         identityOIDC.createOrUpdateAssignment("test-1") shouldBe true
 
@@ -540,7 +539,7 @@ class VaultIdentityOIDCTest : ShouldSpec({
         )
     }
 
-    xshould("return true when deleting a non-existing assignment") {
+    should("return true when deleting a non-existing assignment") {
         identityOIDC.deleteAssignment("test-0") shouldBe true
 
         shouldThrow<VaultAPIException> {
@@ -548,7 +547,7 @@ class VaultIdentityOIDCTest : ShouldSpec({
         }
     }
 
-    xshould("delete an existing assignment") {
+    should("delete an existing assignment") {
         identityOIDC.createOrUpdateAssignment("test-0") shouldBe true
         identityOIDC.deleteAssignment("test-0") shouldBe true
         shouldThrow<VaultAPIException> {
@@ -556,7 +555,7 @@ class VaultIdentityOIDCTest : ShouldSpec({
         }
     }
 
-    xshould("throw exception when reading a non-existing provider openid configuration") {
+    should("throw exception when reading a non-existing provider openid configuration") {
         shouldThrow<VaultAPIException> {
             identityOIDC.readProviderOpenIDConfiguration("non-existing-provider")
         }
@@ -571,7 +570,7 @@ class VaultIdentityOIDCTest : ShouldSpec({
         config shouldBe expected
     }
 
-    xshould("throw exception when reading a non-existing provider public keys") {
+    should("throw exception when reading a non-existing provider public keys") {
         shouldThrow<VaultAPIException> {
             identityOIDC.readProviderPublicKeys("non-existing-provider")
         }
@@ -590,7 +589,7 @@ class VaultIdentityOIDCTest : ShouldSpec({
         val exception = shouldThrow<VaultAPIException> {
             identityOIDC.authorizationEndpoint("non-existing-provider") {
                 scope = "openid"
-                responseType = IdentityOIDCResponseType.CODE
+                responseType = ResponseType.CODE
                 clientId = "client-id"
                 redirectUri = "http://localhost:8080"
                 state = "state-value"

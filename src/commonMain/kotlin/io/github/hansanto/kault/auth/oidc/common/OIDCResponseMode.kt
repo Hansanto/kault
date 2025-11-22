@@ -14,7 +14,7 @@ public enum class OIDCResponseMode(public val value: String) {
  * Serializer for [OIDCResponseMode].
  */
 public object OIDCResponseModeSerializer : EnumSerializer<OIDCResponseMode>(
-    "oidcResponseMode",
+    OIDCResponseMode::class.qualifiedName!!,
     OIDCResponseMode.entries,
     { it.value }
 )

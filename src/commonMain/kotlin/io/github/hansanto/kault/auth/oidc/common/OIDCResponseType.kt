@@ -13,7 +13,7 @@ public enum class OIDCResponseType(public val value: String) {
  * Serializer for [OIDCResponseType].
  */
 public object OIDCResponseTypeSerializer : EnumSerializer<OIDCResponseType>(
-    "oidcResponseType",
+    OIDCResponseType::class.qualifiedName!!,
     OIDCResponseType.entries,
     { it.value }
 )

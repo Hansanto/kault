@@ -13,7 +13,7 @@ public enum class OIDCRoleType(public val value: String) {
  * Serializer for [OIDCRoleType].
  */
 public object OIDCRoleTypeSerializer : EnumSerializer<OIDCRoleType>(
-    "oidcRoleType",
+    OIDCRoleType::class.qualifiedName!!,
     OIDCRoleType.entries,
     { it.value }
 )

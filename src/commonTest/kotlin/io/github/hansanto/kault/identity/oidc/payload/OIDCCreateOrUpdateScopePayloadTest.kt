@@ -8,7 +8,7 @@ class OIDCCreateOrUpdateScopePayloadTest :
     ShouldSpec({
 
         should("stringify json template without base64 with builder") {
-            val payload = OIDCCreateOrUpdateScopePayload.Builder().apply {
+            val payload = IdentityOIDCCreateOrUpdateScopePayload.Builder().apply {
                 template(
                     CustomTemplate(
                         field1 = "value1",
@@ -24,7 +24,7 @@ class OIDCCreateOrUpdateScopePayloadTest :
         }
 
         should("stringify json template with base64 with builder") {
-            val payload = OIDCCreateOrUpdateScopePayload.Builder().apply {
+            val payload = IdentityOIDCCreateOrUpdateScopePayload.Builder().apply {
                 template(
                     CustomTemplate(
                         field1 = "value1",

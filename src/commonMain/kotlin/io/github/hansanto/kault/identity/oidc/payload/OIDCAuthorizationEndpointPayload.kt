@@ -1,7 +1,7 @@
 package io.github.hansanto.kault.identity.oidc.payload
 
 import io.github.hansanto.kault.KaultDsl
-import io.github.hansanto.kault.identity.oidc.common.IdentityOIDCResponseType
+import io.github.hansanto.kault.identity.oidc.common.ResponseType
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -17,7 +17,7 @@ public data class OIDCAuthorizationEndpointPayload(
      * The OIDC authentication flow to be used. The following response types are supported: code.
      */
     @SerialName("response_type")
-    public var responseType: IdentityOIDCResponseType,
+    public var responseType: ResponseType,
 
     /**
      * The ID of the requesting client.
@@ -77,7 +77,7 @@ public data class OIDCAuthorizationEndpointPayload(
         /**
          * @see [OIDCAuthorizationEndpointPayload.responseType]
          */
-        public lateinit var responseType: IdentityOIDCResponseType
+        public lateinit var responseType: ResponseType
 
         /**
          * @see [OIDCAuthorizationEndpointPayload.clientId]
