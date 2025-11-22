@@ -8,6 +8,7 @@ import io.github.hansanto.kault.identity.oidc.payload.OIDCCreateOrUpdateClientPa
 import io.github.hansanto.kault.identity.oidc.payload.OIDCCreateOrUpdateProviderPayload
 import io.github.hansanto.kault.identity.oidc.payload.OIDCCreateOrUpdateScopePayload
 import io.github.hansanto.kault.identity.oidc.response.OIDCListProvidersResponse
+import io.github.hansanto.kault.identity.oidc.response.OIDCReadAssignmentResponse
 import io.github.hansanto.kault.identity.oidc.response.OIDCReadClientResponse
 import io.github.hansanto.kault.identity.oidc.response.OIDCReadProviderResponse
 import io.github.hansanto.kault.identity.oidc.response.OIDCReadScopeResponse
@@ -16,6 +17,7 @@ import io.github.hansanto.kault.util.DEFAULT_ROLE_NAME
 import io.github.hansanto.kault.util.createVaultClient
 import io.github.hansanto.kault.util.randomString
 import io.github.hansanto.kault.util.readJson
+import io.github.hansanto.kault.util.revokeOIDCAssignments
 import io.github.hansanto.kault.util.revokeOIDCClients
 import io.github.hansanto.kault.util.revokeOIDCProviders
 import io.github.hansanto.kault.util.revokeOIDCScopes
@@ -46,12 +48,14 @@ class VaultIdentityOIDCTest : ShouldSpec({
     beforeTest {
         client = createVaultClient()
         oidc = client.identity.oidc
+        // TODO: For createOrUpdateClient, try with a custom key: https://developer.hashicorp.com/vault/api-docs/secret/identity/tokens#create-a-named-key
     }
 
     afterTest {
         revokeOIDCProviders(client)
         revokeOIDCScopes(client)
         revokeOIDCClients(client)
+        revokeOIDCAssignments(client)
         client.close()
     }
 
@@ -516,10 +520,8 @@ class VaultIdentityOIDCTest : ShouldSpec({
         }
     }
 
-    should("throw exception when listing with no created assignment") {
-        shouldThrow<VaultAPIException> {
-            oidc.listAssignments()
-        }
+    should("return default assignment when listing with no created assignments") {
+        oidc.listAssignments() shouldBe listOf("allow_all")
     }
 
     should("return created assignments when listing assignments") {
@@ -527,6 +529,7 @@ class VaultIdentityOIDCTest : ShouldSpec({
         oidc.createOrUpdateAssignment("test-1") shouldBe true
 
         oidc.listAssignments() shouldContainExactlyInAnyOrder listOf(
+            "allow_all",
             "test-0",
             "test-1"
         )

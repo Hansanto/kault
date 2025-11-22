@@ -10,6 +10,7 @@ import io.github.hansanto.kault.identity.oidc.payload.OIDCCreateOrUpdateProvider
 import io.github.hansanto.kault.identity.oidc.payload.OIDCCreateOrUpdateScopePayload
 import io.github.hansanto.kault.identity.oidc.response.OIDCListClientsResponse
 import io.github.hansanto.kault.identity.oidc.response.OIDCListProvidersResponse
+import io.github.hansanto.kault.identity.oidc.response.OIDCReadAssignmentResponse
 import io.github.hansanto.kault.identity.oidc.response.OIDCReadClientResponse
 import io.github.hansanto.kault.identity.oidc.response.OIDCReadProviderResponse
 import io.github.hansanto.kault.identity.oidc.response.OIDCReadScopeResponse
@@ -187,6 +188,29 @@ public interface VaultIdentityOIDC {
      * @return `true` if the assignment was created or updated successfully, `false` otherwise.
      */
     public suspend fun createOrUpdateAssignment(name: String, payload: OIDCCreateOrUpdateAssignmentPayload = OIDCCreateOrUpdateAssignmentPayload()): Boolean
+
+    /**
+     * This endpoint queries an assignment by its name.
+     * [Documentation](https://developer.hashicorp.com/vault/api-docs/secret/identity/oidc-provider#read-assignment-by-name)
+     * @param name The name of the assignment.
+     * @return The assignment information.
+     */
+    public suspend fun readAssignment(name: String) : OIDCReadAssignmentResponse
+
+    /**
+     * This endpoint returns a list of all configured assignments.
+     * [Documentation](https://developer.hashicorp.com/vault/api-docs/secret/identity/oidc-provider#list-assignments)
+     * @return The list of assignment names.
+     */
+    public suspend fun listAssignments() : List<String>
+
+    /**
+     * This endpoint deletes an assignment.
+     * [Documentation](https://developer.hashicorp.com/vault/api-docs/secret/identity/oidc-provider#delete-assignment-by-name)
+     * @param name The name of the assignment.
+     * @return `true` if the assignment was deleted successfully, `false` otherwise.
+     */
+    public suspend fun deleteAssignment(name: String) : Boolean
 }
 
 /**
@@ -372,6 +396,33 @@ public class VaultIdentityOIDCImpl(
             }
             contentType(ContentType.Application.Json)
             setBody(payload)
+        }
+        return response.status.isSuccess()
+    }
+
+    override suspend fun readAssignment(name: String): OIDCReadAssignmentResponse {
+        val response = client.get {
+            url {
+                appendPathSegments(path, "assignment", name)
+            }
+        }
+        return response.decodeBodyJsonDataFieldObject()
+    }
+
+    override suspend fun listAssignments(): List<String> {
+        val response = client.list {
+            url {
+                appendPathSegments(path, "assignment")
+            }
+        }
+        return response.decodeBodyJsonDataFieldObject<StandardListResponse>().keys
+    }
+
+    override suspend fun deleteAssignment(name: String): Boolean {
+        val response = client.delete {
+            url {
+                appendPathSegments(path, "assignment", name)
+            }
         }
         return response.status.isSuccess()
     }

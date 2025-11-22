@@ -150,6 +150,18 @@ suspend fun revokeOIDCClients(client: VaultClient) {
         }
 }
 
+suspend fun revokeOIDCAssignments(client: VaultClient) {
+    client.auth.setTokenString(ROOT_TOKEN)
+    val oidc = client.identity.oidc
+
+    runCatching { oidc.listAssignments() }
+        .onSuccess { assignments ->
+            assignments.filter { it != "allow_all" }.forEach { name ->
+                oidc.deleteAssignment(name)
+            }
+        }
+}
+
 suspend fun disableAllAudit(client: VaultClient) {
     client.auth.setTokenString(ROOT_TOKEN)
     val auditService = client.system.audit
