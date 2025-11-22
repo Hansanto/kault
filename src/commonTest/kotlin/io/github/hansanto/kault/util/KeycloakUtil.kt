@@ -93,6 +93,7 @@ object KeycloakUtil {
     ) {
         oidc.createOrUpdateProvider(VAULT_PROVIDER_ID) {
             this.issuer = "${HOST_FOR_VAULT}/realms/$realm"
+            this.allowedClientIds = listOf("*")
         } shouldBe true
     }
 }
