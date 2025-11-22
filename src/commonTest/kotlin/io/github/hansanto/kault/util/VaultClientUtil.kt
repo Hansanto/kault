@@ -66,6 +66,18 @@ suspend fun revokeAllKubernetesData(client: VaultClient) {
         }
 }
 
+suspend fun revokeAllOIDCData(client: VaultClient) {
+    client.auth.setTokenString(ROOT_TOKEN)
+    val oidcService = client.auth.oidc
+
+    runCatching { oidcService.list() }
+        .onSuccess { roles ->
+            roles.forEach { role ->
+                oidcService.deleteRole(role)
+            }
+        }
+}
+
 suspend fun revokeAllAppRoleData(client: VaultClient) {
     client.auth.setTokenString(ROOT_TOKEN)
     val appRoleService = client.auth.appRole
@@ -98,6 +110,54 @@ suspend fun revokeAllTokenData(client: VaultClient) {
         .onSuccess { roles ->
             roles.forEach { role ->
                 tokenService.deleteTokenRole(role)
+            }
+        }
+}
+
+suspend fun revokeOIDCProviders(client: VaultClient) {
+    client.auth.setTokenString(ROOT_TOKEN)
+    val oidc = client.identity.oidc
+
+    runCatching { oidc.listProviders() }
+        .onSuccess { response ->
+            response.keys.filter { it != "default" }.forEach { providerName ->
+                oidc.deleteProvider(providerName)
+            }
+        }
+}
+
+suspend fun revokeOIDCScopes(client: VaultClient) {
+    client.auth.setTokenString(ROOT_TOKEN)
+    val oidc = client.identity.oidc
+
+    runCatching { oidc.listScopes() }
+        .onSuccess { scopes ->
+            scopes.forEach { name ->
+                oidc.deleteScope(name)
+            }
+        }
+}
+
+suspend fun revokeOIDCClients(client: VaultClient) {
+    client.auth.setTokenString(ROOT_TOKEN)
+    val oidc = client.identity.oidc
+
+    runCatching { oidc.listClients() }
+        .onSuccess { clients ->
+            clients.keys.forEach { name ->
+                oidc.deleteClient(name)
+            }
+        }
+}
+
+suspend fun revokeOIDCAssignments(client: VaultClient) {
+    client.auth.setTokenString(ROOT_TOKEN)
+    val oidc = client.identity.oidc
+
+    runCatching { oidc.listAssignments() }
+        .onSuccess { assignments ->
+            assignments.filter { it != "allow_all" }.forEach { name ->
+                oidc.deleteAssignment(name)
             }
         }
 }

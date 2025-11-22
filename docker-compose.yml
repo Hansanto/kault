@@ -11,8 +11,35 @@ services:
     cap_add:
       - IPC_LOCK
     networks:
+      - keycloak
       - minikube
 
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.4
+    container_name: keycloak
+    command: start-dev --import-realm --http-relative-path=/
+    ports:
+      - "8080:8080"
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      KC_HEALTH_ENABLED: true
+      KC_METRICS_ENABLED: false
+      KC_LOG_LEVEL: info
+    healthcheck:
+      test: [ "CMD-SHELL", "exec 3<>/dev/tcp/localhost/8080 && echo -e 'GET /health/ready HTTP/1.1\\r\\nHost: localhost\\r\\n\\r\\n' >&3 && cat <&3 | grep -q '200 OK'" ]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 30s
+    volumes:
+      - ./src/commonTest/resources/configuration/keycloak/realm.json:/opt/keycloak/data/import/realm.json
+    networks:
+      - keycloak
+
+
 networks:
+  keycloak:
+    driver: bridge
   minikube:
     external: true

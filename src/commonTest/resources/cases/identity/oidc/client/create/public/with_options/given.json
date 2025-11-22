@@ -1,0 +1,12 @@
+{
+  "access_token_ttl": 74125,
+  "assignments": [
+    "allow_all"
+  ],
+  "client_type": "public",
+  "id_token_ttl": 8963,
+  "key": "default",
+  "redirect_uris": [
+    "https://example.com"
+  ]
+}

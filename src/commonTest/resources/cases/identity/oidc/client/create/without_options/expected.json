@@ -1,0 +1,10 @@
+{
+  "access_token_ttl": 86400,
+  "assignments": [],
+  "client_id": "REPLACE",
+  "client_secret": "REPLACE",
+  "client_type": "confidential",
+  "id_token_ttl": 86400,
+  "key": "default",
+  "redirect_uris": []
+}

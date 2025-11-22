@@ -1,0 +1,12 @@
+{
+  "access_token_ttl": 12345,
+  "assignments": [
+    "allow_all"
+  ],
+  "client_type": "confidential",
+  "id_token_ttl": 6789,
+  "key": "default",
+  "redirect_uris": [
+    "https://example.com"
+  ]
+}
