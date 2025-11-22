@@ -12,6 +12,7 @@ import io.github.hansanto.kault.identity.oidc.response.OIDCListClientsResponse
 import io.github.hansanto.kault.identity.oidc.response.OIDCListProvidersResponse
 import io.github.hansanto.kault.identity.oidc.response.OIDCReadAssignmentResponse
 import io.github.hansanto.kault.identity.oidc.response.OIDCReadClientResponse
+import io.github.hansanto.kault.identity.oidc.response.OIDCReadProviderOpenIDConfigurationResponse
 import io.github.hansanto.kault.identity.oidc.response.OIDCReadProviderResponse
 import io.github.hansanto.kault.identity.oidc.response.OIDCReadScopeResponse
 import io.github.hansanto.kault.response.StandardListResponse
@@ -211,6 +212,14 @@ public interface VaultIdentityOIDC {
      * @return `true` if the assignment was deleted successfully, `false` otherwise.
      */
     public suspend fun deleteAssignment(name: String) : Boolean
+
+    /**
+     * Returns OpenID Connect Metadata for a named OIDC provider. The response is a compliant [OpenID Provider Configuration Response](https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfigurationResponse).
+     * [Documentation](https://developer.hashicorp.com/vault/api-docs/secret/identity/oidc-provider#read-provider-openid-configuration)
+     * @param name The name of the provider.
+     * @return The OIDC provider configuration.
+     */
+    public suspend fun readProviderOpenIDConfiguration(name: String): OIDCReadProviderOpenIDConfigurationResponse
 }
 
 /**
@@ -425,5 +434,14 @@ public class VaultIdentityOIDCImpl(
             }
         }
         return response.status.isSuccess()
+    }
+
+    override suspend fun readProviderOpenIDConfiguration(name: String): OIDCReadProviderOpenIDConfigurationResponse {
+        val response = client.get {
+            url {
+                appendPathSegments(path, "provider", name, ".well-known", "openid-configuration")
+            }
+        }
+        return response.decodeBodyJsonDataFieldObject()
     }
 }

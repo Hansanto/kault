@@ -10,10 +10,12 @@ import io.github.hansanto.kault.identity.oidc.payload.OIDCCreateOrUpdateScopePay
 import io.github.hansanto.kault.identity.oidc.response.OIDCListProvidersResponse
 import io.github.hansanto.kault.identity.oidc.response.OIDCReadAssignmentResponse
 import io.github.hansanto.kault.identity.oidc.response.OIDCReadClientResponse
+import io.github.hansanto.kault.identity.oidc.response.OIDCReadProviderOpenIDConfigurationResponse
 import io.github.hansanto.kault.identity.oidc.response.OIDCReadProviderResponse
 import io.github.hansanto.kault.identity.oidc.response.OIDCReadScopeResponse
 import io.github.hansanto.kault.serializer.VaultDuration
 import io.github.hansanto.kault.util.DEFAULT_ROLE_NAME
+import io.github.hansanto.kault.util.KeycloakUtil
 import io.github.hansanto.kault.util.createVaultClient
 import io.github.hansanto.kault.util.randomString
 import io.github.hansanto.kault.util.readJson
@@ -551,6 +553,22 @@ class VaultIdentityOIDCTest : ShouldSpec({
         }
     }
 
+    should("throw exception when reading a non-existing provider openid configuration") {
+        shouldThrow<VaultAPIException> {
+            oidc.readProviderOpenIDConfiguration("non-existing-provider")
+        }
+    }
+
+    should("return provider openid configuration when reading an existing provider") {
+        // TODO wait for https://github.com/hashicorp/vault/issues/31655
+        oidc.createOrUpdateProvider("keycloak") {
+            this.issuer = "${KeycloakUtil.HOST_FOR_VAULT}/realms/${KeycloakUtil.REALM}"
+        } shouldBe true
+
+        val config = oidc.readProviderOpenIDConfiguration("keycloak")
+        val expected = readJson<OIDCReadProviderOpenIDConfigurationResponse>("cases/identity/oidc/openid/read/expected.json")
+        config shouldBe expected
+    }
 })
 
 private fun assertListProviders(
