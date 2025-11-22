@@ -13,6 +13,7 @@ import io.github.hansanto.kault.identity.oidc.response.OIDCListProvidersResponse
 import io.github.hansanto.kault.identity.oidc.response.OIDCReadAssignmentResponse
 import io.github.hansanto.kault.identity.oidc.response.OIDCReadClientResponse
 import io.github.hansanto.kault.identity.oidc.response.OIDCReadProviderOpenIDConfigurationResponse
+import io.github.hansanto.kault.identity.oidc.response.OIDCReadProviderPublicKeysResponse
 import io.github.hansanto.kault.identity.oidc.response.OIDCReadProviderResponse
 import io.github.hansanto.kault.identity.oidc.response.OIDCReadScopeResponse
 import io.github.hansanto.kault.response.StandardListResponse
@@ -220,6 +221,15 @@ public interface VaultIdentityOIDC {
      * @return The OIDC provider configuration.
      */
     public suspend fun readProviderOpenIDConfiguration(name: String): OIDCReadProviderOpenIDConfigurationResponse
+
+    /**
+     * Query this path to retrieve the public portion of keys for an OIDC provider.
+     * Clients can use them to validate the authenticity of an identity token.
+     * [Documentation](https://developer.hashicorp.com/vault/api-docs/secret/identity/oidc-provider#read-provider-public-keys)
+     * @param name The name of the provider.
+     * @return The public keys of the OIDC provider.
+     */
+    public suspend fun readProviderPublicKeys(name: String): List<OIDCReadProviderPublicKeysResponse.JWK>
 }
 
 /**
@@ -443,5 +453,14 @@ public class VaultIdentityOIDCImpl(
             }
         }
         return response.decodeBodyJsonDataFieldObject()
+    }
+
+    override suspend fun readProviderPublicKeys(name: String): List<OIDCReadProviderPublicKeysResponse.JWK> {
+        val response = client.get {
+            url {
+                appendPathSegments(path, "provider", name, ".well-known", "keys")
+            }
+        }
+        return response.decodeBodyJsonDataFieldObject<OIDCReadProviderPublicKeysResponse>().keys
     }
 }

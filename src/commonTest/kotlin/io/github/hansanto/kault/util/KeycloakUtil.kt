@@ -1,5 +1,8 @@
 package io.github.hansanto.kault.util
 
+import io.github.hansanto.kault.identity.oidc.VaultIdentityOIDC
+import io.github.hansanto.kault.identity.oidc.createOrUpdateProvider
+import io.kotest.matchers.shouldBe
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
@@ -15,6 +18,8 @@ import kotlinx.serialization.json.JsonObject
 data class JwtInfo(val token: String, val subject: String)
 
 object KeycloakUtil {
+    const val VAULT_PROVIDER_ID: String = "keycloak"
+
     const val HOST_FOR_LOCAL: String = "http://localhost:8080"
     const val HOST_FOR_VAULT: String = "http://keycloak:8080"
     const val REALM: String = "vault"
@@ -81,6 +86,15 @@ object KeycloakUtil {
     fun getJwksUrl(realm: String = REALM): String = "$HOST_FOR_VAULT/realms/$realm/protocol/openid-connect/certs"
 
     fun getTokenUrl(realm: String = REALM): String = "$HOST_FOR_LOCAL/realms/$realm/protocol/openid-connect/token"
+
+    suspend fun createOrUpdateVaultOIDCProvider(
+        oidc: VaultIdentityOIDC,
+        realm: String = REALM
+    ) {
+        oidc.createOrUpdateProvider(VAULT_PROVIDER_ID) {
+            this.issuer = "${HOST_FOR_VAULT}/realms/$realm"
+        } shouldBe true
+    }
 }
 
 @Serializable

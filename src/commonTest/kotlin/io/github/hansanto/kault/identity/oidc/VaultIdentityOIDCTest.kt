@@ -26,6 +26,7 @@ import io.github.hansanto.kault.util.revokeOIDCScopes
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
+import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.maps.shouldContainExactly
 import io.kotest.matchers.maps.shouldHaveSize
 import io.kotest.matchers.shouldBe
@@ -561,13 +562,26 @@ class VaultIdentityOIDCTest : ShouldSpec({
 
     should("return provider openid configuration when reading an existing provider") {
         // TODO wait for https://github.com/hashicorp/vault/issues/31655
-        oidc.createOrUpdateProvider("keycloak") {
-            this.issuer = "${KeycloakUtil.HOST_FOR_VAULT}/realms/${KeycloakUtil.REALM}"
-        } shouldBe true
+        KeycloakUtil.createOrUpdateVaultOIDCProvider(oidc)
 
-        val config = oidc.readProviderOpenIDConfiguration("keycloak")
+        val config = oidc.readProviderOpenIDConfiguration(KeycloakUtil.VAULT_PROVIDER_ID)
         val expected = readJson<OIDCReadProviderOpenIDConfigurationResponse>("cases/identity/oidc/openid/read/expected.json")
         config shouldBe expected
+    }
+
+    should("throw exception when reading a non-existing provider public keys") {
+        shouldThrow<VaultAPIException> {
+            oidc.readProviderPublicKeys("non-existing-provider")
+        }
+    }
+
+    should("return provider public keys when reading an existing provider") {
+        // TODO wait for https://github.com/hashicorp/vault/issues/31655
+        KeycloakUtil.createOrUpdateVaultOIDCProvider(oidc)
+
+        val keys = oidc.readProviderPublicKeys(KeycloakUtil.VAULT_PROVIDER_ID)
+        keys shouldHaveSize 2
+        keys.map { it.use } shouldContainExactlyInAnyOrder listOf("sig", "enc")
     }
 })
 

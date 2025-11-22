@@ -121,7 +121,7 @@ class VaultAuthOIDCTest :
                 defaultRole = "default-role"
                 boundIssuer = "${KeycloakUtil.HOST_FOR_VAULT}/realms/${KeycloakUtil.REALM}"
                 providerConfig = mapOf(
-                    "provider" to "keycloak",
+                    "provider" to KeycloakUtil.VAULT_PROVIDER_ID,
                 )
                 oidcResponseMode = OIDCResponseMode.FORM_POST
                 oidcResponseTypes = listOf(OIDCResponseType.CODE, OIDCResponseType.ID_TOKEN)
@@ -142,7 +142,7 @@ class VaultAuthOIDCTest :
                 oidcResponseMode = OIDCResponseMode.FORM_POST,
                 oidcResponseTypes = listOf(OIDCResponseType.CODE, OIDCResponseType.ID_TOKEN),
                 providerConfig = mapOf(
-                    "provider" to "keycloak"
+                    "provider" to KeycloakUtil.VAULT_PROVIDER_ID
                 ).toJsonPrimitiveMap()
             )
         }
@@ -235,7 +235,7 @@ class VaultAuthOIDCTest :
 
             val urlObject = Url(urlString)
             urlObject.protocol shouldBe URLProtocol.HTTP
-            urlObject.host shouldBe "keycloak"
+            urlObject.host shouldBe KeycloakUtil.VAULT_PROVIDER_ID
             urlObject.port shouldBe 8080
             urlObject.parameters["response_type"] shouldBe OIDCResponseType.CODE.value
             urlObject.parameters["client_id"] shouldBe "vault"
