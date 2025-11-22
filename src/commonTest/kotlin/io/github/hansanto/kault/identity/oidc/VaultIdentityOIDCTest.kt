@@ -3,6 +3,7 @@ package io.github.hansanto.kault.identity.oidc
 import io.github.hansanto.kault.VaultClient
 import io.github.hansanto.kault.exception.VaultAPIException
 import io.github.hansanto.kault.identity.oidc.common.ClientType
+import io.github.hansanto.kault.identity.oidc.payload.OIDCCreateOrUpdateAssignmentPayload
 import io.github.hansanto.kault.identity.oidc.payload.OIDCCreateOrUpdateClientPayload
 import io.github.hansanto.kault.identity.oidc.payload.OIDCCreateOrUpdateProviderPayload
 import io.github.hansanto.kault.identity.oidc.payload.OIDCCreateOrUpdateScopePayload
@@ -27,6 +28,7 @@ import io.kotest.matchers.shouldBe
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
+import kotlinx.serialization.Serializable
 
 private const val DEFAULT_PROVIDER_NAME = "default"
 
@@ -259,6 +261,22 @@ class VaultIdentityOIDCTest : ShouldSpec({
         )
     }
 
+    should("create a scope with a typed template using builder") {
+        @Serializable
+        data class TestData(
+            val name: String,
+            val value: Int
+        )
+
+        val data = TestData("test", 42)
+
+        oidc.createOrUpdateScope(DEFAULT_ROLE_NAME) {
+            template(data)
+        } shouldBe true
+
+        oidc.readScope(DEFAULT_ROLE_NAME).template<TestData>() shouldBe data
+    }
+
     should("update a scope if it exists") {
         oidc.createOrUpdateScope(DEFAULT_ROLE_NAME) shouldBe true
 
@@ -448,6 +466,88 @@ class VaultIdentityOIDCTest : ShouldSpec({
         }
     }
 
+    // Assignments
+
+    should("create an assignment with default values") {
+        assertCreateAssignment(
+            oidc,
+            null,
+            "cases/identity/oidc/assignment/create/without_options/expected.json"
+        )
+    }
+
+    should("create an assignment with all defined values") {
+        assertCreateAssignment(
+            oidc,
+            "cases/identity/oidc/assignment/create/with_options/given.json",
+            "cases/identity/oidc/assignment/create/with_options/expected.json"
+        )
+    }
+
+    should("create an assignment using builder with default values") {
+        assertCreateAssignmentWithBuilder(
+            oidc,
+            null,
+            "cases/identity/oidc/assignment/create/without_options/expected.json"
+        )
+    }
+
+    should("create an assignment using builder with all defined values") {
+        assertCreateAssignmentWithBuilder(
+            oidc,
+            "cases/identity/oidc/assignment/create/with_options/given.json",
+            "cases/identity/oidc/assignment/create/with_options/expected.json"
+        )
+    }
+
+    should("update an assignment if it exists") {
+        oidc.createOrUpdateAssignment(DEFAULT_ROLE_NAME) shouldBe true
+
+        val given = readJson<OIDCCreateOrUpdateAssignmentPayload>("cases/identity/oidc/assignment/update/given.json")
+        oidc.createOrUpdateAssignment(DEFAULT_ROLE_NAME, given) shouldBe true
+
+        val expected = readJson<OIDCReadAssignmentResponse>("cases/identity/oidc/assignment/update/expected.json")
+        oidc.readAssignment(DEFAULT_ROLE_NAME) shouldBe expected
+    }
+
+    should("throw exception when reading a non-existing assignment") {
+        shouldThrow<VaultAPIException> {
+            oidc.readAssignment("non-existing-assignments")
+        }
+    }
+
+    should("throw exception when listing with no created assignment") {
+        shouldThrow<VaultAPIException> {
+            oidc.listAssignments()
+        }
+    }
+
+    should("return created assignments when listing assignments") {
+        oidc.createOrUpdateAssignment("test-0") shouldBe true
+        oidc.createOrUpdateAssignment("test-1") shouldBe true
+
+        oidc.listAssignments() shouldContainExactlyInAnyOrder listOf(
+            "test-0",
+            "test-1"
+        )
+    }
+
+    should("return true when deleting a non-existing assignment") {
+        oidc.deleteAssignment("test-0") shouldBe true
+
+        shouldThrow<VaultAPIException> {
+            oidc.readAssignment("test-0")
+        }
+    }
+
+    should("delete an existing assignment") {
+        oidc.createOrUpdateAssignment("test-0") shouldBe true
+        oidc.deleteAssignment("test-0") shouldBe true
+        shouldThrow<VaultAPIException> {
+            oidc.readAssignment("test-0")
+        }
+    }
+
 })
 
 private fun assertListProviders(
@@ -581,7 +681,48 @@ private suspend inline fun assertCreateClient(
     assertReadClientResponse(value, expected)
 }
 
-private suspend fun assertReadClientResponse(
+private suspend fun assertCreateAssignment(oidc: VaultIdentityOIDC, givenPath: String?, expectedReadPath: String) {
+    assertCreateAssignment(
+        oidc,
+        givenPath,
+        expectedReadPath
+    ) { providerName, payload ->
+        oidc.createOrUpdateAssignment(providerName, payload)
+    }
+}
+
+private suspend fun assertCreateAssignmentWithBuilder(
+    oidc: VaultIdentityOIDC,
+    givenPath: String?,
+    expectedReadPath: String
+) {
+    assertCreateAssignment(
+        oidc,
+        givenPath,
+        expectedReadPath
+    ) { providerName, payload ->
+        oidc.createOrUpdateAssignment(providerName) {
+            this.entityIds = payload.entityIds
+            this.groupIds = payload.groupIds
+        }
+    }
+}
+
+private suspend inline fun assertCreateAssignment(
+    oidc: VaultIdentityOIDC,
+    givenPath: String?,
+    expectedReadPath: String,
+    createOrUpdate: (String, OIDCCreateOrUpdateAssignmentPayload) -> Boolean
+) {
+    val given = givenPath?.let { readJson<OIDCCreateOrUpdateAssignmentPayload>(it) } ?: OIDCCreateOrUpdateAssignmentPayload()
+    createOrUpdate(DEFAULT_ROLE_NAME, given) shouldBe true
+
+    val value = oidc.readAssignment(DEFAULT_ROLE_NAME)
+    val expected = readJson<OIDCReadAssignmentResponse>(expectedReadPath)
+    value shouldBe expected
+}
+
+private fun assertReadClientResponse(
     value: OIDCReadClientResponse,
     expected: OIDCReadClientResponse
 ) {

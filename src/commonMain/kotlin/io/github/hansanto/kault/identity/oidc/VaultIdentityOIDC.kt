@@ -4,6 +4,7 @@ import io.github.hansanto.kault.BuilderDsl
 import io.github.hansanto.kault.ServiceBuilder
 import io.github.hansanto.kault.extension.decodeBodyJsonDataFieldObject
 import io.github.hansanto.kault.extension.list
+import io.github.hansanto.kault.identity.oidc.payload.OIDCCreateOrUpdateAssignmentPayload
 import io.github.hansanto.kault.identity.oidc.payload.OIDCCreateOrUpdateClientPayload
 import io.github.hansanto.kault.identity.oidc.payload.OIDCCreateOrUpdateProviderPayload
 import io.github.hansanto.kault.identity.oidc.payload.OIDCCreateOrUpdateScopePayload
@@ -60,6 +61,18 @@ public suspend fun VaultIdentityOIDC.createOrUpdateClient(
     contract { callsInPlace(builder, InvocationKind.EXACTLY_ONCE) }
     val payload = OIDCCreateOrUpdateClientPayload().apply(builder)
     return createOrUpdateClient(name, payload)
+}
+
+/**
+ * @see VaultIdentityOIDC.createOrUpdateAssignment(name, payload)
+ */
+public suspend inline fun VaultIdentityOIDC.createOrUpdateAssignment(
+    name: String,
+    builder: BuilderDsl<OIDCCreateOrUpdateAssignmentPayload>
+): Boolean {
+    contract { callsInPlace(builder, InvocationKind.EXACTLY_ONCE) }
+    val payload = OIDCCreateOrUpdateAssignmentPayload().apply(builder)
+    return createOrUpdateAssignment(name, payload)
 }
 
 public interface VaultIdentityOIDC {
@@ -165,6 +178,15 @@ public interface VaultIdentityOIDC {
      * @return `true` if the client was deleted successfully, `false` otherwise.
      */
     public suspend fun deleteClient(name: String): Boolean
+
+    /**
+     * This endpoint creates or updates an assignment.
+     * [Documentation](https://developer.hashicorp.com/vault/api-docs/secret/identity/oidc-provider#create-or-update-an-assignment)
+     * @param name The name of the assignment.
+     * @param payload The configuration payload for the OIDC assignment.
+     * @return `true` if the assignment was created or updated successfully, `false` otherwise.
+     */
+    public suspend fun createOrUpdateAssignment(name: String, payload: OIDCCreateOrUpdateAssignmentPayload = OIDCCreateOrUpdateAssignmentPayload()): Boolean
 }
 
 /**
@@ -336,6 +358,20 @@ public class VaultIdentityOIDCImpl(
             url {
                 appendPathSegments(path, "client", name)
             }
+        }
+        return response.status.isSuccess()
+    }
+
+    override suspend fun createOrUpdateAssignment(
+        name: String,
+        payload: OIDCCreateOrUpdateAssignmentPayload
+    ): Boolean {
+        val response = client.post {
+            url {
+                appendPathSegments(path, "assignment", name)
+            }
+            contentType(ContentType.Application.Json)
+            setBody(payload)
         }
         return response.status.isSuccess()
     }
