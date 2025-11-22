@@ -254,6 +254,25 @@ public interface VaultIdentityOIDC {
      * @return The response from the authorization endpoint.
      */
     public suspend fun authorizationEndpoint(name: String, payload: OIDCAuthorizationEndpointPayload): OIDCAuthorizationEndpointResponse
+
+    /**
+     * Provides the [Token Endpoint](https://openid.net/specs/openid-connect-core-1_0.html#TokenEndpoint) for an OIDC provider.
+     * [Documentation](https://developer.hashicorp.com/vault/api-docs/secret/identity/oidc-provider#token-endpoint)
+     * @param name The name of the provider.
+     * @param payload The payload containing parameters for the token endpoint.
+     * @return The response from the token endpoint.
+     */
+    public suspend fun tokenEndpoint(name: String, payload: OIDCTokenEndpointPayload): OIDCTokenEndpointResponse
+
+    /**
+     * Provides the [UserInfo Endpoint](https://openid.net/specs/openid-connect-core-1_0.html#UserInfo) for an OIDC provider.
+     * The UserInfo Endpoint is an OAuth 2.0 Protected Resource that returns Claims about the authenticated End-User.
+     * [Documentation](https://developer.hashicorp.com/vault/api-docs/secret/identity/oidc-provider#userinfo-endpoint)
+     * @param name The name of the provider.
+     * @param accessToken The access token provided by the Authorization: Bearer <access_token> HTTP header acquired from the authorization endpoint.
+     * @return The response from the UserInfo endpoint.
+     */
+    public suspend fun userInfoEndpoint(name: String, accessToken: String): OIDCUserInfoEndpointResponse
 }
 
 /**
