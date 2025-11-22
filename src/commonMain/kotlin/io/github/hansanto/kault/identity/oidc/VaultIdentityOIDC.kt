@@ -4,10 +4,12 @@ import io.github.hansanto.kault.BuilderDsl
 import io.github.hansanto.kault.ServiceBuilder
 import io.github.hansanto.kault.extension.decodeBodyJsonDataFieldObject
 import io.github.hansanto.kault.extension.list
+import io.github.hansanto.kault.identity.oidc.payload.OIDCAuthorizationEndpointPayload
 import io.github.hansanto.kault.identity.oidc.payload.OIDCCreateOrUpdateAssignmentPayload
 import io.github.hansanto.kault.identity.oidc.payload.OIDCCreateOrUpdateClientPayload
 import io.github.hansanto.kault.identity.oidc.payload.OIDCCreateOrUpdateProviderPayload
 import io.github.hansanto.kault.identity.oidc.payload.OIDCCreateOrUpdateScopePayload
+import io.github.hansanto.kault.identity.oidc.response.OIDCAuthorizationEndpointResponse
 import io.github.hansanto.kault.identity.oidc.response.OIDCListClientsResponse
 import io.github.hansanto.kault.identity.oidc.response.OIDCListProvidersResponse
 import io.github.hansanto.kault.identity.oidc.response.OIDCReadAssignmentResponse
@@ -76,6 +78,18 @@ public suspend inline fun VaultIdentityOIDC.createOrUpdateAssignment(
     contract { callsInPlace(builder, InvocationKind.EXACTLY_ONCE) }
     val payload = OIDCCreateOrUpdateAssignmentPayload().apply(builder)
     return createOrUpdateAssignment(name, payload)
+}
+
+/**
+ * @see VaultIdentityOIDC.authorizationEndpoint(name, payload)
+ */
+public suspend inline fun VaultIdentityOIDC.authorizationEndpoint(
+    name: String,
+    builder: BuilderDsl<OIDCAuthorizationEndpointPayload.Builder>
+): OIDCAuthorizationEndpointResponse {
+    contract { callsInPlace(builder, InvocationKind.EXACTLY_ONCE) }
+    val payload = OIDCAuthorizationEndpointPayload.Builder().apply(builder).build()
+    return authorizationEndpoint(name, payload)
 }
 
 public interface VaultIdentityOIDC {
@@ -230,6 +244,16 @@ public interface VaultIdentityOIDC {
      * @return The public keys of the OIDC provider.
      */
     public suspend fun readProviderPublicKeys(name: String): List<OIDCReadProviderPublicKeysResponse.JWK>
+
+    /**
+     * Provides the [Authorization Endpoint](https://openid.net/specs/openid-connect-core-1_0.html#AuthorizationEndpoint) for an OIDC provider.
+     * This allows OIDC clients to request an authorization code to be used for the [Authorization Code Flow](https://openid.net/specs/openid-connect-core-1_0.html#CodeFlowAuth).
+     * [Documentation](https://developer.hashicorp.com/vault/api-docs/secret/identity/oidc-provider#authorization-endpoint)
+     * @param name The name of the provider.
+     * @param payload The payload containing parameters for the authorization endpoint.
+     * @return The response from the authorization endpoint.
+     */
+    public suspend fun authorizationEndpoint(name: String, payload: OIDCAuthorizationEndpointPayload): OIDCAuthorizationEndpointResponse
 }
 
 /**
@@ -462,5 +486,19 @@ public class VaultIdentityOIDCImpl(
             }
         }
         return response.decodeBodyJsonDataFieldObject<OIDCReadProviderPublicKeysResponse>().keys
+    }
+
+    override suspend fun authorizationEndpoint(
+        name: String,
+        payload: OIDCAuthorizationEndpointPayload
+    ): OIDCAuthorizationEndpointResponse {
+        val response = client.post {
+            url {
+                appendPathSegments(path, "provider", name, "authorize")
+            }
+            contentType(ContentType.Application.Json)
+            setBody(payload)
+        }
+        return response.decodeBodyJsonDataFieldObject()
     }
 }
