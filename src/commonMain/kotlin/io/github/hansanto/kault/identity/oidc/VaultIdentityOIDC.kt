@@ -262,7 +262,7 @@ public interface VaultIdentityOIDC {
      * @param payload The payload containing parameters for the token endpoint.
      * @return The response from the token endpoint.
      */
-    public suspend fun tokenEndpoint(name: String, payload: OIDCTokenEndpointPayload): OIDCTokenEndpointResponse
+//    public suspend fun tokenEndpoint(name: String, payload: OIDCTokenEndpointPayload): OIDCTokenEndpointResponse
 
     /**
      * Provides the [UserInfo Endpoint](https://openid.net/specs/openid-connect-core-1_0.html#UserInfo) for an OIDC provider.
@@ -272,7 +272,7 @@ public interface VaultIdentityOIDC {
      * @param accessToken The access token provided by the Authorization: Bearer <access_token> HTTP header acquired from the authorization endpoint.
      * @return The response from the UserInfo endpoint.
      */
-    public suspend fun userInfoEndpoint(name: String, accessToken: String): OIDCUserInfoEndpointResponse
+//    public suspend fun userInfoEndpoint(name: String, accessToken: String): OIDCUserInfoEndpointResponse
 }
 
 /**
