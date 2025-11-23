@@ -34,7 +34,7 @@ public data class EntityReadResponse(
     val mergedEntityIds: List<String>?,
 
     @SerialName("metadata")
-    val metadata: Map<String, String>,
+    val metadata: Map<String, String>?,
 
     @SerialName("name")
     val name: String,

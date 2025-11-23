@@ -1,6 +1,7 @@
 package io.github.hansanto.kault.identity
 
 import io.github.hansanto.kault.VaultClient
+import io.github.hansanto.kault.identity.entity.VaultIdentityEntityImpl
 import io.github.hansanto.kault.identity.oidc.VaultIdentityOIDCImpl
 import io.github.hansanto.kault.util.createVaultClient
 import io.github.hansanto.kault.util.randomString
@@ -26,6 +27,7 @@ class VaultIdentityTest :
             val built = VaultIdentity(client.client, null) {
             }
 
+            (built.entity as VaultIdentityEntityImpl).path shouldBe "${VaultIdentity.Default.PATH}/${VaultIdentityEntityImpl.Default.PATH}"
             (built.oidc as VaultIdentityOIDCImpl).path shouldBe "${VaultIdentity.Default.PATH}/${VaultIdentityOIDCImpl.Default.PATH}"
         }
 
@@ -33,15 +35,20 @@ class VaultIdentityTest :
             val builderPath = randomString()
             val parentPath = randomString()
 
+            val entity = randomString()
             val oidc = randomString()
 
             val built = VaultIdentity(client.client, parentPath) {
                 path = builderPath
+                entity {
+                    path = entity
+                }
                 oidc {
                     path = oidc
                 }
             }
 
+            (built.entity as VaultIdentityEntityImpl).path shouldBe "$parentPath/$builderPath/$entity"
             (built.oidc as VaultIdentityOIDCImpl).path shouldBe "$parentPath/$builderPath/$oidc"
         }
     })

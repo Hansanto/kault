@@ -2,13 +2,26 @@ package io.github.hansanto.kault.identity.entity
 
 import io.github.hansanto.kault.BuilderDsl
 import io.github.hansanto.kault.ServiceBuilder
-import io.github.hansanto.kault.identity.entity.payload.EntityCreateOrUpdateByIDPayload
+import io.github.hansanto.kault.extension.decodeBodyJsonDataFieldObject
+import io.github.hansanto.kault.extension.decodeBodyJsonDataFieldObjectOrNull
+import io.github.hansanto.kault.extension.list
+import io.github.hansanto.kault.identity.entity.payload.EntityCreateOrUpdatePayload
 import io.github.hansanto.kault.identity.entity.payload.EntityCreateOrUpdateByNamePayload
 import io.github.hansanto.kault.identity.entity.payload.EntityMergePayload
 import io.github.hansanto.kault.identity.entity.payload.EntityUpdateByIDPayload
 import io.github.hansanto.kault.identity.entity.response.EntityCreateResponse
 import io.github.hansanto.kault.identity.entity.response.EntityReadResponse
+import io.github.hansanto.kault.response.StandardListResponse
 import io.ktor.client.HttpClient
+import io.ktor.client.request.delete
+import io.ktor.client.request.get
+import io.ktor.client.request.post
+import io.ktor.client.request.setBody
+import io.ktor.client.statement.bodyAsText
+import io.ktor.http.ContentType
+import io.ktor.http.appendPathSegments
+import io.ktor.http.contentType
+import io.ktor.http.isSuccess
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
 
@@ -16,10 +29,10 @@ import kotlin.contracts.contract
  * @see VaultIdentityEntity.createOrUpdateEntity(payload)
  */
 public suspend inline fun VaultIdentityEntity.createOrUpdateEntity(
-    builder: BuilderDsl<EntityCreateOrUpdateByIDPayload>
+    builder: BuilderDsl<EntityCreateOrUpdatePayload>
 ): EntityCreateResponse? {
     contract { callsInPlace(builder, InvocationKind.EXACTLY_ONCE) }
-    val payload = EntityCreateOrUpdateByIDPayload().apply(builder)
+    val payload = EntityCreateOrUpdatePayload().apply(builder)
     return createOrUpdateEntity(payload)
 }
 
@@ -66,7 +79,7 @@ public interface VaultIdentityEntity {
      * @param payload The payload to create the entity.
      * @return `null` if the entity is updated, otherwise returns the response containing the created entity details.
      */
-    public suspend fun createOrUpdateEntity(payload: EntityCreateOrUpdateByIDPayload = EntityCreateOrUpdateByIDPayload()): EntityCreateResponse?
+    public suspend fun createOrUpdateEntity(payload: EntityCreateOrUpdatePayload = EntityCreateOrUpdatePayload()): EntityCreateResponse?
 
     /**
      * This endpoint queries the entity by its identifier.
@@ -202,18 +215,121 @@ public class VaultIdentityEntityImpl(
             )
     }
 
-//    override suspend fun createOrUpdateProvider(
-//        name: String,
-//        payload: OIDCCreateOrUpdateProviderPayload
-//    ): Boolean {
-//        val response = client.post {
-//            url {
-//                appendPathSegments(path, "provider", name)
-//            }
-//            contentType(ContentType.Application.Json)
-//            setBody(payload)
-//        }
-//        return response.status.isSuccess()
-//    }
+    override suspend fun createOrUpdateEntity(payload: EntityCreateOrUpdatePayload): EntityCreateResponse? {
+        val response = client.post {
+            url {
+                appendPathSegments(path)
+            }
+            contentType(ContentType.Application.Json)
+            setBody(payload)
+        }
+        return response.decodeBodyJsonDataFieldObjectOrNull()
+    }
+
+    override suspend fun readEntityByID(id: String): EntityReadResponse {
+        val response = client.get {
+            url {
+                appendPathSegments(path, "id", id)
+            }
+        }
+        println(response.bodyAsText())
+        return response.decodeBodyJsonDataFieldObject()
+    }
+
+    override suspend fun updateEntityByID(
+        id: String,
+        payload: EntityUpdateByIDPayload
+    ): Boolean {
+        val response = client.post {
+            url {
+                appendPathSegments(path, "id", id)
+            }
+            contentType(ContentType.Application.Json)
+            setBody(payload)
+        }
+        return response.status.isSuccess()
+    }
+
+    override suspend fun deleteEntityByID(id: String): Boolean {
+        val response = client.delete {
+            url {
+                appendPathSegments(path, "id", id)
+            }
+        }
+        return response.status.isSuccess()
+    }
+
+    override suspend fun batchDeleteEntities(entityIds: Collection<String>): Boolean {
+        val response = client.post {
+            url {
+                appendPathSegments(path, "batch-delete")
+            }
+            contentType(ContentType.Application.Json)
+            // TODO object wrapper class
+            setBody(mapOf("entity_ids" to entityIds))
+        }
+        return response.status.isSuccess()
+    }
+
+    override suspend fun listEntitiesByID(): List<String> {
+        val response = client.list {
+            url {
+                appendPathSegments(path, "id")
+            }
+        }
+        return response.decodeBodyJsonDataFieldObject<StandardListResponse>().keys
+    }
+
+    override suspend fun createOrUpdateEntityByName(
+        name: String,
+        payload: EntityCreateOrUpdateByNamePayload
+    ): EntityCreateResponse? {
+        val response = client.post {
+            url {
+                appendPathSegments(path, "name", name)
+            }
+            contentType(ContentType.Application.Json)
+            setBody(payload)
+        }
+        return response.decodeBodyJsonDataFieldObjectOrNull()
+    }
+
+    override suspend fun readEntityByName(name: String): EntityReadResponse {
+        val response = client.get {
+            url {
+                appendPathSegments(path, "name", name)
+            }
+        }
+        return response.decodeBodyJsonDataFieldObject()
+    }
+
+    override suspend fun deleteEntityByName(name: String): Boolean {
+        val response = client.delete {
+            url {
+                appendPathSegments(path, "name", name)
+            }
+        }
+        return response.status.isSuccess()
+    }
+
+    override suspend fun listEntitiesByName(): List<String> {
+        val response = client.list {
+            url {
+                appendPathSegments(path, "name")
+            }
+        }
+        return response.decodeBodyJsonDataFieldObject<StandardListResponse>().keys
+    }
+
+    override suspend fun mergeEntities(payload: EntityMergePayload): Boolean {
+        val response = client.post {
+            url {
+                appendPathSegments(path, "merge")
+            }
+            contentType(ContentType.Application.Json)
+            setBody(payload)
+        }
+        return response.status.isSuccess()
+    }
 
 }

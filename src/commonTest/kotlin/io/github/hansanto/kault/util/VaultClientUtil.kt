@@ -114,6 +114,16 @@ suspend fun revokeAllTokenData(client: VaultClient) {
         }
 }
 
+suspend fun revokeEntity(client: VaultClient) {
+    client.auth.setTokenString(ROOT_TOKEN)
+    val identityEntity = client.identity.entity
+
+    runCatching { identityEntity.listEntitiesByID() }
+        .onSuccess { response ->
+            identityEntity.batchDeleteEntities(response)
+        }
+}
+
 suspend fun revokeOIDCProviders(client: VaultClient) {
     client.auth.setTokenString(ROOT_TOKEN)
     val oidc = client.identity.oidc
