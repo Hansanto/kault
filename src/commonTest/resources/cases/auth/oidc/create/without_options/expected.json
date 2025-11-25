@@ -1,0 +1,30 @@
+{
+  "allowed_redirect_uris": [
+    "https://example.com/callback",
+    "https://example.org/redirect"
+  ],
+  "bound_audiences": null,
+  "bound_claims": null,
+  "bound_claims_type": "string",
+  "bound_subject": "",
+  "claim_mappings": null,
+  "clock_skew_leeway": 0,
+  "expiration_leeway": 0,
+  "groups_claim": "",
+  "max_age": 0,
+  "not_before_leeway": 0,
+  "oidc_scopes": null,
+  "role_type": "oidc",
+  "token_bound_cidrs": [],
+  "token_explicit_max_ttl": 0,
+  "token_max_ttl": 0,
+  "token_no_default_policy": false,
+  "token_num_uses": 0,
+  "token_period": 0,
+  "token_policies": [],
+  "token_ttl": 0,
+  "token_type": "default",
+  "user_claim": "sub",
+  "user_claim_json_pointer": false,
+  "verbose_oidc_logging": false
+}

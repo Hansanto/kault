@@ -16,7 +16,7 @@ public enum class KubernetesAliasNameSourceType(public val value: String) {
  * Serializer for [KubernetesAliasNameSourceType].
  */
 public object KubernetesAliasNameSourceTypeSerializer : EnumSerializer<KubernetesAliasNameSourceType>(
-    "kubernetesAliasNameSource",
+    "kault.auth.kubernetes.common.KubernetesAliasNameSourceTypeSerializer",
     KubernetesAliasNameSourceType.entries,
     { it.value }
 )
