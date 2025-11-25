@@ -6,6 +6,7 @@ import io.github.hansanto.kault.exception.VaultAPIException
 import io.github.hansanto.kault.extension.URL_PATH_SEPARATOR
 import io.github.hansanto.kault.extension.addURLChildPath
 import io.github.hansanto.kault.extension.findErrorFromVaultResponseBody
+import io.github.hansanto.kault.identity.VaultIdentity
 import io.github.hansanto.kault.system.VaultSystem
 import io.ktor.client.HttpClient
 import io.ktor.client.HttpClientConfig
@@ -48,6 +49,11 @@ public class VaultClient(
      * Secrets service.
      */
     public val secret: VaultSecretEngine,
+
+    /**
+     * Identity service.
+     */
+    public val identity: VaultIdentity,
 
     /**
      * Authentication service.
@@ -154,6 +160,11 @@ public class VaultClient(
         private var secretBuilder: BuilderDsl<VaultSecretEngine.Builder> = {}
 
         /**
+         * Builder to define identity service.
+         */
+        private var identityBuilder: BuilderDsl<VaultIdentity.Builder> = {}
+
+        /**
          * Builder to define authentication service.
          */
         private var authBuilder: BuilderDsl<AuthBuilder> = {}
@@ -186,6 +197,7 @@ public class VaultClient(
                 client = client,
                 namespace = this.namespace,
                 secret = VaultSecretEngine(client, null, this.secretBuilder),
+                identity = VaultIdentity(client, null, this.identityBuilder),
                 auth = authBuilderComplete.build(client, null),
                 system = VaultSystem(client, null, this.sysBuilder)
             ).also { vaultClientBuilt ->
@@ -227,6 +239,15 @@ public class VaultClient(
          */
         public fun secret(builder: BuilderDsl<VaultSecretEngine.Builder>) {
             secretBuilder = builder
+        }
+
+        /**
+         * Sets the identity service builder.
+         *
+         * @param builder Builder to create [VaultIdentity] instance.
+         */
+        public fun identity(builder: BuilderDsl<VaultIdentity.Builder>) {
+            identityBuilder = builder
         }
 
         /**
