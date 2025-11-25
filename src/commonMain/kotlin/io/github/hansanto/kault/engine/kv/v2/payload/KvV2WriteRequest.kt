@@ -3,7 +3,6 @@ package io.github.hansanto.kault.engine.kv.v2.payload
 import io.github.hansanto.kault.BuilderDsl
 import io.github.hansanto.kault.KaultDsl
 import io.github.hansanto.kault.VaultClient
-import io.github.hansanto.kault.auth.approle.payload.AppRoleCreateCustomSecretIDPayload
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

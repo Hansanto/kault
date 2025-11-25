@@ -13,7 +13,7 @@ public enum class OIDCRoleType(public val value: String) {
  * Serializer for [OIDCRoleType].
  */
 public object OIDCRoleTypeSerializer : EnumSerializer<OIDCRoleType>(
-    OIDCRoleType::class.qualifiedName!!,
+    "kault.auth.oidc.common.OIDCRoleTypeSerializer",
     OIDCRoleType.entries,
     { it.value }
 )

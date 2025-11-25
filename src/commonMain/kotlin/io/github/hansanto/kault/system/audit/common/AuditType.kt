@@ -17,7 +17,7 @@ public enum class AuditType(public val value: String) {
  * Serializer for [AuditType].
  */
 public object AuditTypeSerializer : EnumSerializer<AuditType>(
-    AuditType::class.qualifiedName!!,
+    "kault.system.audit.common.AuditTypeSerializer",
     AuditType.entries,
     { it.value }
 )

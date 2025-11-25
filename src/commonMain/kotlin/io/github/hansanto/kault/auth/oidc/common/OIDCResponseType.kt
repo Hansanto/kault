@@ -13,7 +13,7 @@ public enum class OIDCResponseType(public val value: String) {
  * Serializer for [OIDCResponseType].
  */
 public object OIDCResponseTypeSerializer : EnumSerializer<OIDCResponseType>(
-    OIDCResponseType::class.qualifiedName!!,
+    "kault.auth.oidc.common.OIDCResponseTypeSerializer",
     OIDCResponseType.entries,
     { it.value }
 )

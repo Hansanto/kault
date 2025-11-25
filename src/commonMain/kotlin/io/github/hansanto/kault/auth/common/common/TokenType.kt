@@ -6,7 +6,7 @@ import kotlinx.serialization.Serializable
 /**
  * Enum representing the type of token.
  */
-@Serializable(TypeSerializer::class)
+@Serializable(TokenTypeSerializer::class)
 public enum class TokenType(public val value: String) {
     SERVICE("service"),
     DEFAULT_SERVICE("default-service"),
@@ -18,8 +18,8 @@ public enum class TokenType(public val value: String) {
 /**
  * Serializer for [TokenType].
  */
-public object TypeSerializer : EnumSerializer<TokenType>(
-    TokenType::class.qualifiedName!!,
+public object TokenTypeSerializer : EnumSerializer<TokenType>(
+    "kault.auth.common.common.TokenTypeSerializer",
     TokenType.entries,
     { it.value }
 )
