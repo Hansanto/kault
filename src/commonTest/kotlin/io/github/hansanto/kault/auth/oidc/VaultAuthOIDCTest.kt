@@ -383,7 +383,7 @@ private suspend fun createOIDCRole(oidc: VaultAuthOIDC, role: String) {
 }
 
 private suspend fun createJwtOIDCRole(oidc: VaultAuthOIDC, role: String, subject: String) {
-    oidc.createOrUpdateRole(DEFAULT_ROLE_NAME) {
+    oidc.createOrUpdateRole(role) {
         roleType = OIDCRoleType.JWT
         userClaim = "sub"
         allowedRedirectUris = listOf("https://localhost:8080/callback")

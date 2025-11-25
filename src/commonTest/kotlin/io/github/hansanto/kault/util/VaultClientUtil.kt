@@ -12,7 +12,7 @@ const val ROOT_TOKEN = "root"
 
 const val VAULT_URL = "http://localhost:8200"
 
-suspend inline fun createVaultClient(
+inline fun createVaultClient(
     crossinline authBuilder: VaultClient.Builder.AuthBuilder.() -> Unit = {
         autoRenewToken = false
     }
