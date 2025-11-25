@@ -19,7 +19,7 @@ public enum class TokenType(public val value: String) {
  * Serializer for [TokenType].
  */
 public object TypeSerializer : EnumSerializer<TokenType>(
-    "tokenType",
+    TokenType::class.qualifiedName!!,
     TokenType.entries,
     { it.value }
 )

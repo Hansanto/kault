@@ -1,0 +1,45 @@
+{
+  "user_claim": "my_user_claim",
+  "allowed_redirect_uris": [
+    "https://localhost:8080/callback"
+  ],
+  "role_type": "oidc",
+  "bound_audiences": [
+    "my_audience"
+  ],
+  "user_claim_json_pointer": true,
+  "clock_skew_leeway": "60s",
+  "expiration_leeway": "150s",
+  "not_before_leeway": "150s",
+  "bound_subject": "my_bound_subject",
+  "bound_claims": {
+    "my_bound_claims_one": "value_one",
+    "my_bound_claims_two": "value_two"
+  },
+  "bound_claims_type": "string",
+  "groups_claim": "my_groups_claim",
+  "claim_mappings": {
+    "my_claim_mapping_one": "claim_one",
+    "my_claim_mapping_two": "claim_two"
+  },
+  "oidc_scopes": [
+    "profile",
+    "email"
+  ],
+  "verbose_oidc_logging": true,
+  "max_age": "300s",
+  "token_ttl": "30m",
+  "token_max_ttl": "1h",
+  "token_policies": [
+    "default",
+    "dev"
+  ],
+  "token_bound_cidrs": [
+    "10.0.0.0/24"
+  ],
+  "token_explicit_max_ttl": "2h",
+  "token_no_default_policy": false,
+  "token_num_uses": 10,
+  "token_period": "24h",
+  "token_type": "service"
+}

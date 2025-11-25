@@ -16,4 +16,8 @@ public enum class AuditType(public val value: String) {
 /**
  * Serializer for [AuditType].
  */
-public object AuditTypeSerializer : EnumSerializer<AuditType>("auditType", AuditType.entries, { it.value })
+public object AuditTypeSerializer : EnumSerializer<AuditType>(
+    AuditType::class.qualifiedName!!,
+    AuditType.entries,
+    { it.value }
+)

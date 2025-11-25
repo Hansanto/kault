@@ -17,13 +17,13 @@ import io.ktor.client.statement.bodyAsText
 import io.ktor.http.isSuccess
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.utils.io.core.Closeable
+import kotlin.time.Instant
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.cancel
 import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.modules.SerializersModule
-import kotlin.time.Instant
 
 /**
  * Headers used in each request to the [VaultClient].
@@ -45,6 +45,11 @@ public class VaultClient(
     public var namespace: String? = null,
 
     /**
+     * Secrets service.
+     */
+    public val secret: VaultSecretEngine,
+
+    /**
      * Authentication service.
      */
     public val auth: VaultAuth,
@@ -53,11 +58,6 @@ public class VaultClient(
      * System service.
      */
     public val system: VaultSystem,
-
-    /**
-     * Secrets service.
-     */
-    public val secret: VaultSecretEngine
 ) : CoroutineScope by client,
     Closeable {
 
@@ -149,6 +149,11 @@ public class VaultClient(
         private var headerBuilder: BuilderDslWithArg<MutableMap<String, String?>, VaultClient> = Default.headers
 
         /**
+         * Builder to define secret engine service.
+         */
+        private var secretBuilder: BuilderDsl<VaultSecretEngine.Builder> = {}
+
+        /**
          * Builder to define authentication service.
          */
         private var authBuilder: BuilderDsl<AuthBuilder> = {}
@@ -157,11 +162,6 @@ public class VaultClient(
          * Builder to define system service.
          */
         private var sysBuilder: BuilderDsl<VaultSystem.Builder> = {}
-
-        /**
-         * Builder to define secret engine service.
-         */
-        private var secretBuilder: BuilderDsl<VaultSecretEngine.Builder> = {}
 
         /**
          * Builder to custom the HTTP client.
@@ -185,9 +185,9 @@ public class VaultClient(
             return VaultClient(
                 client = client,
                 namespace = this.namespace,
+                secret = VaultSecretEngine(client, null, this.secretBuilder),
                 auth = authBuilderComplete.build(client, null),
-                system = VaultSystem(client, null, this.sysBuilder),
-                secret = VaultSecretEngine(client, null, this.secretBuilder)
+                system = VaultSystem(client, null, this.sysBuilder)
             ).also { vaultClientBuilt ->
                 vaultClient = vaultClientBuilt
                 runCatching {
@@ -221,6 +221,15 @@ public class VaultClient(
         }
 
         /**
+         * Sets the secret engine service builder.
+         *
+         * @param builder Builder to create [VaultSecretEngine] instance.
+         */
+        public fun secret(builder: BuilderDsl<VaultSecretEngine.Builder>) {
+            secretBuilder = builder
+        }
+
+        /**
          * Sets the authentication service builder.
          *
          * @param builder Builder to create [VaultAuth] instance.
@@ -236,15 +245,6 @@ public class VaultClient(
          */
         public fun system(builder: BuilderDsl<VaultSystem.Builder>) {
             sysBuilder = builder
-        }
-
-        /**
-         * Sets the secret engine service builder.
-         *
-         * @param builder Builder to create [VaultSecretEngine] instance.
-         */
-        public fun secret(builder: BuilderDsl<VaultSecretEngine.Builder>) {
-            secretBuilder = builder
         }
 
         /**

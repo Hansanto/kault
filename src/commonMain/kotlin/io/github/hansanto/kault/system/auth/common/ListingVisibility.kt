@@ -22,7 +22,7 @@ public enum class ListingVisibility(public val value: String) {
  * Use the name of the enum as the serialized value after converting it to lowercase.
  */
 public object ListingVisibilitySerializer : EnumSerializer<ListingVisibility>(
-    "listingVisibility",
+    ListingVisibility::class.qualifiedName!!,
     ListingVisibility.entries,
     { it.value }
 )
