@@ -10,6 +10,7 @@ import io.github.hansanto.kault.identity.entity.payload.EntityCreateOrUpdateByNa
 import io.github.hansanto.kault.identity.entity.payload.EntityMergePayload
 import io.github.hansanto.kault.identity.entity.payload.EntityUpdateByIDPayload
 import io.github.hansanto.kault.identity.entity.response.EntityCreateResponse
+import io.github.hansanto.kault.identity.entity.response.EntityListByIdResponse
 import io.github.hansanto.kault.identity.entity.response.EntityReadResponse
 import io.github.hansanto.kault.response.StandardListResponse
 import io.ktor.client.HttpClient
@@ -119,7 +120,7 @@ public interface VaultIdentityEntity {
      * [Documentation](https://developer.hashicorp.com/vault/api-docs/secret/identity/entity#list-entities-by-id)
      * @return List of entity identifiers.
      */
-    public suspend fun listEntitiesByID(): List<String>
+    public suspend fun listEntitiesByID(): EntityListByIdResponse
 
     /**
      * This endpoint is used to create or update an entity by a given name.
@@ -271,13 +272,13 @@ public class VaultIdentityEntityImpl(
         return response.status.isSuccess()
     }
 
-    override suspend fun listEntitiesByID(): List<String> {
+    override suspend fun listEntitiesByID(): EntityListByIdResponse {
         val response = client.list {
             url {
                 appendPathSegments(path, "id")
             }
         }
-        return response.decodeBodyJsonDataFieldObject<StandardListResponse>().keys
+        return response.decodeBodyJsonDataFieldObject<EntityListByIdResponse>()
     }
 
     override suspend fun createOrUpdateEntityByName(

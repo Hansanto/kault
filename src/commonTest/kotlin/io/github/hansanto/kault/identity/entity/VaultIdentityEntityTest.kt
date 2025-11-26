@@ -1,7 +1,9 @@
 package io.github.hansanto.kault.identity.entity
 
 import io.github.hansanto.kault.VaultClient
+import io.github.hansanto.kault.exception.VaultAPIException
 import io.github.hansanto.kault.identity.entity.payload.EntityCreateOrUpdatePayload
+import io.github.hansanto.kault.identity.entity.payload.EntityUpdateByIDPayload
 import io.github.hansanto.kault.identity.entity.response.EntityCreateResponse
 import io.github.hansanto.kault.identity.entity.response.EntityReadResponse
 import io.github.hansanto.kault.util.createVaultClient
@@ -9,7 +11,10 @@ import io.github.hansanto.kault.util.randomString
 import io.github.hansanto.kault.util.readJson
 import io.github.hansanto.kault.util.replaceTemplateString
 import io.github.hansanto.kault.util.revokeEntity
+import io.kotest.assertions.throwables.shouldNotThrow
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.ShouldSpec
+import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 
@@ -81,51 +86,117 @@ class VaultIdentityEntityTest : ShouldSpec({
     }
 
     should("update an entity if it exists") {
-        TODO()
+        val given = readJson<EntityCreateOrUpdatePayload>("cases/identity/entity/update/given_create.json")
+        val created = identityEntity.createOrUpdateEntity(given)
+        created shouldNotBe null
+
+        val updatePayload = readJson<EntityCreateOrUpdatePayload>("cases/identity/entity/update/given_update.json")
+        updatePayload.id = created!!.id
+        val updated = identityEntity.createOrUpdateEntity(updatePayload)
+        updated shouldBe null
+
+        val actual = identityEntity.readEntityByID(created.id)
+        replaceTemplateString(
+            expected = readJson<EntityReadResponse>("cases/identity/entity/update/expected.json"),
+            response = actual,
+        ) shouldBe actual
     }
 
     should("throw exception when reading a non-existing entity by id") {
-        TODO()
+        shouldThrow< VaultAPIException> {
+            identityEntity.readEntityByID("non-existing-id")
+        }
     }
 
-    should("return entity info when reading an existing entity by id") {
-        TODO()
+    should("read existing entity by id") {
+        val response = identityEntity.createOrUpdateEntity()
+        response shouldNotBe null
+
+        val actual = identityEntity.readEntityByID(response!!.id)
+        actual.id shouldBe response.id
+        actual.name shouldBe response.name
     }
 
     should("throw exception when updating a non-existing entity by id") {
-        TODO()
+        shouldThrow<VaultAPIException> {
+            identityEntity.updateEntityByID("non-existing-id")
+        }
     }
 
     should("update an existing entity by id") {
-        TODO()
+        val given = readJson<EntityCreateOrUpdatePayload>("cases/identity/entity/update_by_id/given_create.json")
+        val created = identityEntity.createOrUpdateEntity(given)
+        created shouldNotBe null
+
+        val updatePayload = readJson<EntityUpdateByIDPayload>("cases/identity/entity/update_by_id/given_update.json")
+        val updated = identityEntity.updateEntityByID(created!!.id, updatePayload)
+        updated shouldBe true
+
+        val actual = identityEntity.readEntityByID(created.id)
+        replaceTemplateString(
+            expected = readJson<EntityReadResponse>("cases/identity/entity/update_by_id/expected.json"),
+            response = actual,
+        ) shouldBe actual
     }
 
     should("return true when deleting a non-existing entity by id") {
-        TODO()
+        val id = "non-existing-id"
+        shouldThrow<VaultAPIException> { identityEntity.readEntityByID(id) }
+        identityEntity.deleteEntityByID(id) shouldBe true
+        shouldThrow<VaultAPIException> { identityEntity.readEntityByID(id) }
     }
 
-    should("delete an existing entity by id") {
-        TODO()
+    should("delete existing entity by id") {
+        val response = identityEntity.createOrUpdateEntity()
+        val id = response!!.id
+        shouldNotThrow<VaultAPIException> { identityEntity.readEntityByID(id) }
+        identityEntity.deleteEntityByID(id) shouldBe true
+        shouldThrow<VaultAPIException> { identityEntity.readEntityByID(id) }
     }
 
     should("return true when deleting a non-existing entities by batch") {
-        TODO()
+        val ids = listOf("non-existing-id-1", "non-existing-id-2", "non-existing-id-3")
+        ids.forEach { shouldThrow<VaultAPIException> { identityEntity.readEntityByID(it) } }
+        identityEntity.batchDeleteEntities(ids) shouldBe true
+        ids.forEach { shouldThrow<VaultAPIException> { identityEntity.readEntityByID(it) } }
     }
 
     should("return true when deleting partial existing entities by batch") {
-        TODO()
+        val existingIds = List(3) {
+            val response = identityEntity.createOrUpdateEntity()
+            response!!.id
+        }
+        val nonExistingIds = existingIds.map { "fake-$it" }
+        val allIds = existingIds + nonExistingIds
+
+        identityEntity.batchDeleteEntities(allIds) shouldBe true
+        allIds.forEach { shouldThrow<VaultAPIException> { identityEntity.readEntityByID(it) } }
     }
 
     should("delete existing entities by batch") {
-        TODO()
+        val ids = List(3) {
+            val response = identityEntity.createOrUpdateEntity()
+            response!!.id
+        }
+
+        identityEntity.batchDeleteEntities(ids) shouldBe true
+        ids.forEach { shouldThrow<VaultAPIException> { identityEntity.readEntityByID(it) } }
     }
 
     should("throw exception when listing the ids of the entities with no entities") {
-        TODO()
+        shouldThrow<VaultAPIException> {
+            identityEntity.listEntitiesByID()
+        }
     }
 
     should("return list of ids from existing entities") {
-        TODO()
+        val createdIds = List(3) {
+            identityEntity.createOrUpdateEntity()!!
+        }
+
+        val listEntitiesByID = identityEntity.listEntitiesByID()
+        listEntitiesByID.keys shouldContainExactlyInAnyOrder createdIds.map { it.id }
+        listEntitiesByID.keyInfo.values.map { it.name } shouldContainExactlyInAnyOrder createdIds.map { it.name }
     }
 
     should("create an entity by name with default values") {
@@ -226,7 +297,6 @@ private suspend inline fun assertCreateEntity(
         givenPath?.let { readJson<EntityCreateOrUpdatePayload>(it) } ?: EntityCreateOrUpdatePayload()
     val result = createOrUpdate(given)
 
-    println("Create/Update Result: $result")
     val id = result?.id
     id shouldNotBe null
 
@@ -235,7 +305,5 @@ private suspend inline fun assertCreateEntity(
     replaceTemplateString(
         expected = readJson<EntityReadResponse>(expectedReadPath),
         response = actual,
-    ).apply {
-        println(this)
-    } shouldBe actual
+    ) shouldBe actual
 }

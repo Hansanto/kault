@@ -120,7 +120,7 @@ suspend fun revokeEntity(client: VaultClient) {
 
     runCatching { identityEntity.listEntitiesByID() }
         .onSuccess { response ->
-            identityEntity.batchDeleteEntities(response)
+            identityEntity.batchDeleteEntities(response.keys)
         }
 }
 
