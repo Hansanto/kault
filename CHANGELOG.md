@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.7.1](https://github.com/Hansanto/kault/compare/v1.7.0...v1.7.1) (2025-12-17)
+
+
+### Bug Fixes
+
+* **deps:** update dependency io.ktor:ktor-version-catalog to v3.3.3 ([#259](https://github.com/Hansanto/kault/issues/259)) ([04cdac1](https://github.com/Hansanto/kault/commit/04cdac1552770d62927d9446bc61ff7213e95285))
+* **deps:** update kotest to v6.0.7 ([#251](https://github.com/Hansanto/kault/issues/251)) ([42caeed](https://github.com/Hansanto/kault/commit/42caeed32df7928f1e11f5e7fc58409a9168b5d6))
+
 ## [1.7.0](https://github.com/Hansanto/kault/compare/v1.6.1...v1.7.0) (2025-11-25)
 
 
