@@ -15,7 +15,7 @@ services:
       - minikube
 
   keycloak:
-    image: quay.io/keycloak/keycloak:26.4
+    image: quay.io/keycloak/keycloak:26.5
     container_name: keycloak
     command: start-dev --import-realm --http-relative-path=/
     ports:
