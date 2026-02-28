@@ -158,7 +158,7 @@ public interface VaultIdentityEntity {
     public suspend fun listEntitiesByName(): List<String>
 
     /**
-     * This endpoint merges many entities into one entity. Additionally, all groups associated with from_entity_ids are merged with those of to_entity_id. Note that if these entities contain aliases sharing the same mount accessor, the merge will fail unless conflicting_alias_ids_to_keep is present, and entities must be merged one at a time. This is because each entity can only have one alias with each mount accessor - for more information, see the [identity concepts page](https://developer.hashicorp.com/vault/docs/concepts/identity).
+     * This endpoint merges many entities into one entity. Additionally, all groups associated with [from_entity_ids][EntityMergePayload.fromEntityIds] are merged with those of [to_entity_id][EntityMergePayload.toEntityId]. Note that if these entities contain aliases sharing the same mount accessor, the merge will fail unless [conflicting_alias_ids_to_keep][EntityMergePayload.conflictingAliasIdsToKeep] is present, and entities must be merged one at a time. This is because each entity can only have one alias with each mount accessor - for more information, see the [identity concepts page](https://developer.hashicorp.com/vault/docs/concepts/identity).
      * [Documentation](https://developer.hashicorp.com/vault/api-docs/secret/identity/entity#merge-entities)
      * @param payload The payload to merge the entities.
      * @return `true` if the merge was successful, `false` otherwise.
@@ -233,7 +233,6 @@ public class VaultIdentityEntityImpl(
                 appendPathSegments(path, "id", id)
             }
         }
-        println(response.bodyAsText())
         return response.decodeBodyJsonDataFieldObject()
     }
 

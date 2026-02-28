@@ -12,7 +12,7 @@
     "key1": "value1",
     "key2": "value2"
   },
-  "name": "create_entity_name_by_name",
+  "name": "create_entity_by_name",
   "namespace_id": "root",
   "policies": [
     "policy1",
