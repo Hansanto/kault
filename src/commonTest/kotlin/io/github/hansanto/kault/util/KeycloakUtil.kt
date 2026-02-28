@@ -6,11 +6,11 @@ import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.forms.submitForm
 import io.ktor.http.Parameters
 import io.ktor.serialization.kotlinx.json.json
-import io.ktor.util.decodeBase64String
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
+import kotlin.io.encoding.Base64
 
 data class JwtInfo(val token: String, val subject: String)
 
@@ -53,7 +53,7 @@ object KeycloakUtil {
         )
         val jwtPayload = jwt.split(".")[1]
         val payload = Json.decodeFromString<JsonObject>(
-            jwtPayload.decodeBase64String()
+            Base64.withPadding(Base64.PaddingOption.ABSENT_OPTIONAL).decode(jwtPayload).decodeToString()
         )
         val subject = payload["sub"]?.toString()?.replace("\"", "") ?: error("Missing sub claim in jwt")
         return JwtInfo(
