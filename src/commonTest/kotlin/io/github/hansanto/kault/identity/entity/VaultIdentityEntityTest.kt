@@ -127,20 +127,21 @@ class VaultIdentityEntityTest :
         }
 
         should("update an existing entity by id") {
-            val given = readJson<EntityCreateOrUpdatePayload>("cases/identity/entity/update_by_id/given_create.json")
-            val created = identityEntity.createOrUpdateEntity(given)
-            created shouldNotBe null
+            assertUpdateEntityByID(
+                identityEntity,
+                "cases/identity/entity/update_by_id/given_create.json",
+                "cases/identity/entity/update_by_id/given_update.json",
+                "cases/identity/entity/update_by_id/expected.json"
+            )
+        }
 
-            val updatePayload =
-                readJson<EntityUpdateByIDPayload>("cases/identity/entity/update_by_id/given_update.json")
-            val updated = identityEntity.updateEntityByID(created!!.id, updatePayload)
-            updated shouldBe true
-
-            val actual = identityEntity.readEntityByID(created.id)
-            replaceTemplateString(
-                expected = readJson<EntityReadResponse>("cases/identity/entity/update_by_id/expected.json"),
-                response = actual,
-            ) shouldBe actual
+        should("update an existing entity by id with builder") {
+            assertUpdateEntityByIDWithBuilder(
+                identityEntity,
+                "cases/identity/entity/update_by_id/given_create.json",
+                "cases/identity/entity/update_by_id/given_update.json",
+                "cases/identity/entity/update_by_id/expected.json"
+            )
         }
 
         should("return true when deleting a non-existing entity by id") {
@@ -459,6 +460,66 @@ private suspend inline fun assertCreateEntityByName(
 
     val actual = identityEntity.readEntityByID(id!!)
 
+    replaceTemplateString(
+        expected = readJson<EntityReadResponse>(expectedReadPath),
+        response = actual,
+    ) shouldBe actual
+}
+
+private suspend fun assertUpdateEntityByID(
+    identityEntity: VaultIdentityEntity,
+    givenCreatePath: String,
+    givenUpdatePath: String,
+    expectedReadPath: String,
+) {
+    assertUpdateEntityByID(
+        identityEntity,
+        givenCreatePath,
+        givenUpdatePath,
+        expectedReadPath
+    ) { id, payload ->
+        identityEntity.updateEntityByID(id, payload)
+    }
+}
+
+private suspend fun assertUpdateEntityByIDWithBuilder(
+    identityEntity: VaultIdentityEntity,
+    givenCreatePath: String,
+    givenUpdatePath: String,
+    expectedReadPath: String,
+) {
+    assertUpdateEntityByID(
+        identityEntity,
+        givenCreatePath,
+        givenUpdatePath,
+        expectedReadPath
+    ) { id, payload ->
+        identityEntity.updateEntityByID(id) {
+            name = payload.name
+            metadata = payload.metadata
+            policies = payload.policies
+            disabled = payload.disabled
+        }
+    }
+}
+
+private suspend inline fun assertUpdateEntityByID(
+    identityEntity: VaultIdentityEntity,
+    givenCreatePath: String,
+    givenUpdatePath: String,
+    expectedReadPath: String,
+    updateEntityByID: (String, EntityUpdateByIDPayload) -> Boolean
+) {
+    val given = readJson<EntityCreateOrUpdatePayload>(givenCreatePath)
+    val created = identityEntity.createOrUpdateEntity(given)
+    created shouldNotBe null
+
+    val updatePayload =
+        readJson<EntityUpdateByIDPayload>(givenUpdatePath)
+    val updated = updateEntityByID(created!!.id, updatePayload)
+    updated shouldBe true
+
+    val actual = identityEntity.readEntityByID(created!!.id)
     replaceTemplateString(
         expected = readJson<EntityReadResponse>(expectedReadPath),
         response = actual,
