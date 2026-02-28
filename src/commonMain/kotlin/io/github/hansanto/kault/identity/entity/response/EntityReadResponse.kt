@@ -1,8 +1,8 @@
 package io.github.hansanto.kault.identity.entity.response
 
-import kotlin.time.Instant
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlin.time.Instant
 
 @Serializable
 public data class EntityReadResponse(

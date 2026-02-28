@@ -18,13 +18,13 @@ import io.ktor.client.statement.bodyAsText
 import io.ktor.http.isSuccess
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.utils.io.core.Closeable
-import kotlin.time.Instant
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.cancel
 import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.modules.SerializersModule
+import kotlin.time.Instant
 
 /**
  * Headers used in each request to the [VaultClient].

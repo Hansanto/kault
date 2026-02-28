@@ -5,8 +5,8 @@ import io.github.hansanto.kault.ServiceBuilder
 import io.github.hansanto.kault.extension.decodeBodyJsonDataFieldObject
 import io.github.hansanto.kault.extension.decodeBodyJsonDataFieldObjectOrNull
 import io.github.hansanto.kault.extension.list
-import io.github.hansanto.kault.identity.entity.payload.EntityCreateOrUpdatePayload
 import io.github.hansanto.kault.identity.entity.payload.EntityCreateOrUpdateByNamePayload
+import io.github.hansanto.kault.identity.entity.payload.EntityCreateOrUpdatePayload
 import io.github.hansanto.kault.identity.entity.payload.EntityMergePayload
 import io.github.hansanto.kault.identity.entity.payload.EntityUpdateByIDPayload
 import io.github.hansanto.kault.identity.entity.response.EntityCreateResponse
@@ -18,7 +18,6 @@ import io.ktor.client.request.delete
 import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
-import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.appendPathSegments
 import io.ktor.http.contentType
@@ -64,9 +63,7 @@ public suspend fun VaultIdentityEntity.createOrUpdateEntityByName(
 /**
  * @see VaultIdentityEntity.mergeEntities(payload)
  */
-public suspend fun VaultIdentityEntity.mergeEntities(
-    builder: BuilderDsl<EntityMergePayload.Builder>
-): Boolean {
+public suspend fun VaultIdentityEntity.mergeEntities(builder: BuilderDsl<EntityMergePayload.Builder>): Boolean {
     contract { callsInPlace(builder, InvocationKind.EXACTLY_ONCE) }
     val payload = EntityMergePayload.Builder().apply(builder).build()
     return mergeEntities(payload)
@@ -80,7 +77,9 @@ public interface VaultIdentityEntity {
      * @param payload The payload to create the entity.
      * @return `null` if the entity is updated, otherwise returns the response containing the created entity details.
      */
-    public suspend fun createOrUpdateEntity(payload: EntityCreateOrUpdatePayload = EntityCreateOrUpdatePayload()): EntityCreateResponse?
+    public suspend fun createOrUpdateEntity(
+        payload: EntityCreateOrUpdatePayload = EntityCreateOrUpdatePayload()
+    ): EntityCreateResponse?
 
     /**
      * This endpoint queries the entity by its identifier.
@@ -97,7 +96,10 @@ public interface VaultIdentityEntity {
      * @param payload The payload to update the entity.
      * @return Returns the response containing the updated entity details.
      */
-    public suspend fun updateEntityByID(id: String, payload: EntityUpdateByIDPayload = EntityUpdateByIDPayload()): Boolean
+    public suspend fun updateEntityByID(
+        id: String,
+        payload: EntityUpdateByIDPayload = EntityUpdateByIDPayload()
+    ): Boolean
 
     /**
      * This endpoint deletes an entity and all its associated aliases.
@@ -164,7 +166,6 @@ public interface VaultIdentityEntity {
      * @return `true` if the merge was successful, `false` otherwise.
      */
     public suspend fun mergeEntities(payload: EntityMergePayload): Boolean
-
 }
 
 /**
@@ -236,10 +237,7 @@ public class VaultIdentityEntityImpl(
         return response.decodeBodyJsonDataFieldObject()
     }
 
-    override suspend fun updateEntityByID(
-        id: String,
-        payload: EntityUpdateByIDPayload
-    ): Boolean {
+    override suspend fun updateEntityByID(id: String, payload: EntityUpdateByIDPayload): Boolean {
         val response = client.post {
             url {
                 appendPathSegments(path, "id", id)
@@ -331,5 +329,4 @@ public class VaultIdentityEntityImpl(
         }
         return response.status.isSuccess()
     }
-
 }

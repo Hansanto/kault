@@ -26,7 +26,8 @@ class VaultIdentityTest :
             val built = VaultIdentity(client.client, null) {
             }
 
-            (built.entity as VaultIdentityEntityImpl).path shouldBe "${VaultIdentity.Default.PATH}/${VaultIdentityEntityImpl.Default.PATH}"
+            (built.entity as VaultIdentityEntityImpl).path shouldBe
+                "${VaultIdentity.Default.PATH}/${VaultIdentityEntityImpl.Default.PATH}"
         }
 
         should("use custom path if set in builder") {
