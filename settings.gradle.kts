@@ -9,18 +9,18 @@ dependencyResolutionManagement {
     repositories { mavenCentral() }
     versionCatalogs {
         create("ktorLibs") {
-            from("io.ktor:ktor-version-catalog:3.3.2")
+            from("io.ktor:ktor-version-catalog:3.3.3")
         }
 
         create("libs") {
-            version("kotlin", "2.2.21")
-            version("kotlin-serialization", "1.9.0")
-            version("ksp", "2.3.3")
-            version("kotest", "6.0.4")
-            version("kover", "0.9.3")
+            version("kotlin", "2.3.10")
+            version("kotlin-serialization", "1.10.0")
+            version("ksp", "2.3.6")
+            version("kotest", "6.1.3")
+            version("kover", "0.9.7")
             version("kotlinx-datetime", "0.7.1-0.6.x-compat")
             version("kotlinx-coroutines", "1.10.2")
-            version("kotlinx-io", "0.8.2")
+            version("kotlinx-io", "0.9.0")
             version("resources", "0.10.1")
             version("slf4j", "2.0.17")
             version("dokka", "2.1.0")
