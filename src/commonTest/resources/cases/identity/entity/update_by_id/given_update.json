@@ -1,0 +1,12 @@
+{
+  "name": "update_by_id_new_entity_name",
+  "metadata": {
+    "first": "first_value",
+    "second": "second_value",
+    "third": "third_value"
+  },
+  "policies": [
+    "my_policy"
+  ],
+  "disabled": true
+}

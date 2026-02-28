@@ -1,0 +1,21 @@
+{
+  "aliases": [],
+  "creation_time": "1970-01-01T00:00:00Z",
+  "direct_group_ids": [],
+  "disabled": true,
+  "group_ids": [],
+  "id": "REPLACE",
+  "inherited_group_ids": [],
+  "last_update_time": "1970-01-01T00:00:00Z",
+  "merged_entity_ids": null,
+  "metadata": {
+    "first": "first_value",
+    "second": "second_value",
+    "third": "third_value"
+  },
+  "name": "update_entity_by_name",
+  "namespace_id": "root",
+  "policies": [
+    "my_policy"
+  ]
+}
