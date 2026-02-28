@@ -8,7 +8,7 @@ import io.github.hansanto.kault.VaultClient
  * @receiver Path of the file that should be present in the resource folder.
  * @return Resource object to read the file content.
  */
-fun String.asResourceFile(): Resource = Resource("src/commonTest/resources/$this")
+fun String.asResourceFile(): Resource = Resource(this)
 
 /**
  * Search a file in the resources test folder and read its content as a string.
