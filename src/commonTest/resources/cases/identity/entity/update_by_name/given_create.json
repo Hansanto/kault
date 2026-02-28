@@ -1,0 +1,11 @@
+{
+  "metadata": {
+    "key1": "value1",
+    "key2": "value2"
+  },
+  "policies": [
+    "policy1",
+    "policy2"
+  ],
+  "disabled": true
+}
