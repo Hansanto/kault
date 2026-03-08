@@ -1,0 +1,98 @@
+{
+  "realm": "vault",
+  "enabled": true,
+  "sslRequired": "none",
+  "registrationAllowed": false,
+  "loginWithEmailAllowed": true,
+  "duplicateEmailsAllowed": false,
+  "resetPasswordAllowed": true,
+  "editUsernameAllowed": false,
+  "bruteForceProtected": true,
+  "accessTokenLifespan": 300,
+  "ssoSessionIdleTimeout": 1800,
+  "ssoSessionMaxLifespan": 36000,
+  "clients": [
+    {
+      "clientId": "vault",
+      "name": "HashiCorp Vault",
+      "description": "Vault OIDC Client",
+      "enabled": true,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "vault-client-secret",
+      "redirectUris": [
+        "http://localhost:8200/ui/vault/auth/oidc/oidc/callback",
+        "http://localhost:8250/oidc/callback",
+        "http://vault:8200/ui/vault/auth/oidc/oidc/callback"
+      ],
+      "webOrigins": [
+        "http://localhost:8200",
+        "http://vault:8200"
+      ],
+      "protocol": "openid-connect",
+      "publicClient": false,
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": true,
+      "serviceAccountsEnabled": false,
+      "attributes": {
+        "access.token.lifespan": "300"
+      },
+      "protocolMappers": [
+        {
+          "name": "groups",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-group-membership-mapper",
+          "consentRequired": false,
+          "config": {
+            "full.path": "false",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "claim.name": "groups",
+            "userinfo.token.claim": "true"
+          }
+        }
+      ]
+    }
+  ],
+  "users": [
+    {
+      "username": "vault-user",
+      "enabled": true,
+      "email": "vault-user@example.com",
+      "firstName": "Vault",
+      "lastName": "User",
+      "emailVerified": true,
+      "credentials": [
+        {
+          "type": "password",
+          "value": "password",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["user"],
+      "groups": ["/vault-admins"]
+    }
+  ],
+  "groups": [
+    {
+      "name": "vault-admins",
+      "path": "/vault-admins"
+    },
+    {
+      "name": "vault-users",
+      "path": "/vault-users"
+    }
+  ],
+  "roles": {
+    "realm": [
+      {
+        "name": "user",
+        "description": "User role"
+      },
+      {
+        "name": "admin",
+        "description": "Administrator role"
+      }
+    ]
+  }
+}

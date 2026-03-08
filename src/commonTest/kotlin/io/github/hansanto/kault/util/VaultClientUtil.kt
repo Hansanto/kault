@@ -12,7 +12,7 @@ const val ROOT_TOKEN = "root"
 
 const val VAULT_URL = "http://localhost:8200"
 
-suspend inline fun createVaultClient(
+inline fun createVaultClient(
     crossinline authBuilder: VaultClient.Builder.AuthBuilder.() -> Unit = {
         autoRenewToken = false
     }
@@ -66,6 +66,18 @@ suspend fun revokeAllKubernetesData(client: VaultClient) {
         }
 }
 
+suspend fun revokeAllOIDCData(client: VaultClient) {
+    client.auth.setTokenString(ROOT_TOKEN)
+    val oidcService = client.auth.oidc
+
+    runCatching { oidcService.list() }
+        .onSuccess { roles ->
+            roles.forEach { role ->
+                oidcService.deleteRole(role)
+            }
+        }
+}
+
 suspend fun revokeAllAppRoleData(client: VaultClient) {
     client.auth.setTokenString(ROOT_TOKEN)
     val appRoleService = client.auth.appRole
@@ -99,6 +111,16 @@ suspend fun revokeAllTokenData(client: VaultClient) {
             roles.forEach { role ->
                 tokenService.deleteTokenRole(role)
             }
+        }
+}
+
+suspend fun revokeEntity(client: VaultClient) {
+    client.auth.setTokenString(ROOT_TOKEN)
+    val identityEntity = client.identity.entity
+
+    runCatching { identityEntity.listEntitiesByID() }
+        .onSuccess { response ->
+            identityEntity.batchDeleteEntities(response.keys)
         }
 }
 

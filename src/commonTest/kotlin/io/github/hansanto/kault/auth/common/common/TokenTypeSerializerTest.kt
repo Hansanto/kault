@@ -10,15 +10,15 @@ class TokenTypeSerializerTest :
 
         should("encode with name lowercase property") {
             TokenType.entries.forEach { value ->
-                val serialized = Json.encodeToJsonElement(TypeSerializer, value)
+                val serialized = Json.encodeToJsonElement(TokenTypeSerializer, value)
                 serialized.jsonPrimitive.content shouldBe value.value
             }
         }
 
         should("decode with name lowercase property") {
             TokenType.entries.forEach { value ->
-                val serialized = Json.encodeToJsonElement(TypeSerializer, value)
-                Json.decodeFromJsonElement(TypeSerializer, serialized) shouldBe value
+                val serialized = Json.encodeToJsonElement(TokenTypeSerializer, value)
+                Json.decodeFromJsonElement(TokenTypeSerializer, serialized) shouldBe value
             }
         }
     })

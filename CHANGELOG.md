@@ -1,5 +1,47 @@
 # Changelog
 
+## [1.8.0](https://github.com/Hansanto/kault/compare/v1.7.0...v1.8.0) (2026-02-28)
+
+
+### Features
+
+* Identity Entity ([#258](https://github.com/Hansanto/kault/issues/258)) ([0ee7887](https://github.com/Hansanto/kault/commit/0ee7887c75832eb73c8c39473e1202447b08d213))
+
+
+### Bug Fixes
+
+* **deps:** update dependency io.ktor:ktor-version-catalog to v3.3.3 ([#259](https://github.com/Hansanto/kault/issues/259)) ([04cdac1](https://github.com/Hansanto/kault/commit/04cdac1552770d62927d9446bc61ff7213e95285))
+* **deps:** update dependency io.ktor:ktor-version-catalog to v3.4.0 ([#273](https://github.com/Hansanto/kault/issues/273)) ([3ff2829](https://github.com/Hansanto/kault/commit/3ff2829f1c55725fb84c2a75148b065a376fc743))
+* **deps:** update dependency org.jetbrains.kotlinx:kotlinx-io-core to v0.9.0 ([#285](https://github.com/Hansanto/kault/issues/285)) ([5183622](https://github.com/Hansanto/kault/commit/51836222d71364986f5b9009331ab78e43c0e3a2))
+* **deps:** update dependency org.jetbrains.kotlinx:kotlinx-serialization-json to v1.10.0 ([#272](https://github.com/Hansanto/kault/issues/272)) ([c783d61](https://github.com/Hansanto/kault/commit/c783d61899db495c4ae75fb5f7954ff8a7945f68))
+* **deps:** update kotest to v6.0.7 ([#251](https://github.com/Hansanto/kault/issues/251)) ([42caeed](https://github.com/Hansanto/kault/commit/42caeed32df7928f1e11f5e7fc58409a9168b5d6))
+* **deps:** update kotest to v6.1.0 ([#271](https://github.com/Hansanto/kault/issues/271)) ([6d3f7c2](https://github.com/Hansanto/kault/commit/6d3f7c2d679bc638f080ec514d5dde23a43633b4))
+* **deps:** update kotest to v6.1.2 ([#274](https://github.com/Hansanto/kault/issues/274)) ([e52b5a1](https://github.com/Hansanto/kault/commit/e52b5a136d5f8cbd91b0d7bf9447c9917744ac4d))
+* **deps:** update kotest to v6.1.3 ([#281](https://github.com/Hansanto/kault/issues/281)) ([174f0c2](https://github.com/Hansanto/kault/commit/174f0c27d295ec93d2004470fb2cc7b060f12859))
+* **deps:** update kotest to v6.1.4 ([#286](https://github.com/Hansanto/kault/issues/286)) ([770e5c5](https://github.com/Hansanto/kault/commit/770e5c5f7cd957326bf72176490f6188c5e331f1))
+* **deps:** update resources to v0.15.0 ([#264](https://github.com/Hansanto/kault/issues/264)) ([3dd81f2](https://github.com/Hansanto/kault/commit/3dd81f2db6588e2eb857a294fc5eaac3a5aa39c4))
+
+## [1.7.0](https://github.com/Hansanto/kault/compare/v1.6.1...v1.7.0) (2025-11-25)
+
+
+### Features
+
+* Auth OIDC ([#257](https://github.com/Hansanto/kault/issues/257)) ([0a4180d](https://github.com/Hansanto/kault/commit/0a4180df1205dda63c211e394b7f13584f65d444))
+
+
+### Bug Fixes
+
+* **ci:** Use release please action ([26a64db](https://github.com/Hansanto/kault/commit/26a64dbcee93dc119f9d458dd2f22dd524366896))
+* **deps:** update dependency io.ktor:ktor-version-catalog to v3.3.0 ([#228](https://github.com/Hansanto/kault/issues/228)) ([cbb9721](https://github.com/Hansanto/kault/commit/cbb972189620db023a60b0ca67bf8cbc0afa165c))
+* **deps:** update dependency io.ktor:ktor-version-catalog to v3.3.1 ([#235](https://github.com/Hansanto/kault/issues/235)) ([3d803ab](https://github.com/Hansanto/kault/commit/3d803ab8eb451e4230419b8b354a7f32eb4f6fb6))
+* **deps:** update dependency io.ktor:ktor-version-catalog to v3.3.2 ([#246](https://github.com/Hansanto/kault/issues/246)) ([494e146](https://github.com/Hansanto/kault/commit/494e14683c5239e2ef060499d3f4d8832f96eb74))
+* **deps:** update dependency org.jetbrains.kotlinx:kotlinx-io-core to v0.8.1 ([#255](https://github.com/Hansanto/kault/issues/255)) ([1ed6cb1](https://github.com/Hansanto/kault/commit/1ed6cb1108c9aceb281c72b70346b3cf6f0cd652))
+* **deps:** update dependency org.jetbrains.kotlinx:kotlinx-io-core to v0.8.2 ([#256](https://github.com/Hansanto/kault/issues/256)) ([eebd80e](https://github.com/Hansanto/kault/commit/eebd80e998fda70a272910d22d82103ef37b80c9))
+* **deps:** update kotest to v6.0.2 ([#170](https://github.com/Hansanto/kault/issues/170)) ([119213e](https://github.com/Hansanto/kault/commit/119213ee844ea0643ef658466938034ac1ec8112))
+* **deps:** update kotest to v6.0.3 ([#225](https://github.com/Hansanto/kault/issues/225)) ([c852845](https://github.com/Hansanto/kault/commit/c852845bd37c47669b55285da1478a1ef9ba845e))
+* **deps:** update kotest to v6.0.4 ([#236](https://github.com/Hansanto/kault/issues/236)) ([67caa04](https://github.com/Hansanto/kault/commit/67caa0474de299a81e6986a53b3e3333baa42c24))
+* **publish:** Description of the library ([467b984](https://github.com/Hansanto/kault/commit/467b9842a3aef4acd16fc11c43149de880e4624d))
+
 ## [1.6.1](https://github.com/Hansanto/kault/compare/v1.6.0...v1.6.1) (2025-08-31)
 
 
