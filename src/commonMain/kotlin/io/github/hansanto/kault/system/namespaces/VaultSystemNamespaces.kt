@@ -9,10 +9,16 @@ import io.github.hansanto.kault.system.namespaces.payload.NamespacesPatchPayload
 import io.github.hansanto.kault.system.namespaces.response.NamespacesCreateResponse
 import io.github.hansanto.kault.system.namespaces.response.NamespacesListResponse
 import io.github.hansanto.kault.system.namespaces.response.NamespacesReadResponse
-import io.ktor.client.*
-import io.ktor.client.request.*
-import io.ktor.client.statement.bodyAsText
-import io.ktor.http.*
+import io.ktor.client.HttpClient
+import io.ktor.client.request.delete
+import io.ktor.client.request.get
+import io.ktor.client.request.patch
+import io.ktor.client.request.post
+import io.ktor.client.request.setBody
+import io.ktor.http.ContentType
+import io.ktor.http.appendPathSegments
+import io.ktor.http.contentType
+import io.ktor.http.isSuccess
 
 public interface VaultSystemNamespaces {
 
@@ -72,7 +78,6 @@ public interface VaultSystemNamespaces {
      * @return Response.
      */
     public suspend fun unlock(path: String): Any
-
 }
 
 /**
