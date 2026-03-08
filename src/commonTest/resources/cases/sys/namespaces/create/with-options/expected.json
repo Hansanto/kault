@@ -1,0 +1,11 @@
+{
+  "custom_metadata": {
+    "key": "value",
+    "key2": "value2"
+  },
+  "id": "REPLACE",
+  "locked": false,
+  "path": "test-namespace/",
+  "tainted": false,
+  "uuid": "REPLACE"
+}

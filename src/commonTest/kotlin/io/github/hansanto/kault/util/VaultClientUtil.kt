@@ -11,13 +11,27 @@ import io.ktor.client.plugins.logging.Logging
 const val ROOT_TOKEN = "root"
 
 const val VAULT_URL = "http://localhost:8200"
+const val VAULT_ENTERPRISE_URL = "http://localhost:8201"
 
-inline fun createVaultClient(
-    crossinline authBuilder: VaultClient.Builder.AuthBuilder.() -> Unit = {
+fun createVaultClient(
+    authBuilder: VaultClient.Builder.AuthBuilder.() -> Unit = {
+        autoRenewToken = false
+    }
+): VaultClient = createVaultClient(VAULT_URL, authBuilder)
+
+fun createVaultEnterpriseClient(
+    authBuilder: VaultClient.Builder.AuthBuilder.() -> Unit = {
+        autoRenewToken = false
+    }
+): VaultClient = createVaultClient(VAULT_ENTERPRISE_URL, authBuilder)
+
+private fun createVaultClient(
+    url: String,
+    authBuilder: VaultClient.Builder.AuthBuilder.() -> Unit = {
         autoRenewToken = false
     }
 ): VaultClient = VaultClient {
-    url = VAULT_URL
+    this.url = url
     auth {
         setTokenString(ROOT_TOKEN)
         authBuilder()
@@ -148,5 +162,17 @@ suspend fun disableAllAuth(client: VaultClient) {
                 .forEach {
                     authService.disable(it)
                 }
+        }
+}
+
+suspend fun deleteAllNamespaces(client: VaultClient) {
+    client.auth.setTokenString(ROOT_TOKEN)
+    val namespacesService = client.system.namespaces
+
+    runCatching { namespacesService.list() }
+        .onSuccess { namespaces ->
+            namespaces.keys.forEach {
+                namespacesService.delete(it)
+            }
         }
 }

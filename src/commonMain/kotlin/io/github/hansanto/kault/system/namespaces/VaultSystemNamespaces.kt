@@ -4,11 +4,14 @@ import io.github.hansanto.kault.BuilderDsl
 import io.github.hansanto.kault.ServiceBuilder
 import io.github.hansanto.kault.extension.decodeBodyJsonDataFieldObject
 import io.github.hansanto.kault.extension.list
-import io.github.hansanto.kault.response.StandardListResponse
-import io.github.hansanto.kault.system.namespaces.payload.CreateNamespacePayload
-import io.github.hansanto.kault.system.namespaces.payload.PatchNamespacePayload
+import io.github.hansanto.kault.system.namespaces.payload.NamespacesCreatePayload
+import io.github.hansanto.kault.system.namespaces.payload.NamespacesPatchPayload
+import io.github.hansanto.kault.system.namespaces.response.NamespacesCreateResponse
+import io.github.hansanto.kault.system.namespaces.response.NamespacesListResponse
+import io.github.hansanto.kault.system.namespaces.response.NamespacesReadResponse
 import io.ktor.client.*
 import io.ktor.client.request.*
+import io.ktor.client.statement.bodyAsText
 import io.ktor.http.*
 
 public interface VaultSystemNamespaces {
@@ -18,16 +21,16 @@ public interface VaultSystemNamespaces {
      * [Documentation](https://developer.hashicorp.com/vault/api-docs/system/namespaces#list-namespaces)
      * @return Response.
      */
-    public suspend fun list(): StandardListResponse
+    public suspend fun list(): NamespacesListResponse
 
     /**
      * This endpoint creates a namespace at the given path.
      * [Documentation](https://developer.hashicorp.com/vault/api-docs/system/namespaces#create-namespace)
      * @param path Specifies the path where the namespace will be created.
      * @param customMetadata A map of arbitrary string to string valued user-provided metadata meant to describe the namespace.
-     * @return Response.
+     * @return Namespace information.
      */
-    public suspend fun create(path: String, customMetadata: Map<String, String>? = null): Boolean
+    public suspend fun create(path: String, customMetadata: Map<String, String>? = null): NamespacesCreateResponse
 
     /**
      * This endpoint patches an existing namespace at the specified path.
@@ -52,7 +55,7 @@ public interface VaultSystemNamespaces {
      * @param path Specifies the path where the namespace is located.
      * @return Response.
      */
-    public suspend fun readInformation(path: String): Any
+    public suspend fun read(path: String): NamespacesReadResponse
 
     /**
      * This endpoint locks the API for the current namespace path or optional subpath. The behavior when interacting with Vault from a locked namespace is described in [API Locked Response](https://developer.hashicorp.com/vault/docs/concepts/namespace-api-lock#api-locked-response).
@@ -128,7 +131,7 @@ public class VaultSystemNamespacesImpl(
             )
     }
 
-    override suspend fun list(): StandardListResponse {
+    override suspend fun list(): NamespacesListResponse {
         val response = client.list {
             url {
                 appendPathSegments(this@VaultSystemNamespacesImpl.path)
@@ -137,8 +140,8 @@ public class VaultSystemNamespacesImpl(
         return response.decodeBodyJsonDataFieldObject()
     }
 
-    override suspend fun create(path: String, customMetadata: Map<String, String>?): Boolean {
-        val payload = CreateNamespacePayload(customMetadata = customMetadata)
+    override suspend fun create(path: String, customMetadata: Map<String, String>?): NamespacesCreateResponse {
+        val payload = NamespacesCreatePayload(customMetadata = customMetadata)
         val response = client.post {
             url {
                 appendPathSegments(this@VaultSystemNamespacesImpl.path, path)
@@ -146,11 +149,11 @@ public class VaultSystemNamespacesImpl(
             contentType(ContentType.Application.Json)
             setBody(payload)
         }
-        return response.status.isSuccess()
+        return response.decodeBodyJsonDataFieldObject<NamespacesCreateResponse>()
     }
 
     override suspend fun patch(path: String, customMetadata: Map<String, String>?): Boolean {
-        val payload = PatchNamespacePayload(customMetadata = customMetadata)
+        val payload = NamespacesPatchPayload(customMetadata = customMetadata)
         val response = client.patch {
             url {
                 appendPathSegments(this@VaultSystemNamespacesImpl.path, path)
@@ -170,7 +173,7 @@ public class VaultSystemNamespacesImpl(
         return response.status.isSuccess()
     }
 
-    override suspend fun readInformation(path: String): Any {
+    override suspend fun read(path: String): NamespacesReadResponse {
         val response = client.get {
             url {
                 appendPathSegments(this@VaultSystemNamespacesImpl.path, path)
