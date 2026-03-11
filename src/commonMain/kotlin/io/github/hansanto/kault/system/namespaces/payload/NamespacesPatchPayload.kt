@@ -9,5 +9,5 @@ public data class NamespacesPatchPayload(
      * A map of arbitrary string to string valued user-provided metadata meant to describe the namespace.
      */
     @SerialName("custom_metadata")
-    public var customMetadata: Map<String, String>? = null,
+    public var customMetadata: Map<String, String>,
 )

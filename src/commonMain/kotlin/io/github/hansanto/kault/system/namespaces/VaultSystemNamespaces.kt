@@ -2,12 +2,14 @@ package io.github.hansanto.kault.system.namespaces
 
 import io.github.hansanto.kault.BuilderDsl
 import io.github.hansanto.kault.ServiceBuilder
+import io.github.hansanto.kault.extension.MergePatchJson
 import io.github.hansanto.kault.extension.decodeBodyJsonDataFieldObject
 import io.github.hansanto.kault.extension.list
 import io.github.hansanto.kault.system.namespaces.payload.NamespacesCreatePayload
 import io.github.hansanto.kault.system.namespaces.payload.NamespacesPatchPayload
 import io.github.hansanto.kault.system.namespaces.response.NamespacesCreateResponse
 import io.github.hansanto.kault.system.namespaces.response.NamespacesListResponse
+import io.github.hansanto.kault.system.namespaces.response.NamespacesPatchResponse
 import io.github.hansanto.kault.system.namespaces.response.NamespacesReadResponse
 import io.ktor.client.HttpClient
 import io.ktor.client.request.delete
@@ -45,7 +47,7 @@ public interface VaultSystemNamespaces {
      * @param customMetadata A map of arbitrary string to string valued user-provided metadata meant to describe the namespace.
      * @return Response.
      */
-    public suspend fun patch(path: String, customMetadata: Map<String, String>? = null): Boolean
+    public suspend fun patch(path: String, customMetadata: Map<String, String>): NamespacesPatchResponse
 
     /**
      * This endpoint deletes a namespace at the specified path.
@@ -157,16 +159,16 @@ public class VaultSystemNamespacesImpl(
         return response.decodeBodyJsonDataFieldObject<NamespacesCreateResponse>()
     }
 
-    override suspend fun patch(path: String, customMetadata: Map<String, String>?): Boolean {
+    override suspend fun patch(path: String, customMetadata: Map<String, String>): NamespacesPatchResponse {
         val payload = NamespacesPatchPayload(customMetadata = customMetadata)
         val response = client.patch {
             url {
                 appendPathSegments(this@VaultSystemNamespacesImpl.path, path)
             }
-            contentType(ContentType.Application.Json)
+            contentType(ContentType.Application.MergePatchJson)
             setBody(payload)
         }
-        return response.status.isSuccess()
+        return response.decodeBodyJsonDataFieldObject<NamespacesPatchResponse>()
     }
 
     override suspend fun delete(path: String): Boolean {

@@ -4,6 +4,7 @@ import io.github.hansanto.kault.VaultClient
 import io.github.hansanto.kault.exception.VaultAPIException
 import io.github.hansanto.kault.system.namespaces.response.NamespacesCreateResponse
 import io.github.hansanto.kault.system.namespaces.response.NamespacesListResponse
+import io.github.hansanto.kault.system.namespaces.response.NamespacesPatchResponse
 import io.github.hansanto.kault.system.namespaces.response.NamespacesReadResponse
 import io.github.hansanto.kault.util.createVaultEnterpriseClient
 import io.github.hansanto.kault.util.deleteAllNamespaces
@@ -94,6 +95,28 @@ class VaultSystemNamespacesTest :
                 expectedReadPath = "cases/sys/namespaces/create/with-options/expected.json"
             )
         }
+
+        should("patch a namespace without options") {
+            assertPatch(
+                path = "test-namespace",
+                namespaces = namespaces,
+                givenCreatePath = "cases/sys/namespaces/patch/without-options/given_create.json",
+                givenPatchPath = "cases/sys/namespaces/patch/without-options/given_patch.json",
+                expectedPatchPath = "cases/sys/namespaces/patch/without-options/expected.json",
+                expectedReadPath = "cases/sys/namespaces/patch/without-options/expected.json"
+            )
+        }
+
+        should("patch a namespace with options") {
+            assertPatch(
+                path = "test-namespace",
+                namespaces = namespaces,
+                givenCreatePath = "cases/sys/namespaces/patch/with-options/given_create.json",
+                givenPatchPath = "cases/sys/namespaces/patch/with-options/given_patch.json",
+                expectedPatchPath = "cases/sys/namespaces/patch/with-options/expected.json",
+                expectedReadPath = "cases/sys/namespaces/patch/with-options/expected.json"
+            )
+        }
     }) {
 
     @Serializable
@@ -151,10 +174,10 @@ private suspend inline fun assertCreate(
     givenPath: String?,
     expectedCreatePath: String,
     expectedReadPath: String,
-    createOrUpdate: (Map<String, String>?) -> NamespacesCreateResponse
+    create: (Map<String, String>?) -> NamespacesCreateResponse
 ) {
     val given = givenPath?.let { readJson<Map<String, String>>(it) }
-    val result = createOrUpdate(given)
+    val result = create(given)
     result shouldBe replaceTemplateString(
         expected = readJson<NamespacesCreateResponse>(expectedCreatePath),
         response = result,
@@ -167,4 +190,52 @@ private suspend inline fun assertCreate(
     )
     result.id shouldBe actual.id
     result.uuid shouldBe actual.uuid
+}
+
+private suspend fun assertPatch(
+    path: String,
+    namespaces: VaultSystemNamespaces,
+    givenCreatePath: String,
+    givenPatchPath: String,
+    expectedPatchPath: String,
+    expectedReadPath: String
+) {
+    assertPatch(
+        path,
+        namespaces,
+        givenCreatePath,
+        givenPatchPath,
+        expectedPatchPath,
+        expectedReadPath
+    ) { payload ->
+        namespaces.patch(path, payload)
+    }
+}
+
+private suspend inline fun assertPatch(
+    path: String,
+    namespaces: VaultSystemNamespaces,
+    givenCreatePath: String,
+    givenPatchPath: String,
+    expectedPatchPath: String,
+    expectedReadPath: String,
+    patch: (Map<String, String>) -> NamespacesPatchResponse
+) {
+    val createGiven = readJson<Map<String, String>>(givenCreatePath)
+    val created = namespaces.create(path, createGiven)
+
+    val given = readJson<Map<String, String>>(givenPatchPath)
+    val result = patch(given)
+    result shouldBe replaceTemplateString(
+        expected = readJson<NamespacesReadResponse>(expectedPatchPath),
+        response = result,
+    )
+
+    val actual = namespaces.read(path)
+    actual shouldBe replaceTemplateString(
+        expected = readJson<NamespacesReadResponse>(expectedReadPath),
+        response = actual,
+    )
+    created.id shouldBe actual.id
+    created.uuid shouldBe actual.uuid
 }
