@@ -7,8 +7,10 @@ import io.github.hansanto.kault.extension.decodeBodyJsonDataFieldObject
 import io.github.hansanto.kault.extension.list
 import io.github.hansanto.kault.system.namespaces.payload.NamespacesCreatePayload
 import io.github.hansanto.kault.system.namespaces.payload.NamespacesPatchPayload
+import io.github.hansanto.kault.system.namespaces.payload.NamespacesUnlockPayload
 import io.github.hansanto.kault.system.namespaces.response.NamespacesCreateResponse
 import io.github.hansanto.kault.system.namespaces.response.NamespacesListResponse
+import io.github.hansanto.kault.system.namespaces.response.NamespacesLockResponse
 import io.github.hansanto.kault.system.namespaces.response.NamespacesPatchResponse
 import io.github.hansanto.kault.system.namespaces.response.NamespacesReadResponse
 import io.ktor.client.HttpClient
@@ -71,15 +73,16 @@ public interface VaultSystemNamespaces {
      * @param path Specifies the path where the namespace is located.
      * @return Response.
      */
-    public suspend fun lock(path: String): Any
+    public suspend fun lock(path: String): NamespacesLockResponse
 
     /**
      * This endpoint unlocks the api for the current namespace path or optional subpath.
      * [Documentation](https://developer.hashicorp.com/vault/api-docs/system/namespaces#unlock-namespace)
      * @param path Specifies the path where the namespace is located.
-     * @return Response.
+     * @param unlockKey The key that can be used to unlock the namespace, which is returned by [lock].
+     * @return `true` if the namespace was successfully unlocked, `false` otherwise.
      */
-    public suspend fun unlock(path: String): Any
+    public suspend fun unlock(path: String, unlockKey: String): Boolean
 }
 
 /**
@@ -189,7 +192,7 @@ public class VaultSystemNamespacesImpl(
         return response.decodeBodyJsonDataFieldObject()
     }
 
-    override suspend fun lock(path: String): Any {
+    override suspend fun lock(path: String): NamespacesLockResponse {
         val response = client.post {
             url {
                 appendPathSegments(this@VaultSystemNamespacesImpl.path, "api-lock", "lock", path)
@@ -198,12 +201,15 @@ public class VaultSystemNamespacesImpl(
         return response.decodeBodyJsonDataFieldObject()
     }
 
-    override suspend fun unlock(path: String): Any {
+    override suspend fun unlock(path: String, unlockKey: String): Boolean {
+        val payload = NamespacesUnlockPayload(unlockKey = unlockKey)
         val response = client.post {
             url {
                 appendPathSegments(this@VaultSystemNamespacesImpl.path, "api-lock", "unlock", path)
             }
+            contentType(ContentType.Application.Json)
+            setBody(payload)
         }
-        return response.decodeBodyJsonDataFieldObject()
+        return response.status.isSuccess()
     }
 }

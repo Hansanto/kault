@@ -15,6 +15,7 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldNotHaveLength
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -116,6 +117,63 @@ class VaultSystemNamespacesTest :
                 expectedPatchPath = "cases/sys/namespaces/patch/with-options/expected.json",
                 expectedReadPath = "cases/sys/namespaces/patch/with-options/expected.json"
             )
+        }
+
+        should("return true when deleting non existing namespace") {
+            namespaces.delete("non-existing") shouldBe true
+        }
+
+        should("delete existing namespace") {
+            val path = "test-namespace"
+            namespaces.create(path)
+            namespaces.delete(path) shouldBe true
+            shouldThrow<VaultAPIException> {
+                namespaces.read(path)
+            }
+        }
+
+        should("throw exception when locking non existing namespace") {
+            shouldThrow<VaultAPIException> {
+                namespaces.lock("non-existing")
+            }
+        }
+
+        should("lock existing namespace") {
+            val path = "test-namespace"
+            val createInfo = namespaces.create(path)
+
+            val response = namespaces.lock(path)
+            response.unlockKey shouldNotHaveLength 0
+
+            val readInfo = namespaces.read(path)
+            createInfo.copy(locked = true) shouldBe readInfo
+        }
+
+        should("throw exception when unlocking non existing namespace") {
+            shouldThrow<VaultAPIException> {
+                namespaces.unlock("non-existing", "key")
+            }
+        }
+
+        should("throw exception when unlocking with wrong key") {
+            val path = "test-namespace"
+            namespaces.create(path)
+            namespaces.lock(path)
+
+            shouldThrow<VaultAPIException> {
+                namespaces.unlock(path, "wrong-key")
+            }
+        }
+
+        should("unlock with correct key") {
+            val path = "test-namespace"
+            val createInfo = namespaces.create(path)
+            val lockResponse = namespaces.lock(path)
+
+            namespaces.unlock(path, lockResponse.unlockKey) shouldBe true
+
+            val readInfo = namespaces.read(path)
+            createInfo shouldBe readInfo
         }
     }) {
 
