@@ -7,6 +7,8 @@ import io.ktor.client.plugins.logging.DEFAULT
 import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logger
 import io.ktor.client.plugins.logging.Logging
+import kotlinx.coroutines.delay
+import kotlin.time.Duration.Companion.seconds
 
 const val ROOT_TOKEN = "root"
 
@@ -173,6 +175,10 @@ suspend fun deleteAllNamespaces(client: VaultClient) {
         .onSuccess { namespaces ->
             namespaces.keys.forEach {
                 namespacesService.delete(it)
+                // Workaround to avoid potential deadlock
+                // See: https://github.com/openbao/openbao/issues/2623
+                // TODO: When the fix is released, remove the delay
+                delay(1.seconds)
             }
         }
 }
