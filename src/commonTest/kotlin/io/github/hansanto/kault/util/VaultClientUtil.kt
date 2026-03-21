@@ -7,7 +7,12 @@ import io.ktor.client.plugins.logging.DEFAULT
 import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logger
 import io.ktor.client.plugins.logging.Logging
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlin.time.Duration.Companion.seconds
 
 const val ROOT_TOKEN = "root"
@@ -19,21 +24,24 @@ fun createVaultClient(
     authBuilder: VaultClient.Builder.AuthBuilder.() -> Unit = {
         autoRenewToken = false
     }
-): VaultClient = createVaultClient(VAULT_URL, authBuilder)
+): VaultClient = createVaultClient(VAULT_URL, null, authBuilder)
 
 fun createVaultEnterpriseClient(
+    namespace: String? = null,
     authBuilder: VaultClient.Builder.AuthBuilder.() -> Unit = {
         autoRenewToken = false
     }
-): VaultClient = createVaultClient(VAULT_ENTERPRISE_URL, authBuilder)
+): VaultClient = createVaultClient(VAULT_ENTERPRISE_URL, namespace, authBuilder)
 
 private fun createVaultClient(
     url: String,
+    namespace: String? = null,
     authBuilder: VaultClient.Builder.AuthBuilder.() -> Unit = {
         autoRenewToken = false
     }
 ): VaultClient = VaultClient {
     this.url = url
+    this.namespace = namespace
     auth {
         setTokenString(ROOT_TOKEN)
         authBuilder()
@@ -181,4 +189,40 @@ suspend fun deleteAllNamespaces(client: VaultClient) {
                 delay(1.seconds)
             }
         }
+}
+
+suspend fun deleteAllKV2Secrets(client: VaultClient) {
+    client.auth.setTokenString(ROOT_TOKEN)
+    val kv2 = client.secret.kv2
+
+    val secrets = getAllSecrets(client)
+    secrets.forEach { secret ->
+        kv2.deleteMetadataAndAllVersions(secret)
+    }
+}
+
+suspend fun getAllSecrets(client: VaultClient): Collection<String> = coroutineScope {
+    val result = mutableSetOf<String>()
+    val mutex = Mutex()
+    val kv2 = client.secret.kv2
+
+    suspend fun getSecretsRecursively(path: String) {
+        val secrets = runCatching { kv2.listSecrets(path) }.getOrNull() ?: return
+
+        secrets.map { secret ->
+            async {
+                if (secret.endsWith('/')) {
+                    getSecretsRecursively(path + secret)
+                } else {
+                    val secretCompletePath = path + secret
+                    mutex.withLock {
+                        result.add(secretCompletePath)
+                    }
+                }
+            }
+        }.awaitAll()
+    }
+
+    getSecretsRecursively("")
+    return@coroutineScope result
 }
