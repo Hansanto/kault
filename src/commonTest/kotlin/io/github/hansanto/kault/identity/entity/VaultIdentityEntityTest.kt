@@ -519,7 +519,7 @@ private suspend inline fun assertUpdateEntityByID(
     val updated = updateEntityByID(created!!.id, updatePayload)
     updated shouldBe true
 
-    val actual = identityEntity.readEntityByID(created!!.id)
+    val actual = identityEntity.readEntityByID(created.id)
     replaceTemplateString(
         expected = readJson<EntityReadResponse>(expectedReadPath),
         response = actual,

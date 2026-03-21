@@ -13,6 +13,7 @@ import io.github.hansanto.kault.engine.kv.v2.response.KvV2ReadSubkeysResponse
 import io.github.hansanto.kault.engine.kv.v2.response.KvV2WriteResponse
 import io.github.hansanto.kault.exception.VaultAPIException
 import io.github.hansanto.kault.util.createVaultClient
+import io.github.hansanto.kault.util.deleteAllKV2Secrets
 import io.github.hansanto.kault.util.randomString
 import io.github.hansanto.kault.util.readJson
 import io.github.hansanto.kault.util.replaceTemplateString
@@ -48,6 +49,7 @@ class VaultKV2EngineTest :
                     maxVersions = initialKv2Configuration.maxVersions
                 )
             )
+            deleteAllKV2Secrets(client)
             client.close()
         }
 

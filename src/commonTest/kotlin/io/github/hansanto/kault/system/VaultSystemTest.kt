@@ -3,6 +3,7 @@ package io.github.hansanto.kault.system
 import io.github.hansanto.kault.VaultClient
 import io.github.hansanto.kault.system.audit.VaultSystemAuditImpl
 import io.github.hansanto.kault.system.auth.VaultSystemAuthImpl
+import io.github.hansanto.kault.system.namespaces.VaultSystemNamespacesImpl
 import io.github.hansanto.kault.util.createVaultClient
 import io.github.hansanto.kault.util.randomString
 import io.kotest.core.spec.style.ShouldSpec
@@ -31,6 +32,8 @@ class VaultSystemTest :
                 "${VaultSystem.Default.PATH}/${VaultSystemAuthImpl.Default.PATH}"
             (built.audit as VaultSystemAuditImpl).path shouldBe
                 "${VaultSystem.Default.PATH}/${VaultSystemAuditImpl.Default.PATH}"
+            (built.namespaces as VaultSystemNamespacesImpl).path shouldBe
+                "${VaultSystem.Default.PATH}/${VaultSystemNamespacesImpl.Default.PATH}"
         }
 
         should("use custom path if set in builder") {
@@ -38,6 +41,7 @@ class VaultSystemTest :
             val builderPath = randomString()
             val authPath = randomString()
             val auditPath = randomString()
+            val namespacesPath = randomString()
 
             val built = VaultSystem(client.client, parentPath) {
                 path = builderPath
@@ -47,9 +51,13 @@ class VaultSystemTest :
                 audit {
                     path = auditPath
                 }
+                namespaces {
+                    path = namespacesPath
+                }
             }
 
             (built.auth as VaultSystemAuthImpl).path shouldBe "$parentPath/$builderPath/$authPath"
             (built.audit as VaultSystemAuditImpl).path shouldBe "$parentPath/$builderPath/$auditPath"
+            (built.namespaces as VaultSystemNamespacesImpl).path shouldBe "$parentPath/$builderPath/$namespacesPath"
         }
     })

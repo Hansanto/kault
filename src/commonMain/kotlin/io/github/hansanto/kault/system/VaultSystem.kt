@@ -7,6 +7,8 @@ import io.github.hansanto.kault.system.audit.VaultSystemAudit
 import io.github.hansanto.kault.system.audit.VaultSystemAuditImpl
 import io.github.hansanto.kault.system.auth.VaultSystemAuth
 import io.github.hansanto.kault.system.auth.VaultSystemAuthImpl
+import io.github.hansanto.kault.system.namespaces.VaultSystemNamespaces
+import io.github.hansanto.kault.system.namespaces.VaultSystemNamespacesImpl
 import io.ktor.client.HttpClient
 
 /**
@@ -21,7 +23,12 @@ public class VaultSystem(
     /**
      * Audit service.
      */
-    public val audit: VaultSystemAudit
+    public val audit: VaultSystemAudit,
+
+    /**
+     * Namespaces service.
+     */
+    public val namespaces: VaultSystemNamespaces,
 ) {
 
     public companion object {
@@ -68,9 +75,15 @@ public class VaultSystem(
          */
         private var auditBuilder: BuilderDsl<VaultSystemAuditImpl.Builder> = {}
 
+        /**
+         * Builder to define namespaces service.
+         */
+        private var namespacesBuilder: BuilderDsl<VaultSystemNamespacesImpl.Builder> = {}
+
         override fun buildWithCompletePath(client: HttpClient, completePath: String): VaultSystem = VaultSystem(
             auth = VaultSystemAuthImpl.Builder().apply(authBuilder).build(client, completePath),
-            audit = VaultSystemAuditImpl.Builder().apply(auditBuilder).build(client, completePath)
+            audit = VaultSystemAuditImpl.Builder().apply(auditBuilder).build(client, completePath),
+            namespaces = VaultSystemNamespacesImpl.Builder().apply(namespacesBuilder).build(client, completePath)
         )
 
         /**
@@ -89,6 +102,15 @@ public class VaultSystem(
          */
         public fun audit(builder: BuilderDsl<VaultSystemAuditImpl.Builder>) {
             auditBuilder = builder
+        }
+
+        /**
+         * Sets the namespaces service builder.
+         *
+         * @param builder Builder to create [VaultSystemNamespacesImpl] instance.
+         */
+        public fun namespaces(builder: BuilderDsl<VaultSystemNamespacesImpl.Builder>) {
+            namespacesBuilder = builder
         }
     }
 }

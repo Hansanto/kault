@@ -1,0 +1,33 @@
+[
+  {
+    "path": "namespace-0",
+    "custom_metadata": {
+      "key": "value",
+      "key2": "value2"
+    }
+  },
+  {
+    "path": "namespace-1",
+    "custom_metadata": {
+      "another_key": "another_value"
+    }
+  },
+  {
+    "path": "namespace-2",
+    "custom_metadata": {
+      "namespace_key": "namespace_value"
+    }
+  },
+  {
+    "path": "namespace-3",
+    "custom_metadata": {
+      "custom": "metadata"
+    }
+  },
+  {
+    "path": "namespace-4",
+    "custom_metadata": {
+      "foo": "bar"
+    }
+  }
+]
