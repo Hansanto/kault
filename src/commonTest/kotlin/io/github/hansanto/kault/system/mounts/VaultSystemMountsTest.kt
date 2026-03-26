@@ -1,9 +1,12 @@
 package io.github.hansanto.kault.system.mounts
 
 import io.github.hansanto.kault.VaultClient
+import io.github.hansanto.kault.system.mounts.response.MountsListMountedSecretsEnginesResponse
 import io.github.hansanto.kault.util.createVaultEnterpriseClient
 import io.github.hansanto.kault.util.deleteAllNamespaces
 import io.github.hansanto.kault.util.randomString
+import io.github.hansanto.kault.util.readJson
+import io.github.hansanto.kault.util.replaceTemplateString
 import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
 
@@ -43,4 +46,13 @@ class VaultSystemMountsTest :
             built.path shouldBe "$parentPath/$randomPath"
         }
 
-})
+        should("list default mounted secrets engines") {
+            val actual = mounts.listMountedSecretsEngines()
+            actual shouldBe replaceTemplateString(
+                expected = readJson<MountsListMountedSecretsEnginesResponse>(
+                    "cases/sys/mounts/list_mounted_secrets_engines/expected.json"
+                ),
+                response = actual,
+            )
+        }
+    })

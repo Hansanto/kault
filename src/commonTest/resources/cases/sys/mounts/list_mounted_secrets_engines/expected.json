@@ -1,0 +1,83 @@
+{
+  "cubbyhole/": {
+    "accessor": "REPLACE",
+    "config": {
+      "default_lease_ttl": 0,
+      "force_no_cache": false,
+      "max_lease_ttl": 0
+    },
+    "description": "per-token private secret storage",
+    "external_entropy_access": false,
+    "local": true,
+    "options": null,
+    "plugin_version": "",
+    "running_plugin_version": "REPLACE",
+    "running_sha256": "",
+    "seal_wrap": false,
+    "type": "cubbyhole",
+    "uuid": "REPLACE"
+  },
+  "identity/": {
+    "accessor": "REPLACE",
+    "config": {
+      "default_lease_ttl": 0,
+      "force_no_cache": false,
+      "max_lease_ttl": 0,
+      "passthrough_request_headers": [
+        "Authorization"
+      ]
+    },
+    "description": "identity store",
+    "external_entropy_access": false,
+    "local": false,
+    "options": null,
+    "plugin_version": "",
+    "running_plugin_version": "REPLACE",
+    "running_sha256": "",
+    "seal_wrap": false,
+    "type": "identity",
+    "uuid": "REPLACE"
+  },
+  "secret/": {
+    "accessor": "REPLACE",
+    "config": {
+      "default_lease_ttl": 0,
+      "force_no_cache": false,
+      "max_lease_ttl": 0
+    },
+    "deprecation_status": "supported",
+    "description": "key/value secret storage",
+    "external_entropy_access": false,
+    "local": false,
+    "options": {
+      "version": "2"
+    },
+    "plugin_version": "",
+    "running_plugin_version": "REPLACE",
+    "running_sha256": "",
+    "seal_wrap": false,
+    "type": "kv",
+    "uuid": "REPLACE"
+  },
+  "sys/": {
+    "accessor": "REPLACE",
+    "config": {
+      "default_lease_ttl": 0,
+      "force_no_cache": false,
+      "max_lease_ttl": 0,
+      "passthrough_request_headers": [
+        "Accept"
+      ]
+    },
+    "description": "system endpoints used for control, policy and debugging",
+    "external_entropy_access": false,
+    "local": false,
+    "options": null,
+    "plugin_version": "",
+    "running_plugin_version": "REPLACE",
+    "running_sha256": "",
+    "seal_wrap": true,
+    "type": "system",
+    "uuid": "REPLACE"
+  }
+}

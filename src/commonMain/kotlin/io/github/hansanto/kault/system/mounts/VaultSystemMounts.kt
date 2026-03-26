@@ -3,6 +3,7 @@ package io.github.hansanto.kault.system.mounts
 import io.github.hansanto.kault.BuilderDsl
 import io.github.hansanto.kault.ServiceBuilder
 import io.github.hansanto.kault.extension.decodeBodyJsonDataFieldObject
+import io.github.hansanto.kault.system.mounts.response.MountsListMountedSecretsEnginesResponse
 import io.ktor.client.HttpClient
 import io.ktor.client.request.delete
 import io.ktor.client.request.get
@@ -18,9 +19,7 @@ import kotlin.contracts.contract
 /**
  * @see VaultSystemMounts.enableSecretsEngine(payload)
  */
-public suspend inline fun VaultSystemMounts.enableSecretsEngine(
-    payloadBuilder: BuilderDsl<Any>
-): Any {
+public suspend inline fun VaultSystemMounts.enableSecretsEngine(payloadBuilder: BuilderDsl<Any>): Any {
     contract { callsInPlace(payloadBuilder, InvocationKind.EXACTLY_ONCE) }
     val payload = TODO()
     return enableSecretsEngine(payload)
@@ -29,10 +28,7 @@ public suspend inline fun VaultSystemMounts.enableSecretsEngine(
 /**
  * @see VaultSystemMounts.tuneMountConfiguration(path, payload)
  */
-public suspend inline fun VaultSystemMounts.tuneMountConfiguration(
-    path: String,
-    payloadBuilder: BuilderDsl<Any>
-): Any {
+public suspend inline fun VaultSystemMounts.tuneMountConfiguration(path: String, payloadBuilder: BuilderDsl<Any>): Any {
     contract { callsInPlace(payloadBuilder, InvocationKind.EXACTLY_ONCE) }
     val payload = TODO()
     return tuneMountConfiguration(path, payload)
@@ -45,7 +41,7 @@ public interface VaultSystemMounts {
      * [Documentation](https://developer.hashicorp.com/vault/api-docs/system/mounts#list-mounted-secrets-engines)
      * @return Response.
      */
-    public suspend fun listMountedSecretsEngines(): Any
+    public suspend fun listMountedSecretsEngines(): MountsListMountedSecretsEnginesResponse
 
     /**
      * This endpoint enables a new secrets engine at the given path.
@@ -87,7 +83,6 @@ public interface VaultSystemMounts {
      * @return Response.
      */
     public suspend fun tuneMountConfiguration(path: String, payload: Any): Any
-
 }
 
 /**
@@ -145,7 +140,7 @@ public class VaultSystemMountsImpl(
             )
     }
 
-    override suspend fun listMountedSecretsEngines(): Any {
+    override suspend fun listMountedSecretsEngines(): MountsListMountedSecretsEnginesResponse {
         val response = client.get {
             url {
                 appendPathSegments(this@VaultSystemMountsImpl.path)
@@ -202,5 +197,4 @@ public class VaultSystemMountsImpl(
         }
         return response.decodeBodyJsonDataFieldObject()
     }
-
 }
