@@ -7,6 +7,8 @@ import io.github.hansanto.kault.system.audit.VaultSystemAudit
 import io.github.hansanto.kault.system.audit.VaultSystemAuditImpl
 import io.github.hansanto.kault.system.auth.VaultSystemAuth
 import io.github.hansanto.kault.system.auth.VaultSystemAuthImpl
+import io.github.hansanto.kault.system.mounts.VaultSystemMounts
+import io.github.hansanto.kault.system.mounts.VaultSystemMountsImpl
 import io.github.hansanto.kault.system.namespaces.VaultSystemNamespaces
 import io.github.hansanto.kault.system.namespaces.VaultSystemNamespacesImpl
 import io.ktor.client.HttpClient
@@ -29,6 +31,11 @@ public class VaultSystem(
      * Namespaces service.
      */
     public val namespaces: VaultSystemNamespaces,
+
+    /**
+     * Mounts service.
+     */
+    public val mounts: VaultSystemMounts
 ) {
 
     public companion object {
@@ -80,10 +87,16 @@ public class VaultSystem(
          */
         private var namespacesBuilder: BuilderDsl<VaultSystemNamespacesImpl.Builder> = {}
 
+        /**
+         * Builder to define mounts service.
+         */
+        private var mountsBuilder: BuilderDsl<VaultSystemMountsImpl.Builder> = {}
+
         override fun buildWithCompletePath(client: HttpClient, completePath: String): VaultSystem = VaultSystem(
             auth = VaultSystemAuthImpl.Builder().apply(authBuilder).build(client, completePath),
             audit = VaultSystemAuditImpl.Builder().apply(auditBuilder).build(client, completePath),
-            namespaces = VaultSystemNamespacesImpl.Builder().apply(namespacesBuilder).build(client, completePath)
+            namespaces = VaultSystemNamespacesImpl.Builder().apply(namespacesBuilder).build(client, completePath),
+            mounts = VaultSystemMountsImpl.Builder().apply(mountsBuilder).build(client, completePath)
         )
 
         /**
@@ -111,6 +124,15 @@ public class VaultSystem(
          */
         public fun namespaces(builder: BuilderDsl<VaultSystemNamespacesImpl.Builder>) {
             namespacesBuilder = builder
+        }
+
+        /**
+         * Sets the mounts service builder.
+         *
+         * @param builder Builder to create [VaultSystemMountsImpl] instance.
+         */
+        public fun mounts(builder: BuilderDsl<VaultSystemMountsImpl.Builder>) {
+            mountsBuilder = builder
         }
     }
 }
