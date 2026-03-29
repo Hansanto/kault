@@ -160,11 +160,7 @@ class VaultSystemMountsTest :
         }
     })
 
-private suspend fun assertEnableSecretsEngine(
-    mounts: VaultSystemMounts,
-    givenPath: String?,
-    expectedPath: String
-) {
+private suspend fun assertEnableSecretsEngine(mounts: VaultSystemMounts, givenPath: String?, expectedPath: String) {
     assertEnableSecretsEngine(mounts, givenPath, expectedPath) { payload ->
         mounts.enableSecretsEngine(DEFAULT_ENGINE, payload)
     }
@@ -180,7 +176,7 @@ private suspend fun assertEnableSecretsEngineWithBuilder(
             type = payload.type
             description = payload.description
             val payloadConfig = payload.config
-            if(payloadConfig != null) {
+            if (payloadConfig != null) {
                 config {
                     defaultLeaseTTL = payloadConfig.defaultLeaseTTL
                     maxLeaseTTL = payloadConfig.maxLeaseTTL
@@ -203,7 +199,12 @@ private suspend fun assertEnableSecretsEngineWithBuilder(
     }
 }
 
-private suspend inline fun assertEnableSecretsEngine(mounts: VaultSystemMounts, givenPath: String?, expectedPath: String, enableSecretsEngine: (MountsEnableSecretsEnginePayload) -> Boolean) {
+private suspend inline fun assertEnableSecretsEngine(
+    mounts: VaultSystemMounts,
+    givenPath: String?,
+    expectedPath: String,
+    enableSecretsEngine: (MountsEnableSecretsEnginePayload) -> Boolean
+) {
     val payload = givenPath?.let { readJson<MountsEnableSecretsEnginePayload>(it) }
         ?: MountsEnableSecretsEnginePayload(DEFAULT_ENGINE)
 
