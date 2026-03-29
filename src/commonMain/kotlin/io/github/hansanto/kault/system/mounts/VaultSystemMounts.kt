@@ -3,7 +3,9 @@ package io.github.hansanto.kault.system.mounts
 import io.github.hansanto.kault.BuilderDsl
 import io.github.hansanto.kault.ServiceBuilder
 import io.github.hansanto.kault.extension.decodeBodyJsonDataFieldObject
+import io.github.hansanto.kault.system.mounts.payload.MountsEnableSecretsEnginePayload
 import io.github.hansanto.kault.system.mounts.response.MountsListMountedSecretsEnginesResponse
+import io.github.hansanto.kault.system.mounts.response.MountsReadConfigurationResponse
 import io.ktor.client.HttpClient
 import io.ktor.client.request.delete
 import io.ktor.client.request.get
@@ -19,10 +21,13 @@ import kotlin.contracts.contract
 /**
  * @see VaultSystemMounts.enableSecretsEngine(payload)
  */
-public suspend inline fun VaultSystemMounts.enableSecretsEngine(payloadBuilder: BuilderDsl<Any>): Any {
+public suspend inline fun VaultSystemMounts.enableSecretsEngine(
+    path: String,
+    payloadBuilder: BuilderDsl<MountsEnableSecretsEnginePayload.Builder>
+): Boolean {
     contract { callsInPlace(payloadBuilder, InvocationKind.EXACTLY_ONCE) }
-    val payload = TODO()
-    return enableSecretsEngine(payload)
+    val payload = MountsEnableSecretsEnginePayload.Builder().apply(payloadBuilder).build()
+    return enableSecretsEngine(path, payload)
 }
 
 /**
@@ -46,10 +51,11 @@ public interface VaultSystemMounts {
     /**
      * This endpoint enables a new secrets engine at the given path.
      * [Documentation](https://developer.hashicorp.com/vault/api-docs/system/mounts#enable-secrets-engine)
-     * @param payload Payload to enable a new secrets' engine.
+     * @param path Path to enable the secrets engine at. This is a URL parameter, not part of the payload.
+     * @param payload Payload to enable the secrets engine.
      * @return Response.
      */
-    public suspend fun enableSecretsEngine(payload: Any): Any
+    public suspend fun enableSecretsEngine(path: String, payload: MountsEnableSecretsEnginePayload): Boolean
 
     /**
      * This endpoint disables the mount point specified in the URL.
@@ -73,7 +79,7 @@ public interface VaultSystemMounts {
      * @param path Path of the mount to read the configuration of.
      * @return Response.
      */
-    public suspend fun readMountConfiguration(path: String): Any
+    public suspend fun readMountConfiguration(path: String): MountsReadConfigurationResponse
 
     /**
      * This endpoint tunes configuration parameters for a given mount point.
@@ -149,7 +155,7 @@ public class VaultSystemMountsImpl(
         return response.decodeBodyJsonDataFieldObject()
     }
 
-    override suspend fun enableSecretsEngine(payload: Any): Any {
+    override suspend fun enableSecretsEngine(path: String, payload: MountsEnableSecretsEnginePayload): Boolean {
         val response = client.post {
             url {
                 appendPathSegments(this@VaultSystemMountsImpl.path, path)
@@ -157,7 +163,7 @@ public class VaultSystemMountsImpl(
             contentType(ContentType.Application.Json)
             setBody(payload)
         }
-        return response.decodeBodyJsonDataFieldObject()
+        return response.status.isSuccess()
     }
 
     override suspend fun disableSecretsEngine(path: String): Boolean {
@@ -178,7 +184,7 @@ public class VaultSystemMountsImpl(
         return response.decodeBodyJsonDataFieldObject()
     }
 
-    override suspend fun readMountConfiguration(path: String): Any {
+    override suspend fun readMountConfiguration(path: String): MountsReadConfigurationResponse {
         val response = client.get {
             url {
                 appendPathSegments(this@VaultSystemMountsImpl.path, path, "tune")

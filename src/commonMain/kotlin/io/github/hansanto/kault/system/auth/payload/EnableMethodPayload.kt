@@ -3,7 +3,7 @@ package io.github.hansanto.kault.system.auth.payload
 import io.github.hansanto.kault.BuilderDsl
 import io.github.hansanto.kault.KaultDsl
 import io.github.hansanto.kault.serializer.VaultDuration
-import io.github.hansanto.kault.system.auth.common.ListingVisibility
+import io.github.hansanto.kault.system.common.ListingVisibility
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -16,7 +16,7 @@ public data class EnableMethodPayload(
     public var type: String,
 
     /**
-     * Specifies configuration options for this auth method. These are the possible values:
+     * Specifies configuration options for this auth method.
      */
     @SerialName("config")
     public var config: Config? = null,
