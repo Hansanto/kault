@@ -1,0 +1,39 @@
+{
+  "accessor": "REPLACE",
+  "config": {
+    "allowed_managed_keys": [
+      "key1",
+      "key2"
+    ],
+    "allowed_response_headers": [
+      "X-Vault-Token"
+    ],
+    "audit_non_hmac_request_keys": [
+      "username"
+    ],
+    "audit_non_hmac_response_keys": [
+      "client_token"
+    ],
+    "default_lease_ttl": 3600,
+    "force_no_cache": true,
+    "listing_visibility": "unauth",
+    "max_lease_ttl": 86400,
+    "passthrough_request_headers": [
+      "X-My-Header"
+    ]
+  },
+  "deprecation_status": "supported",
+  "description": "Secret description",
+  "external_entropy_access": true,
+  "local": true,
+  "options": {
+    "foo": "bar",
+    "version": "2"
+  },
+  "plugin_version": "",
+  "running_plugin_version": "REPLACE",
+  "running_sha256": "",
+  "seal_wrap": true,
+  "type": "kv",
+  "uuid": "REPLACE"
+}

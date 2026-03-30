@@ -3,8 +3,8 @@ package io.github.hansanto.kault.system.mounts
 import io.github.hansanto.kault.VaultClient
 import io.github.hansanto.kault.exception.VaultAPIException
 import io.github.hansanto.kault.system.mounts.payload.MountsEnableSecretsEnginePayload
+import io.github.hansanto.kault.system.mounts.response.MountsGetConfigurationOfSecretEngineResponse
 import io.github.hansanto.kault.system.mounts.response.MountsListMountedSecretsEnginesResponse
-import io.github.hansanto.kault.system.mounts.response.MountsReadConfigurationResponse
 import io.github.hansanto.kault.util.createVaultEnterpriseClient
 import io.github.hansanto.kault.util.deleteAllNamespaces
 import io.github.hansanto.kault.util.randomString
@@ -24,18 +24,14 @@ class VaultSystemMountsTest :
         lateinit var mounts: VaultSystemMounts
         lateinit var clientNamespace: VaultClient
         lateinit var mountsNamespace: VaultSystemMounts
-        lateinit var initialConfiguration: MountsReadConfigurationResponse
 
-//        beforeSpec {
-//            createVaultEnterpriseClient().use {
-//                initialConfiguration = it.system.mounts.readMountConfiguration(DEFAULT_ENGINE)
-//            }
-//        }
+        beforeSpec {
+            client = createVaultEnterpriseClient()
+            mounts = client.system.mounts
+        }
 
         beforeTest {
             val namespace = randomString()
-            client = createVaultEnterpriseClient()
-            mounts = client.system.mounts
 
             client.system.namespaces.create(namespace)
             clientNamespace = createVaultEnterpriseClient(namespace)
@@ -44,36 +40,12 @@ class VaultSystemMountsTest :
 
         afterTest {
             deleteAllNamespaces(client)
-            client.close()
             clientNamespace.close()
         }
 
-//        afterSpec {
-//            createVaultEnterpriseClient().use {
-//                it.system.mounts.disableSecretsEngine(DEFAULT_ENGINE)
-//                it.system.mounts.enableSecretsEngine(DEFAULT_ENGINE) {
-//                    type = DEFAULT_ENGINE
-//                    description = initialConfiguration.description
-//                    config {
-//                        defaultLeaseTTL = initialConfiguration.defaultLeaseTTL
-//                        maxLeaseTTL = initialConfiguration.maxLeaseTTL
-//                        forceNoCache = initialConfiguration.forceNoCache
-//                        auditNonHmacRequestKeys = initialConfiguration.auditNonHmacRequestKeys
-//                        auditNonHmacResponseKeys = initialConfiguration.auditNonHmacResponseKeys
-//                        listingVisibility = initialConfiguration.listingVisibility
-//                        passthroughRequestHeaders = initialConfiguration.passthroughRequestHeaders
-//                        allowedResponseHeaders = initialConfiguration.allowedResponseHeaders
-//                        allowedManagedKeys = initialConfiguration.allowedManagedKeys
-//                        delegatedAuthAccessors = initialConfiguration.delegatedAuthAccessors
-//                        identityTokenKey = initialConfiguration.identityTokenKey
-//                    }
-//                    options = initialConfiguration.options
-//                    local = initialConfiguration.local
-//                    sealWrap = initialConfiguration.sealWrap
-//                    externalEntropyAccess = initialConfiguration.externalEntropyAccess
-//                }
-//            }
-//        }
+        afterSpec {
+            client.close()
+        }
 
         should("use default path if not set in builder") {
             VaultSystemMountsImpl.Default.PATH shouldBe "mounts"
@@ -96,7 +68,7 @@ class VaultSystemMountsTest :
         }
 
         should("list default mounted secrets engines") {
-            val actual = mountsNamespace.listMountedSecretsEngines()
+            val actual = mounts.listMountedSecretsEngines()
             actual shouldBe replaceTemplateString(
                 expected = readJson<MountsListMountedSecretsEnginesResponse>(
                     "cases/sys/mounts/list_mounted_secrets_engines/expected.json"
@@ -117,17 +89,17 @@ class VaultSystemMountsTest :
             }
         }
 
-        should("read default engine configuration") {
+        should("get configuration of default secret engine configuration") {
             // Used to check nullable fields are handled correctly
             shouldNotThrowAny {
-                mounts.readMountConfiguration("cubbyhole")
-                mounts.readMountConfiguration("identity")
-                mounts.readMountConfiguration("sys")
-                mounts.readMountConfiguration("secret")
+                mounts.getConfigurationOfSecretEngine("cubbyhole")
+                mounts.getConfigurationOfSecretEngine("identity")
+                mounts.getConfigurationOfSecretEngine("sys")
+                mounts.getConfigurationOfSecretEngine("secret")
             }
         }
 
-        should("enable engine with minimal payload") {
+        should("enable secrets engine with minimal payload") {
             assertEnableSecretsEngine(
                 mounts = mountsNamespace,
                 givenPath = "cases/sys/mounts/enable_secrets_engine/without_options/given.json",
@@ -135,7 +107,7 @@ class VaultSystemMountsTest :
             )
         }
 
-        should("enable engine with minimal payload using builder") {
+        should("enable secrets engine with minimal payload using builder") {
             assertEnableSecretsEngineWithBuilder(
                 mounts = mountsNamespace,
                 givenPath = "cases/sys/mounts/enable_secrets_engine/without_options/given.json",
@@ -143,7 +115,7 @@ class VaultSystemMountsTest :
             )
         }
 
-        should("enable engine with all defined values") {
+        should("enable secrets engine with all defined values") {
             assertEnableSecretsEngine(
                 mounts = mountsNamespace,
                 givenPath = "cases/sys/mounts/enable_secrets_engine/with_options/given.json",
@@ -151,12 +123,33 @@ class VaultSystemMountsTest :
             )
         }
 
-        should("enable engine with all defined values using builder") {
+        should("enable secrets engine with all defined values using builder") {
             assertEnableSecretsEngineWithBuilder(
                 mounts = mountsNamespace,
                 givenPath = "cases/sys/mounts/enable_secrets_engine/with_options/given.json",
                 expectedPath = "cases/sys/mounts/enable_secrets_engine/with_options/expected.json"
             )
+        }
+
+        should("disable secrets engine return true if path does not exist") {
+            val result = mountsNamespace.disableSecretsEngine("non-existing-path")
+            result shouldBe true
+        }
+
+        should("disable secrets engine return true if path exists") {
+            mountsNamespace.enableSecretsEngine(DEFAULT_ENGINE) {
+                type = DEFAULT_ENGINE
+                kvOptions(2)
+            } shouldBe true
+
+            shouldNotThrowAny {
+                mountsNamespace.getConfigurationOfSecretEngine(DEFAULT_ENGINE)
+            }
+
+            mountsNamespace.disableSecretsEngine(DEFAULT_ENGINE) shouldBe true
+            shouldThrow<VaultAPIException> {
+                mountsNamespace.getConfigurationOfSecretEngine(DEFAULT_ENGINE)
+            }
         }
     })
 
@@ -209,5 +202,9 @@ private suspend inline fun assertEnableSecretsEngine(
         ?: MountsEnableSecretsEnginePayload(DEFAULT_ENGINE)
 
     enableSecretsEngine(payload) shouldBe true
-    mounts.readMountConfiguration(DEFAULT_ENGINE) shouldBe readJson<MountsReadConfigurationResponse>(expectedPath)
+    val actual = mounts.getConfigurationOfSecretEngine(DEFAULT_ENGINE)
+    actual shouldBe replaceTemplateString(
+        response = actual,
+        expected = readJson<MountsGetConfigurationOfSecretEngineResponse>(expectedPath)
+    )
 }

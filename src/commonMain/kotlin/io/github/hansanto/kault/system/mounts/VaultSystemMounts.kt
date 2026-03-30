@@ -4,6 +4,7 @@ import io.github.hansanto.kault.BuilderDsl
 import io.github.hansanto.kault.ServiceBuilder
 import io.github.hansanto.kault.extension.decodeBodyJsonDataFieldObject
 import io.github.hansanto.kault.system.mounts.payload.MountsEnableSecretsEnginePayload
+import io.github.hansanto.kault.system.mounts.response.MountsGetConfigurationOfSecretEngineResponse
 import io.github.hansanto.kault.system.mounts.response.MountsListMountedSecretsEnginesResponse
 import io.github.hansanto.kault.system.mounts.response.MountsReadConfigurationResponse
 import io.ktor.client.HttpClient
@@ -71,7 +72,7 @@ public interface VaultSystemMounts {
      * @param path Path of the secrets engine to get the configuration of.
      * @return Response.
      */
-    public suspend fun getConfigurationOfSecretsEngine(path: String): Any
+    public suspend fun getConfigurationOfSecretEngine(path: String): MountsGetConfigurationOfSecretEngineResponse
 
     /**
      * This endpoint reads the given mount's configuration.
@@ -175,7 +176,7 @@ public class VaultSystemMountsImpl(
         return response.status.isSuccess()
     }
 
-    override suspend fun getConfigurationOfSecretsEngine(path: String): Any {
+    override suspend fun getConfigurationOfSecretEngine(path: String): MountsGetConfigurationOfSecretEngineResponse {
         val response = client.get {
             url {
                 appendPathSegments(this@VaultSystemMountsImpl.path, path)
