@@ -1,6 +1,8 @@
 package io.github.hansanto.kault
 
 import io.github.hansanto.kault.engine.kv.v2.createOrUpdateSecret
+import io.github.hansanto.kault.exception.VaultAPIException
+import io.github.hansanto.kault.system.mounts.response.MountsGetConfigurationOfSecretEngineResponse
 import io.github.hansanto.kault.util.VAULT_URL
 import io.github.hansanto.kault.util.createVaultClient
 import io.github.hansanto.kault.util.createVaultEnterpriseClient
@@ -9,17 +11,25 @@ import io.github.hansanto.kault.util.deleteAllNamespaces
 import io.github.hansanto.kault.util.randomBoolean
 import io.github.hansanto.kault.util.randomString
 import io.github.hansanto.kault.util.revokeAllTokenData
+import io.github.hansanto.kault.util.toMountsEnableSecretsEnginePayload
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.isActive
 
+private const val SECRET_ENGINE = "secret"
+
 class VaultClientTest :
     ShouldSpec({
 
+        lateinit var defaultKV2Configuration: MountsGetConfigurationOfSecretEngineResponse
+        lateinit var client: VaultClient
         lateinit var enterpriseClient: VaultClient
 
         beforeTest {
+            client = createVaultClient()
             enterpriseClient = createVaultEnterpriseClient()
+            defaultKV2Configuration = client.system.mounts.getConfigurationOfSecretEngine(SECRET_ENGINE)
         }
 
         afterTest {
@@ -27,8 +37,8 @@ class VaultClientTest :
                 revokeAllTokenData(it)
             }
             deleteAllNamespaces(enterpriseClient)
-            enterpriseClient.close()
             deleteAllKV2Secrets(enterpriseClient)
+            enterpriseClient.close()
         }
 
         should("use default values if not set in builder") {
@@ -66,27 +76,38 @@ class VaultClientTest :
             val namespace1 = randomString()
             val namespace2 = randomString()
 
+            val secretPath = "path"
             enterpriseClient.system.namespaces.create(namespace1)
+            val dataNamespace1 = mapOf("key1" to "value1")
             enterpriseClient.system.namespaces.create(namespace2)
+            val dataNamespace2 = mapOf("key2" to "value2")
 
-            // TODO: Need to implement https://developer.hashicorp.com/vault/api-docs/system/mounts
-            //  to support creating secrets in different namespaces without creating multiple clients
+            val enableSecretsEnginePayload = defaultKV2Configuration.toMountsEnableSecretsEnginePayload()
 
             createVaultEnterpriseClient(namespace = namespace1).use { clientNamespace1 ->
-                clientNamespace1.secret.kv2.createOrUpdateSecret("path") {
-                    this.data(mapOf("key1" to "value1"))
+                clientNamespace1.system.mounts.enableSecretsEngine(SECRET_ENGINE, enableSecretsEnginePayload)
+
+                clientNamespace1.secret.kv2.createOrUpdateSecret(secretPath) {
+                    this.data(dataNamespace1)
                 }
 
                 createVaultEnterpriseClient(namespace = namespace2).use { clientNamespace2 ->
-                    clientNamespace2.secret.kv2.readSecret("path") shouldBe null
-                    clientNamespace2.secret.kv2.createOrUpdateSecret("path") {
-                        this.data(mapOf("key2" to "value2"))
+                    clientNamespace2.system.mounts.enableSecretsEngine(SECRET_ENGINE, enableSecretsEnginePayload)
+                    shouldThrow<VaultAPIException> {
+                        clientNamespace2.secret.kv2.readSecret(secretPath)
                     }
+                    clientNamespace2.secret.kv2.createOrUpdateSecret(secretPath) {
+                        this.data(dataNamespace2)
+                    }
+                    clientNamespace2.secret.kv2.readSecret(secretPath).data<Map<String, String>>() shouldBe
+                        dataNamespace2
                 }
 
-                clientNamespace1.secret.kv2.readSecret("path") shouldBe mapOf("key1" to "value1")
+                clientNamespace1.secret.kv2.readSecret(secretPath).data<Map<String, String>>() shouldBe dataNamespace1
             }
 
-            enterpriseClient.secret.kv2.readSecret("path") shouldBe null
+            shouldThrow<VaultAPIException> {
+                enterpriseClient.secret.kv2.readSecret(secretPath)
+            }
         }
     })
