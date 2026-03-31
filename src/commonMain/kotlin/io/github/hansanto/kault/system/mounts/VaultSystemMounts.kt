@@ -4,6 +4,7 @@ import io.github.hansanto.kault.BuilderDsl
 import io.github.hansanto.kault.ServiceBuilder
 import io.github.hansanto.kault.extension.decodeBodyJsonDataFieldObject
 import io.github.hansanto.kault.system.mounts.payload.MountsEnableSecretsEnginePayload
+import io.github.hansanto.kault.system.mounts.payload.MountsTuneConfigurationPayload
 import io.github.hansanto.kault.system.mounts.response.MountsGetConfigurationOfSecretEngineResponse
 import io.github.hansanto.kault.system.mounts.response.MountsListMountedSecretsEnginesResponse
 import io.github.hansanto.kault.system.mounts.response.MountsReadConfigurationResponse
@@ -34,9 +35,12 @@ public suspend inline fun VaultSystemMounts.enableSecretsEngine(
 /**
  * @see VaultSystemMounts.tuneMountConfiguration(path, payload)
  */
-public suspend inline fun VaultSystemMounts.tuneMountConfiguration(path: String, payloadBuilder: BuilderDsl<Any>): Any {
+public suspend inline fun VaultSystemMounts.tuneMountConfiguration(
+    path: String,
+    payloadBuilder: BuilderDsl<MountsTuneConfigurationPayload>
+): Boolean {
     contract { callsInPlace(payloadBuilder, InvocationKind.EXACTLY_ONCE) }
-    val payload = TODO()
+    val payload = MountsTuneConfigurationPayload().apply(payloadBuilder)
     return tuneMountConfiguration(path, payload)
 }
 
@@ -54,7 +58,7 @@ public interface VaultSystemMounts {
      * [Documentation](https://developer.hashicorp.com/vault/api-docs/system/mounts#enable-secrets-engine)
      * @param path Path to enable the secrets engine at. This is a URL parameter, not part of the payload.
      * @param payload Payload to enable the secrets engine.
-     * @return Response.
+     * @return `true` if the request was successful, `false` otherwise.
      */
     public suspend fun enableSecretsEngine(path: String, payload: MountsEnableSecretsEnginePayload): Boolean
 
@@ -62,7 +66,7 @@ public interface VaultSystemMounts {
      * This endpoint disables the mount point specified in the URL.
      * [Documentation](https://developer.hashicorp.com/vault/api-docs/system/mounts#disable-secrets-engine)
      * @param path Path of the secrets engine to disable.
-     * @return TODO
+     * @return `true` if the request was successful, `false` otherwise.
      */
     public suspend fun disableSecretsEngine(path: String): Boolean
 
@@ -87,9 +91,9 @@ public interface VaultSystemMounts {
      * [Documentation](https://developer.hashicorp.com/vault/api-docs/system/mounts#tune-mount-configuration)
      * @param path Path of the mount to tune the configuration of.
      * @param payload Payload to tune the configuration of the mount.
-     * @return Response.
+     * @return `true` if the request was successful, `false` otherwise.
      */
-    public suspend fun tuneMountConfiguration(path: String, payload: Any): Any
+    public suspend fun tuneMountConfiguration(path: String, payload: MountsTuneConfigurationPayload): Boolean
 }
 
 /**
@@ -194,7 +198,7 @@ public class VaultSystemMountsImpl(
         return response.decodeBodyJsonDataFieldObject()
     }
 
-    override suspend fun tuneMountConfiguration(path: String, payload: Any): Any {
+    override suspend fun tuneMountConfiguration(path: String, payload: MountsTuneConfigurationPayload): Boolean {
         val response = client.post {
             url {
                 appendPathSegments(this@VaultSystemMountsImpl.path, path, "tune")
@@ -202,6 +206,6 @@ public class VaultSystemMountsImpl(
             contentType(ContentType.Application.Json)
             setBody(payload)
         }
-        return response.decodeBodyJsonDataFieldObject()
+        return response.status.isSuccess()
     }
 }

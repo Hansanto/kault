@@ -3,8 +3,10 @@ package io.github.hansanto.kault.system.mounts
 import io.github.hansanto.kault.VaultClient
 import io.github.hansanto.kault.exception.VaultAPIException
 import io.github.hansanto.kault.system.mounts.payload.MountsEnableSecretsEnginePayload
+import io.github.hansanto.kault.system.mounts.payload.MountsTuneConfigurationPayload
 import io.github.hansanto.kault.system.mounts.response.MountsGetConfigurationOfSecretEngineResponse
 import io.github.hansanto.kault.system.mounts.response.MountsListMountedSecretsEnginesResponse
+import io.github.hansanto.kault.system.mounts.response.MountsReadConfigurationResponse
 import io.github.hansanto.kault.util.createVaultEnterpriseClient
 import io.github.hansanto.kault.util.deleteAllNamespaces
 import io.github.hansanto.kault.util.randomString
@@ -67,11 +69,27 @@ class VaultSystemMountsTest :
             built.path shouldBe "$parentPath/$randomPath"
         }
 
-        should("list default mounted secrets engines") {
+        should("list no additional mounted secrets engines") {
             val actual = mounts.listMountedSecretsEngines()
             actual shouldBe replaceTemplateString(
                 expected = readJson<MountsListMountedSecretsEnginesResponse>(
-                    "cases/sys/mounts/list_mounted_secrets_engines/expected.json"
+                    "cases/sys/mounts/list_mounted_secrets_engines/without_options/expected.json"
+                ),
+                response = actual,
+            )
+        }
+
+        should("list with additional mounted secrets engines") {
+            val given =
+                readJson<MountsEnableSecretsEnginePayload>(
+                    "cases/sys/mounts/list_mounted_secrets_engines/with_options/given.json"
+                )
+            mountsNamespace.enableSecretsEngine(DEFAULT_ENGINE, given)
+
+            val actual = mountsNamespace.listMountedSecretsEngines()
+            actual shouldBe replaceTemplateString(
+                expected = readJson<MountsListMountedSecretsEnginesResponse>(
+                    "cases/sys/mounts/list_mounted_secrets_engines/with_options/expected.json"
                 ),
                 response = actual,
             )
@@ -102,6 +120,7 @@ class VaultSystemMountsTest :
         should("enable secrets engine with minimal payload") {
             assertEnableSecretsEngine(
                 mounts = mountsNamespace,
+                path = DEFAULT_ENGINE,
                 givenPath = "cases/sys/mounts/enable_secrets_engine/without_options/given.json",
                 expectedPath = "cases/sys/mounts/enable_secrets_engine/without_options/expected.json"
             )
@@ -110,6 +129,7 @@ class VaultSystemMountsTest :
         should("enable secrets engine with minimal payload using builder") {
             assertEnableSecretsEngineWithBuilder(
                 mounts = mountsNamespace,
+                path = DEFAULT_ENGINE,
                 givenPath = "cases/sys/mounts/enable_secrets_engine/without_options/given.json",
                 expectedPath = "cases/sys/mounts/enable_secrets_engine/without_options/expected.json"
             )
@@ -118,6 +138,7 @@ class VaultSystemMountsTest :
         should("enable secrets engine with all defined values") {
             assertEnableSecretsEngine(
                 mounts = mountsNamespace,
+                path = DEFAULT_ENGINE,
                 givenPath = "cases/sys/mounts/enable_secrets_engine/with_options/given.json",
                 expectedPath = "cases/sys/mounts/enable_secrets_engine/with_options/expected.json"
             )
@@ -126,6 +147,7 @@ class VaultSystemMountsTest :
         should("enable secrets engine with all defined values using builder") {
             assertEnableSecretsEngineWithBuilder(
                 mounts = mountsNamespace,
+                path = DEFAULT_ENGINE,
                 givenPath = "cases/sys/mounts/enable_secrets_engine/with_options/given.json",
                 expectedPath = "cases/sys/mounts/enable_secrets_engine/with_options/expected.json"
             )
@@ -151,21 +173,77 @@ class VaultSystemMountsTest :
                 mountsNamespace.getConfigurationOfSecretEngine(DEFAULT_ENGINE)
             }
         }
+
+        should("read mount configuration of default secret engine") {
+            // Used to check nullable fields are handled correctly
+            shouldNotThrowAny {
+                mounts.readMountConfiguration("cubbyhole")
+                mounts.readMountConfiguration("identity")
+                mounts.readMountConfiguration("sys")
+                mounts.readMountConfiguration("secret")
+            }
+        }
+
+        should("tune mount configuration with minimal payload") {
+            assertTuneMountConfiguration(
+                mounts = mountsNamespace,
+                path = DEFAULT_ENGINE,
+                createPath = null,
+                givenPath = null,
+                expectedPath = "cases/sys/mounts/tune_mount_configuration/without_options/expected.json"
+            )
+        }
+
+        should("tune mount configuration with minimal payload using builder") {
+            assertTuneMountConfigurationWithBuilder(
+                mounts = mountsNamespace,
+                path = DEFAULT_ENGINE,
+                createPath = null,
+                givenPath = null,
+                expectedPath = "cases/sys/mounts/tune_mount_configuration/without_options/expected.json"
+            )
+        }
+
+        should("tune mount configuration with all defined values") {
+            assertTuneMountConfiguration(
+                mounts = mountsNamespace,
+                path = DEFAULT_ENGINE,
+                createPath = "cases/sys/mounts/tune_mount_configuration/with_options/given_create.json",
+                givenPath = "cases/sys/mounts/tune_mount_configuration/with_options/given_update.json",
+                expectedPath = "cases/sys/mounts/tune_mount_configuration/with_options/expected.json"
+            )
+        }
+
+        should("tune mount configuration with all defined values using builder") {
+            assertTuneMountConfigurationWithBuilder(
+                mounts = mountsNamespace,
+                path = DEFAULT_ENGINE,
+                createPath = "cases/sys/mounts/tune_mount_configuration/with_options/given_create.json",
+                givenPath = "cases/sys/mounts/tune_mount_configuration/with_options/given_update.json",
+                expectedPath = "cases/sys/mounts/tune_mount_configuration/with_options/expected.json"
+            )
+        }
     })
 
-private suspend fun assertEnableSecretsEngine(mounts: VaultSystemMounts, givenPath: String?, expectedPath: String) {
-    assertEnableSecretsEngine(mounts, givenPath, expectedPath) { payload ->
-        mounts.enableSecretsEngine(DEFAULT_ENGINE, payload)
+private suspend fun assertEnableSecretsEngine(
+    mounts: VaultSystemMounts,
+    path: String,
+    givenPath: String?,
+    expectedPath: String
+) {
+    assertEnableSecretsEngine(mounts, path, givenPath, expectedPath) { payload ->
+        mounts.enableSecretsEngine(path, payload)
     }
 }
 
 private suspend fun assertEnableSecretsEngineWithBuilder(
     mounts: VaultSystemMounts,
+    path: String,
     givenPath: String?,
     expectedPath: String
 ) {
-    assertEnableSecretsEngine(mounts, givenPath, expectedPath) { payload ->
-        mounts.enableSecretsEngine(DEFAULT_ENGINE) {
+    assertEnableSecretsEngine(mounts, path, givenPath, expectedPath) { payload ->
+        mounts.enableSecretsEngine(path) {
             type = payload.type
             description = payload.description
             val payloadConfig = payload.config
@@ -194,17 +272,78 @@ private suspend fun assertEnableSecretsEngineWithBuilder(
 
 private suspend inline fun assertEnableSecretsEngine(
     mounts: VaultSystemMounts,
+    path: String,
     givenPath: String?,
     expectedPath: String,
     enableSecretsEngine: (MountsEnableSecretsEnginePayload) -> Boolean
 ) {
     val payload = givenPath?.let { readJson<MountsEnableSecretsEnginePayload>(it) }
-        ?: MountsEnableSecretsEnginePayload(DEFAULT_ENGINE)
+        ?: MountsEnableSecretsEnginePayload(path)
 
     enableSecretsEngine(payload) shouldBe true
-    val actual = mounts.getConfigurationOfSecretEngine(DEFAULT_ENGINE)
+    val actual = mounts.getConfigurationOfSecretEngine(path)
     actual shouldBe replaceTemplateString(
         response = actual,
         expected = readJson<MountsGetConfigurationOfSecretEngineResponse>(expectedPath)
+    )
+}
+
+private suspend fun assertTuneMountConfiguration(
+    mounts: VaultSystemMounts,
+    path: String,
+    createPath: String?,
+    givenPath: String?,
+    expectedPath: String
+) {
+    assertTuneMountConfiguration(mounts, path, createPath, givenPath, expectedPath) { path, payload ->
+        mounts.tuneMountConfiguration(path, payload)
+    }
+}
+
+private suspend fun assertTuneMountConfigurationWithBuilder(
+    mounts: VaultSystemMounts,
+    path: String,
+    createPath: String?,
+    givenPath: String?,
+    expectedPath: String
+) {
+    assertTuneMountConfiguration(mounts, path, createPath, givenPath, expectedPath) { path, payload ->
+        mounts.tuneMountConfiguration(path) {
+            defaultLeaseTTL = payload.defaultLeaseTTL
+            maxLeaseTTL = payload.maxLeaseTTL
+            description = payload.description
+            auditNonHmacRequestKeys = payload.auditNonHmacRequestKeys
+            auditNonHmacResponseKeys = payload.auditNonHmacResponseKeys
+            listingVisibility = payload.listingVisibility
+            passthroughRequestHeaders = payload.passthroughRequestHeaders
+            allowedResponseHeaders = payload.allowedResponseHeaders
+            allowedManagedKeys = payload.allowedManagedKeys
+            pluginVersion = payload.pluginVersion
+            delegatedAuthAccessors = payload.delegatedAuthAccessors
+        }
+    }
+}
+
+private suspend inline fun assertTuneMountConfiguration(
+    mounts: VaultSystemMounts,
+    path: String,
+    createPath: String?,
+    givenPath: String?,
+    expectedPath: String,
+    tuneMountConfiguration: (String, MountsTuneConfigurationPayload) -> Boolean
+) {
+    val createPayload = createPath?.let { readJson<MountsEnableSecretsEnginePayload>(it) }
+        ?: MountsEnableSecretsEnginePayload(path)
+
+    mounts.enableSecretsEngine(path, createPayload) shouldBe true
+
+    val updateConfiguration = givenPath?.let { readJson<MountsTuneConfigurationPayload>(it) }
+        ?: MountsTuneConfigurationPayload()
+
+    tuneMountConfiguration(path, updateConfiguration) shouldBe true
+    val actual = mounts.readMountConfiguration(path)
+    actual shouldBe replaceTemplateString(
+        response = actual,
+        expected = readJson<MountsReadConfigurationResponse>(expectedPath)
     )
 }

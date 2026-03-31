@@ -1,0 +1,39 @@
+{
+  "type": "kv",
+  "description": "Secret description",
+  "config": {
+    "default_lease_ttl": "1h",
+    "max_lease_ttl": "24h",
+    "force_no_cache": true,
+    "audit_non_hmac_request_keys": [
+      "username"
+    ],
+    "audit_non_hmac_response_keys": [
+      "client_token"
+    ],
+    "listing_visibility": "unauth",
+    "passthrough_request_headers": [
+      "X-My-Header"
+    ],
+    "allowed_response_headers": [
+      "X-Vault-Token"
+    ],
+    "plugin_version": null,
+    "allowed_managed_keys": [
+      "key1",
+      "key2"
+    ],
+    "delegated_auth_accessors": [
+      "auth_accessor_1",
+      "auth_accessor_2"
+    ],
+    "identity_token_key": "identity_token"
+  },
+  "options": {
+    "version": "2",
+    "foo": "bar"
+  },
+  "local": true,
+  "seal_wrap": true,
+  "external_entropy_access": true
+}
