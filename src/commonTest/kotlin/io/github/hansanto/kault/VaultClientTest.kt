@@ -73,12 +73,13 @@ class VaultClientTest :
         }
 
         should("use namespace if set in builder") {
-            val namespace1 = randomString()
-            val namespace2 = randomString()
-
             val secretPath = "path"
+
+            val namespace1 = randomString()
             enterpriseClient.system.namespaces.create(namespace1)
             val dataNamespace1 = mapOf("key1" to "value1")
+
+            val namespace2 = randomString()
             enterpriseClient.system.namespaces.create(namespace2)
             val dataNamespace2 = mapOf("key2" to "value2")
 
@@ -87,23 +88,18 @@ class VaultClientTest :
             createVaultEnterpriseClient(namespace = namespace1).use { clientNamespace1 ->
                 clientNamespace1.system.mounts.enableSecretsEngine(SECRET_ENGINE, enableSecretsEnginePayload)
 
-                clientNamespace1.secret.kv2.createOrUpdateSecret(secretPath) {
-                    this.data(dataNamespace1)
-                }
+                val namespace1Kv2 = clientNamespace1.secret.kv2
+                namespace1Kv2.createOrUpdateSecret(secretPath) { data(dataNamespace1) }
 
                 createVaultEnterpriseClient(namespace = namespace2).use { clientNamespace2 ->
                     clientNamespace2.system.mounts.enableSecretsEngine(SECRET_ENGINE, enableSecretsEnginePayload)
-                    shouldThrow<VaultAPIException> {
-                        clientNamespace2.secret.kv2.readSecret(secretPath)
-                    }
-                    clientNamespace2.secret.kv2.createOrUpdateSecret(secretPath) {
-                        this.data(dataNamespace2)
-                    }
-                    clientNamespace2.secret.kv2.readSecret(secretPath).data<Map<String, String>>() shouldBe
-                        dataNamespace2
+                    val namespace2Kv2 = clientNamespace2.secret.kv2
+                    shouldThrow<VaultAPIException> { namespace2Kv2.readSecret(secretPath) }
+                    namespace2Kv2.createOrUpdateSecret(secretPath) { data(dataNamespace2) }
+                    namespace2Kv2.readSecret(secretPath).data<Map<String, String>>() shouldBe dataNamespace2
                 }
 
-                clientNamespace1.secret.kv2.readSecret(secretPath).data<Map<String, String>>() shouldBe dataNamespace1
+                namespace1Kv2.readSecret(secretPath).data<Map<String, String>>() shouldBe dataNamespace1
             }
 
             shouldThrow<VaultAPIException> {
