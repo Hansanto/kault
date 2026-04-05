@@ -15,7 +15,7 @@ services:
       - minikube
 
   openbao: # Use to tests Vault Enterprise features, like namespaces
-    image: openbao/openbao:2.5.1
+    image: openbao/openbao:2.5.2
     container_name: openbao
     ports:
       - "8201:8201"
