@@ -234,10 +234,10 @@ class VaultAuthOIDCTest :
             urlObject.parameters["redirect_uri"] shouldBe "https://localhost:8080/callback"
             urlObject.parameters["scope"] shouldBe "openid"
             urlObject.parameters["nonce"] should {
-                it != null && it.isNotEmpty()
+                !it.isNullOrEmpty()
             }
             urlObject.parameters["state"] should {
-                it != null && it.isNotEmpty()
+                !it.isNullOrEmpty()
             }
         }
 
