@@ -1,4 +1,4 @@
-package io.github.hansanto.kault.system.auth.common
+package io.github.hansanto.kault.system.common
 
 import io.github.hansanto.kault.serializer.EnumSerializer
 import kotlinx.serialization.Serializable

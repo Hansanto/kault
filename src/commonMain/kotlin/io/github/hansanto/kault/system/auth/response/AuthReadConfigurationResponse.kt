@@ -2,8 +2,8 @@ package io.github.hansanto.kault.system.auth.response
 
 import io.github.hansanto.kault.auth.common.common.TokenType
 import io.github.hansanto.kault.serializer.VaultDuration
-import io.github.hansanto.kault.system.auth.common.ListingVisibility
 import io.github.hansanto.kault.system.auth.payload.EnableMethodPayload
+import io.github.hansanto.kault.system.common.ListingVisibility
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 

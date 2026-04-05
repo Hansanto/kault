@@ -1,0 +1,21 @@
+{
+  "accessor": "REPLACE",
+  "config": {
+    "default_lease_ttl": 0,
+    "force_no_cache": false,
+    "max_lease_ttl": 0
+  },
+  "deprecation_status": "supported",
+  "description": "",
+  "external_entropy_access": false,
+  "local": false,
+  "options": {
+    "version": "2"
+  },
+  "plugin_version": "",
+  "running_plugin_version": "REPLACE",
+  "running_sha256": "",
+  "seal_wrap": false,
+  "type": "kv",
+  "uuid": "REPLACE"
+}
