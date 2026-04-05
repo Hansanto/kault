@@ -10,13 +10,28 @@ import io.ktor.client.plugins.logging.Logging
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withTimeoutOrNull
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 
 const val ROOT_TOKEN = "root"
 
 const val VAULT_URL = "http://localhost:8200"
 const val VAULT_ENTERPRISE_URL = "http://localhost:8201"
+
+/**
+ * Maximum time to wait for a data has been processed by Vault in case of async operations, such as namespace deletion.
+ */
+private val maxCheckTimeout = 10.seconds
+
+/**
+ * Interval between checks for data processing completion in case of async operations, such as namespace deletion.
+ */
+private val checkInterval = 100.milliseconds
 
 fun createVaultClient(
     authBuilder: VaultClient.Builder.AuthBuilder.() -> Unit = {
@@ -181,6 +196,21 @@ suspend fun deleteAllNamespaces(client: VaultClient) {
         .onSuccess { namespaces ->
             namespaces.keys.forEach {
                 namespacesService.delete(it)
+            }
+
+            withTimeoutOrNull(maxCheckTimeout) {
+                while (isActive) {
+                    val remainingNamespaces = runCatching { namespacesService.list() }
+                        .getOrNull()
+                        ?.keyInfo
+                        ?.firstNotNullOfOrNull { it.value.tainted } == true
+
+                    if (!remainingNamespaces) {
+                        break
+                    }
+
+                    delay(checkInterval)
+                }
             }
         }
 }
