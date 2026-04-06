@@ -7,11 +7,11 @@ import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
 import kotlin.time.Duration.Companion.milliseconds
 
-class AppRoleCreateCustomSecretIDPayloadTest :
+class AuthAppRoleCreateCustomSecretIDPayloadTest :
     ShouldSpec({
 
         should("throw exception when mandatory fields are not set using builder") {
-            val builder = AppRoleCreateCustomSecretIDPayload.Builder()
+            val builder = AuthAppRoleCreateCustomSecretIDPayload.Builder()
                 .apply {
                     metadata = randomString()
                     cidrList = List(5) { randomString() }
@@ -26,11 +26,11 @@ class AppRoleCreateCustomSecretIDPayloadTest :
         }
 
         should("create instance with only mandatory fields using builder") {
-            val payload = AppRoleCreateCustomSecretIDPayload(
+            val payload = AuthAppRoleCreateCustomSecretIDPayload(
                 secretId = randomString()
             )
 
-            AppRoleCreateCustomSecretIDPayload.Builder()
+            AuthAppRoleCreateCustomSecretIDPayload.Builder()
                 .apply {
                     secretId = payload.secretId
                 }
@@ -38,7 +38,7 @@ class AppRoleCreateCustomSecretIDPayloadTest :
         }
 
         should("create instance with all fields using builder") {
-            val payload = AppRoleCreateCustomSecretIDPayload(
+            val payload = AuthAppRoleCreateCustomSecretIDPayload(
                 secretId = randomString(),
                 metadata = randomString(),
                 cidrList = List(5) { randomString() },
@@ -47,7 +47,7 @@ class AppRoleCreateCustomSecretIDPayloadTest :
                 ttl = randomLong().milliseconds
             )
 
-            AppRoleCreateCustomSecretIDPayload.Builder()
+            AuthAppRoleCreateCustomSecretIDPayload.Builder()
                 .apply {
                     secretId = payload.secretId
                     metadata = payload.metadata
@@ -60,25 +60,25 @@ class AppRoleCreateCustomSecretIDPayloadTest :
         }
 
         should("transform metadata empty map to empty json") {
-            val payload = AppRoleCreateCustomSecretIDPayload("")
+            val payload = AuthAppRoleCreateCustomSecretIDPayload("")
             payload.metadata(emptyMap())
             payload.metadata shouldBe "{}"
         }
 
         should("transform metadata map with one entry to json") {
-            val payload = AppRoleCreateCustomSecretIDPayload("")
+            val payload = AuthAppRoleCreateCustomSecretIDPayload("")
             payload.metadata(mapOf("key" to "value"))
             payload.metadata shouldBe "{\"key\":\"value\"}"
         }
 
         should("transform metadata from map with multiple entries") {
-            val payload = AppRoleCreateCustomSecretIDPayload("")
+            val payload = AuthAppRoleCreateCustomSecretIDPayload("")
             payload.metadata(mapOf("key1" to "value1", "key2" to "value2"))
             payload.metadata shouldBe "{\"key1\":\"value1\",\"key2\":\"value2\"}"
         }
 
         should("transform builder metadata empty map to empty json") {
-            val builder = AppRoleCreateCustomSecretIDPayload
+            val builder = AuthAppRoleCreateCustomSecretIDPayload
                 .Builder().apply {
                     metadata(emptyMap())
                 }
@@ -86,7 +86,7 @@ class AppRoleCreateCustomSecretIDPayloadTest :
         }
 
         should("transform builder metadata map with one entry to json") {
-            val builder = AppRoleCreateCustomSecretIDPayload
+            val builder = AuthAppRoleCreateCustomSecretIDPayload
                 .Builder().apply {
                     metadata(mapOf("key" to "value"))
                 }
@@ -94,7 +94,7 @@ class AppRoleCreateCustomSecretIDPayloadTest :
         }
 
         should("transform builder metadata from map with multiple entries") {
-            val builder = AppRoleCreateCustomSecretIDPayload
+            val builder = AuthAppRoleCreateCustomSecretIDPayload
                 .Builder().apply {
                     metadata(mapOf("key1" to "value1", "key2" to "value2"))
                 }

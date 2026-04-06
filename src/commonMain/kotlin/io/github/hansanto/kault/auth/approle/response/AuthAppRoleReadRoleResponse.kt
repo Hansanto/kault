@@ -6,7 +6,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-public data class AppRoleReadRoleResponse(
+public data class AuthAppRoleReadRoleResponse(
     /**
      * Impose secret ID to be presented when logging in using this role.
      */

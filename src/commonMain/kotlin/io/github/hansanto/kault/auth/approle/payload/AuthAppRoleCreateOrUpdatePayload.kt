@@ -6,7 +6,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-public data class AppRoleCreateOrUpdatePayload(
+public data class AuthAppRoleCreateOrUpdatePayload(
     /**
      * Require secret_id to be presented when logging in using this AppRole.
      */

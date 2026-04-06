@@ -1,14 +1,14 @@
 package io.github.hansanto.kault.auth.approle
 
 import io.github.hansanto.kault.VaultClient
-import io.github.hansanto.kault.auth.approle.payload.AppRoleCreateCustomSecretIDPayload
-import io.github.hansanto.kault.auth.approle.payload.AppRoleCreateOrUpdatePayload
-import io.github.hansanto.kault.auth.approle.payload.AppRoleGenerateSecretIDPayload
-import io.github.hansanto.kault.auth.approle.payload.AppRoleLoginPayload
-import io.github.hansanto.kault.auth.approle.response.AppRoleLookUpSecretIdResponse
-import io.github.hansanto.kault.auth.approle.response.AppRoleReadRoleIdResponse
-import io.github.hansanto.kault.auth.approle.response.AppRoleReadRoleResponse
-import io.github.hansanto.kault.auth.approle.response.AppRoleWriteSecretIdResponse
+import io.github.hansanto.kault.auth.approle.payload.AuthAppRoleCreateCustomSecretIDPayload
+import io.github.hansanto.kault.auth.approle.payload.AuthAppRoleCreateOrUpdatePayload
+import io.github.hansanto.kault.auth.approle.payload.AuthAppRoleGenerateSecretIDPayload
+import io.github.hansanto.kault.auth.approle.payload.AuthAppRoleLoginPayload
+import io.github.hansanto.kault.auth.approle.response.AuthAppRoleGenerateSecretIDResponse
+import io.github.hansanto.kault.auth.approle.response.AuthAppRoleReadRoleIdResponse
+import io.github.hansanto.kault.auth.approle.response.AuthAppRoleReadRoleResponse
+import io.github.hansanto.kault.auth.approle.response.AuthAppRoleReadSecretIDResponse
 import io.github.hansanto.kault.auth.common.response.LoginResponse
 import io.github.hansanto.kault.exception.VaultAPIException
 import io.github.hansanto.kault.util.DEFAULT_ROLE_NAME
@@ -110,10 +110,10 @@ class VaultAuthAppRoleTest :
         should("update a role if it exists") {
             appRole.createOrUpdate(DEFAULT_ROLE_NAME) shouldBe true
 
-            val given = readJson<AppRoleCreateOrUpdatePayload>("cases/auth/approle/update/given.json")
+            val given = readJson<AuthAppRoleCreateOrUpdatePayload>("cases/auth/approle/update/given.json")
             appRole.createOrUpdate(DEFAULT_ROLE_NAME, given) shouldBe true
 
-            val expected = readJson<AppRoleReadRoleResponse>("cases/auth/approle/update/expected.json")
+            val expected = readJson<AuthAppRoleReadRoleResponse>("cases/auth/approle/update/expected.json")
             appRole.read(DEFAULT_ROLE_NAME) shouldBe expected
         }
 
@@ -161,7 +161,7 @@ class VaultAuthAppRoleTest :
             val previousRoleId = appRole.readRoleID(DEFAULT_ROLE_NAME)
             previousRoleId.roleId shouldNotBe newRoleId
 
-            val expectedResponse = AppRoleReadRoleIdResponse(newRoleId)
+            val expectedResponse = AuthAppRoleReadRoleIdResponse(newRoleId)
             appRole.updateRoleID(DEFAULT_ROLE_NAME, newRoleId) shouldBe true
             appRole.readRoleID(DEFAULT_ROLE_NAME) shouldBe expectedResponse
         }
@@ -307,7 +307,7 @@ class VaultAuthAppRoleTest :
             shouldThrow<VaultAPIException> {
                 appRole.createCustomSecretID(
                     DEFAULT_ROLE_NAME,
-                    AppRoleCreateCustomSecretIDPayload(randomString())
+                    AuthAppRoleCreateCustomSecretIDPayload(randomString())
                 )
             }
         }
@@ -317,7 +317,7 @@ class VaultAuthAppRoleTest :
             shouldThrow<VaultAPIException> {
                 appRole.createCustomSecretID(
                     DEFAULT_ROLE_NAME,
-                    AppRoleCreateCustomSecretIDPayload("")
+                    AuthAppRoleCreateCustomSecretIDPayload("")
                 )
             }
         }
@@ -359,13 +359,13 @@ class VaultAuthAppRoleTest :
         }
 
         should("throw exception when login with non-existing role") {
-            shouldThrow<VaultAPIException> { appRole.login(AppRoleLoginPayload(DEFAULT_ROLE_NAME, randomString())) }
+            shouldThrow<VaultAPIException> { appRole.login(AuthAppRoleLoginPayload(DEFAULT_ROLE_NAME, randomString())) }
         }
 
         should("throw exception when login with existing role with empty secret-id") {
             appRole.createOrUpdate(DEFAULT_ROLE_NAME) shouldBe true
             val roleId = appRole.readRoleID(DEFAULT_ROLE_NAME).roleId
-            shouldThrow<VaultAPIException> { appRole.login(AppRoleLoginPayload(roleId, "")) }
+            shouldThrow<VaultAPIException> { appRole.login(AuthAppRoleLoginPayload(roleId, "")) }
         }
 
         should("login with existing role with secret-id") {
@@ -373,7 +373,7 @@ class VaultAuthAppRoleTest :
                 appRole,
                 "cases/auth/approle/login/expected.json"
             ) { roleId, secretId ->
-                appRole.login(AppRoleLoginPayload(roleId, secretId))
+                appRole.login(AuthAppRoleLoginPayload(roleId, secretId))
             }
         }
 
@@ -406,7 +406,7 @@ private suspend fun assertGenerateSecretID(
         givenPath,
         expectedWritePath,
         expectedReadPath,
-        defaultPayload = { AppRoleGenerateSecretIDPayload() },
+        defaultPayload = { AuthAppRoleGenerateSecretIDPayload() },
         write = { role, payload ->
             appRole.generateSecretID(role, payload)
         },
@@ -427,7 +427,7 @@ private suspend fun assertGenerateSecretIDWithBuilder(
         givenPath,
         expectedWritePath,
         expectedReadPath,
-        defaultPayload = { AppRoleGenerateSecretIDPayload() },
+        defaultPayload = { AuthAppRoleGenerateSecretIDPayload() },
         write = { role, payload ->
             appRole.generateSecretID(role) {
                 this.metadata = payload.metadata
@@ -449,7 +449,7 @@ private suspend fun assertCreateCustomSecretID(
     expectedWritePath: String,
     expectedReadPath: String
 ) {
-    assertCreateAndReadSecret<AppRoleCreateCustomSecretIDPayload>(
+    assertCreateAndReadSecret<AuthAppRoleCreateCustomSecretIDPayload>(
         appRole,
         givenPath,
         expectedWritePath,
@@ -470,7 +470,7 @@ private suspend fun assertCreateCustomSecretIDWithBuilder(
     expectedWritePath: String,
     expectedReadPath: String
 ) {
-    assertCreateAndReadSecret<AppRoleCreateCustomSecretIDPayload>(
+    assertCreateAndReadSecret<AuthAppRoleCreateCustomSecretIDPayload>(
         appRole,
         givenPath,
         expectedWritePath,
@@ -498,12 +498,12 @@ private suspend fun assertReadSecretIdAccessor(
     expectedWritePath: String,
     expectedReadPath: String
 ) {
-    assertCreateAndReadSecret<AppRoleGenerateSecretIDPayload>(
+    assertCreateAndReadSecret<AuthAppRoleGenerateSecretIDPayload>(
         appRole,
         givenPath,
         expectedWritePath,
         expectedReadPath,
-        defaultPayload = { AppRoleGenerateSecretIDPayload() },
+        defaultPayload = { AuthAppRoleGenerateSecretIDPayload() },
         write = { role, payload ->
             appRole.generateSecretID(role, payload)
         },
@@ -519,8 +519,8 @@ private suspend inline fun <reified P> assertCreateAndReadSecret(
     expectedWritePath: String,
     expectedReadPath: String,
     defaultPayload: () -> P,
-    write: (String, P) -> AppRoleWriteSecretIdResponse,
-    read: (String, AppRoleWriteSecretIdResponse) -> AppRoleLookUpSecretIdResponse
+    write: (String, P) -> AuthAppRoleGenerateSecretIDResponse,
+    read: (String, AuthAppRoleGenerateSecretIDResponse) -> AuthAppRoleReadSecretIDResponse
 ) {
     appRole.createOrUpdate(DEFAULT_ROLE_NAME) shouldBe true
 
@@ -528,11 +528,11 @@ private suspend inline fun <reified P> assertCreateAndReadSecret(
     val given = givenPath?.let { readJson<P>(it) } ?: defaultPayload()
 
     val writeResponse = write(DEFAULT_ROLE_NAME, given)
-    val expectedWriteResponse = readJson<AppRoleWriteSecretIdResponse>(expectedWritePath)
+    val expectedWriteResponse = readJson<AuthAppRoleGenerateSecretIDResponse>(expectedWritePath)
     writeResponse shouldBe replaceTemplateString(expectedWriteResponse, writeResponse)
 
     val readResponse = read(DEFAULT_ROLE_NAME, writeResponse)
-    val expectedReadResponse = readJson<AppRoleLookUpSecretIdResponse>(expectedReadPath)
+    val expectedReadResponse = readJson<AuthAppRoleReadSecretIDResponse>(expectedReadPath)
     readResponse shouldBe replaceTemplateString(expectedReadResponse, readResponse)
 }
 
@@ -579,11 +579,11 @@ private suspend inline fun assertCreateRole(
     appRole: VaultAuthAppRole,
     givenPath: String?,
     expectedReadPath: String,
-    createOrUpdate: (String, AppRoleCreateOrUpdatePayload) -> Boolean
+    createOrUpdate: (String, AuthAppRoleCreateOrUpdatePayload) -> Boolean
 ) {
-    val given = givenPath?.let { readJson<AppRoleCreateOrUpdatePayload>(it) } ?: AppRoleCreateOrUpdatePayload()
+    val given = givenPath?.let { readJson<AuthAppRoleCreateOrUpdatePayload>(it) } ?: AuthAppRoleCreateOrUpdatePayload()
     createOrUpdate(DEFAULT_ROLE_NAME, given) shouldBe true
-    appRole.read(DEFAULT_ROLE_NAME) shouldBe readJson<AppRoleReadRoleResponse>(expectedReadPath)
+    appRole.read(DEFAULT_ROLE_NAME) shouldBe readJson<AuthAppRoleReadRoleResponse>(expectedReadPath)
 }
 
 private suspend inline fun assertLogin(
