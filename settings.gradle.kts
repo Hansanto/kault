@@ -13,7 +13,7 @@ dependencyResolutionManagement {
         }
 
         create("libs") {
-            version("kotlin", "2.3.10")
+            version("kotlin", "2.3.20")
             version("kotlin-serialization", "1.10.0")
             version("ksp", "2.3.6")
             version("kotest", "6.1.4")
