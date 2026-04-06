@@ -1,21 +1,44 @@
 package io.github.hansanto.kault
 
+import io.github.hansanto.kault.engine.kv.v2.createOrUpdateSecret
+import io.github.hansanto.kault.exception.VaultAPIException
+import io.github.hansanto.kault.system.mounts.response.MountsGetConfigurationOfSecretEngineResponse
 import io.github.hansanto.kault.util.VAULT_URL
 import io.github.hansanto.kault.util.createVaultClient
+import io.github.hansanto.kault.util.createVaultEnterpriseClient
+import io.github.hansanto.kault.util.deleteAllKV2Secrets
+import io.github.hansanto.kault.util.deleteAllNamespaces
 import io.github.hansanto.kault.util.randomBoolean
 import io.github.hansanto.kault.util.randomString
 import io.github.hansanto.kault.util.revokeAllTokenData
+import io.github.hansanto.kault.util.toMountsEnableSecretsEnginePayload
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.isActive
 
+private const val SECRET_ENGINE = "secret"
+
 class VaultClientTest :
     ShouldSpec({
+
+        lateinit var defaultKV2Configuration: MountsGetConfigurationOfSecretEngineResponse
+        lateinit var client: VaultClient
+        lateinit var enterpriseClient: VaultClient
+
+        beforeTest {
+            client = createVaultClient()
+            enterpriseClient = createVaultEnterpriseClient()
+            defaultKV2Configuration = client.system.mounts.getConfigurationOfSecretEngine(SECRET_ENGINE)
+        }
 
         afterTest {
             createVaultClient().use {
                 revokeAllTokenData(it)
             }
+            deleteAllNamespaces(enterpriseClient)
+            deleteAllKV2Secrets(enterpriseClient)
+            enterpriseClient.close()
         }
 
         should("use default values if not set in builder") {
@@ -46,6 +69,41 @@ class VaultClientTest :
                 it.client.coroutineContext.isActive shouldBe true
                 it.close()
                 it.client.coroutineContext.isActive shouldBe false
+            }
+        }
+
+        should("use namespace if set in builder") {
+            val secretPath = "path"
+
+            val namespace1 = randomString()
+            enterpriseClient.system.namespaces.create(namespace1)
+            val dataNamespace1 = mapOf("key1" to "value1")
+
+            val namespace2 = randomString()
+            enterpriseClient.system.namespaces.create(namespace2)
+            val dataNamespace2 = mapOf("key2" to "value2")
+
+            val enableSecretsEnginePayload = defaultKV2Configuration.toMountsEnableSecretsEnginePayload()
+
+            createVaultEnterpriseClient(namespace = namespace1).use { clientNamespace1 ->
+                clientNamespace1.system.mounts.enableSecretsEngine(SECRET_ENGINE, enableSecretsEnginePayload)
+
+                val namespace1Kv2 = clientNamespace1.secret.kv2
+                namespace1Kv2.createOrUpdateSecret(secretPath) { data(dataNamespace1) }
+
+                createVaultEnterpriseClient(namespace = namespace2).use { clientNamespace2 ->
+                    clientNamespace2.system.mounts.enableSecretsEngine(SECRET_ENGINE, enableSecretsEnginePayload)
+                    val namespace2Kv2 = clientNamespace2.secret.kv2
+                    shouldThrow<VaultAPIException> { namespace2Kv2.readSecret(secretPath) }
+                    namespace2Kv2.createOrUpdateSecret(secretPath) { data(dataNamespace2) }
+                    namespace2Kv2.readSecret(secretPath).data<Map<String, String>>() shouldBe dataNamespace2
+                }
+
+                namespace1Kv2.readSecret(secretPath).data<Map<String, String>>() shouldBe dataNamespace1
+            }
+
+            shouldThrow<VaultAPIException> {
+                enterpriseClient.secret.kv2.readSecret(secretPath)
             }
         }
     })

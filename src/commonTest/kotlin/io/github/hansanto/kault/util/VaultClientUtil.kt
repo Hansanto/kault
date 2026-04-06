@@ -7,17 +7,54 @@ import io.ktor.client.plugins.logging.DEFAULT
 import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logger
 import io.ktor.client.plugins.logging.Logging
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withTimeoutOrNull
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 
 const val ROOT_TOKEN = "root"
 
 const val VAULT_URL = "http://localhost:8200"
+const val VAULT_ENTERPRISE_URL = "http://localhost:8201"
 
-inline fun createVaultClient(
-    crossinline authBuilder: VaultClient.Builder.AuthBuilder.() -> Unit = {
+/**
+ * Maximum time to wait for a data has been processed by Vault in case of async operations, such as namespace deletion.
+ */
+val maxCheckVaultAsyncOpTimeout = 10.seconds
+
+/**
+ * Interval between checks for data processing completion in case of async operations, such as namespace deletion.
+ */
+val checkVaultAsyncOpInterval = 100.milliseconds
+
+fun createVaultClient(
+    authBuilder: VaultClient.Builder.AuthBuilder.() -> Unit = {
+        autoRenewToken = false
+    }
+): VaultClient = createVaultClient(VAULT_URL, null, authBuilder)
+
+fun createVaultEnterpriseClient(
+    namespace: String? = null,
+    authBuilder: VaultClient.Builder.AuthBuilder.() -> Unit = {
+        autoRenewToken = false
+    }
+): VaultClient = createVaultClient(VAULT_ENTERPRISE_URL, namespace, authBuilder)
+
+private fun createVaultClient(
+    url: String,
+    namespace: String? = null,
+    authBuilder: VaultClient.Builder.AuthBuilder.() -> Unit = {
         autoRenewToken = false
     }
 ): VaultClient = VaultClient {
-    url = VAULT_URL
+    this.url = url
+    this.namespace = namespace
     auth {
         setTokenString(ROOT_TOKEN)
         authBuilder()
@@ -149,4 +186,81 @@ suspend fun disableAllAuth(client: VaultClient) {
                     authService.disable(it)
                 }
         }
+}
+
+suspend fun deleteAllNamespaces(client: VaultClient) {
+    client.auth.setTokenString(ROOT_TOKEN)
+    val namespacesService = client.system.namespaces
+
+    runCatching { namespacesService.list() }
+        .onSuccess { namespaces ->
+            namespaces.keys.forEach {
+                namespacesService.delete(it)
+            }
+
+            waitUntilVaultAsyncOpCompleted {
+                val namespaces = runCatching { namespacesService.list() }
+                    .getOrNull()
+                    ?.keyInfo
+                    // If the list() throws an exception, it means there are no namespaces, so we can consider the operation completed
+                    ?: return@waitUntilVaultAsyncOpCompleted true
+
+                // A tainted namespace means that the namespace is in the process of being deleted
+                // If there are no tainted namespaces, it means that all namespaces have been deleted
+                namespaces.asSequence().find { it.value.tainted } == null
+            }
+        }
+}
+
+suspend fun deleteAllKV2Secrets(client: VaultClient) {
+    client.auth.setTokenString(ROOT_TOKEN)
+    val kv2 = client.secret.kv2
+
+    val secrets = getAllSecrets(client)
+    secrets.forEach { secret ->
+        kv2.deleteMetadataAndAllVersions(secret)
+    }
+}
+
+suspend fun getAllSecrets(client: VaultClient): Collection<String> = coroutineScope {
+    val result = mutableSetOf<String>()
+    val mutex = Mutex()
+    val kv2 = client.secret.kv2
+
+    suspend fun getSecretsRecursively(path: String) {
+        val secrets = runCatching { kv2.listSecrets(path) }.getOrNull() ?: return
+
+        secrets.map { secret ->
+            async {
+                if (secret.endsWith('/')) {
+                    getSecretsRecursively(path + secret)
+                } else {
+                    val secretCompletePath = path + secret
+                    mutex.withLock {
+                        result.add(secretCompletePath)
+                    }
+                }
+            }
+        }.awaitAll()
+    }
+
+    getSecretsRecursively("")
+    return@coroutineScope result
+}
+
+/**
+ * Some API calls in Vault are asynchronous, such as namespace deletion.
+ * This function allows to wait until the operation launched asynchronously is completed by periodically checking the condition provided in [isCompleted].
+ *
+ * @param isCompleted `true` if the operation is completed, `false` otherwise.
+ */
+suspend inline fun waitUntilVaultAsyncOpCompleted(crossinline isCompleted: suspend () -> Boolean) {
+    withTimeoutOrNull(maxCheckVaultAsyncOpTimeout) {
+        while (isActive) {
+            if (isCompleted()) {
+                break
+            }
+            delay(checkVaultAsyncOpInterval)
+        }
+    }
 }

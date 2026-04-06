@@ -1,5 +1,7 @@
 package io.github.hansanto.kault.system.auth.common
 
+import io.github.hansanto.kault.system.common.ListingVisibility
+import io.github.hansanto.kault.system.common.ListingVisibilitySerializer
 import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
 import kotlinx.serialization.json.Json

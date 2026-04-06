@@ -1,0 +1,62 @@
+{
+  "key_info": {
+    "namespace-0/": {
+      "custom_metadata": {
+        "key": "value",
+        "key2": "value2"
+      },
+      "id": "REPLACE",
+      "locked": false,
+      "path": "namespace-0/",
+      "tainted": false,
+      "uuid": "REPLACE"
+    },
+    "namespace-1/": {
+      "custom_metadata": {
+        "another_key": "another_value"
+      },
+      "id": "REPLACE",
+      "locked": false,
+      "path": "namespace-1/",
+      "tainted": false,
+      "uuid": "REPLACE"
+    },
+    "namespace-2/": {
+      "custom_metadata": {
+        "namespace_key": "namespace_value"
+      },
+      "id": "REPLACE",
+      "locked": false,
+      "path": "namespace-2/",
+      "tainted": false,
+      "uuid": "REPLACE"
+    },
+    "namespace-3/": {
+      "custom_metadata": {
+        "custom": "metadata"
+      },
+      "id": "REPLACE",
+      "locked": false,
+      "path": "namespace-3/",
+      "tainted": false,
+      "uuid": "REPLACE"
+    },
+    "namespace-4/": {
+      "custom_metadata": {
+        "foo": "bar"
+      },
+      "id": "REPLACE",
+      "locked": false,
+      "path": "namespace-4/",
+      "tainted": false,
+      "uuid": "REPLACE"
+    }
+  },
+  "keys": [
+    "namespace-0/",
+    "namespace-1/",
+    "namespace-2/",
+    "namespace-3/",
+    "namespace-4/"
+  ]
+}

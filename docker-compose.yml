@@ -14,6 +14,18 @@ services:
       - keycloak
       - minikube
 
+  openbao: # Use to tests Vault Enterprise features, like namespaces
+    image: openbao/openbao:2.5.2
+    container_name: openbao
+    ports:
+      - "8201:8201"
+    environment:
+      - BAO_LOG_LEVEL=debug
+      - BAO_DEV_ROOT_TOKEN_ID=root
+      - BAO_DEV_LISTEN_ADDRESS=0.0.0.0:8201
+    cap_add:
+      - IPC_LOCK
+
   keycloak:
     image: quay.io/keycloak/keycloak:26.5
     container_name: keycloak

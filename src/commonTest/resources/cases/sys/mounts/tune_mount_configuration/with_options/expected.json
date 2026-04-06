@@ -1,0 +1,32 @@
+{
+  "allowed_managed_keys": [
+    "another_key_1",
+    "another_key_2"
+  ],
+  "allowed_response_headers": [
+    "Header_3",
+    "Header_4"
+  ],
+  "audit_non_hmac_request_keys": [
+    "A",
+    "B"
+  ],
+  "audit_non_hmac_response_keys": [
+    "C",
+    "D"
+  ],
+  "default_lease_ttl": 43200,
+  "description": "Another description",
+  "external_entropy_access": true,
+  "force_no_cache": true,
+  "listing_visibility": "hidden",
+  "max_lease_ttl": 172800,
+  "options": {
+    "foo": "bar",
+    "version": "2"
+  },
+  "passthrough_request_headers": [
+    "Header_1",
+    "Header_2"
+  ]
+}
