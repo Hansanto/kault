@@ -26,12 +26,12 @@ const val VAULT_ENTERPRISE_URL = "http://localhost:8201"
 /**
  * Maximum time to wait for a data has been processed by Vault in case of async operations, such as namespace deletion.
  */
-private val maxCheckTimeout = 10.seconds
+val maxCheckVaultAsyncOpTimeout = 10.seconds
 
 /**
  * Interval between checks for data processing completion in case of async operations, such as namespace deletion.
  */
-private val checkInterval = 100.milliseconds
+val checkVaultAsyncOpInterval = 100.milliseconds
 
 fun createVaultClient(
     authBuilder: VaultClient.Builder.AuthBuilder.() -> Unit = {
@@ -198,19 +198,16 @@ suspend fun deleteAllNamespaces(client: VaultClient) {
                 namespacesService.delete(it)
             }
 
-            withTimeoutOrNull(maxCheckTimeout) {
-                while (isActive) {
-                    val remainingNamespaces = runCatching { namespacesService.list() }
-                        .getOrNull()
-                        ?.keyInfo
-                        ?.firstNotNullOfOrNull { it.value.tainted } == true
+            waitUntilVaultAsyncOpCompleted {
+                val namespaces = runCatching { namespacesService.list() }
+                    .getOrNull()
+                    ?.keyInfo
+                    // If the list() throws an exception, it means there are no namespaces, so we can consider the operation completed
+                    ?: return@waitUntilVaultAsyncOpCompleted true
 
-                    if (!remainingNamespaces) {
-                        break
-                    }
-
-                    delay(checkInterval)
-                }
+                // A tainted namespace means that the namespace is in the process of being deleted
+                // If there are no tainted namespaces, it means that all namespaces have been deleted
+                namespaces.asSequence().find { it.value.tainted } == null
             }
         }
 }
@@ -249,4 +246,21 @@ suspend fun getAllSecrets(client: VaultClient): Collection<String> = coroutineSc
 
     getSecretsRecursively("")
     return@coroutineScope result
+}
+
+/**
+ * Some API calls in Vault are asynchronous, such as namespace deletion.
+ * This function allows to wait until the operation launched asynchronously is completed by periodically checking the condition provided in [isCompleted].
+ *
+ * @param isCompleted `true` if the operation is completed, `false` otherwise.
+ */
+suspend inline fun waitUntilVaultAsyncOpCompleted(crossinline isCompleted: suspend () -> Boolean) {
+    withTimeoutOrNull(maxCheckVaultAsyncOpTimeout) {
+        while (isActive) {
+            if (isCompleted()) {
+                break
+            }
+            delay(checkVaultAsyncOpInterval)
+        }
+    }
 }

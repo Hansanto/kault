@@ -11,6 +11,7 @@ import io.github.hansanto.kault.util.deleteAllNamespaces
 import io.github.hansanto.kault.util.randomString
 import io.github.hansanto.kault.util.readJson
 import io.github.hansanto.kault.util.replaceTemplateString
+import io.github.hansanto.kault.util.waitUntilVaultAsyncOpCompleted
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
@@ -127,6 +128,11 @@ class VaultSystemNamespacesTest :
             val path = "test-namespace"
             namespaces.create(path)
             namespaces.delete(path) shouldBe true
+
+            waitUntilVaultAsyncOpCompleted {
+                runCatching { namespaces.read(path) }.getOrNull() == null
+            }
+
             shouldThrow<VaultAPIException> {
                 namespaces.read(path)
             }
