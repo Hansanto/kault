@@ -4,17 +4,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-public class SecretIdPayload(
-
-    /**
-     * Secret ID attached to the role.
-     */
-    @SerialName("secret_id")
-    public var secretId: String
-)
-
-@Serializable
-public class SecretIdAccessorPayload(
+public class AuthAppRoleReadSecretIdAccessorPayload(
 
     /**
      * Secret ID accessor attached to the role.

@@ -480,8 +480,8 @@ private suspend fun createLoginPayload(auth: VaultAuth): AuthAppRoleLoginPayload
 
     auth.setTokenString(ROOT_TOKEN) // to create role and generate secret id
     appRole.createOrUpdate(DEFAULT_ROLE_NAME) shouldBe true
-    val secretId = appRole.generateSecretID(DEFAULT_ROLE_NAME).secretId
-    val roleId = appRole.readRoleID(DEFAULT_ROLE_NAME).roleId
+    val secretId = appRole.generateSecretId(DEFAULT_ROLE_NAME).secretId
+    val roleId = appRole.readRoleId(DEFAULT_ROLE_NAME).roleId
 
     auth.setTokenInfo(oldToken)
 

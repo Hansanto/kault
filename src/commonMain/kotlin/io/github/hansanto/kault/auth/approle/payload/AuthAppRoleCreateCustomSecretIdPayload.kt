@@ -8,7 +8,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.builtins.serializer
 
 @Serializable
-public data class AuthAppRoleCreateCustomSecretIDPayload(
+public data class AuthAppRoleCreateCustomSecretIdPayload(
 
     /**
      * SecretID to be attached to the Role.
@@ -48,46 +48,46 @@ public data class AuthAppRoleCreateCustomSecretIDPayload(
 ) {
 
     /**
-     * Builder class to simplify the creation of [AuthAppRoleCreateCustomSecretIDPayload].
+     * Builder class to simplify the creation of [AuthAppRoleCreateCustomSecretIdPayload].
      */
     @KaultDsl
     public class Builder {
 
         /**
-         * @see [AuthAppRoleCreateCustomSecretIDPayload.secretId]
+         * @see [AuthAppRoleCreateCustomSecretIdPayload.secretId]
          */
         public lateinit var secretId: String
 
         /**
-         * @see [AuthAppRoleCreateCustomSecretIDPayload.metadata]
+         * @see [AuthAppRoleCreateCustomSecretIdPayload.metadata]
          */
         public var metadata: String? = null
 
         /**
-         * @see [AuthAppRoleCreateCustomSecretIDPayload.cidrList]
+         * @see [AuthAppRoleCreateCustomSecretIdPayload.cidrList]
          */
         public var cidrList: List<String>? = null
 
         /**
-         * @see [AuthAppRoleCreateCustomSecretIDPayload.tokenBoundCidrs]
+         * @see [AuthAppRoleCreateCustomSecretIdPayload.tokenBoundCidrs]
          */
         public var tokenBoundCidrs: List<String>? = null
 
         /**
-         * @see [AuthAppRoleCreateCustomSecretIDPayload.numUses]
+         * @see [AuthAppRoleCreateCustomSecretIdPayload.numUses]
          */
         public var numUses: Long? = null
 
         /**
-         * @see [AuthAppRoleCreateCustomSecretIDPayload.ttl]
+         * @see [AuthAppRoleCreateCustomSecretIdPayload.ttl]
          */
         public var ttl: VaultDuration? = null
 
         /**
-         * Build the instance of [AuthAppRoleCreateCustomSecretIDPayload] with the values defined in builder.
+         * Build the instance of [AuthAppRoleCreateCustomSecretIdPayload] with the values defined in builder.
          * @return A new instance.
          */
-        public fun build(): AuthAppRoleCreateCustomSecretIDPayload = AuthAppRoleCreateCustomSecretIDPayload(
+        public fun build(): AuthAppRoleCreateCustomSecretIdPayload = AuthAppRoleCreateCustomSecretIdPayload(
             secretId = secretId,
             metadata = metadata,
             cidrList = cidrList,

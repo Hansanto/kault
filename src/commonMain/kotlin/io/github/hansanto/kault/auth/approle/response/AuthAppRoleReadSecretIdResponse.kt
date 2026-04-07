@@ -7,7 +7,7 @@ import kotlinx.serialization.Serializable
 import kotlin.time.Instant
 
 @Serializable
-public data class AuthAppRoleReadSecretIDResponse(
+public data class AuthAppRoleReadSecretIdResponse(
     /**
      * List of CIDR blocks enforcing secret IDs to be used from specific set of IP addresses. If 'bound_cidr_list' is set on the role, then the list of CIDR blocks listed here should be a subset of the CIDR blocks listed on the role.
      */
