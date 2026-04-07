@@ -1,7 +1,7 @@
 package io.github.hansanto.kault.auth.kubernetes.payload
 
 import io.github.hansanto.kault.auth.common.common.TokenType
-import io.github.hansanto.kault.auth.kubernetes.common.KubernetesAliasNameSourceType
+import io.github.hansanto.kault.auth.kubernetes.common.AuthKubernetesAliasNameSourceType
 import io.github.hansanto.kault.util.randomBoolean
 import io.github.hansanto.kault.util.randomLong
 import io.github.hansanto.kault.util.randomString
@@ -10,14 +10,14 @@ import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
 import kotlin.time.Duration.Companion.milliseconds
 
-class KubernetesWriteAuthRolePayloadTest :
+class AuthKubernetesCreateOrUpdateRolePayloadTest :
     ShouldSpec({
 
         should("throw exception when mandatory fields are not set using builder") {
-            val builder = KubernetesWriteAuthRolePayload.Builder()
+            val builder = AuthKubernetesCreateOrUpdateRolePayload.Builder()
                 .apply {
                     audience = randomString()
-                    aliasNameSource = KubernetesAliasNameSourceType.entries.random()
+                    aliasNameSource = AuthKubernetesAliasNameSourceType.entries.random()
                     tokenTTL = randomLong().milliseconds
                     tokenMaxTTL = randomLong().milliseconds
                     tokenPolicies = List(5) { randomString() }
@@ -35,12 +35,12 @@ class KubernetesWriteAuthRolePayloadTest :
         }
 
         should("create instance with only mandatory fields using builder") {
-            val payload = KubernetesWriteAuthRolePayload(
+            val payload = AuthKubernetesCreateOrUpdateRolePayload(
                 boundServiceAccountNames = List(5) { randomString() },
                 boundServiceAccountNamespaces = List(5) { randomString() }
             )
 
-            KubernetesWriteAuthRolePayload.Builder()
+            AuthKubernetesCreateOrUpdateRolePayload.Builder()
                 .apply {
                     boundServiceAccountNames = payload.boundServiceAccountNames
                     boundServiceAccountNamespaces = payload.boundServiceAccountNamespaces
@@ -49,11 +49,11 @@ class KubernetesWriteAuthRolePayloadTest :
         }
 
         should("create instance with all fields using builder") {
-            val payload = KubernetesWriteAuthRolePayload(
+            val payload = AuthKubernetesCreateOrUpdateRolePayload(
                 boundServiceAccountNames = List(5) { randomString() },
                 boundServiceAccountNamespaces = List(5) { randomString() },
                 audience = randomString(),
-                aliasNameSource = KubernetesAliasNameSourceType.entries.random(),
+                aliasNameSource = AuthKubernetesAliasNameSourceType.entries.random(),
                 tokenTTL = randomLong().milliseconds,
                 tokenMaxTTL = randomLong().milliseconds,
                 tokenPolicies = List(5) { randomString() },
@@ -65,7 +65,7 @@ class KubernetesWriteAuthRolePayloadTest :
                 tokenType = TokenType.entries.random()
             )
 
-            KubernetesWriteAuthRolePayload.Builder()
+            AuthKubernetesCreateOrUpdateRolePayload.Builder()
                 .apply {
                     boundServiceAccountNames = payload.boundServiceAccountNames
                     boundServiceAccountNamespaces = payload.boundServiceAccountNamespaces

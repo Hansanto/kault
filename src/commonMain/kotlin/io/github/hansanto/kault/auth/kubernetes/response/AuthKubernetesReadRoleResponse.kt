@@ -1,13 +1,13 @@
 package io.github.hansanto.kault.auth.kubernetes.response
 
 import io.github.hansanto.kault.auth.common.common.TokenType
-import io.github.hansanto.kault.auth.kubernetes.common.KubernetesAliasNameSourceType
+import io.github.hansanto.kault.auth.kubernetes.common.AuthKubernetesAliasNameSourceType
 import io.github.hansanto.kault.serializer.VaultDuration
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-public data class KubernetesReadAuthRoleResponse(
+public data class AuthKubernetesReadRoleResponse(
 
     /**
      * List of service account names able to access this role. If set to "*" all names are allowed.
@@ -35,7 +35,7 @@ public data class KubernetesReadAuthRoleResponse(
      * default: "serviceaccount_uid"
      */
     @SerialName("alias_name_source")
-    public val aliasNameSource: KubernetesAliasNameSourceType,
+    public val aliasNameSource: AuthKubernetesAliasNameSourceType,
 
     /**
      * The incremental lifetime for generated tokens. This current value of this will be referenced at renewal time.

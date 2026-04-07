@@ -4,7 +4,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-public data class KubernetesConfigureAuthResponse(
+public data class AuthKubernetesReadConfigureResponse(
 
     /**
      * Host string, a host:port pair, or a URL to the base of the Kubernetes API server.

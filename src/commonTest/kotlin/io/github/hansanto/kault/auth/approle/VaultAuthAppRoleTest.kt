@@ -372,21 +372,14 @@ class VaultAuthAppRoleTest :
             assertLogin(
                 appRole,
                 "cases/auth/approle/login/expected.json"
-            ) { roleId, secretId ->
-                appRole.login(AuthAppRoleLoginPayload(roleId, secretId))
-            }
+            )
         }
 
         should("login using builder with existing role with secret-id") {
-            assertLogin(
+            assertLoginWithBuilder(
                 appRole,
                 "cases/auth/approle/login/expected.json"
-            ) { roleId, secretId ->
-                appRole.login {
-                    this.roleId = roleId
-                    this.secretId = secretId
-                }
-            }
+            )
         }
 
         should("tidy tokens should start internal task") {
@@ -584,6 +577,33 @@ private suspend inline fun assertCreateRole(
     val given = givenPath?.let { readJson<AuthAppRoleCreateOrUpdatePayload>(it) } ?: AuthAppRoleCreateOrUpdatePayload()
     createOrUpdate(DEFAULT_ROLE_NAME, given) shouldBe true
     appRole.read(DEFAULT_ROLE_NAME) shouldBe readJson<AuthAppRoleReadResponse>(expectedReadPath)
+}
+
+private suspend fun assertLogin(
+    appRole: VaultAuthAppRole,
+    expectedWritePath: String
+) {
+    assertLogin(
+        appRole,
+        expectedWritePath
+    ) { roleId, secretId ->
+        appRole.login(AuthAppRoleLoginPayload(roleId, secretId))
+    }
+}
+
+private suspend fun assertLoginWithBuilder(
+    appRole: VaultAuthAppRole,
+    expectedWritePath: String
+) {
+    assertLogin(
+        appRole,
+        expectedWritePath
+    ) { roleId, secretId ->
+        appRole.login {
+            this.roleId = roleId
+            this.secretId = secretId
+        }
+    }
 }
 
 private suspend inline fun assertLogin(

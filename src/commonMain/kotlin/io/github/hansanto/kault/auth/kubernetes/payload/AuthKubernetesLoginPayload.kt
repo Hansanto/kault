@@ -5,7 +5,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-public data class KubernetesLoginPayload(
+public data class AuthKubernetesLoginPayload(
 
     /**
      * Name of the role against which the login is being attempted.
@@ -22,26 +22,26 @@ public data class KubernetesLoginPayload(
 ) {
 
     /**
-     * Builder class to simplify the creation of [KubernetesLoginPayload].
+     * Builder class to simplify the creation of [AuthKubernetesLoginPayload].
      */
     @KaultDsl
     public class Builder {
 
         /**
-         * @see [KubernetesLoginPayload.role]
+         * @see [AuthKubernetesLoginPayload.role]
          */
         public lateinit var role: String
 
         /**
-         * @see [KubernetesLoginPayload.jwt]
+         * @see [AuthKubernetesLoginPayload.jwt]
          */
         public lateinit var jwt: String
 
         /**
-         * Build the instance of [KubernetesLoginPayload] with the values defined in builder.
+         * Build the instance of [AuthKubernetesLoginPayload] with the values defined in builder.
          * @return A new instance.
          */
-        public fun build(): KubernetesLoginPayload = KubernetesLoginPayload(
+        public fun build(): AuthKubernetesLoginPayload = AuthKubernetesLoginPayload(
             role = role,
             jwt = jwt
         )

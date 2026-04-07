@@ -2,10 +2,10 @@ package io.github.hansanto.kault.auth.kubernetes
 
 import io.github.hansanto.kault.VaultClient
 import io.github.hansanto.kault.auth.common.response.LoginResponse
-import io.github.hansanto.kault.auth.kubernetes.payload.KubernetesLoginPayload
-import io.github.hansanto.kault.auth.kubernetes.payload.KubernetesWriteAuthRolePayload
-import io.github.hansanto.kault.auth.kubernetes.response.KubernetesConfigureAuthResponse
-import io.github.hansanto.kault.auth.kubernetes.response.KubernetesReadAuthRoleResponse
+import io.github.hansanto.kault.auth.kubernetes.payload.AuthKubernetesLoginPayload
+import io.github.hansanto.kault.auth.kubernetes.payload.AuthKubernetesCreateOrUpdateRolePayload
+import io.github.hansanto.kault.auth.kubernetes.response.AuthKubernetesReadConfigureResponse
+import io.github.hansanto.kault.auth.kubernetes.response.AuthKubernetesReadRoleResponse
 import io.github.hansanto.kault.exception.VaultAPIException
 import io.github.hansanto.kault.util.DEFAULT_ROLE_NAME
 import io.github.hansanto.kault.util.KubernetesUtil
@@ -68,7 +68,7 @@ class VaultAuthKubernetesTest :
         }
 
         should("read default configuration") {
-            kubernetes.readConfiguration() shouldBe KubernetesConfigureAuthResponse(
+            kubernetes.readConfiguration() shouldBe AuthKubernetesReadConfigureResponse(
                 kubernetesHost = KubernetesUtil.host,
                 kubernetesCaCert = KubernetesUtil.caCert,
                 pemKeys = emptyList(),
@@ -136,7 +136,7 @@ class VaultAuthKubernetesTest :
         should("throw exception when login with non-existing role") {
             shouldThrow<VaultAPIException> {
                 kubernetes.login(
-                    KubernetesLoginPayload(
+                    AuthKubernetesLoginPayload(
                         DEFAULT_ROLE_NAME,
                         KubernetesUtil.token
                     )
@@ -147,7 +147,7 @@ class VaultAuthKubernetesTest :
         should("throw exception when login with invalid token") {
             createRole(kubernetes, DEFAULT_ROLE_NAME)
             shouldThrow<VaultAPIException> {
-                kubernetes.login(KubernetesLoginPayload(DEFAULT_ROLE_NAME, "invalid-token"))
+                kubernetes.login(AuthKubernetesLoginPayload(DEFAULT_ROLE_NAME, "invalid-token"))
             }
         }
 
@@ -155,21 +155,37 @@ class VaultAuthKubernetesTest :
             assertLogin(
                 kubernetes,
                 "cases/auth/kubernetes/login/expected.json"
-            ) { role, token -> kubernetes.login(KubernetesLoginPayload(role, token)) }
+            )
         }
 
         should("login using builder with valid token") {
-            assertLogin(
+            assertLoginWithBuilder(
                 kubernetes,
                 "cases/auth/kubernetes/login/expected.json"
-            ) { role, token ->
-                kubernetes.login {
-                    this.role = role
-                    this.jwt = token
-                }
-            }
+            )
         }
     })
+
+private suspend fun assertLogin(
+    kubernetes: VaultAuthKubernetes,
+    expectedWritePath: String,
+) {
+    assertLogin(kubernetes, expectedWritePath) { role, token ->
+        kubernetes.login(AuthKubernetesLoginPayload(role, token))
+    }
+}
+
+private suspend fun assertLoginWithBuilder(
+    kubernetes: VaultAuthKubernetes,
+    expectedWritePath: String,
+) {
+    assertLogin(kubernetes, expectedWritePath) { role, token ->
+        kubernetes.login {
+            this.role = role
+            this.jwt = token
+        }
+    }
+}
 
 private suspend inline fun assertLogin(
     kubernetes: VaultAuthKubernetes,
@@ -228,9 +244,9 @@ private suspend inline fun assertCreateOrUpdateRole(
     kubernetes: VaultAuthKubernetes,
     givenPath: String,
     expectedReadPath: String,
-    createOrUpdate: (String, KubernetesWriteAuthRolePayload) -> Boolean
+    createOrUpdate: (String, AuthKubernetesCreateOrUpdateRolePayload) -> Boolean
 ) {
-    val given = readJson<KubernetesWriteAuthRolePayload>(givenPath)
+    val given = readJson<AuthKubernetesCreateOrUpdateRolePayload>(givenPath)
     createOrUpdate(DEFAULT_ROLE_NAME, given) shouldBe true
-    kubernetes.readRole(DEFAULT_ROLE_NAME) shouldBe readJson<KubernetesReadAuthRoleResponse>(expectedReadPath)
+    kubernetes.readRole(DEFAULT_ROLE_NAME) shouldBe readJson<AuthKubernetesReadRoleResponse>(expectedReadPath)
 }

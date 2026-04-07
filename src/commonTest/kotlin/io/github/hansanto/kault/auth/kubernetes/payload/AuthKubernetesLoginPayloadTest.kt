@@ -5,23 +5,23 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
 
-class KubernetesPayloadTest :
+class AuthKubernetesLoginPayloadTest :
     ShouldSpec({
 
         should("throw exception when mandatory fields are not set using builder") {
-            val builder = KubernetesLoginPayload.Builder()
+            val builder = AuthKubernetesLoginPayload.Builder()
             shouldThrow<Exception> {
                 builder.build()
             }
         }
 
         should("create instance with only mandatory fields using builder") {
-            val payload = KubernetesLoginPayload(
+            val payload = AuthKubernetesLoginPayload(
                 role = randomString(),
                 jwt = randomString()
             )
 
-            KubernetesLoginPayload.Builder()
+            AuthKubernetesLoginPayload.Builder()
                 .apply {
                     role = payload.role
                     jwt = payload.jwt

@@ -5,7 +5,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-public data class KubernetesConfigureAuthPayload(
+public data class AuthKubernetesConfigurePayload(
 
     /**
      * Host must be a host string, a host:port pair, or a URL to the base of the Kubernetes API server.
@@ -42,41 +42,41 @@ public data class KubernetesConfigureAuthPayload(
 ) {
 
     /**
-     * Builder class to simplify the creation of [KubernetesConfigureAuthPayload].
+     * Builder class to simplify the creation of [AuthKubernetesConfigurePayload].
      */
     @KaultDsl
     public class Builder {
 
         /**
-         * @see [KubernetesConfigureAuthPayload.kubernetesHost]
+         * @see [AuthKubernetesConfigurePayload.kubernetesHost]
          */
         public lateinit var kubernetesHost: String
 
         /**
-         * @see [KubernetesConfigureAuthPayload.disableLocalCaJwt]
+         * @see [AuthKubernetesConfigurePayload.disableLocalCaJwt]
          */
         public var disableLocalCaJwt: Boolean? = null
 
         /**
-         * @see [KubernetesConfigureAuthPayload.kubernetesCaCert]
+         * @see [AuthKubernetesConfigurePayload.kubernetesCaCert]
          */
         public var kubernetesCaCert: String? = null
 
         /**
-         * @see [KubernetesConfigureAuthPayload.pemKeys]
+         * @see [AuthKubernetesConfigurePayload.pemKeys]
          */
         public var pemKeys: List<String>? = null
 
         /**
-         * @see [KubernetesConfigureAuthPayload.tokenReviewerJwt]
+         * @see [AuthKubernetesConfigurePayload.tokenReviewerJwt]
          */
         public var tokenReviewerJwt: String? = null
 
         /**
-         * Build the instance of [KubernetesConfigureAuthPayload] with the values defined in builder.
+         * Build the instance of [AuthKubernetesConfigurePayload] with the values defined in builder.
          * @return A new instance.
          */
-        public fun build(): KubernetesConfigureAuthPayload = KubernetesConfigureAuthPayload(
+        public fun build(): AuthKubernetesConfigurePayload = AuthKubernetesConfigurePayload(
             kubernetesHost = kubernetesHost,
             disableLocalCaJwt = disableLocalCaJwt,
             kubernetesCaCert = kubernetesCaCert,

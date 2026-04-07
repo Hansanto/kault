@@ -2,13 +2,13 @@ package io.github.hansanto.kault.auth.kubernetes.payload
 
 import io.github.hansanto.kault.KaultDsl
 import io.github.hansanto.kault.auth.common.common.TokenType
-import io.github.hansanto.kault.auth.kubernetes.common.KubernetesAliasNameSourceType
+import io.github.hansanto.kault.auth.kubernetes.common.AuthKubernetesAliasNameSourceType
 import io.github.hansanto.kault.serializer.VaultDuration
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-public data class KubernetesWriteAuthRolePayload(
+public data class AuthKubernetesCreateOrUpdateRolePayload(
 
     /**
      * List of service account names able to access this role. If set to "*" all names are allowed.
@@ -36,7 +36,7 @@ public data class KubernetesWriteAuthRolePayload(
      * default: "serviceaccount_uid"
      */
     @SerialName("alias_name_source")
-    public var aliasNameSource: KubernetesAliasNameSourceType? = null,
+    public var aliasNameSource: AuthKubernetesAliasNameSourceType? = null,
 
     /**
      * The incremental lifetime for generated tokens. This current value of this will be referenced at renewal time.
@@ -95,81 +95,81 @@ public data class KubernetesWriteAuthRolePayload(
 ) {
 
     /**
-     * Builder class to simplify the creation of [KubernetesWriteAuthRolePayload].
+     * Builder class to simplify the creation of [AuthKubernetesCreateOrUpdateRolePayload].
      */
     @KaultDsl
     public class Builder {
 
         /**
-         * @see [KubernetesWriteAuthRolePayload.boundServiceAccountNames]
+         * @see [AuthKubernetesCreateOrUpdateRolePayload.boundServiceAccountNames]
          */
         public lateinit var boundServiceAccountNames: List<String>
 
         /**
-         * @see [KubernetesWriteAuthRolePayload.boundServiceAccountNamespaces]
+         * @see [AuthKubernetesCreateOrUpdateRolePayload.boundServiceAccountNamespaces]
          */
         public lateinit var boundServiceAccountNamespaces: List<String>
 
         /**
-         * @see [KubernetesWriteAuthRolePayload.audience]
+         * @see [AuthKubernetesCreateOrUpdateRolePayload.audience]
          */
         public var audience: String? = null
 
         /**
-         * @see [KubernetesWriteAuthRolePayload.aliasNameSource]
+         * @see [AuthKubernetesCreateOrUpdateRolePayload.aliasNameSource]
          */
-        public var aliasNameSource: KubernetesAliasNameSourceType? = null
+        public var aliasNameSource: AuthKubernetesAliasNameSourceType? = null
 
         /**
-         * @see [KubernetesWriteAuthRolePayload.tokenTTL]
+         * @see [AuthKubernetesCreateOrUpdateRolePayload.tokenTTL]
          */
         public var tokenTTL: VaultDuration? = null
 
         /**
-         * @see [KubernetesWriteAuthRolePayload.tokenMaxTTL]
+         * @see [AuthKubernetesCreateOrUpdateRolePayload.tokenMaxTTL]
          */
         public var tokenMaxTTL: VaultDuration? = null
 
         /**
-         * @see [KubernetesWriteAuthRolePayload.tokenPolicies]
+         * @see [AuthKubernetesCreateOrUpdateRolePayload.tokenPolicies]
          */
         public var tokenPolicies: List<String>? = null
 
         /**
-         * @see [KubernetesWriteAuthRolePayload.tokenBoundCidrs]
+         * @see [AuthKubernetesCreateOrUpdateRolePayload.tokenBoundCidrs]
          */
         public var tokenBoundCidrs: List<String>? = null
 
         /**
-         * @see [KubernetesWriteAuthRolePayload.tokenExplicitMaxTTL]
+         * @see [AuthKubernetesCreateOrUpdateRolePayload.tokenExplicitMaxTTL]
          */
         public var tokenExplicitMaxTTL: VaultDuration? = null
 
         /**
-         * @see [KubernetesWriteAuthRolePayload.tokenNoDefaultPolicy]
+         * @see [AuthKubernetesCreateOrUpdateRolePayload.tokenNoDefaultPolicy]
          */
         public var tokenNoDefaultPolicy: Boolean? = null
 
         /**
-         * @see [KubernetesWriteAuthRolePayload.tokenNumUses]
+         * @see [AuthKubernetesCreateOrUpdateRolePayload.tokenNumUses]
          */
         public var tokenNumUses: Long? = null
 
         /**
-         * @see [KubernetesWriteAuthRolePayload.tokenPeriod]
+         * @see [AuthKubernetesCreateOrUpdateRolePayload.tokenPeriod]
          */
         public var tokenPeriod: VaultDuration? = null
 
         /**
-         * @see [KubernetesWriteAuthRolePayload.tokenType]
+         * @see [AuthKubernetesCreateOrUpdateRolePayload.tokenType]
          */
         public var tokenType: TokenType? = null
 
         /**
-         * Build the instance of [KubernetesWriteAuthRolePayload] with the values defined in builder.
+         * Build the instance of [AuthKubernetesCreateOrUpdateRolePayload] with the values defined in builder.
          * @return A new instance.
          */
-        public fun build(): KubernetesWriteAuthRolePayload = KubernetesWriteAuthRolePayload(
+        public fun build(): AuthKubernetesCreateOrUpdateRolePayload = AuthKubernetesCreateOrUpdateRolePayload(
             boundServiceAccountNames = boundServiceAccountNames,
             boundServiceAccountNamespaces = boundServiceAccountNamespaces,
             audience = audience,

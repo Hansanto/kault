@@ -6,11 +6,11 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
 
-class KubernetesConfigureAuthPayloadTest :
+class AuthKubernetesConfigurePayloadTest :
     ShouldSpec({
 
         should("throw exception when mandatory fields are not set using builder") {
-            val builder = KubernetesConfigureAuthPayload.Builder()
+            val builder = AuthKubernetesConfigurePayload.Builder()
                 .apply {
                     kubernetesCaCert = randomString()
                     pemKeys = List(5) { randomString() }
@@ -24,11 +24,11 @@ class KubernetesConfigureAuthPayloadTest :
         }
 
         should("create instance with only mandatory fields using builder") {
-            val payload = KubernetesConfigureAuthPayload(
+            val payload = AuthKubernetesConfigurePayload(
                 kubernetesHost = randomString()
             )
 
-            KubernetesConfigureAuthPayload.Builder()
+            AuthKubernetesConfigurePayload.Builder()
                 .apply {
                     kubernetesHost = payload.kubernetesHost
                 }
@@ -36,7 +36,7 @@ class KubernetesConfigureAuthPayloadTest :
         }
 
         should("create instance with all fields using builder") {
-            val payload = KubernetesConfigureAuthPayload(
+            val payload = AuthKubernetesConfigurePayload(
                 kubernetesHost = randomString(),
                 kubernetesCaCert = randomString(),
                 pemKeys = List(5) { randomString() },
@@ -44,7 +44,7 @@ class KubernetesConfigureAuthPayloadTest :
                 tokenReviewerJwt = randomString()
             )
 
-            KubernetesConfigureAuthPayload.Builder()
+            AuthKubernetesConfigurePayload.Builder()
                 .apply {
                     kubernetesHost = payload.kubernetesHost
                     kubernetesCaCert = payload.kubernetesCaCert

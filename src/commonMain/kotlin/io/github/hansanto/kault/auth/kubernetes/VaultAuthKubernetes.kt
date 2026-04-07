@@ -3,11 +3,11 @@ package io.github.hansanto.kault.auth.kubernetes
 import io.github.hansanto.kault.BuilderDsl
 import io.github.hansanto.kault.ServiceBuilder
 import io.github.hansanto.kault.auth.common.response.LoginResponse
-import io.github.hansanto.kault.auth.kubernetes.payload.KubernetesConfigureAuthPayload
-import io.github.hansanto.kault.auth.kubernetes.payload.KubernetesLoginPayload
-import io.github.hansanto.kault.auth.kubernetes.payload.KubernetesWriteAuthRolePayload
-import io.github.hansanto.kault.auth.kubernetes.response.KubernetesConfigureAuthResponse
-import io.github.hansanto.kault.auth.kubernetes.response.KubernetesReadAuthRoleResponse
+import io.github.hansanto.kault.auth.kubernetes.payload.AuthKubernetesConfigurePayload
+import io.github.hansanto.kault.auth.kubernetes.payload.AuthKubernetesLoginPayload
+import io.github.hansanto.kault.auth.kubernetes.payload.AuthKubernetesCreateOrUpdateRolePayload
+import io.github.hansanto.kault.auth.kubernetes.response.AuthKubernetesReadConfigureResponse
+import io.github.hansanto.kault.auth.kubernetes.response.AuthKubernetesReadRoleResponse
 import io.github.hansanto.kault.extension.decodeBodyJsonAuthFieldObject
 import io.github.hansanto.kault.extension.decodeBodyJsonDataFieldObject
 import io.github.hansanto.kault.extension.list
@@ -28,10 +28,10 @@ import kotlin.contracts.contract
  * @see VaultAuthKubernetes.configure(payload)
  */
 public suspend inline fun VaultAuthKubernetes.configure(
-    payloadBuilder: BuilderDsl<KubernetesConfigureAuthPayload.Builder>
+    payloadBuilder: BuilderDsl<AuthKubernetesConfigurePayload.Builder>
 ): Boolean {
     contract { callsInPlace(payloadBuilder, InvocationKind.EXACTLY_ONCE) }
-    val payload = KubernetesConfigureAuthPayload.Builder().apply(payloadBuilder).build()
+    val payload = AuthKubernetesConfigurePayload.Builder().apply(payloadBuilder).build()
     return configure(payload)
 }
 
@@ -40,10 +40,10 @@ public suspend inline fun VaultAuthKubernetes.configure(
  */
 public suspend inline fun VaultAuthKubernetes.createOrUpdateRole(
     roleName: String,
-    payloadBuilder: BuilderDsl<KubernetesWriteAuthRolePayload.Builder>
+    payloadBuilder: BuilderDsl<AuthKubernetesCreateOrUpdateRolePayload.Builder>
 ): Boolean {
     contract { callsInPlace(payloadBuilder, InvocationKind.EXACTLY_ONCE) }
-    val payload = KubernetesWriteAuthRolePayload.Builder().apply(payloadBuilder).build()
+    val payload = AuthKubernetesCreateOrUpdateRolePayload.Builder().apply(payloadBuilder).build()
     return createOrUpdateRole(roleName, payload)
 }
 
@@ -51,10 +51,10 @@ public suspend inline fun VaultAuthKubernetes.createOrUpdateRole(
  * @see VaultAuthKubernetes.login(payload)
  */
 public suspend inline fun VaultAuthKubernetes.login(
-    payloadBuilder: BuilderDsl<KubernetesLoginPayload.Builder>
+    payloadBuilder: BuilderDsl<AuthKubernetesLoginPayload.Builder>
 ): LoginResponse {
     contract { callsInPlace(payloadBuilder, InvocationKind.EXACTLY_ONCE) }
-    val payload = KubernetesLoginPayload.Builder().apply(payloadBuilder).build()
+    val payload = AuthKubernetesLoginPayload.Builder().apply(payloadBuilder).build()
     return login(payload)
 }
 
@@ -68,14 +68,14 @@ public interface VaultAuthKubernetes {
      * [Documentation](https://developer.hashicorp.com/vault/api-docs/auth/kubernetes#configure-method)
      * @return Returns true if the configuration was updated successfully.
      */
-    public suspend fun configure(payload: KubernetesConfigureAuthPayload): Boolean
+    public suspend fun configure(payload: AuthKubernetesConfigurePayload): Boolean
 
     /**
      * Reads the current configuration for the Kubernetes auth method.
      * [Documentation](https://developer.hashicorp.com/vault/api-docs/auth/kubernetes#read-config)
      * @return The previously configured config, excluding credentials.
      */
-    public suspend fun readConfiguration(): KubernetesConfigureAuthResponse
+    public suspend fun readConfiguration(): AuthKubernetesReadConfigureResponse
 
     /**
      * Registers a role in the auth method.
@@ -87,7 +87,7 @@ public interface VaultAuthKubernetes {
      * @param payload Optional parameters for creating or updating a role.
      * @return Returns true if the role was created or updated successfully.
      */
-    public suspend fun createOrUpdateRole(roleName: String, payload: KubernetesWriteAuthRolePayload): Boolean
+    public suspend fun createOrUpdateRole(roleName: String, payload: AuthKubernetesCreateOrUpdateRolePayload): Boolean
 
     /**
      * Returns the previously registered role configuration.
@@ -95,7 +95,7 @@ public interface VaultAuthKubernetes {
      * @param roleName Name of the role.
      * @return Response.
      */
-    public suspend fun readRole(roleName: String): KubernetesReadAuthRoleResponse
+    public suspend fun readRole(roleName: String): AuthKubernetesReadRoleResponse
 
     /**
      * Lists all the roles that are registered with the auth method.
@@ -120,7 +120,7 @@ public interface VaultAuthKubernetes {
      * @param payload Parameters to login with Kubernetes.
      * @return Response.
      */
-    public suspend fun login(payload: KubernetesLoginPayload): LoginResponse
+    public suspend fun login(payload: AuthKubernetesLoginPayload): LoginResponse
 }
 
 /**
@@ -172,7 +172,7 @@ public class VaultAuthKubernetesImpl(
             )
     }
 
-    override suspend fun configure(payload: KubernetesConfigureAuthPayload): Boolean {
+    override suspend fun configure(payload: AuthKubernetesConfigurePayload): Boolean {
         val response = client.post {
             url {
                 appendPathSegments(path, "config")
@@ -183,7 +183,7 @@ public class VaultAuthKubernetesImpl(
         return response.status.isSuccess()
     }
 
-    override suspend fun readConfiguration(): KubernetesConfigureAuthResponse {
+    override suspend fun readConfiguration(): AuthKubernetesReadConfigureResponse {
         val response = client.get {
             url {
                 appendPathSegments(path, "config")
@@ -192,7 +192,7 @@ public class VaultAuthKubernetesImpl(
         return response.decodeBodyJsonDataFieldObject()
     }
 
-    override suspend fun createOrUpdateRole(roleName: String, payload: KubernetesWriteAuthRolePayload): Boolean {
+    override suspend fun createOrUpdateRole(roleName: String, payload: AuthKubernetesCreateOrUpdateRolePayload): Boolean {
         val response = client.post {
             url {
                 appendPathSegments(path, "role", roleName)
@@ -203,7 +203,7 @@ public class VaultAuthKubernetesImpl(
         return response.status.isSuccess()
     }
 
-    override suspend fun readRole(roleName: String): KubernetesReadAuthRoleResponse {
+    override suspend fun readRole(roleName: String): AuthKubernetesReadRoleResponse {
         val response = client.get {
             url {
                 appendPathSegments(path, "role", roleName)
@@ -230,7 +230,7 @@ public class VaultAuthKubernetesImpl(
         return response.status.isSuccess()
     }
 
-    override suspend fun login(payload: KubernetesLoginPayload): LoginResponse {
+    override suspend fun login(payload: AuthKubernetesLoginPayload): LoginResponse {
         val response = client.post {
             url {
                 appendPathSegments(path, "login")
