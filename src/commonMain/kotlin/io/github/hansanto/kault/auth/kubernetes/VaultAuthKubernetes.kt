@@ -4,8 +4,8 @@ import io.github.hansanto.kault.BuilderDsl
 import io.github.hansanto.kault.ServiceBuilder
 import io.github.hansanto.kault.auth.common.response.LoginResponse
 import io.github.hansanto.kault.auth.kubernetes.payload.AuthKubernetesConfigurePayload
-import io.github.hansanto.kault.auth.kubernetes.payload.AuthKubernetesLoginPayload
 import io.github.hansanto.kault.auth.kubernetes.payload.AuthKubernetesCreateOrUpdateRolePayload
+import io.github.hansanto.kault.auth.kubernetes.payload.AuthKubernetesLoginPayload
 import io.github.hansanto.kault.auth.kubernetes.response.AuthKubernetesReadConfigureResponse
 import io.github.hansanto.kault.auth.kubernetes.response.AuthKubernetesReadRoleResponse
 import io.github.hansanto.kault.extension.decodeBodyJsonAuthFieldObject
@@ -192,7 +192,10 @@ public class VaultAuthKubernetesImpl(
         return response.decodeBodyJsonDataFieldObject()
     }
 
-    override suspend fun createOrUpdateRole(roleName: String, payload: AuthKubernetesCreateOrUpdateRolePayload): Boolean {
+    override suspend fun createOrUpdateRole(
+        roleName: String,
+        payload: AuthKubernetesCreateOrUpdateRolePayload
+    ): Boolean {
         val response = client.post {
             url {
                 appendPathSegments(path, "role", roleName)

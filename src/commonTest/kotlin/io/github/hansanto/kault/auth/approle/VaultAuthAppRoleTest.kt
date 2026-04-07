@@ -579,10 +579,7 @@ private suspend inline fun assertCreateRole(
     appRole.read(DEFAULT_ROLE_NAME) shouldBe readJson<AuthAppRoleReadResponse>(expectedReadPath)
 }
 
-private suspend fun assertLogin(
-    appRole: VaultAuthAppRole,
-    expectedWritePath: String
-) {
+private suspend fun assertLogin(appRole: VaultAuthAppRole, expectedWritePath: String) {
     assertLogin(
         appRole,
         expectedWritePath
@@ -591,10 +588,7 @@ private suspend fun assertLogin(
     }
 }
 
-private suspend fun assertLoginWithBuilder(
-    appRole: VaultAuthAppRole,
-    expectedWritePath: String
-) {
+private suspend fun assertLoginWithBuilder(appRole: VaultAuthAppRole, expectedWritePath: String) {
     assertLogin(
         appRole,
         expectedWritePath

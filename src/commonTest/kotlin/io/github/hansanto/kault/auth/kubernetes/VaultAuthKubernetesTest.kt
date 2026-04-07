@@ -2,8 +2,8 @@ package io.github.hansanto.kault.auth.kubernetes
 
 import io.github.hansanto.kault.VaultClient
 import io.github.hansanto.kault.auth.common.response.LoginResponse
-import io.github.hansanto.kault.auth.kubernetes.payload.AuthKubernetesLoginPayload
 import io.github.hansanto.kault.auth.kubernetes.payload.AuthKubernetesCreateOrUpdateRolePayload
+import io.github.hansanto.kault.auth.kubernetes.payload.AuthKubernetesLoginPayload
 import io.github.hansanto.kault.auth.kubernetes.response.AuthKubernetesReadConfigureResponse
 import io.github.hansanto.kault.auth.kubernetes.response.AuthKubernetesReadRoleResponse
 import io.github.hansanto.kault.exception.VaultAPIException
@@ -166,19 +166,13 @@ class VaultAuthKubernetesTest :
         }
     })
 
-private suspend fun assertLogin(
-    kubernetes: VaultAuthKubernetes,
-    expectedWritePath: String,
-) {
+private suspend fun assertLogin(kubernetes: VaultAuthKubernetes, expectedWritePath: String,) {
     assertLogin(kubernetes, expectedWritePath) { role, token ->
         kubernetes.login(AuthKubernetesLoginPayload(role, token))
     }
 }
 
-private suspend fun assertLoginWithBuilder(
-    kubernetes: VaultAuthKubernetes,
-    expectedWritePath: String,
-) {
+private suspend fun assertLoginWithBuilder(kubernetes: VaultAuthKubernetes, expectedWritePath: String,) {
     assertLogin(kubernetes, expectedWritePath) { role, token ->
         kubernetes.login {
             this.role = role
