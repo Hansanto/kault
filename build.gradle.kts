@@ -1,6 +1,9 @@
+@file:OptIn(ExperimentalWasmDsl::class)
+
 import io.gitlab.arturbosch.detekt.Detekt
 import io.gitlab.arturbosch.detekt.DetektCreateBaselineTask
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.targets.js.dsl.KotlinJsTargetDsl
 import org.jlleitschuh.gradle.ktlint.reporter.ReporterType
@@ -93,51 +96,38 @@ kotlin {
     js {
         jsAndWasmSharedConfigurationTarget()
     }
-    /**
-     * https://youtrack.jetbrains.com/issue/KT-70075
-     * Not supported by:
-     * - resources
-     */
-    // wasmJs {
-    //   jsAndWasmSharedConfigurationTarget()
-    // }
+    wasmJs {
+        jsAndWasmSharedConfigurationTarget()
+    }
     /**
      * Not supported by:
      * - ktor
-     * - kotlinx-datetime
-     * - kotest
-     * - resources
      */
     // wasmWasi()
 
     // Native tiers: https://kotlinlang.org/docs/native-target-support.html
     // Tier 1
-    macosX64()
     macosArm64()
     iosSimulatorArm64()
-    iosX64()
+    iosArm64()
 
     // Tier 2
     linuxX64()
     linuxArm64()
     watchosSimulatorArm64()
-    watchosX64()
     watchosArm32()
     watchosArm64()
     tvosSimulatorArm64()
-    tvosX64()
     tvosArm64()
-    iosArm64()
 
     // Tier 3
     mingwX64()
     /**
      * Not supported by:
-     * - ktor
      * - kotest
-     * - resources
      */
     // watchosDeviceArm64()
+    iosX64()
 
     sourceSets {
         all {
