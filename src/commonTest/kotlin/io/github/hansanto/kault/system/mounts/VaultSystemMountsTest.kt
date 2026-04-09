@@ -73,7 +73,7 @@ class VaultSystemMountsTest :
             val actual = mounts.listMountedSecretsEngines()
             actual shouldBe replaceTemplateString(
                 expected = readJson<MountsListMountedSecretsEnginesResponse>(
-                    "cases/sys/mounts/list_mounted_secrets_engines/without_options/expected.json"
+                    "cases/system/mounts/list_mounted_secrets_engines/without_options/expected.json"
                 ),
                 response = actual,
             )
@@ -82,14 +82,14 @@ class VaultSystemMountsTest :
         should("list with additional mounted secrets engines") {
             val given =
                 readJson<MountsEnableSecretsEnginePayload>(
-                    "cases/sys/mounts/list_mounted_secrets_engines/with_options/given.json"
+                    "cases/system/mounts/list_mounted_secrets_engines/with_options/given.json"
                 )
             mountsNamespace.enableSecretsEngine(DEFAULT_ENGINE, given)
 
             val actual = mountsNamespace.listMountedSecretsEngines()
             actual shouldBe replaceTemplateString(
                 expected = readJson<MountsListMountedSecretsEnginesResponse>(
-                    "cases/sys/mounts/list_mounted_secrets_engines/with_options/expected.json"
+                    "cases/system/mounts/list_mounted_secrets_engines/with_options/expected.json"
                 ),
                 response = actual,
             )
@@ -121,8 +121,8 @@ class VaultSystemMountsTest :
             assertEnableSecretsEngine(
                 mounts = mountsNamespace,
                 path = DEFAULT_ENGINE,
-                givenPath = "cases/sys/mounts/enable_secrets_engine/without_options/given.json",
-                expectedPath = "cases/sys/mounts/enable_secrets_engine/without_options/expected.json"
+                givenPath = "cases/system/mounts/enable_secrets_engine/without_options/given.json",
+                expectedPath = "cases/system/mounts/enable_secrets_engine/without_options/expected.json"
             )
         }
 
@@ -130,8 +130,8 @@ class VaultSystemMountsTest :
             assertEnableSecretsEngineWithBuilder(
                 mounts = mountsNamespace,
                 path = DEFAULT_ENGINE,
-                givenPath = "cases/sys/mounts/enable_secrets_engine/without_options/given.json",
-                expectedPath = "cases/sys/mounts/enable_secrets_engine/without_options/expected.json"
+                givenPath = "cases/system/mounts/enable_secrets_engine/without_options/given.json",
+                expectedPath = "cases/system/mounts/enable_secrets_engine/without_options/expected.json"
             )
         }
 
@@ -139,8 +139,8 @@ class VaultSystemMountsTest :
             assertEnableSecretsEngine(
                 mounts = mountsNamespace,
                 path = DEFAULT_ENGINE,
-                givenPath = "cases/sys/mounts/enable_secrets_engine/with_options/given.json",
-                expectedPath = "cases/sys/mounts/enable_secrets_engine/with_options/expected.json"
+                givenPath = "cases/system/mounts/enable_secrets_engine/with_options/given.json",
+                expectedPath = "cases/system/mounts/enable_secrets_engine/with_options/expected.json"
             )
         }
 
@@ -148,8 +148,8 @@ class VaultSystemMountsTest :
             assertEnableSecretsEngineWithBuilder(
                 mounts = mountsNamespace,
                 path = DEFAULT_ENGINE,
-                givenPath = "cases/sys/mounts/enable_secrets_engine/with_options/given.json",
-                expectedPath = "cases/sys/mounts/enable_secrets_engine/with_options/expected.json"
+                givenPath = "cases/system/mounts/enable_secrets_engine/with_options/given.json",
+                expectedPath = "cases/system/mounts/enable_secrets_engine/with_options/expected.json"
             )
         }
 
@@ -190,7 +190,7 @@ class VaultSystemMountsTest :
                 path = DEFAULT_ENGINE,
                 createPath = null,
                 givenPath = null,
-                expectedPath = "cases/sys/mounts/tune_mount_configuration/without_options/expected.json"
+                expectedPath = "cases/system/mounts/tune_mount_configuration/without_options/expected.json"
             )
         }
 
@@ -200,7 +200,7 @@ class VaultSystemMountsTest :
                 path = DEFAULT_ENGINE,
                 createPath = null,
                 givenPath = null,
-                expectedPath = "cases/sys/mounts/tune_mount_configuration/without_options/expected.json"
+                expectedPath = "cases/system/mounts/tune_mount_configuration/without_options/expected.json"
             )
         }
 
@@ -208,9 +208,9 @@ class VaultSystemMountsTest :
             assertTuneMountConfiguration(
                 mounts = mountsNamespace,
                 path = DEFAULT_ENGINE,
-                createPath = "cases/sys/mounts/tune_mount_configuration/with_options/given_create.json",
-                givenPath = "cases/sys/mounts/tune_mount_configuration/with_options/given_update.json",
-                expectedPath = "cases/sys/mounts/tune_mount_configuration/with_options/expected.json"
+                createPath = "cases/system/mounts/tune_mount_configuration/with_options/given_create.json",
+                givenPath = "cases/system/mounts/tune_mount_configuration/with_options/given_update.json",
+                expectedPath = "cases/system/mounts/tune_mount_configuration/with_options/expected.json"
             )
         }
 
@@ -218,9 +218,9 @@ class VaultSystemMountsTest :
             assertTuneMountConfigurationWithBuilder(
                 mounts = mountsNamespace,
                 path = DEFAULT_ENGINE,
-                createPath = "cases/sys/mounts/tune_mount_configuration/with_options/given_create.json",
-                givenPath = "cases/sys/mounts/tune_mount_configuration/with_options/given_update.json",
-                expectedPath = "cases/sys/mounts/tune_mount_configuration/with_options/expected.json"
+                createPath = "cases/system/mounts/tune_mount_configuration/with_options/given_create.json",
+                givenPath = "cases/system/mounts/tune_mount_configuration/with_options/given_update.json",
+                expectedPath = "cases/system/mounts/tune_mount_configuration/with_options/expected.json"
             )
         }
     })

@@ -55,9 +55,9 @@ class VaultSystemAuditTest :
             assertListWithEnabledAudit(
                 audit,
                 listOf(
-                    "cases/sys/audit/without_options/given.json"
+                    "cases/system/audit/without_options/given.json"
                 ),
-                "cases/sys/audit/without_options/expected.json"
+                "cases/system/audit/without_options/expected.json"
             )
         }
 
@@ -65,9 +65,9 @@ class VaultSystemAuditTest :
             assertListWithEnabledAudit(
                 audit,
                 listOf(
-                    "cases/sys/audit/with_options/given.json"
+                    "cases/system/audit/with_options/given.json"
                 ),
-                "cases/sys/audit/with_options/expected.json"
+                "cases/system/audit/with_options/expected.json"
             )
         }
 
@@ -75,10 +75,10 @@ class VaultSystemAuditTest :
             assertListWithEnabledAudit(
                 audit,
                 listOf(
-                    "cases/sys/audit/several_audit/given1.json",
-                    "cases/sys/audit/several_audit/given2.json"
+                    "cases/system/audit/several_audit/given1.json",
+                    "cases/system/audit/several_audit/given2.json"
                 ),
-                "cases/sys/audit/several_audit/expected.json"
+                "cases/system/audit/several_audit/expected.json"
             )
         }
 
@@ -86,9 +86,9 @@ class VaultSystemAuditTest :
             assertListWithEnabledAuditWithBuilder(
                 audit,
                 listOf(
-                    "cases/sys/audit/with_options/given.json"
+                    "cases/system/audit/with_options/given.json"
                 ),
-                "cases/sys/audit/with_options/expected.json"
+                "cases/system/audit/with_options/expected.json"
             )
         }
 
@@ -96,10 +96,10 @@ class VaultSystemAuditTest :
             assertListWithEnabledAuditWithBuilder(
                 audit,
                 listOf(
-                    "cases/sys/audit/several_audit/given1.json",
-                    "cases/sys/audit/several_audit/given2.json"
+                    "cases/system/audit/several_audit/given1.json",
+                    "cases/system/audit/several_audit/given2.json"
                 ),
-                "cases/sys/audit/several_audit/expected.json"
+                "cases/system/audit/several_audit/expected.json"
             )
         }
 
@@ -109,7 +109,7 @@ class VaultSystemAuditTest :
         }
 
         should("disable with existing audit") {
-            val given = readJson<AuditingEnableDevicePayload>("cases/sys/audit/without_options/given.json")
+            val given = readJson<AuditingEnableDevicePayload>("cases/system/audit/without_options/given.json")
             val path = "role"
             audit.enable(path, given) shouldBe true
 

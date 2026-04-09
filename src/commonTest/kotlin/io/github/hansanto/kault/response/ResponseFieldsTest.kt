@@ -9,5 +9,6 @@ class ResponseFieldsTest :
         should("have fields matching the response structure") {
             ResponseFields.DATA shouldBe "data"
             ResponseFields.AUTH shouldBe "auth"
+            ResponseFields.WARNINGS shouldBe "warnings"
         }
     })
