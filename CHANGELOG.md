@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.9.0](https://github.com/Hansanto/kault/compare/v1.8.0...v1.9.0) (2026-04-09)
+
+
+### Features
+
+* Support wasmJs and remove deprecated targets ([#302](https://github.com/Hansanto/kault/issues/302)) ([a298d92](https://github.com/Hansanto/kault/commit/a298d92434a312212ccbfd8f0c77555184a33d1f))
+* System Namespaces ([#287](https://github.com/Hansanto/kault/issues/287)) ([d83422a](https://github.com/Hansanto/kault/commit/d83422ac9b12a3ea4beeb7e03582589bf5fd80c5))
+
+
+### Bug Fixes
+
+* **deps:** update dependency io.ktor:ktor-version-catalog to v3.4.2 ([#292](https://github.com/Hansanto/kault/issues/292)) ([ffa969f](https://github.com/Hansanto/kault/commit/ffa969f16b74645f38a56ad91f79386287350ca6))
+* **deps:** update kotest to v6.1.11 ([#293](https://github.com/Hansanto/kault/issues/293)) ([67b96dc](https://github.com/Hansanto/kault/commit/67b96dc61dcd91f036dcf0954491217c33cb6012))
+
 ## [1.8.0](https://github.com/Hansanto/kault/compare/v1.7.0...v1.8.0) (2026-02-28)
 
 
