@@ -1,9 +1,7 @@
-package io.github.hansanto.kault.auth.token
+package io.github.hansanto.kault.auth.token.response
 
 import io.github.hansanto.kault.auth.common.common.TokenInfo
 import io.github.hansanto.kault.auth.common.common.TokenType
-import io.github.hansanto.kault.auth.token.response.TokenLookupResponse
-import io.github.hansanto.kault.auth.token.response.toTokenInfo
 import io.github.hansanto.kault.util.randomBoolean
 import io.github.hansanto.kault.util.randomInstant
 import io.github.hansanto.kault.util.randomLong
@@ -12,11 +10,11 @@ import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
 import kotlin.time.Duration.Companion.milliseconds
 
-class TokenLookupResponseTest :
+class AuthTokenLookupTokenResponseTest :
     ShouldSpec({
 
-        should("transform TokenLookupResponse to TokenInfo") {
-            val response = TokenLookupResponse(
+        should("transform AuthTokenLookupTokenResponse to TokenInfo") {
+            val response = AuthTokenLookupTokenResponse(
                 accessor = randomString(),
                 creationTime = randomLong(),
                 creationTTL = randomLong().milliseconds,

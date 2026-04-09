@@ -3,16 +3,24 @@ package io.github.hansanto.kault.auth.token
 import io.github.hansanto.kault.BuilderDsl
 import io.github.hansanto.kault.ServiceBuilder
 import io.github.hansanto.kault.auth.VaultAuth
-import io.github.hansanto.kault.auth.token.payload.TokenAccessorPayload
-import io.github.hansanto.kault.auth.token.payload.TokenCreatePayload
-import io.github.hansanto.kault.auth.token.payload.TokenPayload
-import io.github.hansanto.kault.auth.token.payload.TokenRenewAccessorPayload
-import io.github.hansanto.kault.auth.token.payload.TokenRenewPayload
-import io.github.hansanto.kault.auth.token.payload.TokenRenewSelfPayload
-import io.github.hansanto.kault.auth.token.payload.TokenWriteRolePayload
-import io.github.hansanto.kault.auth.token.response.TokenCreateResponse
-import io.github.hansanto.kault.auth.token.response.TokenLookupResponse
-import io.github.hansanto.kault.auth.token.response.TokenReadRoleResponse
+import io.github.hansanto.kault.auth.token.payload.AuthTokenCreateOrUpdateTokenRolePayload
+import io.github.hansanto.kault.auth.token.payload.AuthTokenCreateTokenPayload
+import io.github.hansanto.kault.auth.token.payload.AuthTokenLookupAccessorTokenPayload
+import io.github.hansanto.kault.auth.token.payload.AuthTokenLookupTokenPayload
+import io.github.hansanto.kault.auth.token.payload.AuthTokenRenewAccessorTokenPayload
+import io.github.hansanto.kault.auth.token.payload.AuthTokenRenewSelfTokenPayload
+import io.github.hansanto.kault.auth.token.payload.AuthTokenRenewTokenPayload
+import io.github.hansanto.kault.auth.token.payload.AuthTokenRevokeAccessorTokenPayload
+import io.github.hansanto.kault.auth.token.payload.AuthTokenRevokeTokenAndOrphanChildrenPayload
+import io.github.hansanto.kault.auth.token.payload.AuthTokenRevokeTokenPayload
+import io.github.hansanto.kault.auth.token.response.AuthTokenCreateTokenResponse
+import io.github.hansanto.kault.auth.token.response.AuthTokenLookupAccessorTokenResponse
+import io.github.hansanto.kault.auth.token.response.AuthTokenLookupSelfTokenResponse
+import io.github.hansanto.kault.auth.token.response.AuthTokenLookupTokenResponse
+import io.github.hansanto.kault.auth.token.response.AuthTokenReadTokenRoleResponse
+import io.github.hansanto.kault.auth.token.response.AuthTokenRenewAccessorTokenResponse
+import io.github.hansanto.kault.auth.token.response.AuthTokenRenewSelfTokenResponse
+import io.github.hansanto.kault.auth.token.response.AuthTokenRenewTokenResponse
 import io.github.hansanto.kault.extension.decodeBodyJsonAuthFieldObject
 import io.github.hansanto.kault.extension.decodeBodyJsonDataFieldObject
 import io.github.hansanto.kault.extension.decodeBodyJsonWarningFieldArray
@@ -35,10 +43,10 @@ import kotlin.contracts.contract
  * @see VaultAuthToken.createToken(payload)
  */
 public suspend inline fun VaultAuthToken.createToken(
-    payloadBuilder: BuilderDsl<TokenCreatePayload>
-): TokenCreateResponse {
+    payloadBuilder: BuilderDsl<AuthTokenCreateTokenPayload>
+): AuthTokenCreateTokenResponse {
     contract { callsInPlace(payloadBuilder, InvocationKind.EXACTLY_ONCE) }
-    val payload = TokenCreatePayload().apply(payloadBuilder)
+    val payload = AuthTokenCreateTokenPayload().apply(payloadBuilder)
     return createToken(payload)
 }
 
@@ -47,10 +55,10 @@ public suspend inline fun VaultAuthToken.createToken(
  */
 public suspend inline fun VaultAuthToken.createToken(
     roleName: String,
-    payloadBuilder: BuilderDsl<TokenCreatePayload>
-): TokenCreateResponse {
+    payloadBuilder: BuilderDsl<AuthTokenCreateTokenPayload>
+): AuthTokenCreateTokenResponse {
     contract { callsInPlace(payloadBuilder, InvocationKind.EXACTLY_ONCE) }
-    val payload = TokenCreatePayload().apply(payloadBuilder)
+    val payload = AuthTokenCreateTokenPayload().apply(payloadBuilder)
     return createToken(roleName, payload)
 }
 
@@ -59,10 +67,10 @@ public suspend inline fun VaultAuthToken.createToken(
  */
 public suspend inline fun VaultAuthToken.createOrUpdateTokenRole(
     roleName: String,
-    payloadBuilder: BuilderDsl<TokenWriteRolePayload>
+    payloadBuilder: BuilderDsl<AuthTokenCreateOrUpdateTokenRolePayload>
 ): Boolean {
     contract { callsInPlace(payloadBuilder, InvocationKind.EXACTLY_ONCE) }
-    val payload = TokenWriteRolePayload().apply(payloadBuilder)
+    val payload = AuthTokenCreateOrUpdateTokenRolePayload().apply(payloadBuilder)
     return createOrUpdateTokenRole(roleName, payload)
 }
 
@@ -70,10 +78,10 @@ public suspend inline fun VaultAuthToken.createOrUpdateTokenRole(
  * @see VaultAuthToken.renewToken(payload)
  */
 public suspend inline fun VaultAuthToken.renewToken(
-    payloadBuilder: BuilderDsl<TokenRenewPayload.Builder>
-): TokenCreateResponse {
+    payloadBuilder: BuilderDsl<AuthTokenRenewTokenPayload.Builder>
+): AuthTokenRenewTokenResponse {
     contract { callsInPlace(payloadBuilder, InvocationKind.EXACTLY_ONCE) }
-    val payload = TokenRenewPayload.Builder().apply(payloadBuilder).build()
+    val payload = AuthTokenRenewTokenPayload.Builder().apply(payloadBuilder).build()
     return renewToken(payload)
 }
 
@@ -81,10 +89,10 @@ public suspend inline fun VaultAuthToken.renewToken(
  * @see VaultAuthToken.renewAccessorToken(payload)
  */
 public suspend inline fun VaultAuthToken.renewAccessorToken(
-    payloadBuilder: BuilderDsl<TokenRenewAccessorPayload.Builder>
-): TokenCreateResponse {
+    payloadBuilder: BuilderDsl<AuthTokenRenewAccessorTokenPayload.Builder>
+): AuthTokenRenewAccessorTokenResponse {
     contract { callsInPlace(payloadBuilder, InvocationKind.EXACTLY_ONCE) }
-    val payload = TokenRenewAccessorPayload.Builder().apply(payloadBuilder).build()
+    val payload = AuthTokenRenewAccessorTokenPayload.Builder().apply(payloadBuilder).build()
     return renewAccessorToken(payload)
 }
 
@@ -103,7 +111,7 @@ public interface VaultAuthToken {
      * @param payload Token configuration.
      * @return Response.
      */
-    public suspend fun createToken(payload: TokenCreatePayload = TokenCreatePayload()): TokenCreateResponse
+    public suspend fun createToken(payload: AuthTokenCreateTokenPayload = AuthTokenCreateTokenPayload()): AuthTokenCreateTokenResponse
 
     /**
      * Creates a new token with the specified role name.
@@ -114,8 +122,8 @@ public interface VaultAuthToken {
      */
     public suspend fun createToken(
         roleName: String,
-        payload: TokenCreatePayload = TokenCreatePayload()
-    ): TokenCreateResponse
+        payload: AuthTokenCreateTokenPayload = AuthTokenCreateTokenPayload()
+    ): AuthTokenCreateTokenResponse
 
     /**
      * Returns information about the client token.
@@ -123,14 +131,14 @@ public interface VaultAuthToken {
      * @param token The token to lookup.
      * @return Response.
      */
-    public suspend fun lookupToken(token: String): TokenLookupResponse
+    public suspend fun lookupToken(token: String): AuthTokenLookupTokenResponse
 
     /**
      * Returns information about the current client token.
      * [Documentation](https://developer.hashicorp.com/vault/api-docs/auth/token#lookup-a-token-self)
      * @return Response.
      */
-    public suspend fun lookupSelfToken(): TokenLookupResponse
+    public suspend fun lookupSelfToken(): AuthTokenLookupSelfTokenResponse
 
     /**
      * Returns information about the client token from the accessor.
@@ -138,7 +146,7 @@ public interface VaultAuthToken {
      * @param accessor Token accessor to lookup.
      * @return Response.
      */
-    public suspend fun lookupAccessorToken(accessor: String): TokenLookupResponse
+    public suspend fun lookupAccessorToken(accessor: String): AuthTokenLookupAccessorTokenResponse
 
     /**
      * Renews a lease associated with a token.
@@ -148,7 +156,7 @@ public interface VaultAuthToken {
      * @param payload Token renewal configuration.
      * @return Response.
      */
-    public suspend fun renewToken(payload: TokenRenewPayload): TokenCreateResponse
+    public suspend fun renewToken(payload: AuthTokenRenewTokenPayload): AuthTokenRenewTokenResponse
 
     /**
      * Renews a lease associated with the calling token.
@@ -160,7 +168,7 @@ public interface VaultAuthToken {
      * If not supplied, Vault will use the default TTL.
      * @return Response.
      */
-    public suspend fun renewSelfToken(increment: VaultDuration? = null): TokenCreateResponse
+    public suspend fun renewSelfToken(increment: VaultDuration? = null): AuthTokenRenewSelfTokenResponse
 
     /**
      * Renews a lease associated with a token using its accessor.
@@ -170,7 +178,7 @@ public interface VaultAuthToken {
      * @param payload Token renewal configuration.
      * @return Response.
      */
-    public suspend fun renewAccessorToken(payload: TokenRenewAccessorPayload): TokenCreateResponse
+    public suspend fun renewAccessorToken(payload: AuthTokenRenewAccessorTokenPayload): AuthTokenRenewAccessorTokenResponse
 
     /**
      * Revokes a token and all child tokens.
@@ -216,7 +224,7 @@ public interface VaultAuthToken {
      * @param roleName The name of the token role.
      * @return Response.
      */
-    public suspend fun readTokenRole(roleName: String): TokenReadRoleResponse
+    public suspend fun readTokenRole(roleName: String): AuthTokenReadTokenRoleResponse
 
     /**
      * List available token roles.
@@ -240,7 +248,7 @@ public interface VaultAuthToken {
      */
     public suspend fun createOrUpdateTokenRole(
         roleName: String,
-        payload: TokenWriteRolePayload = TokenWriteRolePayload()
+        payload: AuthTokenCreateOrUpdateTokenRolePayload = AuthTokenCreateOrUpdateTokenRolePayload()
     ): Boolean
 
     /**
@@ -317,7 +325,7 @@ public class VaultAuthTokenImpl(
         return response.decodeBodyJsonDataFieldObject<StandardListResponse>().keys
     }
 
-    override suspend fun createToken(payload: TokenCreatePayload): TokenCreateResponse {
+    override suspend fun createToken(payload: AuthTokenCreateTokenPayload): AuthTokenCreateTokenResponse {
         val response = client.post {
             url {
                 appendPathSegments(path, "create")
@@ -328,7 +336,7 @@ public class VaultAuthTokenImpl(
         return response.decodeBodyJsonAuthFieldObject()
     }
 
-    override suspend fun createToken(roleName: String, payload: TokenCreatePayload): TokenCreateResponse {
+    override suspend fun createToken(roleName: String, payload: AuthTokenCreateTokenPayload): AuthTokenCreateTokenResponse {
         val response = client.post {
             url {
                 appendPathSegments(path, "create", roleName)
@@ -339,18 +347,18 @@ public class VaultAuthTokenImpl(
         return response.decodeBodyJsonAuthFieldObject()
     }
 
-    override suspend fun lookupToken(token: String): TokenLookupResponse {
+    override suspend fun lookupToken(token: String): AuthTokenLookupTokenResponse {
         val response = client.post {
             url {
                 appendPathSegments(path, "lookup")
             }
             contentType(ContentType.Application.Json)
-            setBody(TokenPayload(token))
+            setBody(AuthTokenLookupTokenPayload(token))
         }
         return response.decodeBodyJsonDataFieldObject()
     }
 
-    override suspend fun lookupSelfToken(): TokenLookupResponse {
+    override suspend fun lookupSelfToken(): AuthTokenLookupSelfTokenResponse {
         val response = client.get {
             url {
                 appendPathSegments(path, "lookup-self")
@@ -359,18 +367,18 @@ public class VaultAuthTokenImpl(
         return response.decodeBodyJsonDataFieldObject()
     }
 
-    override suspend fun lookupAccessorToken(accessor: String): TokenLookupResponse {
+    override suspend fun lookupAccessorToken(accessor: String): AuthTokenLookupAccessorTokenResponse {
         val response = client.post {
             url {
                 appendPathSegments(path, "lookup-accessor")
             }
             contentType(ContentType.Application.Json)
-            setBody(TokenAccessorPayload(accessor))
+            setBody(AuthTokenLookupAccessorTokenPayload(accessor))
         }
         return response.decodeBodyJsonDataFieldObject()
     }
 
-    override suspend fun renewToken(payload: TokenRenewPayload): TokenCreateResponse {
+    override suspend fun renewToken(payload: AuthTokenRenewTokenPayload): AuthTokenRenewTokenResponse {
         val response = client.post {
             url {
                 appendPathSegments(path, "renew")
@@ -381,18 +389,18 @@ public class VaultAuthTokenImpl(
         return response.decodeBodyJsonAuthFieldObject()
     }
 
-    override suspend fun renewSelfToken(increment: VaultDuration?): TokenCreateResponse {
+    override suspend fun renewSelfToken(increment: VaultDuration?): AuthTokenRenewSelfTokenResponse {
         val response = client.post {
             url {
                 appendPathSegments(path, "renew-self")
             }
             contentType(ContentType.Application.Json)
-            setBody(TokenRenewSelfPayload(increment))
+            setBody(AuthTokenRenewSelfTokenPayload(increment))
         }
         return response.decodeBodyJsonAuthFieldObject()
     }
 
-    override suspend fun renewAccessorToken(payload: TokenRenewAccessorPayload): TokenCreateResponse {
+    override suspend fun renewAccessorToken(payload: AuthTokenRenewAccessorTokenPayload): AuthTokenRenewAccessorTokenResponse {
         val response = client.post {
             url {
                 appendPathSegments(path, "renew-accessor")
@@ -409,7 +417,7 @@ public class VaultAuthTokenImpl(
                 appendPathSegments(path, "revoke")
             }
             contentType(ContentType.Application.Json)
-            setBody(TokenPayload(token))
+            setBody(AuthTokenRevokeTokenPayload(token))
         }
         return response.status.isSuccess()
     }
@@ -429,7 +437,7 @@ public class VaultAuthTokenImpl(
                 appendPathSegments(path, "revoke-accessor")
             }
             contentType(ContentType.Application.Json)
-            setBody(TokenAccessorPayload(accessor))
+            setBody(AuthTokenRevokeAccessorTokenPayload(accessor))
         }
         return response.status.isSuccess()
     }
@@ -440,12 +448,12 @@ public class VaultAuthTokenImpl(
                 appendPathSegments(path, "revoke-orphan")
             }
             contentType(ContentType.Application.Json)
-            setBody(TokenPayload(token))
+            setBody(AuthTokenRevokeTokenAndOrphanChildrenPayload(token))
         }
         return response.status.isSuccess()
     }
 
-    override suspend fun readTokenRole(roleName: String): TokenReadRoleResponse {
+    override suspend fun readTokenRole(roleName: String): AuthTokenReadTokenRoleResponse {
         val response = client.get {
             url {
                 appendPathSegments(path, "roles", roleName)
@@ -463,7 +471,7 @@ public class VaultAuthTokenImpl(
         return response.decodeBodyJsonDataFieldObject<StandardListResponse>().keys
     }
 
-    override suspend fun createOrUpdateTokenRole(roleName: String, payload: TokenWriteRolePayload): Boolean {
+    override suspend fun createOrUpdateTokenRole(roleName: String, payload: AuthTokenCreateOrUpdateTokenRolePayload): Boolean {
         val response = client.post {
             url {
                 appendPathSegments(path, "roles", roleName)

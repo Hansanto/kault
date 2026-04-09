@@ -8,11 +8,11 @@ import io.kotest.matchers.shouldBe
 import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.JsonPrimitive
 
-class OIDCConfigurePayloadTest :
+class AuthOIDCConfigurePayloadTest :
     ShouldSpec({
 
         should("set empty map for providerConfig from builder") {
-            val builder = OIDCConfigurePayload
+            val builder = AuthOIDCConfigurePayload
                 .Builder().apply {
                     providerConfig = mapOf()
                 }
@@ -26,7 +26,7 @@ class OIDCConfigurePayloadTest :
             val randomLong = randomLong()
             val randomBoolean = randomBoolean()
 
-            val builder = OIDCConfigurePayload
+            val builder = AuthOIDCConfigurePayload
                 .Builder().apply {
                     providerConfig = mapOf(
                         "stringKey" to randomString,
@@ -46,7 +46,7 @@ class OIDCConfigurePayloadTest :
         }
 
         should("set map with non-primitive value for providerConfig from builder") {
-            val builder = OIDCConfigurePayload
+            val builder = AuthOIDCConfigurePayload
                 .Builder().apply {
                     providerConfig = mapOf(
                         "primitive" to "stringValue",

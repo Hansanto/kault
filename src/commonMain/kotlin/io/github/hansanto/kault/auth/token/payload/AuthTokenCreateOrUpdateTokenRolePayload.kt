@@ -6,7 +6,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-public data class TokenWriteRolePayload(
+public data class AuthTokenCreateOrUpdateTokenRolePayload(
     /**
      * If set, tokens can be created with any subset of the policies in this list, rather than the normal semantics of tokens being a subset of the calling token's policies. The parameter is a comma-delimited string of policy names. If at creation time no_default_policy is not set and "default" is not contained in disallowed_policies or glob matched in disallowed_policies_glob, the "default" policy will be added to the created token automatically.
      */

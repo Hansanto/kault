@@ -3,18 +3,18 @@ package io.github.hansanto.kault.auth.token.response
 import io.github.hansanto.kault.auth.common.common.TokenInfo
 import io.github.hansanto.kault.auth.common.common.TokenType
 import io.github.hansanto.kault.serializer.VaultDuration
+import kotlin.time.Instant
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlin.time.Instant
 
 /**
- * Build an instance of [TokenInfo] from the [TokenLookupResponse].
+ * Build an instance of [TokenInfo] from the [AuthTokenLookupTokenResponse].
  * @receiver The response from the token lookup request.
  * @param token The token that was looked up.
  * @return All information about the token.
  */
-public fun TokenLookupResponse.toTokenInfo(token: String): TokenInfo = TokenInfo(
+public fun AuthTokenLookupTokenResponse.toTokenInfo(token: String): TokenInfo = TokenInfo(
     token = token,
     accessor = accessor,
     tokenPolicies = policies,
@@ -28,7 +28,7 @@ public fun TokenLookupResponse.toTokenInfo(token: String): TokenInfo = TokenInfo
 )
 
 @Serializable
-public data class TokenLookupResponse(
+public data class AuthTokenLookupTokenResponse(
     @SerialName("accessor")
     public val accessor: String,
 

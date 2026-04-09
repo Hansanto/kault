@@ -6,7 +6,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-public data class TokenReadRoleResponse(
+public data class AuthTokenReadTokenRoleResponse(
     @SerialName("allowed_entity_aliases")
     public val allowedEntityAliases: List<String>?,
 

@@ -6,13 +6,13 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-public data class TokenRenewAccessorPayload(
+public data class AuthTokenRenewTokenPayload(
 
     /**
-     * Accessor associated with the token to renew.
+     * Token to renew. This can be part of the URL or the body.
      */
-    @SerialName("accessor")
-    public var accessor: String,
+    @SerialName("token")
+    public var token: String,
 
     /**
      * An optional requested increment duration can be provided. This increment may not be honored, for instance in the case of periodic tokens. If not supplied, Vault will use the default TTL.
@@ -22,27 +22,27 @@ public data class TokenRenewAccessorPayload(
 ) {
 
     /**
-     * Builder class to simplify the creation of [TokenRenewAccessorPayload].
+     * Builder class to simplify the creation of [AuthTokenRenewTokenPayload].
      */
     @KaultDsl
     public class Builder {
 
         /**
-         * @see [TokenRenewAccessorPayload.accessor]
+         * @see [AuthTokenRenewTokenPayload.token]
          */
-        public lateinit var accessor: String
+        public lateinit var token: String
 
         /**
-         * @see [TokenRenewAccessorPayload.increment]
+         * @see [AuthTokenRenewTokenPayload.increment]
          */
         public var increment: VaultDuration? = null
 
         /**
-         * Build the instance of [TokenRenewAccessorPayload] with the values defined in builder.
+         * Build the instance of [AuthTokenRenewTokenPayload] with the values defined in builder.
          * @return A new instance.
          */
-        public fun build(): TokenRenewAccessorPayload = TokenRenewAccessorPayload(
-            accessor = accessor,
+        public fun build(): AuthTokenRenewTokenPayload = AuthTokenRenewTokenPayload(
+            token = token,
             increment = increment
         )
     }

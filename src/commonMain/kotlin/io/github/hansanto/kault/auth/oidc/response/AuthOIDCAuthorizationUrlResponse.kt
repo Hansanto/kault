@@ -4,7 +4,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-public data class OIDCAuthorizationUrlResponse(
+public data class AuthOIDCAuthorizationUrlResponse(
     /**
      * The OIDC authorization URL to which the client should be redirected.
      */

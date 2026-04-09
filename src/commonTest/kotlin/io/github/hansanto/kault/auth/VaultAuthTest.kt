@@ -10,7 +10,7 @@ import io.github.hansanto.kault.auth.kubernetes.VaultAuthKubernetesImpl
 import io.github.hansanto.kault.auth.oidc.VaultAuthOIDCImpl
 import io.github.hansanto.kault.auth.token.VaultAuthTokenImpl
 import io.github.hansanto.kault.auth.token.createToken
-import io.github.hansanto.kault.auth.token.response.TokenCreateResponse
+import io.github.hansanto.kault.auth.token.response.AuthTokenCreateTokenResponse
 import io.github.hansanto.kault.auth.token.response.toTokenInfo
 import io.github.hansanto.kault.auth.userpass.VaultAuthUserpassImpl
 import io.github.hansanto.kault.serializer.VaultDuration
@@ -429,7 +429,7 @@ class VaultAuthTest :
         }
     })
 
-private suspend fun createRenewToken(auth: VaultAuth, leaseDuration: VaultDuration): TokenCreateResponse {
+private suspend fun createRenewToken(auth: VaultAuth, leaseDuration: VaultDuration): AuthTokenCreateTokenResponse {
     val tokenService = auth.token
     return tokenService.createToken {
         this.renewable = true
@@ -439,7 +439,7 @@ private suspend fun createRenewToken(auth: VaultAuth, leaseDuration: VaultDurati
     }
 }
 
-private suspend fun createNonRenewToken(auth: VaultAuth, leaseDuration: VaultDuration): TokenCreateResponse {
+private suspend fun createNonRenewToken(auth: VaultAuth, leaseDuration: VaultDuration): AuthTokenCreateTokenResponse {
     val tokenService = auth.token
     return tokenService.createToken {
         this.renewable = false

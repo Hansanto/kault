@@ -6,7 +6,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-public data class TokenCreatePayload(
+public data class AuthTokenCreateTokenPayload(
 
     /**
      * The ID of the client token. Can only be specified by a root token. The ID provided may not contain a . character. Otherwise, the token ID is a randomly generated value.

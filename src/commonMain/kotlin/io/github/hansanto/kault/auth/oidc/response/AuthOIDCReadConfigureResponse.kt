@@ -2,13 +2,13 @@ package io.github.hansanto.kault.auth.oidc.response
 
 import io.github.hansanto.kault.auth.oidc.common.OIDCResponseMode
 import io.github.hansanto.kault.auth.oidc.common.OIDCResponseType
-import io.github.hansanto.kault.auth.oidc.payload.OIDCConfigurePayload.JwksPair
+import io.github.hansanto.kault.auth.oidc.payload.AuthOIDCConfigurePayload.JwksPair
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonPrimitive
 
 @Serializable
-public data class OIDCConfigureResponse(
+public data class AuthOIDCReadConfigureResponse(
     /**
      * The value against which to match the iss claim in a JWT. Cannot be configured when [jwksPairs] is set.
      */

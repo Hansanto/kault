@@ -1,13 +1,13 @@
 package io.github.hansanto.kault.auth.token
 
 import io.github.hansanto.kault.VaultClient
-import io.github.hansanto.kault.auth.token.payload.TokenCreatePayload
-import io.github.hansanto.kault.auth.token.payload.TokenRenewAccessorPayload
-import io.github.hansanto.kault.auth.token.payload.TokenRenewPayload
-import io.github.hansanto.kault.auth.token.payload.TokenWriteRolePayload
-import io.github.hansanto.kault.auth.token.response.TokenCreateResponse
-import io.github.hansanto.kault.auth.token.response.TokenLookupResponse
-import io.github.hansanto.kault.auth.token.response.TokenReadRoleResponse
+import io.github.hansanto.kault.auth.token.payload.AuthTokenCreateTokenPayload
+import io.github.hansanto.kault.auth.token.payload.AuthTokenRenewAccessorTokenPayload
+import io.github.hansanto.kault.auth.token.payload.AuthTokenRenewTokenPayload
+import io.github.hansanto.kault.auth.token.payload.AuthTokenCreateOrUpdateTokenRolePayload
+import io.github.hansanto.kault.auth.token.response.AuthTokenCreateTokenResponse
+import io.github.hansanto.kault.auth.token.response.AuthTokenLookupTokenResponse
+import io.github.hansanto.kault.auth.token.response.AuthTokenReadTokenRoleResponse
 import io.github.hansanto.kault.exception.VaultAPIException
 import io.github.hansanto.kault.serializer.VaultDuration
 import io.github.hansanto.kault.util.ROOT_TOKEN
@@ -204,7 +204,7 @@ class VaultAuthTokenTest :
 
         should("throw exception if renew token with invalid token") {
             shouldThrow<VaultAPIException> {
-                token.renewToken(TokenRenewPayload("invalid-token"))
+                token.renewToken(AuthTokenRenewTokenPayload("invalid-token"))
             }
         }
 
@@ -480,7 +480,7 @@ class VaultAuthTokenTest :
 private suspend inline fun assertRevokeToken(
     client: VaultClient,
     childrenAreOrphan: Boolean,
-    revoke: (TokenCreateResponse) -> Boolean
+    revoke: (AuthTokenCreateTokenResponse) -> Boolean
 ) {
     val token = client.auth.token
 
@@ -548,7 +548,7 @@ private suspend fun assertRenewTokenFromAccessor(
     expectedReadPath: String
 ) {
     assertRenewToken(token, increment, expectedReadPath) { tokenCreate, renew ->
-        token.renewAccessorToken(TokenRenewAccessorPayload(tokenCreate.accessor, renew.increment))
+        token.renewAccessorToken(AuthTokenRenewAccessorTokenPayload(tokenCreate.accessor, renew.increment))
     }
 }
 
@@ -569,17 +569,17 @@ private suspend inline fun assertRenewToken(
     token: VaultAuthToken,
     increment: VaultDuration?,
     expectedReadPath: String,
-    renewToken: (TokenCreateResponse, TokenRenewPayload) -> TokenCreateResponse
+    renewToken: (AuthTokenCreateTokenResponse, AuthTokenRenewTokenPayload) -> AuthTokenCreateTokenResponse
 ) {
     val tokenCreateResponse = token.createToken {
         renewable = true
         ttl = 1.hours
     }
 
-    val given = TokenRenewPayload(tokenCreateResponse.clientToken, increment)
+    val given = AuthTokenRenewTokenPayload(tokenCreateResponse.clientToken, increment)
 
     val renewTokenResponse = renewToken(tokenCreateResponse, given)
-    val expected = readJson<TokenCreateResponse>(expectedReadPath)
+    val expected = readJson<AuthTokenCreateTokenResponse>(expectedReadPath)
     renewTokenResponse shouldBe replaceTemplateString(expected, renewTokenResponse)
 }
 
@@ -607,14 +607,14 @@ private suspend inline fun assertLookupToken(
     token: VaultAuthToken,
     givenPath: String?,
     expectedReadPath: String,
-    lookupToken: (TokenCreateResponse) -> TokenLookupResponse
+    lookupToken: (AuthTokenCreateTokenResponse) -> AuthTokenLookupTokenResponse
 ) {
     val response = createToken(givenPath) { payload ->
         token.createToken(payload)
     }
 
     val lookupResponse = lookupToken(response)
-    val expected = readJson<TokenLookupResponse>(expectedReadPath)
+    val expected = readJson<AuthTokenLookupTokenResponse>(expectedReadPath)
     lookupResponse shouldBe replaceTemplateString(expected, lookupResponse)
 }
 
@@ -657,11 +657,11 @@ private suspend fun assertCreateTokenWithBuilder(token: VaultAuthToken, givenPat
 private inline fun assertCreateToken(
     givenPath: String?,
     expectedReadPath: String,
-    create: (TokenCreatePayload) -> TokenCreateResponse
+    create: (AuthTokenCreateTokenPayload) -> AuthTokenCreateTokenResponse
 ) {
     val response = createToken(givenPath, create)
 
-    val expected = readJson<TokenCreateResponse>(expectedReadPath)
+    val expected = readJson<AuthTokenCreateTokenResponse>(expectedReadPath)
     response shouldBe replaceTemplateString(expected, response)
 }
 
@@ -721,7 +721,7 @@ private suspend inline fun assertCreateTokenRole(
     roleName: String,
     givenPath: String?,
     expectedReadPath: String,
-    create: (TokenWriteRolePayload) -> Boolean
+    create: (AuthTokenCreateOrUpdateTokenRolePayload) -> Boolean
 ) {
     shouldThrow<VaultAPIException> {
         token.readTokenRole(roleName)
@@ -729,7 +729,7 @@ private suspend inline fun assertCreateTokenRole(
 
     createTokenRole(givenPath, create) shouldBe true
     val roleConfiguration = token.readTokenRole(roleName)
-    val expected = readJson<TokenReadRoleResponse>(expectedReadPath)
+    val expected = readJson<AuthTokenReadTokenRoleResponse>(expectedReadPath)
     roleConfiguration shouldBe replaceTemplateString(expected, roleConfiguration)
 }
 
@@ -789,7 +789,7 @@ private suspend inline fun assertUpdateTokenRole(
     roleName: String,
     givenPath: String?,
     expectedReadPath: String,
-    update: (TokenWriteRolePayload) -> Boolean
+    update: (AuthTokenCreateOrUpdateTokenRolePayload) -> Boolean
 ) {
     shouldThrow<VaultAPIException> {
         token.readTokenRole(roleName)
@@ -799,7 +799,7 @@ private suspend inline fun assertUpdateTokenRole(
     createTokenRole(givenPath, update) shouldBe true
 
     val roleConfiguration = token.readTokenRole(roleName)
-    val expected = readJson<TokenReadRoleResponse>(expectedReadPath)
+    val expected = readJson<AuthTokenReadTokenRoleResponse>(expectedReadPath)
     roleConfiguration shouldBe replaceTemplateString(expected, roleConfiguration)
 }
 
@@ -858,7 +858,7 @@ private suspend inline fun assertCreateTokenRoleName(
     roleName: String,
     givenPath: String?,
     expectedReadPath: String,
-    create: (TokenCreatePayload) -> TokenCreateResponse
+    create: (AuthTokenCreateTokenPayload) -> AuthTokenCreateTokenResponse
 ) {
     shouldThrow<VaultAPIException> {
         token.readTokenRole(roleName)
@@ -867,19 +867,19 @@ private suspend inline fun assertCreateTokenRoleName(
     token.createOrUpdateTokenRole(roleName) shouldBe true
     val response = createToken(givenPath, create)
 
-    val expected = readJson<TokenCreateResponse>(expectedReadPath)
+    val expected = readJson<AuthTokenCreateTokenResponse>(expectedReadPath)
     response shouldBe replaceTemplateString(expected, response)
 }
 
 private inline fun createToken(
     givenPath: String?,
-    create: (TokenCreatePayload) -> TokenCreateResponse
-): TokenCreateResponse {
-    val given = givenPath?.let { readJson<TokenCreatePayload>(it) } ?: TokenCreatePayload()
+    create: (AuthTokenCreateTokenPayload) -> AuthTokenCreateTokenResponse
+): AuthTokenCreateTokenResponse {
+    val given = givenPath?.let { readJson<AuthTokenCreateTokenPayload>(it) } ?: AuthTokenCreateTokenPayload()
     return create(given)
 }
 
-private inline fun createTokenRole(givenPath: String?, createOrUpdate: (TokenWriteRolePayload) -> Boolean): Boolean {
-    val given = givenPath?.let { readJson<TokenWriteRolePayload>(it) } ?: TokenWriteRolePayload()
+private inline fun createTokenRole(givenPath: String?, createOrUpdate: (AuthTokenCreateOrUpdateTokenRolePayload) -> Boolean): Boolean {
+    val given = givenPath?.let { readJson<AuthTokenCreateOrUpdateTokenRolePayload>(it) } ?: AuthTokenCreateOrUpdateTokenRolePayload()
     return createOrUpdate(given)
 }

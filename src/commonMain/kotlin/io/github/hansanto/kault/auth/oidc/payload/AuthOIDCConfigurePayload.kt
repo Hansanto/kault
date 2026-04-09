@@ -9,7 +9,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonPrimitive
 
 @Serializable
-public data class OIDCConfigurePayload(
+public data class AuthOIDCConfigurePayload(
     /**
      * The value against which to match the iss claim in a JWT. Cannot be configured when [jwksPairs] is set.
      */
@@ -117,93 +117,93 @@ public data class OIDCConfigurePayload(
     )
 
     /**
-     * Builder class to simplify the creation of [OIDCConfigurePayload].
+     * Builder class to simplify the creation of [AuthOIDCConfigurePayload].
      */
     @KaultDsl
     public class Builder {
 
         /**
-         * @see [OIDCConfigurePayload.boundIssuer]
+         * @see [AuthOIDCConfigurePayload.boundIssuer]
          */
         public var boundIssuer: String? = null
 
         /**
-         * @see [OIDCConfigurePayload.defaultRole]
+         * @see [AuthOIDCConfigurePayload.defaultRole]
          */
         public var defaultRole: String? = null
 
         /**
-         * @see [OIDCConfigurePayload.jwksCaPem]
+         * @see [AuthOIDCConfigurePayload.jwksCaPem]
          */
         public var jwksCaPem: String? = null
 
         /**
-         * @see [OIDCConfigurePayload.jwksPairs]
+         * @see [AuthOIDCConfigurePayload.jwksPairs]
          */
         public var jwksPairs: List<JwksPair>? = null
 
         /**
-         * @see [OIDCConfigurePayload.jwksUrl]
+         * @see [AuthOIDCConfigurePayload.jwksUrl]
          */
         public var jwksUrl: String? = null
 
         /**
-         * @see [OIDCConfigurePayload.jwtSupportedAlgorithms]
+         * @see [AuthOIDCConfigurePayload.jwtSupportedAlgorithms]
          */
         public var jwtSupportedAlgorithms: List<String>? = null
 
         /**
-         * @see [OIDCConfigurePayload.jwtValidationPubkeys]
+         * @see [AuthOIDCConfigurePayload.jwtValidationPubkeys]
          */
         public var jwtValidationPubkeys: List<String>? = null
 
         /**
-         * @see [OIDCConfigurePayload.namespaceInState]
+         * @see [AuthOIDCConfigurePayload.namespaceInState]
          */
         public var namespaceInState: Boolean? = null
 
         /**
-         * @see [OIDCConfigurePayload.oidcClientId]
+         * @see [AuthOIDCConfigurePayload.oidcClientId]
          */
         public var oidcClientId: String? = null
 
         /**
-         * @see [OIDCConfigurePayload.oidcClientSecret]
+         * @see [AuthOIDCConfigurePayload.oidcClientSecret]
          */
         public var oidcClientSecret: String? = null
 
         /**
-         * @see [OIDCConfigurePayload.oidcDiscoveryCaPem]
+         * @see [AuthOIDCConfigurePayload.oidcDiscoveryCaPem]
          */
         public var oidcDiscoveryCaPem: String? = null
 
         /**
-         * @see [OIDCConfigurePayload.oidcDiscoveryUrl]
+         * @see [AuthOIDCConfigurePayload.oidcDiscoveryUrl]
          */
         public var oidcDiscoveryUrl: String? = null
 
         /**
-         * @see [OIDCConfigurePayload.oidcResponseMode]
+         * @see [AuthOIDCConfigurePayload.oidcResponseMode]
          */
         public var oidcResponseMode: OIDCResponseMode? = null
 
         /**
-         * @see [OIDCConfigurePayload.oidcResponseTypes]
+         * @see [AuthOIDCConfigurePayload.oidcResponseTypes]
          */
         public var oidcResponseTypes: List<OIDCResponseType>? = null
 
         /**
          * The map must have primitive values (null, boolean, number, string).
          * When building the payload with [build], the values will be converted to [JsonPrimitive]s automatically by the method [toJsonPrimitiveMap].
-         * @see [OIDCConfigurePayload.providerConfig]
+         * @see [AuthOIDCConfigurePayload.providerConfig]
          */
         public var providerConfig: Map<String, Any?>? = null
 
         /**
-         * Build the instance of [OIDCConfigurePayload] with the values defined in builder.
+         * Build the instance of [AuthOIDCConfigurePayload] with the values defined in builder.
          * @return A new instance.
          */
-        public fun build(): OIDCConfigurePayload = OIDCConfigurePayload(
+        public fun build(): AuthOIDCConfigurePayload = AuthOIDCConfigurePayload(
             boundIssuer = boundIssuer,
             defaultRole = defaultRole,
             jwksCaPem = jwksCaPem,

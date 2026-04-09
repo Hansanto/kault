@@ -3,16 +3,16 @@ package io.github.hansanto.kault.auth.token.response
 import io.github.hansanto.kault.auth.common.common.TokenInfo
 import io.github.hansanto.kault.auth.common.common.TokenType
 import io.github.hansanto.kault.serializer.VaultDuration
+import kotlin.time.Clock
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlin.time.Clock
 
 /**
- * Build an instance of [TokenInfo] from the [TokenCreateResponse].
+ * Build an instance of [TokenInfo] from the [AuthTokenCreateTokenResponse].
  * @receiver The response from the renew token request.
  * @return All information about the new token.
  */
-public fun TokenCreateResponse.toTokenInfo(): TokenInfo = TokenInfo(
+public fun AuthTokenCreateTokenResponse.toTokenInfo(): TokenInfo = TokenInfo(
     token = clientToken,
     accessor = accessor,
     tokenPolicies = tokenPolicies,
@@ -26,7 +26,7 @@ public fun TokenCreateResponse.toTokenInfo(): TokenInfo = TokenInfo(
 )
 
 @Serializable
-public data class TokenCreateResponse(
+public data class AuthTokenCreateTokenResponse(
     /**
      * Client token to interact with Vault.
      */

@@ -5,7 +5,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-public data class OIDCCallbackPayload(
+public data class AuthOIDCCallbackPayload(
     /**
      * Opaque state ID that is part of the Authorization URL and will be included in the the redirect following successful authentication on the provider.
      */
@@ -32,36 +32,36 @@ public data class OIDCCallbackPayload(
 ) {
 
     /**
-     * Builder class to simplify the creation of [OIDCCallbackPayload].
+     * Builder class to simplify the creation of [AuthOIDCCallbackPayload].
      */
     @KaultDsl
     public class Builder {
 
         /**
-         * @see [OIDCCallbackPayload.state]
+         * @see [AuthOIDCCallbackPayload.state]
          */
         public lateinit var state: String
 
         /**
-         * @see [OIDCCallbackPayload.code]
+         * @see [AuthOIDCCallbackPayload.code]
          */
         public lateinit var code: String
 
         /**
-         * @see [OIDCCallbackPayload.nonce]
+         * @see [AuthOIDCCallbackPayload.nonce]
          */
         public var nonce: String? = null
 
         /**
-         * @see [OIDCCallbackPayload.clientNonce]
+         * @see [AuthOIDCCallbackPayload.clientNonce]
          */
         public var clientNonce: String? = null
 
         /**
-         * Build the instance of [OIDCCallbackPayload] with the values defined in builder.
+         * Build the instance of [AuthOIDCCallbackPayload] with the values defined in builder.
          * @return A new instance.
          */
-        public fun build(): OIDCCallbackPayload = OIDCCallbackPayload(
+        public fun build(): AuthOIDCCallbackPayload = AuthOIDCCallbackPayload(
             state = state,
             nonce = nonce,
             code = code,

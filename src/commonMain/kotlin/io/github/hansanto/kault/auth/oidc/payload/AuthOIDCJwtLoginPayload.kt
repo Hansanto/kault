@@ -5,7 +5,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-public data class OIDCJwtLoginPayload(
+public data class AuthOIDCJwtLoginPayload(
     /**
      * Signed [JSON Web Token](https://tools.ietf.org/html/rfc7519) (JWT).
      */
@@ -21,26 +21,26 @@ public data class OIDCJwtLoginPayload(
 ) {
 
     /**
-     * Builder class to simplify the creation of [OIDCJwtLoginPayload].
+     * Builder class to simplify the creation of [AuthOIDCJwtLoginPayload].
      */
     @KaultDsl
     public class Builder {
 
         /**
-         * @see [OIDCJwtLoginPayload.jwt]
+         * @see [AuthOIDCJwtLoginPayload.jwt]
          */
         public lateinit var jwt: String
 
         /**
-         * @see [OIDCJwtLoginPayload.role]
+         * @see [AuthOIDCJwtLoginPayload.role]
          */
         public var role: String? = null
 
         /**
-         * Build the instance of [OIDCJwtLoginPayload] with the values defined in builder.
+         * Build the instance of [AuthOIDCJwtLoginPayload] with the values defined in builder.
          * @return A new instance.
          */
-        public fun build(): OIDCJwtLoginPayload = OIDCJwtLoginPayload(
+        public fun build(): AuthOIDCJwtLoginPayload = AuthOIDCJwtLoginPayload(
             jwt = jwt,
             role = role,
         )

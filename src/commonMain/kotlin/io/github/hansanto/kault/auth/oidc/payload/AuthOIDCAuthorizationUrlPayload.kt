@@ -5,7 +5,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-public data class OIDCAuthorizationUrlPayload(
+public data class AuthOIDCAuthorizationUrlPayload(
     /**
      * Path to the callback to complete the login. This will be of the form, "https://.../oidc/callback" where the leading portion is dependent on your Vault server location, port, and the mount of the JWT plugin. This must be configured with Vault and the provider. See [Redirect URIs](https://developer.hashicorp.com/vault/docs/auth/jwt#redirect-uris) for more information.
      */
@@ -27,31 +27,31 @@ public data class OIDCAuthorizationUrlPayload(
 ) {
 
     /**
-     * Builder class to simplify the creation of [OIDCAuthorizationUrlPayload].
+     * Builder class to simplify the creation of [AuthOIDCAuthorizationUrlPayload].
      */
     @KaultDsl
     public class Builder {
 
         /**
-         * @see [OIDCAuthorizationUrlPayload.redirectUri]
+         * @see [AuthOIDCAuthorizationUrlPayload.redirectUri]
          */
         public lateinit var redirectUri: String
 
         /**
-         * @see [OIDCAuthorizationUrlPayload.role]
+         * @see [AuthOIDCAuthorizationUrlPayload.role]
          */
         public var role: String? = null
 
         /**
-         * @see [OIDCAuthorizationUrlPayload.clientNonce]
+         * @see [AuthOIDCAuthorizationUrlPayload.clientNonce]
          */
         public var clientNonce: String? = null
 
         /**
-         * Build the instance of [OIDCAuthorizationUrlPayload] with the values defined in builder.
+         * Build the instance of [AuthOIDCAuthorizationUrlPayload] with the values defined in builder.
          * @return A new instance.
          */
-        public fun build(): OIDCAuthorizationUrlPayload = OIDCAuthorizationUrlPayload(
+        public fun build(): AuthOIDCAuthorizationUrlPayload = AuthOIDCAuthorizationUrlPayload(
             redirectUri = redirectUri,
             role = role,
             clientNonce = clientNonce,

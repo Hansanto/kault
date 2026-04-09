@@ -9,7 +9,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-public data class OIDCCreateOrUpdatePayload(
+public data class AuthOIDCCreateOrUpdatePayload(
     /**
      * The claim to use to uniquely identify the user; this will be used as the name for the Identity entity alias created due to a successful login. The claim value must be a string.
      */
@@ -162,141 +162,141 @@ public data class OIDCCreateOrUpdatePayload(
 ) {
 
     /**
-     * Builder class to simplify the creation of [OIDCCreateOrUpdatePayload].
+     * Builder class to simplify the creation of [AuthOIDCCreateOrUpdatePayload].
      */
     @KaultDsl
     public class Builder {
 
         /**
-         * @see [OIDCCreateOrUpdatePayload.userClaim]
+         * @see [AuthOIDCCreateOrUpdatePayload.userClaim]
          */
         public lateinit var userClaim: String
 
         /**
-         * @see [OIDCCreateOrUpdatePayload.allowedRedirectUris]
+         * @see [AuthOIDCCreateOrUpdatePayload.allowedRedirectUris]
          */
         public lateinit var allowedRedirectUris: List<String>
 
         /**
-         * @see [OIDCCreateOrUpdatePayload.roleType]
+         * @see [AuthOIDCCreateOrUpdatePayload.roleType]
          */
         public var roleType: OIDCRoleType? = null
 
         /**
-         * @see [OIDCCreateOrUpdatePayload.boundAudiences]
+         * @see [AuthOIDCCreateOrUpdatePayload.boundAudiences]
          */
         public var boundAudiences: List<String>? = null
 
         /**
-         * @see [OIDCCreateOrUpdatePayload.userClaimJsonPointer]
+         * @see [AuthOIDCCreateOrUpdatePayload.userClaimJsonPointer]
          */
         public var userClaimJsonPointer: Boolean? = null
 
         /**
-         * @see [OIDCCreateOrUpdatePayload.clockSkewLeeway]
+         * @see [AuthOIDCCreateOrUpdatePayload.clockSkewLeeway]
          */
         public var clockSkewLeeway: VaultDuration? = null
 
         /**
-         * @see [OIDCCreateOrUpdatePayload.expirationLeeway]
+         * @see [AuthOIDCCreateOrUpdatePayload.expirationLeeway]
          */
         public var expirationLeeway: VaultDuration? = null
 
         /**
-         * @see [OIDCCreateOrUpdatePayload.notBeforeLeeway]
+         * @see [AuthOIDCCreateOrUpdatePayload.notBeforeLeeway]
          */
         public var notBeforeLeeway: VaultDuration? = null
 
         /**
-         * @see [OIDCCreateOrUpdatePayload.boundSubject]
+         * @see [AuthOIDCCreateOrUpdatePayload.boundSubject]
          */
         public var boundSubject: String? = null
 
         /**
-         * @see [OIDCCreateOrUpdatePayload.boundClaims]
+         * @see [AuthOIDCCreateOrUpdatePayload.boundClaims]
          */
         public var boundClaims: Map<String, String>? = null
 
         /**
-         * @see [OIDCCreateOrUpdatePayload.boundClaimsType]
+         * @see [AuthOIDCCreateOrUpdatePayload.boundClaimsType]
          */
         public var boundClaimsType: OIDCBoundClaimsType? = null
 
         /**
-         * @see [OIDCCreateOrUpdatePayload.groupsClaim]
+         * @see [AuthOIDCCreateOrUpdatePayload.groupsClaim]
          */
         public var groupsClaim: String? = null
 
         /**
-         * @see [OIDCCreateOrUpdatePayload.claimMappings]
+         * @see [AuthOIDCCreateOrUpdatePayload.claimMappings]
          */
         public var claimMappings: Map<String, String>? = null
 
         /**
-         * @see [OIDCCreateOrUpdatePayload.oidcScopes]
+         * @see [AuthOIDCCreateOrUpdatePayload.oidcScopes]
          */
         public var oidcScopes: List<String>? = null
 
         /**
-         * @see [OIDCCreateOrUpdatePayload.verboseOIDCLogging]
+         * @see [AuthOIDCCreateOrUpdatePayload.verboseOIDCLogging]
          */
         public var verboseOIDCLogging: Boolean? = null
 
         /**
-         * @see [OIDCCreateOrUpdatePayload.maxAge]
+         * @see [AuthOIDCCreateOrUpdatePayload.maxAge]
          */
         public var maxAge: VaultDuration? = null
 
         /**
-         * @see [OIDCCreateOrUpdatePayload.tokenTTL]
+         * @see [AuthOIDCCreateOrUpdatePayload.tokenTTL]
          */
         public var tokenTTL: VaultDuration? = null
 
         /**
-         * @see [OIDCCreateOrUpdatePayload.tokenMaxTTL]
+         * @see [AuthOIDCCreateOrUpdatePayload.tokenMaxTTL]
          */
         public var tokenMaxTTL: VaultDuration? = null
 
         /**
-         * @see [OIDCCreateOrUpdatePayload.tokenPolicies]
+         * @see [AuthOIDCCreateOrUpdatePayload.tokenPolicies]
          */
         public var tokenPolicies: List<String>? = null
 
         /**
-         * @see [OIDCCreateOrUpdatePayload.tokenBoundCidrs]
+         * @see [AuthOIDCCreateOrUpdatePayload.tokenBoundCidrs]
          */
         public var tokenBoundCidrs: List<String>? = null
 
         /**
-         * @see [OIDCCreateOrUpdatePayload.tokenExplicitMaxTTL]
+         * @see [AuthOIDCCreateOrUpdatePayload.tokenExplicitMaxTTL]
          */
         public var tokenExplicitMaxTTL: VaultDuration? = null
 
         /**
-         * @see [OIDCCreateOrUpdatePayload.tokenNoDefaultPolicy]
+         * @see [AuthOIDCCreateOrUpdatePayload.tokenNoDefaultPolicy]
          */
         public var tokenNoDefaultPolicy: Boolean? = null
 
         /**
-         * @see [OIDCCreateOrUpdatePayload.tokenNumUses]
+         * @see [AuthOIDCCreateOrUpdatePayload.tokenNumUses]
          */
         public var tokenNumUses: Long? = null
 
         /**
-         * @see [OIDCCreateOrUpdatePayload.tokenPeriod]
+         * @see [AuthOIDCCreateOrUpdatePayload.tokenPeriod]
          */
         public var tokenPeriod: VaultDuration? = null
 
         /**
-         * @see [OIDCCreateOrUpdatePayload.tokenType]
+         * @see [AuthOIDCCreateOrUpdatePayload.tokenType]
          */
         public var tokenType: TokenType? = null
 
         /**
-         * Build the instance of [OIDCCreateOrUpdatePayload] with the values defined in builder.
+         * Build the instance of [AuthOIDCCreateOrUpdatePayload] with the values defined in builder.
          * @return A new instance.
          */
-        public fun build(): OIDCCreateOrUpdatePayload = OIDCCreateOrUpdatePayload(
+        public fun build(): AuthOIDCCreateOrUpdatePayload = AuthOIDCCreateOrUpdatePayload(
             userClaim = userClaim,
             allowedRedirectUris = allowedRedirectUris,
             roleType = roleType,

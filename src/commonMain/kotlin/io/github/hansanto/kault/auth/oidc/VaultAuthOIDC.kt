@@ -3,14 +3,14 @@ package io.github.hansanto.kault.auth.oidc
 import io.github.hansanto.kault.BuilderDsl
 import io.github.hansanto.kault.ServiceBuilder
 import io.github.hansanto.kault.auth.common.response.LoginResponse
-import io.github.hansanto.kault.auth.oidc.payload.OIDCAuthorizationUrlPayload
-import io.github.hansanto.kault.auth.oidc.payload.OIDCCallbackPayload
-import io.github.hansanto.kault.auth.oidc.payload.OIDCConfigurePayload
-import io.github.hansanto.kault.auth.oidc.payload.OIDCCreateOrUpdatePayload
-import io.github.hansanto.kault.auth.oidc.payload.OIDCJwtLoginPayload
-import io.github.hansanto.kault.auth.oidc.response.OIDCAuthorizationUrlResponse
-import io.github.hansanto.kault.auth.oidc.response.OIDCConfigureResponse
-import io.github.hansanto.kault.auth.oidc.response.OIDCReadRoleResponse
+import io.github.hansanto.kault.auth.oidc.payload.AuthOIDCAuthorizationUrlPayload
+import io.github.hansanto.kault.auth.oidc.payload.AuthOIDCCallbackPayload
+import io.github.hansanto.kault.auth.oidc.payload.AuthOIDCConfigurePayload
+import io.github.hansanto.kault.auth.oidc.payload.AuthOIDCCreateOrUpdatePayload
+import io.github.hansanto.kault.auth.oidc.payload.AuthOIDCJwtLoginPayload
+import io.github.hansanto.kault.auth.oidc.response.AuthOIDCAuthorizationUrlResponse
+import io.github.hansanto.kault.auth.oidc.response.AuthOIDCReadConfigureResponse
+import io.github.hansanto.kault.auth.oidc.response.AuthOIDCReadRoleResponse
 import io.github.hansanto.kault.extension.decodeBodyJsonAuthFieldObject
 import io.github.hansanto.kault.extension.decodeBodyJsonDataFieldObject
 import io.github.hansanto.kault.extension.list
@@ -31,9 +31,9 @@ import kotlin.contracts.contract
 /**
  * @see VaultAuthOIDC.configure(payload)
  */
-public suspend inline fun VaultAuthOIDC.configure(payloadBuilder: BuilderDsl<OIDCConfigurePayload.Builder>): Boolean {
+public suspend inline fun VaultAuthOIDC.configure(payloadBuilder: BuilderDsl<AuthOIDCConfigurePayload.Builder>): Boolean {
     contract { callsInPlace(payloadBuilder, InvocationKind.EXACTLY_ONCE) }
-    val payload = OIDCConfigurePayload.Builder().apply(payloadBuilder).build()
+    val payload = AuthOIDCConfigurePayload.Builder().apply(payloadBuilder).build()
     return configure(payload)
 }
 
@@ -42,10 +42,10 @@ public suspend inline fun VaultAuthOIDC.configure(payloadBuilder: BuilderDsl<OID
  */
 public suspend inline fun VaultAuthOIDC.createOrUpdateRole(
     roleName: String,
-    payloadBuilder: BuilderDsl<OIDCCreateOrUpdatePayload.Builder>
+    payloadBuilder: BuilderDsl<AuthOIDCCreateOrUpdatePayload.Builder>
 ): Boolean {
     contract { callsInPlace(payloadBuilder, InvocationKind.EXACTLY_ONCE) }
-    val payload = OIDCCreateOrUpdatePayload.Builder().apply(payloadBuilder).build()
+    val payload = AuthOIDCCreateOrUpdatePayload.Builder().apply(payloadBuilder).build()
     return createOrUpdateRole(roleName, payload)
 }
 
@@ -53,10 +53,10 @@ public suspend inline fun VaultAuthOIDC.createOrUpdateRole(
  * @see VaultAuthOIDC.oidcAuthorizationUrl(payload)
  */
 public suspend inline fun VaultAuthOIDC.oidcAuthorizationUrl(
-    payloadBuilder: BuilderDsl<OIDCAuthorizationUrlPayload.Builder>
+    payloadBuilder: BuilderDsl<AuthOIDCAuthorizationUrlPayload.Builder>
 ): String {
     contract { callsInPlace(payloadBuilder, InvocationKind.EXACTLY_ONCE) }
-    val payload = OIDCAuthorizationUrlPayload.Builder().apply(payloadBuilder).build()
+    val payload = AuthOIDCAuthorizationUrlPayload.Builder().apply(payloadBuilder).build()
     return oidcAuthorizationUrl(payload)
 }
 
@@ -64,10 +64,10 @@ public suspend inline fun VaultAuthOIDC.oidcAuthorizationUrl(
  * @see VaultAuthOIDC.oidcCallback(parameters)
  */
 public suspend inline fun VaultAuthOIDC.oidcCallback(
-    parametersBuilder: BuilderDsl<OIDCCallbackPayload.Builder>
+    parametersBuilder: BuilderDsl<AuthOIDCCallbackPayload.Builder>
 ): LoginResponse {
     contract { callsInPlace(parametersBuilder, InvocationKind.EXACTLY_ONCE) }
-    val parameters = OIDCCallbackPayload.Builder().apply(parametersBuilder).build()
+    val parameters = AuthOIDCCallbackPayload.Builder().apply(parametersBuilder).build()
     return oidcCallback(parameters)
 }
 
@@ -75,10 +75,10 @@ public suspend inline fun VaultAuthOIDC.oidcCallback(
  * @see VaultAuthOIDC.jwtLogin(payload)
  */
 public suspend inline fun VaultAuthOIDC.jwtLogin(
-    payloadBuilder: BuilderDsl<OIDCJwtLoginPayload.Builder>
+    payloadBuilder: BuilderDsl<AuthOIDCJwtLoginPayload.Builder>
 ): LoginResponse {
     contract { callsInPlace(payloadBuilder, InvocationKind.EXACTLY_ONCE) }
-    val payload = OIDCJwtLoginPayload.Builder().apply(payloadBuilder).build()
+    val payload = AuthOIDCJwtLoginPayload.Builder().apply(payloadBuilder).build()
     return jwtLogin(payload)
 }
 
@@ -92,14 +92,14 @@ public interface VaultAuthOIDC {
      * [Documentation](https://developer.hashicorp.com/vault/api-docs/auth/jwt#configure)
      * @return Returns true if the configuration was updated successfully.
      */
-    public suspend fun configure(payload: OIDCConfigurePayload): Boolean
+    public suspend fun configure(payload: AuthOIDCConfigurePayload): Boolean
 
     /**
      * Returns the previously configured config.
      * [Documentation](https://developer.hashicorp.com/vault/api-docs/auth/jwt#read-config)
      * @return Response.
      */
-    public suspend fun readConfiguration(): OIDCConfigureResponse
+    public suspend fun readConfiguration(): AuthOIDCReadConfigureResponse
 
     /**
      * Registers a role in the method. Role types have specific entities that can perform login operations against this endpoint. Constraints specific to the role type must be set on the role. These are applied to the authenticated entities attempting to login. At least one of the bound values must be set.
@@ -109,7 +109,7 @@ public interface VaultAuthOIDC {
      * @param payload Payload to create or update the role.
      * @return Returns true if the role was created or updated successfully.
      */
-    public suspend fun createOrUpdateRole(roleName: String, payload: OIDCCreateOrUpdatePayload): Boolean
+    public suspend fun createOrUpdateRole(roleName: String, payload: AuthOIDCCreateOrUpdatePayload): Boolean
 
     /**
      * Returns the previously registered role configuration.
@@ -118,7 +118,7 @@ public interface VaultAuthOIDC {
      * @param roleName Name of the role.
      * @return Response.
      */
-    public suspend fun readRole(roleName: String): OIDCReadRoleResponse
+    public suspend fun readRole(roleName: String): AuthOIDCReadRoleResponse
 
     /**
      * Lists all the roles that are registered with the plugin.
@@ -141,7 +141,7 @@ public interface VaultAuthOIDC {
      * @param payload Payload to obtain the authorization URL.
      * @return The OIDC authorization URL to which the client should be redirected.
      */
-    public suspend fun oidcAuthorizationUrl(payload: OIDCAuthorizationUrlPayload): String
+    public suspend fun oidcAuthorizationUrl(payload: AuthOIDCAuthorizationUrlPayload): String
 
     /**
      * Exchange an authorization code for an OIDC ID Token. The ID token will be further validated against any bound claims, and if valid a Vault token will be returned.
@@ -149,7 +149,7 @@ public interface VaultAuthOIDC {
      * @param payload Payload for the OIDC callback.
      * @return Response.
      */
-    public suspend fun oidcCallback(payload: OIDCCallbackPayload): LoginResponse
+    public suspend fun oidcCallback(payload: AuthOIDCCallbackPayload): LoginResponse
 
     /**
      * Fetch a token. This endpoint takes a signed JSON Web Token (JWT) and a role name for some entity. It verifies the JWT signature to authenticate that entity and then authorizes the entity for the given role.
@@ -157,7 +157,7 @@ public interface VaultAuthOIDC {
      * @param payload Parameters to login with JWT.
      * @return Response.
      */
-    public suspend fun jwtLogin(payload: OIDCJwtLoginPayload): LoginResponse
+    public suspend fun jwtLogin(payload: AuthOIDCJwtLoginPayload): LoginResponse
 }
 
 /**
@@ -209,7 +209,7 @@ public class VaultAuthOIDCImpl(
             )
     }
 
-    override suspend fun configure(payload: OIDCConfigurePayload): Boolean {
+    override suspend fun configure(payload: AuthOIDCConfigurePayload): Boolean {
         val response = client.post {
             url {
                 appendPathSegments(path, "config")
@@ -220,7 +220,7 @@ public class VaultAuthOIDCImpl(
         return response.status.isSuccess()
     }
 
-    override suspend fun readConfiguration(): OIDCConfigureResponse {
+    override suspend fun readConfiguration(): AuthOIDCReadConfigureResponse {
         val response = client.get {
             url {
                 appendPathSegments(path, "config")
@@ -229,7 +229,7 @@ public class VaultAuthOIDCImpl(
         return response.decodeBodyJsonDataFieldObject()
     }
 
-    override suspend fun createOrUpdateRole(roleName: String, payload: OIDCCreateOrUpdatePayload): Boolean {
+    override suspend fun createOrUpdateRole(roleName: String, payload: AuthOIDCCreateOrUpdatePayload): Boolean {
         val response = client.post {
             url {
                 appendPathSegments(path, "role", roleName)
@@ -240,7 +240,7 @@ public class VaultAuthOIDCImpl(
         return response.status.isSuccess()
     }
 
-    override suspend fun readRole(roleName: String): OIDCReadRoleResponse {
+    override suspend fun readRole(roleName: String): AuthOIDCReadRoleResponse {
         val response = client.get {
             url {
                 appendPathSegments(path, "role", roleName)
@@ -267,7 +267,7 @@ public class VaultAuthOIDCImpl(
         return response.status.isSuccess()
     }
 
-    override suspend fun oidcAuthorizationUrl(payload: OIDCAuthorizationUrlPayload): String {
+    override suspend fun oidcAuthorizationUrl(payload: AuthOIDCAuthorizationUrlPayload): String {
         val response = client.post {
             url {
                 appendPathSegments(path, "oidc", "auth_url")
@@ -275,10 +275,10 @@ public class VaultAuthOIDCImpl(
             contentType(ContentType.Application.Json)
             setBody(payload)
         }
-        return response.decodeBodyJsonDataFieldObject<OIDCAuthorizationUrlResponse>().authUrl
+        return response.decodeBodyJsonDataFieldObject<AuthOIDCAuthorizationUrlResponse>().authUrl
     }
 
-    override suspend fun oidcCallback(payload: OIDCCallbackPayload): LoginResponse {
+    override suspend fun oidcCallback(payload: AuthOIDCCallbackPayload): LoginResponse {
         val response = client.get {
             url {
                 appendPathSegments(path, "oidc", "callback")
@@ -291,7 +291,7 @@ public class VaultAuthOIDCImpl(
         return response.decodeBodyJsonAuthFieldObject()
     }
 
-    override suspend fun jwtLogin(payload: OIDCJwtLoginPayload): LoginResponse {
+    override suspend fun jwtLogin(payload: AuthOIDCJwtLoginPayload): LoginResponse {
         val response = client.post {
             url {
                 appendPathSegments(path, "login")

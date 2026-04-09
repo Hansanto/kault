@@ -4,11 +4,11 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-public class TokenAccessorPayload(
+public class AuthTokenTokenPayload(
 
     /**
-     * Accessor value.
+     * Token value.
      */
-    @SerialName("accessor")
-    public var accessor: String
+    @SerialName("token")
+    public var token: String
 )

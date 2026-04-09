@@ -4,9 +4,9 @@ import io.github.hansanto.kault.VaultClient
 import io.github.hansanto.kault.auth.oidc.common.OIDCResponseMode
 import io.github.hansanto.kault.auth.oidc.common.OIDCResponseType
 import io.github.hansanto.kault.auth.oidc.common.OIDCRoleType
-import io.github.hansanto.kault.auth.oidc.payload.OIDCCreateOrUpdatePayload
-import io.github.hansanto.kault.auth.oidc.response.OIDCConfigureResponse
-import io.github.hansanto.kault.auth.oidc.response.OIDCReadRoleResponse
+import io.github.hansanto.kault.auth.oidc.payload.AuthOIDCCreateOrUpdatePayload
+import io.github.hansanto.kault.auth.oidc.response.AuthOIDCReadConfigureResponse
+import io.github.hansanto.kault.auth.oidc.response.AuthOIDCReadRoleResponse
 import io.github.hansanto.kault.exception.VaultAPIException
 import io.github.hansanto.kault.util.DEFAULT_ROLE_NAME
 import io.github.hansanto.kault.util.KeycloakUtil
@@ -66,7 +66,7 @@ class VaultAuthOIDCTest :
         }
 
         should("read default configuration") {
-            oidc.readConfiguration() shouldBe OIDCConfigureResponse(
+            oidc.readConfiguration() shouldBe AuthOIDCReadConfigureResponse(
                 oidcDiscoveryUrl = "${KeycloakUtil.HOST_FOR_VAULT}/realms/${KeycloakUtil.REALM}",
                 oidcClientId = KeycloakUtil.CLIENT_ID,
                 defaultRole = "default-role",
@@ -92,7 +92,7 @@ class VaultAuthOIDCTest :
                 this.defaultRole = "another-role"
             }
 
-            oidc.readConfiguration() shouldBe OIDCConfigureResponse(
+            oidc.readConfiguration() shouldBe AuthOIDCReadConfigureResponse(
                 oidcDiscoveryUrl = "",
                 oidcClientId = "",
                 defaultRole = "another-role",
@@ -121,7 +121,7 @@ class VaultAuthOIDCTest :
                 oidcResponseTypes = listOf(OIDCResponseType.CODE, OIDCResponseType.ID_TOKEN)
             }
 
-            oidc.readConfiguration() shouldBe OIDCConfigureResponse(
+            oidc.readConfiguration() shouldBe AuthOIDCReadConfigureResponse(
                 oidcDiscoveryUrl = "${KeycloakUtil.HOST_FOR_VAULT}/realms/${KeycloakUtil.REALM}",
                 oidcClientId = KeycloakUtil.CLIENT_ID,
                 defaultRole = "default-role",
@@ -445,9 +445,9 @@ private suspend inline fun assertCreateOrUpdateRole(
     oidc: VaultAuthOIDC,
     givenPath: String,
     expectedReadPath: String,
-    createOrUpdate: (String, OIDCCreateOrUpdatePayload) -> Boolean
+    createOrUpdate: (String, AuthOIDCCreateOrUpdatePayload) -> Boolean
 ) {
-    val given = readJson<OIDCCreateOrUpdatePayload>(givenPath)
+    val given = readJson<AuthOIDCCreateOrUpdatePayload>(givenPath)
     createOrUpdate(DEFAULT_ROLE_NAME, given) shouldBe true
-    oidc.readRole(DEFAULT_ROLE_NAME) shouldBe readJson<OIDCReadRoleResponse>(expectedReadPath)
+    oidc.readRole(DEFAULT_ROLE_NAME) shouldBe readJson<AuthOIDCReadRoleResponse>(expectedReadPath)
 }

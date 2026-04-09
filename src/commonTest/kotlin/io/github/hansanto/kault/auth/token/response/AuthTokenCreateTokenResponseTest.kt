@@ -1,9 +1,7 @@
-package io.github.hansanto.kault.auth.token
+package io.github.hansanto.kault.auth.token.response
 
 import io.github.hansanto.kault.auth.common.common.TokenInfo
 import io.github.hansanto.kault.auth.common.common.TokenType
-import io.github.hansanto.kault.auth.token.response.TokenCreateResponse
-import io.github.hansanto.kault.auth.token.response.toTokenInfo
 import io.github.hansanto.kault.util.randomBoolean
 import io.github.hansanto.kault.util.randomLong
 import io.github.hansanto.kault.util.randomString
@@ -11,11 +9,11 @@ import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
 import kotlin.time.Duration.Companion.milliseconds
 
-class TokenCreateResponseTest :
+class AuthTokenCreateTokenResponseTest :
     ShouldSpec({
 
         should("transform to TokenInfo and set to null expiration if leaseDuration is zero") {
-            val response = TokenCreateResponse(
+            val response = AuthTokenCreateTokenResponse(
                 clientToken = randomString(),
                 accessor = randomString(),
                 policies = List(5) { randomString() },
@@ -45,7 +43,7 @@ class TokenCreateResponseTest :
         }
 
         should("transform to TokenInfo") {
-            val response = TokenCreateResponse(
+            val response = AuthTokenCreateTokenResponse(
                 clientToken = randomString(),
                 accessor = randomString(),
                 policies = List(5) { randomString() },

@@ -12,6 +12,7 @@ import io.github.hansanto.kault.auth.approle.payload.AuthAppRoleLoginPayload
 import io.github.hansanto.kault.auth.approle.payload.AuthAppRoleReadSecretIdAccessorPayload
 import io.github.hansanto.kault.auth.approle.payload.AuthAppRoleReadSecretIdPayload
 import io.github.hansanto.kault.auth.approle.payload.AuthAppRoleRoleIdPayload
+import io.github.hansanto.kault.auth.approle.payload.AuthAppRoleUpdateRoleIdPayload
 import io.github.hansanto.kault.auth.approle.response.AuthAppRoleCreateCustomSecretIdResponse
 import io.github.hansanto.kault.auth.approle.response.AuthAppRoleGenerateSecretIdResponse
 import io.github.hansanto.kault.auth.approle.response.AuthAppRoleReadResponse
@@ -330,7 +331,7 @@ public class VaultAuthAppRoleImpl(
                 appendPathSegments(path, "role", roleName, "role-id")
             }
             contentType(ContentType.Application.Json)
-            setBody(AuthAppRoleRoleIdPayload(roleId))
+            setBody(AuthAppRoleUpdateRoleIdPayload(roleId))
         }
         return response.status.isSuccess()
     }
