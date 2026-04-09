@@ -58,19 +58,19 @@ class VaultSystemAuthTest :
             val response = auth.list()
             val expected =
                 readJson<Map<String, AuthReadConfigurationResponse>>(
-                    "cases/sys/auth/list/without_additional/expected.json"
+                    "cases/system/auth/list/without_additional/expected.json"
                 )
             response shouldBe replaceTemplateString(response, expected)
         }
 
         should("list with additional auth methods") {
-            val payload = readJson<EnableMethodPayload>("cases/sys/auth/list/with_additional/given.json")
+            val payload = readJson<EnableMethodPayload>("cases/system/auth/list/with_additional/given.json")
             auth.enable(DEFAULT_METHOD, payload) shouldBe true
 
             val response = auth.list()
             val expected =
                 readJson<Map<String, AuthReadConfigurationResponse>>(
-                    "cases/sys/auth/list/with_additional/expected.json"
+                    "cases/system/auth/list/with_additional/expected.json"
                 )
             response shouldBe replaceTemplateString(response, expected)
         }
@@ -94,16 +94,17 @@ class VaultSystemAuthTest :
 
             val response = auth.readConfiguration(DEFAULT_METHOD)
             val expected =
-                readJson<AuthReadConfigurationResponse>("cases/sys/auth/enable/without_options/expected.json")
+                readJson<AuthReadConfigurationResponse>("cases/system/auth/enable/without_options/expected.json")
             response shouldBe replaceTemplateString(response, expected)
         }
 
         should("enable method and read configuration with full payload") {
-            val payload = readJson<EnableMethodPayload>("cases/sys/auth/enable/with_options/given.json")
+            val payload = readJson<EnableMethodPayload>("cases/system/auth/enable/with_options/given.json")
             auth.enable(DEFAULT_METHOD, payload) shouldBe true
 
             val response = auth.readConfiguration(DEFAULT_METHOD)
-            val expected = readJson<AuthReadConfigurationResponse>("cases/sys/auth/enable/with_options/expected.json")
+            val expected =
+                readJson<AuthReadConfigurationResponse>("cases/system/auth/enable/with_options/expected.json")
             response shouldBe replaceTemplateString(response, expected)
         }
 
@@ -146,15 +147,15 @@ class VaultSystemAuthTest :
             assertTune(
                 auth,
                 null,
-                "cases/sys/auth/tune/without_options/expected.json"
+                "cases/system/auth/tune/without_options/expected.json"
             )
         }
 
         should("tune with all defined values") {
             assertTune(
                 auth,
-                "cases/sys/auth/tune/with_options/given.json",
-                "cases/sys/auth/tune/with_options/expected.json"
+                "cases/system/auth/tune/with_options/given.json",
+                "cases/system/auth/tune/with_options/expected.json"
             )
         }
 
@@ -162,15 +163,15 @@ class VaultSystemAuthTest :
             assertTuneWithBuilder(
                 auth,
                 null,
-                "cases/sys/auth/tune/without_options/expected.json"
+                "cases/system/auth/tune/without_options/expected.json"
             )
         }
 
         should("tune using builder with all defined values") {
             assertTuneWithBuilder(
                 auth,
-                "cases/sys/auth/tune/with_options/given.json",
-                "cases/sys/auth/tune/with_options/expected.json"
+                "cases/system/auth/tune/with_options/given.json",
+                "cases/system/auth/tune/with_options/expected.json"
             )
         }
     })

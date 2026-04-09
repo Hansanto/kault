@@ -20,6 +20,8 @@ import io.kotest.matchers.string.shouldNotHaveLength
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
+private const val NAMESPACE_PATH = "test-namespace"
+
 class VaultSystemNamespacesTest :
     ShouldSpec({
 
@@ -65,58 +67,58 @@ class VaultSystemNamespacesTest :
         should("list with created namespaces without options") {
             assertListNamespaces(
                 namespaces = namespaces,
-                givenPath = "cases/sys/namespaces/list/without-options/given.json",
-                expectedReadPath = "cases/sys/namespaces/list/without-options/expected.json",
+                givenPath = "cases/system/namespaces/list/without-options/given.json",
+                expectedReadPath = "cases/system/namespaces/list/without-options/expected.json",
             )
         }
 
         should("list with created namespaces with options") {
             assertListNamespaces(
                 namespaces = namespaces,
-                givenPath = "cases/sys/namespaces/list/with-options/given.json",
-                expectedReadPath = "cases/sys/namespaces/list/with-options/expected.json",
+                givenPath = "cases/system/namespaces/list/with-options/given.json",
+                expectedReadPath = "cases/system/namespaces/list/with-options/expected.json",
             )
         }
 
         should("create a namespace without options") {
             assertCreate(
-                path = "test-namespace",
+                path = NAMESPACE_PATH,
                 namespaces = namespaces,
                 givenPath = null,
-                expectedCreatePath = "cases/sys/namespaces/create/without-options/expected.json",
-                expectedReadPath = "cases/sys/namespaces/create/without-options/expected.json"
+                expectedCreatePath = "cases/system/namespaces/create/without-options/expected.json",
+                expectedReadPath = "cases/system/namespaces/create/without-options/expected.json"
             )
         }
 
         should("create a namespace with options") {
             assertCreate(
-                path = "test-namespace",
+                path = NAMESPACE_PATH,
                 namespaces = namespaces,
-                givenPath = "cases/sys/namespaces/create/with-options/given.json",
-                expectedCreatePath = "cases/sys/namespaces/create/with-options/expected.json",
-                expectedReadPath = "cases/sys/namespaces/create/with-options/expected.json"
+                givenPath = "cases/system/namespaces/create/with-options/given.json",
+                expectedCreatePath = "cases/system/namespaces/create/with-options/expected.json",
+                expectedReadPath = "cases/system/namespaces/create/with-options/expected.json"
             )
         }
 
         should("patch a namespace without options") {
             assertPatch(
-                path = "test-namespace",
+                path = NAMESPACE_PATH,
                 namespaces = namespaces,
-                givenCreatePath = "cases/sys/namespaces/patch/without-options/given_create.json",
-                givenPatchPath = "cases/sys/namespaces/patch/without-options/given_patch.json",
-                expectedPatchPath = "cases/sys/namespaces/patch/without-options/expected.json",
-                expectedReadPath = "cases/sys/namespaces/patch/without-options/expected.json"
+                givenCreatePath = "cases/system/namespaces/patch/without-options/given_create.json",
+                givenPatchPath = "cases/system/namespaces/patch/without-options/given_patch.json",
+                expectedPatchPath = "cases/system/namespaces/patch/without-options/expected.json",
+                expectedReadPath = "cases/system/namespaces/patch/without-options/expected.json"
             )
         }
 
         should("patch a namespace with options") {
             assertPatch(
-                path = "test-namespace",
+                path = NAMESPACE_PATH,
                 namespaces = namespaces,
-                givenCreatePath = "cases/sys/namespaces/patch/with-options/given_create.json",
-                givenPatchPath = "cases/sys/namespaces/patch/with-options/given_patch.json",
-                expectedPatchPath = "cases/sys/namespaces/patch/with-options/expected.json",
-                expectedReadPath = "cases/sys/namespaces/patch/with-options/expected.json"
+                givenCreatePath = "cases/system/namespaces/patch/with-options/given_create.json",
+                givenPatchPath = "cases/system/namespaces/patch/with-options/given_patch.json",
+                expectedPatchPath = "cases/system/namespaces/patch/with-options/expected.json",
+                expectedReadPath = "cases/system/namespaces/patch/with-options/expected.json"
             )
         }
 
@@ -125,7 +127,7 @@ class VaultSystemNamespacesTest :
         }
 
         should("delete existing namespace") {
-            val path = "test-namespace"
+            val path = NAMESPACE_PATH
             namespaces.create(path)
             namespaces.delete(path) shouldBe true
 
@@ -145,7 +147,7 @@ class VaultSystemNamespacesTest :
         }
 
         should("lock existing namespace") {
-            val path = "test-namespace"
+            val path = NAMESPACE_PATH
             val createInfo = namespaces.create(path)
 
             val response = namespaces.lock(path)
@@ -162,7 +164,7 @@ class VaultSystemNamespacesTest :
         }
 
         should("throw exception when unlocking with wrong key") {
-            val path = "test-namespace"
+            val path = NAMESPACE_PATH
             namespaces.create(path)
             namespaces.lock(path)
 
@@ -172,7 +174,7 @@ class VaultSystemNamespacesTest :
         }
 
         should("unlock with correct key") {
-            val path = "test-namespace"
+            val path = NAMESPACE_PATH
             val createInfo = namespaces.create(path)
             val lockResponse = namespaces.lock(path)
 

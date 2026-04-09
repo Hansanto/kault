@@ -14,7 +14,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import kotlinx.coroutines.withTimeoutOrNull
+import kotlinx.coroutines.withTimeout
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 
@@ -255,7 +255,7 @@ suspend fun getAllSecrets(client: VaultClient): Collection<String> = coroutineSc
  * @param isCompleted `true` if the operation is completed, `false` otherwise.
  */
 suspend inline fun waitUntilVaultAsyncOpCompleted(crossinline isCompleted: suspend () -> Boolean) {
-    withTimeoutOrNull(maxCheckVaultAsyncOpTimeout) {
+    withTimeout(maxCheckVaultAsyncOpTimeout) {
         while (isActive) {
             if (isCompleted()) {
                 break
