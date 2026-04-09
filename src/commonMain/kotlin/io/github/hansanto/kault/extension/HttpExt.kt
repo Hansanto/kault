@@ -207,10 +207,20 @@ public fun findErrorFromVaultResponseBody(jsonBody: JsonObject): List<String>? {
         return listOf(it)
     }
 
+    /**
+     * {
+     *  "error_description": "error1"
+     * }
+     */
     jsonBody["error_description"]?.jsonPrimitive?.content?.let { description ->
         return listOf(description)
     }
 
+    /**
+     * {
+     *  "error": "error1"
+     * }
+     */
     jsonBody["error"]?.jsonPrimitive?.content?.let { errorId ->
         return listOf(errorId)
     }

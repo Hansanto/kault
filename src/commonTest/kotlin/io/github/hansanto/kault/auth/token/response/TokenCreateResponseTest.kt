@@ -1,9 +1,7 @@
-package io.github.hansanto.kault.auth.token
+package io.github.hansanto.kault.auth.token.response
 
 import io.github.hansanto.kault.auth.common.common.TokenInfo
 import io.github.hansanto.kault.auth.common.common.TokenType
-import io.github.hansanto.kault.auth.token.response.TokenCreateResponse
-import io.github.hansanto.kault.auth.token.response.toTokenInfo
 import io.github.hansanto.kault.util.randomBoolean
 import io.github.hansanto.kault.util.randomLong
 import io.github.hansanto.kault.util.randomString
