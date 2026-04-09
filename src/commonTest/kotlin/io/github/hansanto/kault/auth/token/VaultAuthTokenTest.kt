@@ -1,10 +1,10 @@
 package io.github.hansanto.kault.auth.token
 
 import io.github.hansanto.kault.VaultClient
+import io.github.hansanto.kault.auth.token.payload.AuthTokenCreateOrUpdateTokenRolePayload
 import io.github.hansanto.kault.auth.token.payload.AuthTokenCreateTokenPayload
 import io.github.hansanto.kault.auth.token.payload.AuthTokenRenewAccessorTokenPayload
 import io.github.hansanto.kault.auth.token.payload.AuthTokenRenewTokenPayload
-import io.github.hansanto.kault.auth.token.payload.AuthTokenCreateOrUpdateTokenRolePayload
 import io.github.hansanto.kault.auth.token.response.AuthTokenCreateTokenResponse
 import io.github.hansanto.kault.auth.token.response.AuthTokenLookupTokenResponse
 import io.github.hansanto.kault.auth.token.response.AuthTokenReadTokenRoleResponse
@@ -879,7 +879,12 @@ private inline fun createToken(
     return create(given)
 }
 
-private inline fun createTokenRole(givenPath: String?, createOrUpdate: (AuthTokenCreateOrUpdateTokenRolePayload) -> Boolean): Boolean {
-    val given = givenPath?.let { readJson<AuthTokenCreateOrUpdateTokenRolePayload>(it) } ?: AuthTokenCreateOrUpdateTokenRolePayload()
+private inline fun createTokenRole(
+    givenPath: String?,
+    createOrUpdate: (AuthTokenCreateOrUpdateTokenRolePayload) -> Boolean
+): Boolean {
+    val given =
+        givenPath?.let { readJson<AuthTokenCreateOrUpdateTokenRolePayload>(it) }
+            ?: AuthTokenCreateOrUpdateTokenRolePayload()
     return createOrUpdate(given)
 }

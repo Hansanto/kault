@@ -31,7 +31,9 @@ import kotlin.contracts.contract
 /**
  * @see VaultAuthOIDC.configure(payload)
  */
-public suspend inline fun VaultAuthOIDC.configure(payloadBuilder: BuilderDsl<AuthOIDCConfigurePayload.Builder>): Boolean {
+public suspend inline fun VaultAuthOIDC.configure(
+    payloadBuilder: BuilderDsl<AuthOIDCConfigurePayload.Builder>
+): Boolean {
     contract { callsInPlace(payloadBuilder, InvocationKind.EXACTLY_ONCE) }
     val payload = AuthOIDCConfigurePayload.Builder().apply(payloadBuilder).build()
     return configure(payload)

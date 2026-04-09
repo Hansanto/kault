@@ -111,7 +111,9 @@ public interface VaultAuthToken {
      * @param payload Token configuration.
      * @return Response.
      */
-    public suspend fun createToken(payload: AuthTokenCreateTokenPayload = AuthTokenCreateTokenPayload()): AuthTokenCreateTokenResponse
+    public suspend fun createToken(
+        payload: AuthTokenCreateTokenPayload = AuthTokenCreateTokenPayload()
+    ): AuthTokenCreateTokenResponse
 
     /**
      * Creates a new token with the specified role name.
@@ -178,7 +180,9 @@ public interface VaultAuthToken {
      * @param payload Token renewal configuration.
      * @return Response.
      */
-    public suspend fun renewAccessorToken(payload: AuthTokenRenewAccessorTokenPayload): AuthTokenRenewAccessorTokenResponse
+    public suspend fun renewAccessorToken(
+        payload: AuthTokenRenewAccessorTokenPayload
+    ): AuthTokenRenewAccessorTokenResponse
 
     /**
      * Revokes a token and all child tokens.
@@ -336,7 +340,10 @@ public class VaultAuthTokenImpl(
         return response.decodeBodyJsonAuthFieldObject()
     }
 
-    override suspend fun createToken(roleName: String, payload: AuthTokenCreateTokenPayload): AuthTokenCreateTokenResponse {
+    override suspend fun createToken(
+        roleName: String,
+        payload: AuthTokenCreateTokenPayload
+    ): AuthTokenCreateTokenResponse {
         val response = client.post {
             url {
                 appendPathSegments(path, "create", roleName)
@@ -400,7 +407,9 @@ public class VaultAuthTokenImpl(
         return response.decodeBodyJsonAuthFieldObject()
     }
 
-    override suspend fun renewAccessorToken(payload: AuthTokenRenewAccessorTokenPayload): AuthTokenRenewAccessorTokenResponse {
+    override suspend fun renewAccessorToken(
+        payload: AuthTokenRenewAccessorTokenPayload
+    ): AuthTokenRenewAccessorTokenResponse {
         val response = client.post {
             url {
                 appendPathSegments(path, "renew-accessor")
@@ -471,7 +480,10 @@ public class VaultAuthTokenImpl(
         return response.decodeBodyJsonDataFieldObject<StandardListResponse>().keys
     }
 
-    override suspend fun createOrUpdateTokenRole(roleName: String, payload: AuthTokenCreateOrUpdateTokenRolePayload): Boolean {
+    override suspend fun createOrUpdateTokenRole(
+        roleName: String,
+        payload: AuthTokenCreateOrUpdateTokenRolePayload
+    ): Boolean {
         val response = client.post {
             url {
                 appendPathSegments(path, "roles", roleName)

@@ -11,7 +11,6 @@ import io.github.hansanto.kault.auth.approle.payload.AuthAppRoleGenerateSecretId
 import io.github.hansanto.kault.auth.approle.payload.AuthAppRoleLoginPayload
 import io.github.hansanto.kault.auth.approle.payload.AuthAppRoleReadSecretIdAccessorPayload
 import io.github.hansanto.kault.auth.approle.payload.AuthAppRoleReadSecretIdPayload
-import io.github.hansanto.kault.auth.approle.payload.AuthAppRoleRoleIdPayload
 import io.github.hansanto.kault.auth.approle.payload.AuthAppRoleUpdateRoleIdPayload
 import io.github.hansanto.kault.auth.approle.response.AuthAppRoleCreateCustomSecretIdResponse
 import io.github.hansanto.kault.auth.approle.response.AuthAppRoleGenerateSecretIdResponse
