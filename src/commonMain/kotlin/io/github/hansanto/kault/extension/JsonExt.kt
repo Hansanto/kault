@@ -3,7 +3,10 @@ package io.github.hansanto.kault.extension
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.builtins.MapSerializer
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.JsonPrimitive
+import kotlin.contracts.contract
 
 /**
  * Convert a Map to a JSON string.
@@ -56,3 +59,20 @@ public fun Any?.toJsonPrimitive(): JsonPrimitive = when (this) {
  */
 public fun Map<String, Any?>.toJsonPrimitiveMap(): Map<String, JsonPrimitive> =
     mapValues { (_, value) -> value.toJsonPrimitive() }
+
+/**
+ * Check the type of the [JsonElement] to return itself or null.
+ *
+ * @return `null` if the [JsonElement] is a [JsonNull], the [JsonElement] itself otherwise.
+ */
+public fun JsonElement.jsonNullToNull(): JsonElement? {
+    contract {
+        returns(null) implies (this@jsonNullToNull is JsonNull)
+        returnsNotNull() implies (this@jsonNullToNull !is JsonNull)
+    }
+    return if (this is JsonNull) {
+        null
+    } else {
+        this
+    }
+}

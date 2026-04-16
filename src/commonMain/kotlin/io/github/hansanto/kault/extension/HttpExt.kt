@@ -112,7 +112,7 @@ public suspend inline fun <reified T> HttpResponse.decodeBodyJsonFieldObject(
     fieldName: String,
     format: Json = VaultClient.json
 ): T = decodeBodyJsonFieldObject(
-    { it[fieldName]?.jsonObject },
+    { it[fieldName]?.jsonNullToNull()?.jsonObject },
     { throw VaultAPIException() },
     format
 ) ?: throw VaultFieldNotFoundException(fieldName)
@@ -130,7 +130,7 @@ public suspend inline fun <reified T> HttpResponse.decodeBodyJsonFieldObjectOrNu
     fieldName: String,
     format: Json = VaultClient.json
 ): T? = decodeBodyJsonFieldObject(
-    { it[fieldName]?.jsonObject },
+    { it[fieldName]?.jsonNullToNull()?.jsonObject },
     { null },
     format
 )
@@ -148,7 +148,7 @@ public suspend inline fun <reified T> HttpResponse.decodeBodyJsonFieldArray(
     fieldName: String,
     format: Json = VaultClient.json
 ): List<T> = decodeBodyJsonFieldObject(
-    { it[fieldName]?.jsonArray },
+    { it[fieldName]?.jsonNullToNull()?.jsonArray },
     { throw VaultAPIException() },
     format
 ) ?: throw VaultFieldNotFoundException(fieldName)
