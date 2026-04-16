@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.9.1](https://github.com/Hansanto/kault/compare/v1.9.0...v1.9.1) (2026-04-16)
+
+
+### Bug Fixes
+
+* **deps:** update dependency org.jetbrains.kotlinx:kotlinx-serialization-json to v1.11.0 ([#303](https://github.com/Hansanto/kault/issues/303)) ([e173ec2](https://github.com/Hansanto/kault/commit/e173ec292620c3d6d14c5ca77abc019277ca5018))
+
 ## [1.9.0](https://github.com/Hansanto/kault/compare/v1.8.0...v1.9.0) (2026-04-09)
 
 
