@@ -3,6 +3,7 @@ package io.github.hansanto.kault.extension
 import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
 import kotlinx.serialization.builtins.serializer
+import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.JsonPrimitive
 
 class JsonExtTest :
@@ -130,5 +131,14 @@ class JsonExtTest :
             )
             val actual = map.toJsonPrimitiveMap()
             actual shouldBe expected
+        }
+
+        should("jsonNullToNull should return null for JsonNull") {
+            JsonNull.jsonNullToNull() shouldBe null
+        }
+
+        should("jsonNullToNull should itself for non-JsonNull") {
+            val jsonPrimitive = JsonPrimitive("test")
+            jsonPrimitive.jsonNullToNull() shouldBe jsonPrimitive
         }
     })
