@@ -4,8 +4,8 @@ import io.github.hansanto.kault.BuilderDsl
 import io.github.hansanto.kault.ServiceBuilder
 import io.github.hansanto.kault.extension.decodeBodyJsonDataFieldObject
 import io.github.hansanto.kault.extension.list
-import io.github.hansanto.kault.system.audit.payload.AuditingEnableDevicePayload
-import io.github.hansanto.kault.system.audit.response.AuditingDeviceResponse
+import io.github.hansanto.kault.system.policy.payload.PolicyCreateOrUpdatePayload
+import io.github.hansanto.kault.system.policy.response.PolicyListResponse
 import io.ktor.client.HttpClient
 import io.ktor.client.request.delete
 import io.ktor.client.request.get
@@ -15,17 +15,15 @@ import io.ktor.http.ContentType
 import io.ktor.http.appendPathSegments
 import io.ktor.http.contentType
 import io.ktor.http.isSuccess
-import kotlin.contracts.InvocationKind
-import kotlin.contracts.contract
 
 public interface VaultSystemPolicy {
 
     /**
      * This endpoint lists all configured policies.
      * [Documentation](https://developer.hashicorp.com/vault/api-docs/system/policy#list-policies)
-     * @return A list of policy names.
+     * @return Response containing the list of policies.
      */
-    public suspend fun list(): List<String>
+    public suspend fun list(): PolicyListResponse
 
     /**
      * This endpoint retrieve the policy body for the named policy.
@@ -39,10 +37,10 @@ public interface VaultSystemPolicy {
      * This endpoint adds a new or updates an existing policy. Once a policy is updated, it takes effect immediately to all associated users.
      * [Documentation](https://developer.hashicorp.com/vault/api-docs/system/policy#create-update-policy)
      * @param name Specifies the name of the policy to create. This is specified as part of the request URL.
-     * @param payload Specifies the policy document.
+     * @param policy Specifies the policy document.
      * @return `true` if the policy was created or updated successfully, `false` otherwise.
      */
-    public suspend fun createOrUpdate(name: String, payload: String): Boolean
+    public suspend fun createOrUpdate(name: String, policy: String): Boolean
 
     /**
      * This endpoint deletes the policy with the given name. This will immediately affect all users associated with this policy.
@@ -109,13 +107,13 @@ public class VaultSystemPolicyImpl(
             )
     }
 
-    override suspend fun list(): List<String> {
+    override suspend fun list(): PolicyListResponse {
         val response = client.list {
             url {
                 appendPathSegments(this@VaultSystemPolicyImpl.path)
             }
         }
-        return TODO()
+        return response.decodeBodyJsonDataFieldObject()
     }
 
     override suspend fun read(name: String): Any {
@@ -127,13 +125,13 @@ public class VaultSystemPolicyImpl(
         return TODO()
     }
 
-    override suspend fun createOrUpdate(name: String, payload: String): Boolean {
+    override suspend fun createOrUpdate(name: String, policy: String): Boolean {
+        val payload = PolicyCreateOrUpdatePayload(policy = policy)
         val response = client.post {
             url {
                 appendPathSegments(this@VaultSystemPolicyImpl.path, name)
             }
             contentType(ContentType.Application.Json)
-            TODO("Wrap string payload in a data class")
             setBody(payload)
         }
         return response.status.isSuccess()
