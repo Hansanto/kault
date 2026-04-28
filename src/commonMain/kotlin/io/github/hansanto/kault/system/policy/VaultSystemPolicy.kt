@@ -6,6 +6,7 @@ import io.github.hansanto.kault.extension.decodeBodyJsonDataFieldObject
 import io.github.hansanto.kault.extension.list
 import io.github.hansanto.kault.system.policy.payload.PolicyCreateOrUpdatePayload
 import io.github.hansanto.kault.system.policy.response.PolicyListResponse
+import io.github.hansanto.kault.system.policy.response.PolicyReadResponse
 import io.ktor.client.HttpClient
 import io.ktor.client.request.delete
 import io.ktor.client.request.get
@@ -29,9 +30,9 @@ public interface VaultSystemPolicy {
      * This endpoint retrieve the policy body for the named policy.
      * [Documentation](https://developer.hashicorp.com/vault/api-docs/system/policy#read-policy)
      * @param name Specifies the name of the policy to retrieve. This is specified as part of the request URL.
-     * @return TODO
+     * @return Information about the policy.
      */
-    public suspend fun read(name: String): Any
+    public suspend fun read(name: String): PolicyReadResponse
 
     /**
      * This endpoint adds a new or updates an existing policy. Once a policy is updated, it takes effect immediately to all associated users.
@@ -116,13 +117,13 @@ public class VaultSystemPolicyImpl(
         return response.decodeBodyJsonDataFieldObject()
     }
 
-    override suspend fun read(name: String): Any {
+    override suspend fun read(name: String): PolicyReadResponse {
         val response = client.get {
             url {
                 appendPathSegments(this@VaultSystemPolicyImpl.path, name)
             }
         }
-        return TODO()
+        return response.decodeBodyJsonDataFieldObject()
     }
 
     override suspend fun createOrUpdate(name: String, policy: String): Boolean {

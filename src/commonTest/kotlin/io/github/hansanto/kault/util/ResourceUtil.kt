@@ -16,4 +16,12 @@ fun String.asResourceFile(): Resource = Resource(this)
  * @param name Path of the file that should be present in the resource folder.
  * @return Object of type T.
  */
-inline fun <reified T> readJson(name: String): T = VaultClient.json.decodeFromString(name.asResourceFile().readText())
+inline fun <reified T> readJson(name: String): T = VaultClient.json.decodeFromString(readString(name))
+
+/**
+ * Search a file in the resources test folder and read its content as a string.
+ *
+ * @param name Path of the file that should be present in the resource folder.
+ * @return Content of the file as a string.
+ */
+fun readString(name: String): String = name.asResourceFile().readText()

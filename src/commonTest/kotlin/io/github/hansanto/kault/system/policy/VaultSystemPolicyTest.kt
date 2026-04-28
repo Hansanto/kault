@@ -1,13 +1,17 @@
 package io.github.hansanto.kault.system.policy
 
 import io.github.hansanto.kault.VaultClient
-import io.github.hansanto.kault.system.policy.VaultSystemPolicyTest.PolicyListCreate
+import io.github.hansanto.kault.exception.VaultAPIException
+import io.github.hansanto.kault.system.policy.VaultSystemPolicyTest.PolicyCreate
 import io.github.hansanto.kault.system.policy.response.PolicyListResponse
+import io.github.hansanto.kault.system.policy.response.PolicyReadResponse
 import io.github.hansanto.kault.util.createVaultClient
 import io.github.hansanto.kault.util.deleteAllPolicies
 import io.github.hansanto.kault.util.randomString
 import io.github.hansanto.kault.util.readJson
+import io.github.hansanto.kault.util.readString
 import io.github.hansanto.kault.util.replaceTemplateString
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
@@ -65,10 +69,44 @@ class VaultSystemPolicyTest :
                 expectedReadPath = "cases/system/policy/list/with-options/expected.json",
             )
         }
+
+        should("create a policy with options") {
+            assertCreate(
+                policy = policy,
+                givenPath = "cases/system/policy/create/with-options/given.json",
+                expectedReadPath = "cases/system/policy/create/with-options/expected.json"
+            )
+        }
+
+        should("update a policy with options") {
+            assertUpdate(
+                policy = policy,
+                givenCreatePath = "cases/system/policy/update/with-options/given_create.json",
+                givenPatchPath = "cases/system/policy/update/with-options/given_update.hcl",
+                expectedReadPath = "cases/system/policy/update/with-options/expected.json"
+            )
+        }
+
+        should("delete a non-existing policy should return false") {
+            val name = randomString()
+            policy.delete(name) shouldBe true
+        }
+
+        should("delete an existing policy") {
+            val given = readJson<PolicyCreate>("cases/system/policy/create/with-options/given.json")
+            val name = given.name
+            val policyString = given.policy
+
+            policy.createOrUpdate(name, policyString) shouldBe true
+            policy.delete(name) shouldBe true
+            shouldThrow<VaultAPIException> {
+                policy.read(name)
+            }
+        }
     }) {
 
     @Serializable
-    data class PolicyListCreate(
+    data class PolicyCreate(
         @SerialName("name")
         val name: String,
         @SerialName("policy")
@@ -76,9 +114,9 @@ class VaultSystemPolicyTest :
     )
 }
 
-private suspend inline fun assertList(policy: VaultSystemPolicy, givenPath: String?, expectedReadPath: String,) {
+private suspend inline fun assertList(policy: VaultSystemPolicy, givenPath: String?, expectedReadPath: String) {
     givenPath?.let {
-        val given = readJson<PolicyListCreate>(it)
+        val given = readJson<PolicyCreate>(it)
         policy.createOrUpdate(given.name, given.policy)
     }
     val actual = policy.list()
@@ -88,4 +126,40 @@ private suspend inline fun assertList(policy: VaultSystemPolicy, givenPath: Stri
     )
     actual.keys shouldContainExactlyInAnyOrder expected.keys
     actual.policies shouldContainExactlyInAnyOrder expected.policies
+}
+
+private suspend fun assertCreate(policy: VaultSystemPolicy, givenPath: String, expectedReadPath: String) {
+    val given = readJson<PolicyCreate>(givenPath)
+    val name = given.name
+    val policyString = given.policy
+
+    policy.createOrUpdate(name, policyString) shouldBe true
+
+    val actual = policy.read(name)
+    replaceTemplateString(
+        expected = readJson<PolicyReadResponse>(expectedReadPath),
+        response = actual,
+    ) shouldBe actual
+}
+
+private suspend fun assertUpdate(
+    policy: VaultSystemPolicy,
+    givenCreatePath: String,
+    givenPatchPath: String,
+    expectedReadPath: String
+) {
+    val givenCreate = readJson<PolicyCreate>(givenCreatePath)
+    val givenName = givenCreate.name
+    val givenPolicy = givenCreate.policy
+
+    policy.createOrUpdate(givenName, givenPolicy) shouldBe true
+
+    val updatePolicy = readString(givenPatchPath)
+    policy.createOrUpdate(givenName, updatePolicy) shouldBe true
+
+    val actual = policy.read(givenName)
+    replaceTemplateString(
+        expected = readJson<PolicyReadResponse>(expectedReadPath),
+        response = actual,
+    ) shouldBe actual
 }
