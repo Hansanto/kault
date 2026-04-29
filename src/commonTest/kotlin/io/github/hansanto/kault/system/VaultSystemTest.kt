@@ -5,6 +5,7 @@ import io.github.hansanto.kault.system.audit.VaultSystemAuditImpl
 import io.github.hansanto.kault.system.auth.VaultSystemAuthImpl
 import io.github.hansanto.kault.system.mounts.VaultSystemMountsImpl
 import io.github.hansanto.kault.system.namespaces.VaultSystemNamespacesImpl
+import io.github.hansanto.kault.system.policy.VaultSystemPolicyImpl
 import io.github.hansanto.kault.util.createVaultClient
 import io.github.hansanto.kault.util.randomString
 import io.kotest.core.spec.style.ShouldSpec
@@ -37,6 +38,8 @@ class VaultSystemTest :
                 "${VaultSystem.Default.PATH}/${VaultSystemNamespacesImpl.Default.PATH}"
             (built.mounts as VaultSystemMountsImpl).path shouldBe
                 "${VaultSystem.Default.PATH}/${VaultSystemMountsImpl.Default.PATH}"
+            (built.policy as VaultSystemPolicyImpl).path shouldBe
+                "${VaultSystem.Default.PATH}/${VaultSystemPolicyImpl.Default.PATH}"
         }
 
         should("use custom path if set in builder") {
@@ -46,6 +49,7 @@ class VaultSystemTest :
             val auditPath = randomString()
             val namespacesPath = randomString()
             val mountsPath = randomString()
+            val policyPath = randomString()
 
             val built = VaultSystem(client.client, parentPath) {
                 path = builderPath
@@ -61,11 +65,15 @@ class VaultSystemTest :
                 mounts {
                     path = mountsPath
                 }
+                policy {
+                    path = policyPath
+                }
             }
 
             (built.auth as VaultSystemAuthImpl).path shouldBe "$parentPath/$builderPath/$authPath"
             (built.audit as VaultSystemAuditImpl).path shouldBe "$parentPath/$builderPath/$auditPath"
             (built.namespaces as VaultSystemNamespacesImpl).path shouldBe "$parentPath/$builderPath/$namespacesPath"
             (built.mounts as VaultSystemMountsImpl).path shouldBe "$parentPath/$builderPath/$mountsPath"
+            (built.policy as VaultSystemPolicyImpl).path shouldBe "$parentPath/$builderPath/$policyPath"
         }
     })

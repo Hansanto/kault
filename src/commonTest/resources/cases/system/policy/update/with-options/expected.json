@@ -1,0 +1,4 @@
+{
+  "name": "test",
+  "rules": "path \"auth/token/lookup-self\" {\n  capabilities = [\"read\"]\n}\n\npath \"secret/*\" {\n  capabilities = [\"create\"]\n}\n"
+}

@@ -11,6 +11,8 @@ import io.github.hansanto.kault.system.mounts.VaultSystemMounts
 import io.github.hansanto.kault.system.mounts.VaultSystemMountsImpl
 import io.github.hansanto.kault.system.namespaces.VaultSystemNamespaces
 import io.github.hansanto.kault.system.namespaces.VaultSystemNamespacesImpl
+import io.github.hansanto.kault.system.policy.VaultSystemPolicy
+import io.github.hansanto.kault.system.policy.VaultSystemPolicyImpl
 import io.ktor.client.HttpClient
 
 /**
@@ -35,7 +37,12 @@ public class VaultSystem(
     /**
      * Mounts service.
      */
-    public val mounts: VaultSystemMounts
+    public val mounts: VaultSystemMounts,
+
+    /**
+     * Policy service.
+     */
+    public val policy: VaultSystemPolicy
 ) {
 
     public companion object {
@@ -92,11 +99,17 @@ public class VaultSystem(
          */
         private var mountsBuilder: BuilderDsl<VaultSystemMountsImpl.Builder> = {}
 
+        /**
+         * Builder to define policy service.
+         */
+        private var policyBuilder: BuilderDsl<VaultSystemPolicyImpl.Builder> = {}
+
         override fun buildWithCompletePath(client: HttpClient, completePath: String): VaultSystem = VaultSystem(
             auth = VaultSystemAuthImpl.Builder().apply(authBuilder).build(client, completePath),
             audit = VaultSystemAuditImpl.Builder().apply(auditBuilder).build(client, completePath),
             namespaces = VaultSystemNamespacesImpl.Builder().apply(namespacesBuilder).build(client, completePath),
-            mounts = VaultSystemMountsImpl.Builder().apply(mountsBuilder).build(client, completePath)
+            mounts = VaultSystemMountsImpl.Builder().apply(mountsBuilder).build(client, completePath),
+            policy = VaultSystemPolicyImpl.Builder().apply(policyBuilder).build(client, completePath)
         )
 
         /**
@@ -133,6 +146,15 @@ public class VaultSystem(
          */
         public fun mounts(builder: BuilderDsl<VaultSystemMountsImpl.Builder>) {
             mountsBuilder = builder
+        }
+
+        /**
+         * Sets the policy service builder.
+         *
+         * @param builder Builder to create [VaultSystemPolicyImpl] instance.
+         */
+        public fun policy(builder: BuilderDsl<VaultSystemPolicyImpl.Builder>) {
+            policyBuilder = builder
         }
     }
 }

@@ -1,0 +1,12 @@
+{
+  "keys": [
+    "default",
+    "root",
+    "test"
+  ],
+  "policies": [
+    "default",
+    "root",
+    "test"
+  ]
+}

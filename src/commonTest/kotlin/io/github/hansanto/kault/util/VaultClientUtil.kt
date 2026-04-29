@@ -212,6 +212,21 @@ suspend fun deleteAllNamespaces(client: VaultClient) {
         }
 }
 
+suspend fun deleteAllPolicies(client: VaultClient) {
+    client.auth.setTokenString(ROOT_TOKEN)
+    val policyService = client.system.policy
+
+    runCatching { policyService.list() }
+        .onSuccess { policies ->
+            policies
+                .keys
+                .filter { it != "default" && it != "root" }
+                .forEach {
+                    policyService.delete(it)
+                }
+        }
+}
+
 suspend fun deleteAllKV2Secrets(client: VaultClient) {
     client.auth.setTokenString(ROOT_TOKEN)
     val kv2 = client.secret.kv2
