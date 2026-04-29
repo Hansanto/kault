@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.10.0](https://github.com/Hansanto/kault/compare/v1.9.1...v1.10.0) (2026-04-29)
+
+
+### Features
+
+* system policy ([#312](https://github.com/Hansanto/kault/issues/312)) ([6b53f79](https://github.com/Hansanto/kault/commit/6b53f79ca44b2d3ca1acc4e10df94aafe9f1e2bb))
+
+
+### Bug Fixes
+
+* **deps:** update dependency io.ktor:ktor-version-catalog to v3.4.3 ([#307](https://github.com/Hansanto/kault/issues/307)) ([9c5c2ab](https://github.com/Hansanto/kault/commit/9c5c2abacc0b7e010c41665c1276854f37be17fb))
+
 ## [1.9.1](https://github.com/Hansanto/kault/compare/v1.9.0...v1.9.1) (2026-04-16)
 
 
