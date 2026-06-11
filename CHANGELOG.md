@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.10.1](https://github.com/Hansanto/kault/compare/v1.10.0...v1.10.1) (2026-05-27)
+
+
+### Bug Fixes
+
+* **deps:** update dependency io.ktor:ktor-version-catalog to v3.5.0 ([#320](https://github.com/Hansanto/kault/issues/320)) ([5037f1f](https://github.com/Hansanto/kault/commit/5037f1f28d5dc88a5354772bd5d1af382d264d88))
+* **deps:** update dependency org.jetbrains.kotlinx:kotlinx-coroutines-core to v1.11.0 ([#315](https://github.com/Hansanto/kault/issues/315)) ([041a418](https://github.com/Hansanto/kault/commit/041a4188373c0ba5df6b1063516232229f42c0fa))
+* **deps:** update dependency org.jetbrains.kotlinx:kotlinx-datetime to v0.8.0-0.6.x-compat ([#314](https://github.com/Hansanto/kault/issues/314)) ([2631590](https://github.com/Hansanto/kault/commit/2631590aabaea314d131987427105b692effe15f))
+* **deps:** update dependency org.slf4j:slf4j-simple to v2.0.18 ([#319](https://github.com/Hansanto/kault/issues/319)) ([9ca05ea](https://github.com/Hansanto/kault/commit/9ca05ea2cf05331dab39e6002d5c3e2fc12bbcd7))
+
 ## [1.10.0](https://github.com/Hansanto/kault/compare/v1.9.1...v1.10.0) (2026-04-29)
 
 
