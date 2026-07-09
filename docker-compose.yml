@@ -28,7 +28,7 @@ services:
       - IPC_LOCK
 
   keycloak:
-    image: quay.io/keycloak/keycloak:26.6
+    image: quay.io/keycloak/keycloak:26.7
     container_name: keycloak
     command: start-dev --import-realm --http-relative-path=/
     ports:
