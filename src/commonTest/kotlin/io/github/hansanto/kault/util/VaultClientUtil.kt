@@ -220,7 +220,7 @@ suspend fun deleteAllPolicies(client: VaultClient) {
         .onSuccess { policies ->
             policies
                 .keys
-                .filter { it != "default" && it != "root" }
+                .filter { it != "default" && it != "root" && it != "default-ceiling" }
                 .forEach {
                     policyService.delete(it)
                 }
