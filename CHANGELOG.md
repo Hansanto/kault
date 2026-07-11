@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.10.2](https://github.com/Hansanto/kault/compare/v1.10.1...v1.10.2) (2026-07-11)
+
+
+### Bug Fixes
+
+* **deps:** update dependency io.ktor:ktor-version-catalog to v3.5.1 ([#332](https://github.com/Hansanto/kault/issues/332)) ([71fe56b](https://github.com/Hansanto/kault/commit/71fe56bc27e18c4466af6b1523b3b85d4484650f))
+* **deps:** update dependency org.jetbrains.kotlinx:kotlinx-io-core to v0.9.1 ([#334](https://github.com/Hansanto/kault/issues/334)) ([2af7d9e](https://github.com/Hansanto/kault/commit/2af7d9e6b490cf44c929687866356ad0f5ac6eb6))
+* **deps:** update kotest to v6.2.0 ([#325](https://github.com/Hansanto/kault/issues/325)) ([4d78864](https://github.com/Hansanto/kault/commit/4d78864bf0dc883d1b26c2d41077dc2a685b4406))
+* **deps:** update kotest to v6.2.1 ([#328](https://github.com/Hansanto/kault/issues/328)) ([206ce99](https://github.com/Hansanto/kault/commit/206ce991971988ad5d55b36a52967301d9b362c3))
+* **deps:** update kotest to v6.2.2 ([#335](https://github.com/Hansanto/kault/issues/335)) ([5e7f9de](https://github.com/Hansanto/kault/commit/5e7f9de75951b2b1349f0742818f93df33cbd688))
+
 ## [1.10.1](https://github.com/Hansanto/kault/compare/v1.10.0...v1.10.1) (2026-05-27)
 
 
