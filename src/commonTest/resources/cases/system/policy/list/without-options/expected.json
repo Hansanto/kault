@@ -1,10 +1,12 @@
 {
   "keys": [
     "default",
+    "default-ceiling",
     "root"
   ],
   "policies": [
     "default",
+    "default-ceiling",
     "root"
   ]
 }

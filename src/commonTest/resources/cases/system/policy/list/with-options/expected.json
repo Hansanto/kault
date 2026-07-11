@@ -1,11 +1,13 @@
 {
   "keys": [
     "default",
+    "default-ceiling",
     "root",
     "test"
   ],
   "policies": [
     "default",
+    "default-ceiling",
     "root",
     "test"
   ]
