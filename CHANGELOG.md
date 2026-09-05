@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.10.3](https://github.com/Hansanto/kault/compare/v1.10.2...v1.10.3) (2026-09-05)
+
+
+### Bug Fixes
+
+* **deps:** update dependency io.ktor:ktor-version-catalog to v3.5.2 ([#342](https://github.com/Hansanto/kault/issues/342)) ([1bf0279](https://github.com/Hansanto/kault/commit/1bf027975627a2d5db324cf6a8a4943f7bd3958e))
+* **deps:** update dependency org.slf4j:slf4j-simple to v2.0.19 ([#352](https://github.com/Hansanto/kault/issues/352)) ([0bda70f](https://github.com/Hansanto/kault/commit/0bda70f3f8e57087eb0fe4a83bad6dca75783910))
+* **deps:** update kotest to v6.2.3 ([#341](https://github.com/Hansanto/kault/issues/341)) ([be92f71](https://github.com/Hansanto/kault/commit/be92f71caf0262c0d56eeed3e473906e4f03d211))
+* **deps:** update kotest to v6.2.4 ([#347](https://github.com/Hansanto/kault/issues/347)) ([14af0f1](https://github.com/Hansanto/kault/commit/14af0f195d84bbcce59ed1b3af92847006c270d6))
+* **deps:** update resources to v0.16.0 ([#350](https://github.com/Hansanto/kault/issues/350)) ([1205e45](https://github.com/Hansanto/kault/commit/1205e45720ffa31a0a8fe0b3860167f80cb573da))
+
 ## [1.10.2](https://github.com/Hansanto/kault/compare/v1.10.1...v1.10.2) (2026-07-11)
 
 
