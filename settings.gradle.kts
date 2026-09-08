@@ -21,7 +21,7 @@ dependencyResolutionManagement {
             version("kotlinx-datetime", "0.8.0-0.6.x-compat")
             version("kotlinx-coroutines", "1.11.0")
             version("kotlinx-io", "0.9.1")
-            version("resources", "0.16.1")
+            version("resources", "0.16.2")
             version("slf4j", "2.0.19")
             version("dokka", "2.2.0")
             version("detekt", "1.23.8")
