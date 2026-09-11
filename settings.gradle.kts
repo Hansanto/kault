@@ -16,7 +16,7 @@ dependencyResolutionManagement {
             version("kotlin", "2.4.20")
             version("kotlin-serialization", "1.11.0")
             version("ksp", "2.3.12")
-            version("kotest", "6.2.4")
+            version("kotest", "6.2.5")
             version("kover", "0.9.9")
             version("kotlinx-datetime", "0.8.0-0.6.x-compat")
             version("kotlinx-coroutines", "1.11.0")
