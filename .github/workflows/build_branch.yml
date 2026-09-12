@@ -55,8 +55,6 @@ jobs:
       - name: Initialization
         id: init
         uses: ./.github/actions/init
-        with:
-          jdk: 21
 
       - name: Build
         run: ./gradlew assemble
@@ -82,8 +80,6 @@ jobs:
       - name: Initialization
         id: init
         uses: ./.github/actions/init
-        with:
-          jdk: 21
 
       - name: Setup Kubernetes
         id: kubernetes
