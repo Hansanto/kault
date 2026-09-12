@@ -30,8 +30,6 @@ jobs:
 
       - name: Initialization
         uses: ./.github/actions/init
-        with:
-          jdk: 21
 
       - name: Build
         run: ./gradlew deployCentralPortal
