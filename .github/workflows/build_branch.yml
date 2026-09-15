@@ -71,7 +71,7 @@ jobs:
     #          - os: macos-latest -> Docker-compose command not found
     steps:
       - name: Setup docker-compose
-        uses: KengoTODA/actions-setup-docker-compose@v1.2.6
+        uses: KengoTODA/actions-setup-docker-compose@v1.2.8
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
